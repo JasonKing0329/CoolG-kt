@@ -22,8 +22,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     override fun initView() {
         mBinding.model = mModel
 //        mBinding.btnSetting.setOnClickListener { startActivity(Intent().setClass(this, SettingsActivity::class.java)) }
-        mModel!!.loginObserver.observe(this, Observer { success -> superUser() })
-        mModel!!.fingerprintObserver.observe(this, Observer { check -> checkFingerprint() })
+        mModel.loginObserver.observe(this, Observer { success -> superUser() })
+        mModel.fingerprintObserver.observe(this, Observer { check -> checkFingerprint() })
     }
 
     override fun initData() {

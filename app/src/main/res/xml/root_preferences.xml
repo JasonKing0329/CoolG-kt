@@ -1,0 +1,42 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Safety"
+        app:icon="@drawable/ic_fingerprint_black_36dp">
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_safety_fingerprint"
+            app:summary="@string/pref_safety_fingerprint_desc"
+            app:title="@string/pref_safety_fingerprint_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="HTTP"
+        app:icon="@drawable/ic_http_black_36dp">
+
+        <EditTextPreference
+            app:key="pref_http_server"
+            app:title="Config Server"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            app:key="pref_http_update"
+            app:title="Check Update"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="General"
+        app:icon="@drawable/ic_home_black_36dp">
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_gdb_no_image"
+            app:title="No image mode" />
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_demo_image"
+            app:title="Demo image mode" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

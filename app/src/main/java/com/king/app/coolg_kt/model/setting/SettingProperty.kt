@@ -26,6 +26,18 @@ class SettingProperty: BaseProperty() {
             return getString("pref_version")
         }
 
+        fun isNoImageMode(): Boolean {
+            return getBoolean("pref_gdb_no_image")
+        }
+
+        fun isDemoImageMode(): Boolean {
+            return getBoolean("pref_demo_image")
+        }
+
+        fun getServerUrl(): String? {
+            return getString("pref_http_update")
+        }
+
     }
 
 }

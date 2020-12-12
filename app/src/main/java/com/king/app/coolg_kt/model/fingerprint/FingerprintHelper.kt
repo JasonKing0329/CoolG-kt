@@ -35,7 +35,7 @@ class FingerprintHelper {
             .setTitle("指纹验证")
             .setDescription("请验证指纹登录应用")
             .setNegativeButton("取消", context.getMainExecutor(), DialogInterface.OnClickListener { dialogInterface, I ->
-                // ToastUtil.showToast(mContext, "Cancel")
+                onFingerResultListener?.onCancel()
             })
             .build()
 

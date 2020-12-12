@@ -11,6 +11,8 @@ import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
 import com.king.app.coolg_kt.utils.AppUtil
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.setting.SettingsActivity
+import com.king.app.coolg_kt.utils.DebugLog
 import com.tbruyelle.rxpermissions3.RxPermissions
 
 class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
@@ -21,7 +23,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 
     override fun initView() {
         mBinding.model = mModel
-//        mBinding.btnSetting.setOnClickListener { startActivity(Intent().setClass(this, SettingsActivity::class.java)) }
+        mBinding.btnSetting.setOnClickListener { startActivity(Intent().setClass(this, SettingsActivity::class.java)) }
         mModel.loginObserver.observe(this, Observer { success -> superUser() })
         mModel.fingerprintObserver.observe(this, Observer { check -> checkFingerprint() })
     }
@@ -37,12 +39,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             .subscribe({ isGrant ->
-                if (SettingProperty.isEnableFingerPrint()) {
-                    checkFingerprint()
-                }
-                else {
-                    initCreate()
-                }
+                initCreate()
             }, { throwable ->
                 throwable.printStackTrace()
                 finish()
@@ -57,7 +54,16 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
         var helper = FingerprintHelper()
         helper.onFingerResultListener = object : OnFingerResultListener {
             override fun fingerResult(result: Boolean) {
-                initCreate()
+                if (result) {
+                    superUser()
+                }
+                else {
+                    initCreate()
+                }
+            }
+
+            override fun onCancel() {
+                finish()
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -71,8 +77,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun superUser() {
-//        startActivity(Intent().setClass(this, HomeActivity::class.java))
-//        finish()
+        startActivity(Intent().setClass(this, SettingsActivity::class.java))
+        finish()
     }
 
 }

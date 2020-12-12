@@ -8,7 +8,9 @@ import androidx.room.PrimaryKey
 data class Tag (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
+    @ColumnInfo(name = "NAME")
     var name: String? = null,
+    @ColumnInfo(name = "TYPE")
     var type:Int = 0
 )

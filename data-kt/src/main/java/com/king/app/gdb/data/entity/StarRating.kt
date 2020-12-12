@@ -15,15 +15,23 @@ import java.math.BigDecimal
 data class StarRating (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    @ColumnInfo(name = "star_id")
+    var id: Long?,
+    @ColumnInfo(name = "STAR_ID")
     var starId: Long = 0,
+    @ColumnInfo(name = "FACE")
     var face:Float = 0f,
+    @ColumnInfo(name = "BODY")
     var body:Float = 0f,
+    @ColumnInfo(name = "SEXUALITY")
     var sexuality:Float = 0f,
+    @ColumnInfo(name = "DK")
     var dk:Float = 0f,
+    @ColumnInfo(name = "PASSION")
     var passion:Float = 0f,
+    @ColumnInfo(name = "VIDEO")
     var video:Float = 0f,
+    @ColumnInfo(name = "COMPLEX")
     var complex:Float = 0f,
+    @ColumnInfo(name = "PREFER")
     var prefer:Float = 0f
 )

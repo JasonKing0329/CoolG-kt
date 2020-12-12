@@ -9,11 +9,11 @@ import androidx.room.PrimaryKey
 data class TagStar (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
 
-    @ColumnInfo(name = "tag_id")
+    @ColumnInfo(name = "TAG_ID")
     var tagId: Long = 0,
 
-    @ColumnInfo(name = "star_id")
+    @ColumnInfo(name = "STAR_ID")
     var starId: Long = 0
 )

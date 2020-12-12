@@ -12,7 +12,7 @@ import com.king.app.coolg_kt.CoolApplication
 abstract class BaseProperty {
 
     companion object {
-        val PREF_NAME = "com.king.app.jgallery_preferences.xml"
+        val PREF_NAME = "com.king.app.coolg_kt_preferences.xml"
         fun getPrefFolder():String {
             return CoolApplication.instance.cacheDir.parent + "/shared_prefs/"
         }

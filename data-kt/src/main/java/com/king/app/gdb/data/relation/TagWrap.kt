@@ -15,7 +15,7 @@ data class TagRecordWrap(
     @Embedded
     var bean: TagRecord,
 
-    @Relation(parentColumn = "tag_id",
+    @Relation(parentColumn = "TAG_ID",
         entityColumn = "_id")
     var tag: Tag? = null
 )
@@ -23,7 +23,7 @@ data class TagStarWrap(
     @Embedded
     var bean: TagStar,
 
-    @Relation(parentColumn = "tag_id",
+    @Relation(parentColumn = "TAG_ID",
         entityColumn = "_id")
     var tag: Tag? = null
 )

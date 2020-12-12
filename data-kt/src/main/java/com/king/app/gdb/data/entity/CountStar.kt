@@ -13,7 +13,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "count_star")
 data class CountStar (
     @PrimaryKey
-    @ColumnInfo(name = "star_id")
-    var starId: Long,
+    @ColumnInfo(name = "_id")
+    var id: Long?,
+    @ColumnInfo(name = "RANK")
     var rank: Int = 0
 )

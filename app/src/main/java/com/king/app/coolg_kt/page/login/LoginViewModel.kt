@@ -7,15 +7,20 @@ import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
+import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.AppConfig
+import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.coolg_kt.utils.MD5Util
-import com.king.app.jgallery.model.setting.SettingProperty
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
+import java.io.FilenameFilter
 
 /**
  * 描述:
@@ -94,23 +99,54 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
 
     private fun prepareData(): Observable<Boolean> {
         return Observable.create { e ->
-//
-//            // 每次进入导出一次数据库
-//            DataExporter.execute()
-//
-//            // 创建base目录
-//            for (path in AppConfig.appDirectories) {
-//                val file = File(path)
-//                if (!file.exists()) {
-//                    file.mkdir()
-//                }
-//            }
+            // 创建base目录
 
-            e.onNext(true)
+            // 创建base目录
+            AppConfig.DIRS.forEach {
+                val file = File(it)
+                if (!file.exists()) {
+                    file.mkdir()
+                }
+            }
+
+            // copy demo images
+            if (AppConfig.DEMO_IMAGE_VERSION != SettingProperty.getDemoImageVersion()) {
+                SettingProperty.setDemoImageVersion(AppConfig.DEMO_IMAGE_VERSION)
+                FileUtil.deleteFilesUnderFolder(File(AppConfig.GDB_IMG_DEMO))
+                FileUtil.copyAssets("img", AppConfig.GDB_IMG_DEMO)
+            }
+
+            CoolApplication.instance.createDatabase()
+
+            // 检查扩展配置
+            val hasPref = checkExtendConf()
+
+            e.onNext(hasPref)
         }
     }
 
-    fun checkPassword(pwd: String?) {
+    /**
+     * 检查配置目录是否存在默认配置文件
+     * @return
+     */
+    private fun checkExtendConf(): Boolean {
+        val files = File(AppConfig.APP_DIR_CONF_PREF_DEF).listFiles(FilenameFilter { dir, name -> name.startsWith(AppConfig.PREF_NAME) })
+        files.forEach {
+            kotlin.runCatching {
+                val arr = it.name.split("__".toRegex()).toTypedArray()
+                val version = arr[1].split("\\.".toRegex()).toTypedArray()[0]
+                val curVersion: String = SettingProperty.getPrefVersion()
+                DebugLog.e("checkExtendConf version:$version curVersion:$curVersion")
+                if (version != curVersion) {
+                    AppConfig.DISK_PREF_DEFAULT_PATH = it.path
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun checkPassword(pwd: String?) {
         if ("38D08341D686315F" == MD5Util.get16MD5Capital(pwd)) {
             loginObserver.setValue(true)
         } else {

@@ -10,7 +10,7 @@ import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
 import com.king.app.coolg_kt.utils.AppUtil
-import com.king.app.jgallery.model.setting.SettingProperty
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.tbruyelle.rxpermissions3.RxPermissions
 
 class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {

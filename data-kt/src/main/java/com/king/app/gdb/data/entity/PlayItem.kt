@@ -15,11 +15,13 @@ import androidx.room.PrimaryKey
 data class PlayItem (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    @ColumnInfo(name = "order_id")
+    var id: Long?,
+    @ColumnInfo(name = "ORDER_ID")
     var orderId: Long = 0,
-    @ColumnInfo(name = "record_id")
+    @ColumnInfo(name = "RECORD_ID")
     var recordId: Long = 0,
+    @ColumnInfo(name = "URL")
     var url: String? = null,
+    @ColumnInfo(name = "INDEX")
     var index:Int = 0
 )

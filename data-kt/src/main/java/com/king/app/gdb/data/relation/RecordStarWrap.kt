@@ -14,7 +14,7 @@ data class RecordStarWrap (
     @Embedded
     var bean:RecordStar,
 
-    @Relation(parentColumn = "star_id",
+    @Relation(parentColumn = "STAR_ID",
         entityColumn = "_id")
     var star: Star
 )

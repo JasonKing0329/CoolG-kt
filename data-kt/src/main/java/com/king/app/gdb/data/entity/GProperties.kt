@@ -15,8 +15,11 @@ import androidx.room.PrimaryKey
 data class GProperties (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
+    @ColumnInfo(name = "KEY")
     var key: String? = null,
+    @ColumnInfo(name = "VALUE")
     var value: String? = null,
+    @ColumnInfo(name = "OTHER")
     var other: String? = null
 )

@@ -17,16 +17,15 @@ import java.util.*
 data class FavorStar (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-
-    @ColumnInfo(name = "order_id")
+    var id: Long?,
+    @ColumnInfo(name = "ORDER_ID")
     var orderId: Long = 0,
 
-    @ColumnInfo(name = "star_id")
+    @ColumnInfo(name = "STAR_ID")
     var starId: Long = 0,
 
-    @ColumnInfo(name = "create_time")
-    var createTime: Date,
-    @ColumnInfo(name = "update_time")
-    var updateTime: Date
+    @ColumnInfo(name = "CREATE_TIME")
+    var createTime: Long?,
+    @ColumnInfo(name = "UPDATE_TIME")
+    var updateTime: Long?
 )

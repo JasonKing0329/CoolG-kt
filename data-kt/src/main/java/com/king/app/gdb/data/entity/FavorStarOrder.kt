@@ -14,25 +14,27 @@ import java.util.*
  * 创建时间: 2018/3/13 16:59
  */
 @Entity(tableName = "favor_order_star")
- data class FavorStarOrder (
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "_id")
-    var id: Long,
-    var name: String,
+data class FavorStarOrder (
+   @PrimaryKey(autoGenerate = true)
+   @ColumnInfo(name = "_id")
+   var id: Long?,
+   @ColumnInfo(name = "NAME")
+   var name: String?,
 
-    @ColumnInfo(name = "cover_url")
-    var coverUrl: String?,
-    var number:Int = 0,
+   @ColumnInfo(name = "COVER_URL")
+   var coverUrl: String?,
+   @ColumnInfo(name = "NUMBER")
+   var number:Int = 0,
 
-    @ColumnInfo(name = "sort_seq")
-    var sortSeq:Int = 0,
+   @ColumnInfo(name = "SORT_SEQ")
+   var sortSeq:Int = 0,
 
-    @ColumnInfo(name = "create_time")
-    var createTime: Date,
+   @ColumnInfo(name = "CREATE_TIME")
+   var createTime: Long?,
 
-    @ColumnInfo(name = "update_time")
-    var updateTime: Date,
+   @ColumnInfo(name = "UPDATE_TIME")
+   var updateTime: Long?,
 
-    @ColumnInfo(name = "parent_id")
-    var parentId: Long = 0
+   @ColumnInfo(name = "PARENT_ID")
+   var parentId: Long = 0
 )

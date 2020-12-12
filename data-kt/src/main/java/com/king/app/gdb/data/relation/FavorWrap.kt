@@ -15,11 +15,11 @@ data class FavorRecordWrap (
     @Embedded
     var bean: FavorRecord,
 
-    @Relation(parentColumn = "record_id",
+    @Relation(parentColumn = "RECORD_ID",
         entityColumn = "_id")
     var record: Record,
 
-    @Relation(parentColumn = "order_id",
+    @Relation(parentColumn = "ORDER_ID",
         entityColumn = "_id")
     var order: FavorRecordOrder
 )
@@ -29,17 +29,17 @@ data class FavorRecordOrderWrap (
     var bean: FavorRecordOrder,
 
     @Relation(parentColumn = "_id",
-        entityColumn = "parent_id")
+        entityColumn = "PARENT_ID")
     var childList: List<FavorRecordOrder>,
 
-    @Relation(parentColumn = "parent_id",
+    @Relation(parentColumn = "PARENT_ID",
         entityColumn = "_id")
     var parent : FavorRecordOrder,
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id",
         entity = Record::class,
-        associateBy = Junction(FavorRecord::class, parentColumn = "orderId", entityColumn = "record_id")
+        associateBy = Junction(FavorRecord::class, parentColumn = "ORDER_ID", entityColumn = "RECORD_ID")
     )
     var recordList: List<Record>
 
@@ -50,11 +50,11 @@ data class FavorStarWrap (
     @Embedded
     var bean: FavorStar,
 
-    @Relation(parentColumn = "star_id",
+    @Relation(parentColumn = "STAR_ID",
         entityColumn = "_id")
     var star: Star,
 
-    @Relation(parentColumn = "order_id",
+    @Relation(parentColumn = "ORDER_ID",
         entityColumn = "_id")
     var order: FavorStarOrder
 )
@@ -64,17 +64,17 @@ data class FavorStarOrderWrap (
     var bean: FavorStarOrder,
 
     @Relation(parentColumn = "_id",
-        entityColumn = "parent_id")
+        entityColumn = "PARENT_ID")
     var childList: List<FavorStarOrder>,
 
-    @Relation(parentColumn = "parent_id",
+    @Relation(parentColumn = "PARENT_ID",
         entityColumn = "_id")
     var parent : FavorStarOrder,
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id",
         entity = Star::class,
-        associateBy = Junction(FavorStar::class, parentColumn = "orderId", entityColumn = "star_id")
+        associateBy = Junction(FavorStar::class, parentColumn = "ORDER_ID", entityColumn = "STAR_ID")
     )
     var recordList: List<Star>
 

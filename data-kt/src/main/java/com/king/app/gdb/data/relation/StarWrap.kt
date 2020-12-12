@@ -16,17 +16,17 @@ data class StarWrap (
     var bean: Star,
 
     @Relation(parentColumn = "_id",
-        entityColumn = "starId")
+        entityColumn = "STAR_ID")
     var ratings: StarRating? = null,
 
     @Relation(parentColumn = "_id",
-        entityColumn = "starId")
+        entityColumn = "_id")
     var countStar: CountStar? = null,
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id",
         entity = Record::class,
-        associateBy = Junction(RecordStar::class, parentColumn = "star_id", entityColumn = "record_id")
+        associateBy = Junction(RecordStar::class, parentColumn = "STAR_ID", entityColumn = "RECORD_ID")
     )
     var recordList: List<Record>
 
@@ -36,7 +36,7 @@ data class TopStarWrap (
     @Embedded
     var bean:TopStar,
 
-    @Relation(parentColumn = "star_id",
+    @Relation(parentColumn = "STAR_ID",
         entityColumn = "_id")
     var star:Star
 )

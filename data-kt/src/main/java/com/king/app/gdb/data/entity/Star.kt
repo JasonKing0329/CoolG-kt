@@ -16,16 +16,27 @@ import androidx.room.PrimaryKey
 data class Star (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
+    @ColumnInfo(name = "NAME")
     var name: String? = null,
+    @ColumnInfo(name = "RECORDS")
     var records: Int = 0,
+    @ColumnInfo(name = "BETOP")
     var betop: Int = 0,
+    @ColumnInfo(name = "BEBOTTOM")
     var bebottom: Int = 0,
+    @ColumnInfo(name = "AVERAGE")
     var average:Float = 0f,
+    @ColumnInfo(name = "MAX")
     var max: Int = 0,
+    @ColumnInfo(name = "MIN")
     var min: Int = 0,
+    @ColumnInfo(name = "CAVERAGE")
     var caverage:Float = 0f,
+    @ColumnInfo(name = "CMAX")
     var cmax: Int = 0,
+    @ColumnInfo(name = "CMIN")
     var cmin: Int = 0,
+    @ColumnInfo(name = "FAVOR")
     var favor: Int = 0
 )

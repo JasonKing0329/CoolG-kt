@@ -15,52 +15,53 @@ import androidx.room.PrimaryKey
 data class RecordType3w (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
+    @ColumnInfo(name = "SEQUENCE")
     var sequence:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type1")
+    @ColumnInfo(name = "SCORE_FK_TYPE1")
     var scoreFkType1:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type2")
+    @ColumnInfo(name = "SCORE_FK_TYPE2")
     var scoreFkType2:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type3")
+    @ColumnInfo(name = "SCORE_FK_TYPE3")
     var scoreFkType3:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type4")
+    @ColumnInfo(name = "SCORE_FK_TYPE4")
     var scoreFkType4:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type5")
+    @ColumnInfo(name = "SCORE_FK_TYPE5")
     var scoreFkType5:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type6")
+    @ColumnInfo(name = "SCORE_FK_TYPE6")
     var scoreFkType6:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type7")
+    @ColumnInfo(name = "SCORE_FK_TYPE7")
     var scoreFkType7:Int = 0,
 
-    @ColumnInfo(name = "score_fk_type8")
+    @ColumnInfo(name = "SCORE_FK_TYPE8")
     var scoreFkType8:Int = 0,
 
-    @ColumnInfo(name = "score_story")
+    @ColumnInfo(name = "SCORE_STORY")
     var scoreStory:Int = 0,
 
-    @ColumnInfo(name = "score_scene")
+    @ColumnInfo(name = "SCORE_SCENE")
     var scoreScene:Int = 0,
 
-    @ColumnInfo(name = "score_rim")
+    @ColumnInfo(name = "SCORE_RIM")
     var scoreRim:Int = 0,
 
-    @ColumnInfo(name = "score_bjob")
+    @ColumnInfo(name = "SCORE_BJOB")
     var scoreBjob:Int = 0,
 
-    @ColumnInfo(name = "score_fore_play")
+    @ColumnInfo(name = "SCORE_FORE_PLAY")
     var scoreForePlay:Int = 0,
 
-    @ColumnInfo(name = "score_rhythm")
+    @ColumnInfo(name = "SCORE_RHYTHM")
     var scoreRhythm:Int = 0,
 
-    @ColumnInfo(name = "score_cshow")
+    @ColumnInfo(name = "SCORE_CSHOW")
     var scoreCshow:Int = 0
 
 )

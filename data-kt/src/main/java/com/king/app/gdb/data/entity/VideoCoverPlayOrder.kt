@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
 data class VideoCoverPlayOrder (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    @ColumnInfo(name = "order_id")
+    var id: Long?,
+    @ColumnInfo(name = "ORDER_ID")
     var orderId: Long = 0
 )

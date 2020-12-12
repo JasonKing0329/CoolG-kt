@@ -16,16 +16,18 @@ import androidx.room.PrimaryKey
 data class RecordStar (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
 
-    @ColumnInfo(name = "record_id")
+    @ColumnInfo(name = "RECORD_ID")
     var recordId: Long = 0,
 
-    @ColumnInfo(name = "star_id")
+    @ColumnInfo(name = "STAR_ID")
     var starId: Long = 0,
+    @ColumnInfo(name = "TYPE")
     var type:Int = 0,
+    @ColumnInfo(name = "SCORE")
     var score:Int = 0,
 
-    @ColumnInfo(name = "score_c")
+    @ColumnInfo(name = "SCORE_C")
     var scoreC:Int = 0
 )

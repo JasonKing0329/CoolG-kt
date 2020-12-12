@@ -8,9 +8,13 @@ import androidx.room.PrimaryKey
 data class TopStarCategory (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    var name: String? = null,
+    var id: Long?,
+    @ColumnInfo(name = "NAME")
+    var name: String?,
+    @ColumnInfo(name = "INDEX")
     var index:Int = 0,
+    @ColumnInfo(name = "TYPE")
     var type:Int = 0,
+    @ColumnInfo(name = "NUMBER")
     var number:Int = 0
 )

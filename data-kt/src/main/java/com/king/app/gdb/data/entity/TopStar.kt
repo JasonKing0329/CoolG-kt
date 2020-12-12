@@ -9,12 +9,13 @@ import androidx.room.PrimaryKey
 data class TopStar (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    @ColumnInfo(name = "category_id")
+    var id: Long?,
+    @ColumnInfo(name = "CATEGORY_ID")
     var categoryId: Long = 0,
-    @ColumnInfo(name = "star_id")
+    @ColumnInfo(name = "STAR_ID")
     var starId: Long = 0,
+    @ColumnInfo(name = "LEVEL")
     var level:Int = 0,
-    @ColumnInfo(name = "level_index")
+    @ColumnInfo(name = "LEVEL_INDEX")
     var levelIndex:Int = 0
 )

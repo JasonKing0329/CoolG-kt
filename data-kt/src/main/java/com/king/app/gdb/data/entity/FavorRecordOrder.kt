@@ -17,22 +17,24 @@ import java.util.*
 data class FavorRecordOrder (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    var name: String,
+    var id: Long?,
+    @ColumnInfo(name = "NAME")
+    var name: String?,
 
-    @ColumnInfo(name = "cover_url")
+    @ColumnInfo(name = "COVER_URL")
     var coverUrl: String?,
+    @ColumnInfo(name = "NUMBER")
     var number:Int = 0,
 
-    @ColumnInfo(name = "sort_seq")
+    @ColumnInfo(name = "SORT_SEQ")
     var sortSeq:Int = 0,
 
-    @ColumnInfo(name = "create_time")
-    var createTime: Date,
+    @ColumnInfo(name = "CREATE_TIME")
+    var createTime: Long?,
 
-    @ColumnInfo(name = "update_time")
-    var updateTime: Date,
+    @ColumnInfo(name = "UPDATE_TIME")
+    var updateTime: Long?,
 
-    @ColumnInfo(name = "parent_id")
+    @ColumnInfo(name = "PARENT_ID")
     var parentId: Long = 0
 )

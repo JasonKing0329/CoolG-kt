@@ -15,7 +15,9 @@ import androidx.room.PrimaryKey
 data class PlayOrder (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
+    var id: Long?,
+    @ColumnInfo(name = "NAME")
     var name: String? = null,
+    @ColumnInfo(name = "COVER_URL")
     var coverUrl: String? = null
 )

@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.res.Resources
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.king.app.coolg_kt.CoolApplication
+import com.king.app.gdb.data.AppDatabase
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.ObservableTransformer
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -57,4 +59,8 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun getResource(): Resources = getApplication<Application>().resources
+
+    fun getDatabase(): AppDatabase {
+        return CoolApplication.instance.database!!
+    }
 }

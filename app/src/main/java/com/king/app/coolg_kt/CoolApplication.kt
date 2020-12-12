@@ -3,6 +3,8 @@ package com.king.app.coolg_kt
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
+import com.king.app.coolg_kt.conf.AppConfig
+import com.king.app.gdb.data.AppDatabase
 
 /**
  * @description:
@@ -15,6 +17,8 @@ class CoolApplication: Application() {
         lateinit var instance:CoolApplication
     }
 
+    var database: AppDatabase? = null
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -24,5 +28,9 @@ class CoolApplication: Application() {
             val builder = StrictMode.VmPolicy.Builder()
             StrictMode.setVmPolicy(builder.build())
         }
+    }
+
+    fun createDatabase() {
+        database = AppDatabase.getInstance(this, AppConfig.GDB_DB_FULL_PATH)
     }
 }

@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
 data class VideoCoverStar (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    @ColumnInfo(name = "star_id")
+    var id: Long?,
+    @ColumnInfo(name = "STAR_ID")
     var starId: Long = 0
 )

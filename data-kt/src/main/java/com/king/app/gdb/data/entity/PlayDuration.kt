@@ -14,10 +14,12 @@ import androidx.room.PrimaryKey
 data class PlayDuration (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    var id: Long,
-    @ColumnInfo(name = "record_id")
+    var id: Long?,
+    @ColumnInfo(name = "RECORD_ID")
     var recordId: Long = 0,
+    @ColumnInfo(name = "DURATION")
     var duration:Int = 0,
+    @ColumnInfo(name = "TOTAL")
     var total:Int = 0
 
 )

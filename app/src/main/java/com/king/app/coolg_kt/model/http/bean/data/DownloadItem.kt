@@ -14,12 +14,12 @@ class DownloadItem {
     /**
      * 下载文件的文件名
      */
-    var name: String? = null
+    var name: String = ""
 
     /**
      * 下载文件的文件flag
      */
-    var flag: String? = null
+    var flag: String = ""
 
     /**
      * 下载文件的总大小
@@ -29,6 +29,6 @@ class DownloadItem {
     /**
      * 下载后的完整目录(客户端生成)
      */
-    var path: String? = null
+    var path: String = ""
 
 }

@@ -29,4 +29,16 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
+    <!--************************** download **************************-->
+    <string name="download_title">Download</string>
+    <string name="download_empty">No items to download.</string>
+    <string name="download_option_exist">Files below are already existed in file system, select to continue: </string>
+    <string name="download_continue">Continue</string>
+    <string name="gdb_option_download">Click ok to download %d files</string>
+    <string name="gdb_download_done">Download finished</string>
+    <string name="gdb_update_found">Found new GDB database version %s, click ok to update.</string>
+
+
+    <string name="select_all">Select all</string>
+    <string name="unselect_all">Unelect all</string>
 </resources>

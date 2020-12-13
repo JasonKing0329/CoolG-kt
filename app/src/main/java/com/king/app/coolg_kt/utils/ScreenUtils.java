@@ -51,11 +51,11 @@ public class ScreenUtils {
     /**
      * 获得屏幕高度
      *
-     * @param context
      * @return
      */
-    public static int getScreenWidth(Context context) {
-        WindowManager wm = (WindowManager) context
+    public static int getScreenWidth()
+    {
+        WindowManager wm = (WindowManager) CoolApplication.Companion.getInstance()
                 .getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
@@ -65,11 +65,11 @@ public class ScreenUtils {
     /**
      * 获得屏幕宽度
      *
-     * @param context
      * @return
      */
-    public static int getScreenHeight(Context context) {
-        WindowManager wm = (WindowManager) context
+    public static int getScreenHeight()
+    {
+        WindowManager wm = (WindowManager) CoolApplication.Companion.getInstance()
                 .getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
@@ -108,8 +108,8 @@ public class ScreenUtils {
         view.setDrawingCacheEnabled(true);
         view.buildDrawingCache();
         Bitmap bmp = view.getDrawingCache();
-        int width = getScreenWidth(activity);
-        int height = getScreenHeight(activity);
+        int width = getScreenWidth();
+        int height = getScreenHeight();
         Bitmap bp = null;
         bp = Bitmap.createBitmap(bmp, 0, 0, width, height);
         view.destroyDrawingCache();
@@ -147,8 +147,8 @@ public class ScreenUtils {
         activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
         int statusBarHeight = frame.top;
 
-        int width = getScreenWidth(activity);
-        int height = getScreenHeight(activity);
+        int width = getScreenWidth();
+        int height = getScreenHeight();
         Bitmap bp = null;
         bp = Bitmap.createBitmap(bmp, 0, statusBarHeight, width, height
                 - statusBarHeight);
@@ -165,7 +165,7 @@ public class ScreenUtils {
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         int densityDpi = dm.densityDpi;
         float scale = densityDpi / 160;
-        int width = getScreenWidth(context);
+        int width = getScreenWidth();
         return (int) (width / scale);
     }
 
@@ -215,4 +215,10 @@ public class ScreenUtils {
         }
     }
 
+    public static boolean isTablet() {
+        if (CoolApplication.Companion.getInstance().getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -24,7 +24,7 @@ class DownloadDialogBean {
     /**
      * 本地不存在的待下载内容
      */
-    var downloadList: List<DownloadItem>? = null
+    var downloadList: MutableList<DownloadItem>? = null
 
     /**
      * 本地已存在的待下载任务
@@ -34,11 +34,22 @@ class DownloadDialogBean {
     /**
      * 下载目录
      */
-    var savePath: String? = null
+    var savePath: String = ""
 
     /**
      * 直接下载，不提示
      */
     var isShowPreview = false
 
+}
+data class DownloadItemProxy (
+    var item: DownloadItem,
+    var progress:Int = 0
+)
+
+class CheckDownloadBean {
+    var hasNew = false
+    var downloadList = mutableListOf<DownloadItem>()
+    var repeatList = mutableListOf<DownloadItem>()
+    var targetPath: String = ""
 }

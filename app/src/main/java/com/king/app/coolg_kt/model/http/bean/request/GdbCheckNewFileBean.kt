@@ -8,7 +8,7 @@ import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 class GdbCheckNewFileBean {
     var isStarExisted = false
     var isRecordExisted = false
-    var starItems: List<DownloadItem>? = null
-    var recordItems: List<DownloadItem>? = null
+    var starItems = mutableListOf<DownloadItem>()
+    var recordItems = mutableListOf<DownloadItem>()
 
 }

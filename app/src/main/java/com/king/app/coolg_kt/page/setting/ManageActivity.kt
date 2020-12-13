@@ -1,12 +1,19 @@
 package com.king.app.coolg_kt.page.setting
 
+import android.content.DialogInterface
 import androidx.lifecycle.Observer
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityManageBinding
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
+import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.model.http.bean.response.AppCheckBean
+import com.king.app.coolg_kt.page.download.DownloadFragment
+import com.king.app.coolg_kt.page.download.OnDownloadListener
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 
 /**
  * @description:
@@ -78,11 +85,37 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
     }
 
     private fun imagesFound(bean: DownloadDialogBean) {
+        val content = DownloadFragment()
+        content.downloadDialogBean = bean
+        content.onDownloadListener = object : OnDownloadListener {
+            override fun onDownloadFinish(item: DownloadItem) {
 
+            }
+
+            override fun onDownloadFinish() {
+                showMessageLong(getString(R.string.gdb_download_done))
+            }
+        }
+        val fragment = DraggableDialogFragment()
+        fragment.contentFragment = content
+        fragment.setTitle("Download")
+        fragment.fixedHeight = ScreenUtils.getScreenHeight() * 3 / 5
+        fragment.show(supportFragmentManager, "DownloadFragment")
     }
 
     private fun gdbFound(bean: AppCheckBean) {
-
+        val msg = String.format(
+            getString(R.string.gdb_update_found),
+            bean.gdbDabaseVersion
+        )
+        SimpleDialogs().showWarningActionDialog(this, msg
+            , resources.getString(R.string.yes), { dialog, which ->
+                if (which === DialogInterface.BUTTON_POSITIVE) {
+                    mModel.saveDataFromLocal(bean)
+                }
+            }
+            , resources.getString(R.string.no), null
+            , null, null)
     }
 
     private fun downloadDatabase(size: Long, isUploadedDb: Boolean) {

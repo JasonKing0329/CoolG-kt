@@ -118,6 +118,8 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
 
             CoolApplication.instance.createDatabase()
 
+            var list = getDatabase().getRecordDao().getAllRecords()
+
             // 检查扩展配置
             val hasPref = checkExtendConf()
 

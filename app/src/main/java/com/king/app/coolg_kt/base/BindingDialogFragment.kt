@@ -31,7 +31,7 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isCancelable = cancelable
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.BaseDialogFragment)
+        setStyle(STYLE_NORMAL, R.style.BaseDialogFragment)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -2,11 +2,15 @@ package com.king.app.coolg_kt.base
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
+import android.os.Bundle
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.view.dialog.ProgressDialogFragment
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * 描述:
@@ -18,6 +22,12 @@ import com.king.app.coolg_kt.view.dialog.ProgressDialogFragment
 abstract class RootFragment : Fragment() {
 
     private var progressDialogFragment: ProgressDialogFragment? = null
+
+    var compositeDisposable: CompositeDisposable = CompositeDisposable()
+
+    fun addDisposable(disposable: Disposable) {
+        compositeDisposable.add(disposable)
+    }
 
     fun showConfirmMessage(msg: String, listener: DialogInterface.OnClickListener) {
         AlertDialog.Builder(activity)
@@ -92,4 +102,9 @@ abstract class RootFragment : Fragment() {
         Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
     }
 
+    open fun<AC> startPage(target: Class<AC>, bundle: Bundle) {
+        var intent = Intent().setClass(requireContext(), target)
+        intent.putExtra(BaseActivity.KEY_BUNDLE, bundle)
+        startActivity(intent)
+    }
 }

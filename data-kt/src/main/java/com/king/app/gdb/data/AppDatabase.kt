@@ -6,6 +6,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.king.app.gdb.data.dao.PlayOrderDao
+import com.king.app.gdb.data.dao.PropertyDao
 import com.king.app.gdb.data.dao.RecordDao
 import com.king.app.gdb.data.dao.StarDao
 import com.king.app.gdb.data.entity.*
@@ -59,7 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
                     }
                 })
                 .allowMainThreadQueries() //允许主线程查询
-                //                .addMigrations(migration3_4)
+                .addMigrations(DataMigration.MIGRATION_1_11)
                 .build()
         }
     }
@@ -67,6 +69,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getRecordDao(): RecordDao
 
     abstract fun getStarDao(): StarDao
+
+    abstract fun getPlayOrderDao(): PlayOrderDao
+
+    abstract fun getPropertyDao(): PropertyDao
 
     fun destroy() {
         instance = null

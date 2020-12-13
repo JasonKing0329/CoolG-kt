@@ -109,11 +109,7 @@
 
             <ImageView
                 android:id="@+id/iv_arrow_home"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="8dp"
+                style="@style/IvLoginItemArrow"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_home"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_home"
@@ -121,11 +117,7 @@
 
             <ImageView
                 android:id="@+id/iv_arrow_setting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="8dp"
+                style="@style/IvLoginItemArrow"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_setting"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_setting"
@@ -133,11 +125,7 @@
 
             <ImageView
                 android:id="@+id/iv_arrow_manage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="8dp"
+                style="@style/IvLoginItemArrow"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_manage"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_manage"

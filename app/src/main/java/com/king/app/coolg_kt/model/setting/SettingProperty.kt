@@ -35,7 +35,7 @@ class SettingProperty: BaseProperty() {
         }
 
         fun getServerUrl(): String {
-            return getString("pref_http_update")
+            return getString("pref_http_server")
         }
 
     }

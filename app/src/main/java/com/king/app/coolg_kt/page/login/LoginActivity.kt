@@ -14,6 +14,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
+import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
 import com.king.app.coolg_kt.utils.AppUtil
 import com.tbruyelle.rxpermissions3.RxPermissions
@@ -97,12 +98,11 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun goToManage() {
-        TODO("Not yet implemented")
+        startActivity(Intent().setClass(this, ManageActivity::class.java))
     }
 
     private fun goToSetting() {
         startActivity(Intent().setClass(this, SettingsActivity::class.java))
-        finish()
     }
 
     private fun appearNextStep(): Animation? {

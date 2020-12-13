@@ -1,5 +1,7 @@
 package com.king.app.coolg_kt.model.bean
 
+import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
+
 /**
  * @description:
  * @author：Jing
@@ -18,3 +20,25 @@ data class HsvColorBean (
      */
     var type:Int = 0
 )
+class DownloadDialogBean {
+    /**
+     * 本地不存在的待下载内容
+     */
+    var downloadList: List<DownloadItem>? = null
+
+    /**
+     * 本地已存在的待下载任务
+     */
+    var existedList: List<DownloadItem>? = null
+
+    /**
+     * 下载目录
+     */
+    var savePath: String? = null
+
+    /**
+     * 直接下载，不提示
+     */
+    var isShowPreview = false
+
+}

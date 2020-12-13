@@ -67,4 +67,7 @@ class AppHttpClient {
         appService = retrofit.create(AppService::class.java)
     }
 
+    fun getAppService(): AppService {
+        return appService
+    }
 }

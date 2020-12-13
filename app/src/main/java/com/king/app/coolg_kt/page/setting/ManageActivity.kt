@@ -119,7 +119,22 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
     }
 
     private fun downloadDatabase(size: Long, isUploadedDb: Boolean) {
+        val content = DownloadFragment()
+        content.downloadDialogBean = mModel.getDownloadDatabaseBean(size, isUploadedDb)
+        content.onDownloadListener = object : OnDownloadListener {
+            override fun onDownloadFinish(item: DownloadItem) {
+//                mModel.databaseDownloaded(isUploadedDb)
+            }
 
+            override fun onDownloadFinish() {
+
+            }
+        }
+        val fragment = DraggableDialogFragment()
+        fragment.contentFragment = content
+        fragment.setTitle("Download")
+        fragment.fixedHeight = ScreenUtils.getScreenHeight() * 3 / 5
+        fragment.show(supportFragmentManager, "DownloadFragment")
     }
 
 }

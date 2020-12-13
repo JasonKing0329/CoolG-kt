@@ -3,7 +3,7 @@ package com.king.app.gdb.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.king.app.gdb.data.entity.PlayOrder
+import com.king.app.gdb.data.entity.*
 
 /**
  * @description:
@@ -18,4 +18,19 @@ interface PlayOrderDao {
 
     @Insert
     fun insertPlayOrder(order: PlayOrder)
+
+    @Query("select * from play_item")
+    fun getAllPlayItems(): List<PlayItem>
+
+    @Query("select * from play_order")
+    fun getAllPlayOrders(): List<PlayOrder>
+
+    @Query("select * from play_duration")
+    fun getAllPlayDurations(): List<PlayDuration>
+
+    @Query("select * from video_cover_star")
+    fun getVideoCoverStars(): List<VideoCoverStar>
+
+    @Query("select * from video_cover_order")
+    fun getVideoCoverOrders(): List<VideoCoverPlayOrder>
 }

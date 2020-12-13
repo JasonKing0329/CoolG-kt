@@ -18,8 +18,13 @@ import com.king.app.coolg_kt.model.http.bean.response.GdbMoveResponse
 import com.king.app.coolg_kt.model.http.bean.response.GdbRespBean
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.repository.PropertyRepository
+import com.king.app.coolg_kt.utils.FileUtil
+import com.king.app.gdb.data.entity.*
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * @description:
@@ -29,6 +34,8 @@ import java.io.File
 class ManageViewModel(application: Application): BaseViewModel(application) {
 
     var dbVersionText: ObservableField<String> = ObservableField()
+
+    private var mLocalData: LocalData? = null
 
     var imagesObserver: MutableLiveData<DownloadDialogBean> = MutableLiveData()
     var gdbCheckObserver: MutableLiveData<AppCheckBean> = MutableLiveData()
@@ -312,7 +319,107 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun saveDataFromLocal(bean: AppCheckBean) {
+        loadingObserver.value = true
+        saveLocalData()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<LocalData>(getComposite()) {
+                override fun onNext(t: LocalData) {
+                    loadingObserver.value = false
+                    mLocalData = t
+                    readyToDownloadObserver.value = bean.appSize
+                }
 
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message
+                }
+
+            })
     }
 
+    private fun saveLocalData(): Observable<LocalData> {
+        return Observable.create{
+
+            // 将数据库备份至History文件夹
+            val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
+            FileUtil.copyFile(
+                File("${AppConfig.APP_DIR_CONF}/${AppConfig.DB_NAME}"),
+                File("${AppConfig.APP_DIR_DB_HISTORY}/${sdf.format(Date())}.db")
+            )
+
+            // 额外的数据表
+            var data = LocalData(
+                getDatabase().getFavorDao().getAllFavorRecords(),
+                getDatabase().getFavorDao().getAllFavorStars(),
+                getDatabase().getFavorDao().getAllFavorRecordOrders(),
+                getDatabase().getFavorDao().getAllFavorStarOrders(),
+                getDatabase().getStarDao().getAllStarRatings(),
+                getDatabase().getPlayOrderDao().getAllPlayOrders(),
+                getDatabase().getPlayOrderDao().getAllPlayItems(),
+                getDatabase().getPlayOrderDao().getAllPlayDurations(),
+                getDatabase().getPlayOrderDao().getVideoCoverOrders(),
+                getDatabase().getPlayOrderDao().getVideoCoverStars(),
+                getDatabase().getStarDao().getAllTopStarCategory(),
+                getDatabase().getStarDao().getAllTopStar(),
+                getDatabase().getTagDao().getAllTags(),
+                getDatabase().getTagDao().getAllTagRecords(),
+                getDatabase().getTagDao().getAllTagStars()
+            )
+            // 保存star的favor字段
+            // 保存star的favor字段
+            var stars = getDatabase().getStarDao().getAllBasicStars()
+            stars.forEach {star ->
+                if (star.favor > 0) {
+                    star.name?.let { name ->
+                        data.favorMap[name] = star.favor
+                    }
+                }
+            }
+            it.onNext(data)
+            it.onComplete()
+        }
+    }
+
+    fun getDownloadDatabaseBean(
+        size: Long,
+        isUploadedDb: Boolean
+    ): DownloadDialogBean? {
+        val bean = DownloadDialogBean()
+        bean.isShowPreview = false
+        bean.savePath = AppConfig.APP_DIR_CONF
+        val item = DownloadItem()
+        if (isUploadedDb) {
+            item.flag = Command.TYPE_GDB_DATABASE_UPLOAD
+        } else {
+            item.flag = Command.TYPE_GDB_DATABASE
+        }
+        if (size != 0L) {
+            item.size = size
+        }
+        item.name = AppConfig.DB_NAME
+        val list: MutableList<DownloadItem> = ArrayList()
+        list.add(item)
+        bean.downloadList = list
+        return bean
+    }
+
+    data class LocalData (
+        var favorRecordList: List<FavorRecord>,
+        var favorStarList: List<FavorStar>,
+        var favorRecordOrderList: List<FavorRecordOrder>,
+        var favorStarOrderList: List<FavorStarOrder>,
+        var starRatingList: List<StarRating>,
+        var playOrderList: List<PlayOrder>,
+        var playItemList: List<PlayItem>,
+        var playDurationList: List<PlayDuration>,
+        var videoCoverPlayOrders: List<VideoCoverPlayOrder>,
+        var videoCoverStars: List<VideoCoverStar>,
+        var categoryList: List<TopStarCategory>,
+        var categoryStarList: List<TopStar>,
+        var tagList: List<Tag>,
+        var tagRecordList: List<TagRecord>,
+        var tagStarList: List<TagStar>,
+        var favorMap: MutableMap<String, Int> = mutableMapOf()
+    )
 }

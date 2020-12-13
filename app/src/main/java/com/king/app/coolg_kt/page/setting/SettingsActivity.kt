@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.model.http.AppHttpClient
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -29,7 +30,7 @@ class SettingsActivity : AppCompatActivity() {
                     key: String?
                 ) {
                     if ("pref_http_server" == key) {
-
+                        AppHttpClient.getInstance().createRetrofit()
                     }
                 }
 

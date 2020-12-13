@@ -3,16 +3,19 @@ package com.king.app.coolg_kt.page.login
 import android.Manifest
 import android.content.Intent
 import android.os.Build
+import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.ScaleAnimation
 import androidx.lifecycle.Observer
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
-import com.king.app.coolg_kt.utils.AppUtil
-import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.setting.SettingsActivity
-import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.AppUtil
 import com.tbruyelle.rxpermissions3.RxPermissions
 
 class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
@@ -77,8 +80,39 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun superUser() {
+        mBinding.groupLogin.visibility = View.GONE
+        mBinding.groupPass.visibility = View.VISIBLE
+        mBinding.groupPass.startAnimation(appearNextStep())
+        mBinding.tvHome.setOnClickListener { v ->
+            goToHome()
+            finish()
+        }
+        mBinding.tvSetting.setOnClickListener { v -> goToSetting() }
+        mBinding.tvManage.setOnClickListener { v -> goToManage() }
+
+    }
+
+    private fun goToHome() {
+        TODO("Not yet implemented")
+    }
+
+    private fun goToManage() {
+        TODO("Not yet implemented")
+    }
+
+    private fun goToSetting() {
         startActivity(Intent().setClass(this, SettingsActivity::class.java))
         finish()
+    }
+
+    private fun appearNextStep(): Animation? {
+        val set = AnimationSet(true)
+        set.duration = 500
+        val alpha = AlphaAnimation(0f, 1f)
+        set.addAnimation(alpha)
+        val scale = ScaleAnimation(0f, 1f, 0f, 1f, 0.5f, 0.5f)
+        set.addAnimation(scale)
+        return set
     }
 
 }

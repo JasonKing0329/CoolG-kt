@@ -34,7 +34,7 @@ class SettingProperty: BaseProperty() {
             return getBoolean("pref_demo_image")
         }
 
-        fun getServerUrl(): String? {
+        fun getServerUrl(): String {
             return getString("pref_http_update")
         }
 

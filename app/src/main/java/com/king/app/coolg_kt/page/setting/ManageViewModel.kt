@@ -11,18 +11,22 @@ import com.king.app.coolg_kt.model.bean.CheckDownloadBean
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
 import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.Command
+import com.king.app.coolg_kt.model.http.HttpConstants
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.model.http.bean.request.GdbCheckNewFileBean
 import com.king.app.coolg_kt.model.http.bean.request.GdbRequestMoveBean
-import com.king.app.coolg_kt.model.http.bean.response.AppCheckBean
-import com.king.app.coolg_kt.model.http.bean.response.GdbMoveResponse
-import com.king.app.coolg_kt.model.http.bean.response.GdbRespBean
+import com.king.app.coolg_kt.model.http.bean.request.VersionRequest
+import com.king.app.coolg_kt.model.http.bean.response.*
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.http.upload.UploadClient
 import com.king.app.coolg_kt.model.repository.PropertyRepository
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.gdb.data.entity.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import okhttp3.MediaType
+import okhttp3.RequestBody
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -158,11 +162,57 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun prepareUpload(view: View) {
+        loadingObserver.value = true
+        var request = VersionRequest()
+        request.type = HttpConstants.UPLOAD_TYPE_DB
+        AppHttpClient.getInstance().getAppService().getVersion(request)
+            .flatMap { response -> BaseFlatMap.result(response) }
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<VersionResponse>(getComposite()) {
+                override fun onNext(response: VersionResponse) {
+                    loadingObserver.value = false
+                    // 没有上传过，或服务器版本与本地保存的版本号一致，直接提示将上传覆盖
+                    // 没有上传过，或服务器版本与本地保存的版本号一致，直接提示将上传覆盖
+                    if (response.versionCode == null || response.versionCode!! == SettingProperty.getUploadVersion()) {
+                        warningUpload.setValue("本地database将覆盖服务端database，是否继续？")
+                    } else {
+                        warningUpload.setValue("服务器database版本与本地上一次更新不一致，操作将执行本地database覆盖服务端database，是否继续？")
+                    }
+                }
 
+                override fun onError(e: Throwable) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message
+                }
+            })
     }
 
     fun uploadDatabase() {
+        loadingObserver.value = true
+        var partMap = mutableMapOf<String, RequestBody>()
 
+        val file = File(AppConfig.GDB_DB_FULL_PATH)
+        val fileBody = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+        partMap["file\"; filename=\"${file.name}"] = fileBody
+
+        UploadClient.getInstance().getService().uploadDb(partMap)
+            .flatMap { response -> BaseFlatMap.result(response) }
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<UploadResponse>(getComposite()) {
+                override fun onNext(t: UploadResponse) {
+                    loadingObserver.value = false
+                    messageObserver.value = "Upload success"
+                    SettingProperty.setUploadVersion(t.timeStamp)
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message
+                }
+
+            })
     }
 
     fun checkSyncVersion(view: View) {

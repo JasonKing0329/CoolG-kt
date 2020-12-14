@@ -38,6 +38,21 @@ class SettingProperty: BaseProperty() {
             return getString("pref_http_server")
         }
 
+        /**
+         *
+         */
+        fun getUploadVersion(): String {
+            return getString("upload_version")
+        }
+
+        /**
+         *
+         * @param version version name
+         */
+        fun setUploadVersion(version: String) {
+            setString("upload_version", version!!)
+        }
+
     }
 
 }

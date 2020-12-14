@@ -5,4 +5,28 @@
         <attr name="borderWidth" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="StarRatingView">
+        <attr name="starSize" format="dimension" />
+        <attr name="starColor" format="color" />
+        <attr name="starPadding" format="dimension" />
+        <attr name="starSpace" format="dimension" />
+        <attr name="supportHalf" format="boolean" />
+        <attr name="starNumber" format="integer" />
+        <attr name="checkNumber" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="CoverView">
+        <attr name="coverRadius" format="dimension" />
+        <attr name="coverSrc" format="reference" />
+        <attr name="coverText" format="string" />
+        <attr name="coverTextBackgroundColor" format="color" />
+        <attr name="coverTextColor" format="color" />
+        <attr name="coverTextSize" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ScaleImageView">
+        <attr name="ratioWidth" format="integer"/>
+        <attr name="ratioHeight" format="integer"/>
+        <attr name="baseOnHeight" format="boolean"/>
+    </declare-styleable>
 </resources>

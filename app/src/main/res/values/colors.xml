@@ -18,4 +18,5 @@
     <color name="text_sub">#999999</color>
     <color name="text_second">#666666</color>
     <color name="actionbar_bg">#ffffff</color>
+    <color name="actionbar_bk_blue">#00a5c4</color>
 </resources>

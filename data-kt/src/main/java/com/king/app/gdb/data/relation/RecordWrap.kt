@@ -1,6 +1,7 @@
 package com.king.app.gdb.data.relation
 
 import androidx.room.Embedded
+import androidx.room.Ignore
 import androidx.room.Junction
 import androidx.room.Relation
 import com.king.app.gdb.data.entity.*
@@ -36,6 +37,8 @@ data class RecordWrap (
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id")
-    var countRecord: CountRecord? = null
+    var countRecord: CountRecord? = null,
 
+    @Ignore
+    var imageUrl: String? = null
 )

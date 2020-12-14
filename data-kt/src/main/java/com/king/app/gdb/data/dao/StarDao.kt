@@ -1,9 +1,6 @@
 package com.king.app.gdb.data.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.StarWrap
 
@@ -48,7 +45,7 @@ interface StarDao {
     @Query("select count(*) from count_star")
     fun countStarCountSize(): Int
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCountStars(list: List<CountStar>)
 
     @Query("delete from star_rating")

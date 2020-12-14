@@ -37,8 +37,7 @@ data class RecordWrap (
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id")
-    var countRecord: CountRecord? = null,
-
-    @Ignore
+    var countRecord: CountRecord? = null
+) {
     var imageUrl: String? = null
-)
+}

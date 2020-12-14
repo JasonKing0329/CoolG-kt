@@ -370,6 +370,10 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    fun closeDatabase() {
+        getDatabase().destroy()
+    }
+
     fun saveDataFromLocal(bean: AppCheckBean) {
         loadingObserver.value = true
         saveLocalData()
@@ -378,6 +382,8 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
                 override fun onNext(t: LocalData) {
                     loadingObserver.value = false
                     mLocalData = t
+                    // 下载前一定要先关闭当前数据库，否则下载直接替换文件后新的数据库文件会有问题（database disk image is malformed）
+                    closeDatabase()
                     readyToDownloadObserver.value = bean.appSize
                 }
 
@@ -488,6 +494,10 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
                 updatePlayList()
                 updateTags()
                 createCountData()
+                // 数据插入完毕后务必先关闭数据库
+                // 根据调试发现，数据库onOpen后，部分数据可能会写入到gdata.db-wal这个文件中，如果没有执行close，-wal文件会一直存在
+                // 而主数据库文件gdata.db中就会缺少部分数据
+                closeDatabase()
             }
             it.onNext(true)
             it.onComplete()

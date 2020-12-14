@@ -81,6 +81,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getFavorDao(): FavorDao
 
     fun destroy() {
+        Log.e(AppDatabase::class.simpleName, "destroy")
+        instance?.close()
         instance = null
     }
 

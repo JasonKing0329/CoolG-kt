@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.king.app.gdb.data.entity.CountRecord
 import com.king.app.gdb.data.entity.Record
@@ -27,7 +28,7 @@ interface RecordDao {
     @Query("select count(*) from count_record")
     fun countRecordCountSize(): Int
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCountRecords(list: List<CountRecord>)
 
 }

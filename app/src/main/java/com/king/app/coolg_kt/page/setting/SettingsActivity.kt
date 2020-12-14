@@ -7,9 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.base.RootActivity
 import com.king.app.coolg_kt.model.http.AppHttpClient
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : RootActivity() {
+
+    override fun getStatusBarColor(): Int {
+        return resources.getColor(R.color.colorPrimary)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

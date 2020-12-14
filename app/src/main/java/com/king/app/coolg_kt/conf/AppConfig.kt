@@ -42,6 +42,9 @@ object AppConfig {
     var GDB_DB_FULL_PATH = "$APP_DIR_CONF/$DB_NAME"
     var PREF_NAME = "com.jing.app.jjgallery_preferences"
     var DISK_PREF_DEFAULT_PATH: String? = null
+
+    val FILE_NOMEDIA = ".nomedia"
+
     val DIRS = arrayOf(
         APP_ROOT,
         APP_DIR_IMG,
@@ -83,10 +86,10 @@ object AppConfig {
                 createNoMedia(f)
             }
         }
-        val nomediaFile = File(file.path + "/.nomedia")
+        val nomediaFile = File("${file.path}/.$FILE_NOMEDIA")
         if (!nomediaFile.exists()) {
             try {
-                File(file.path, ".nomedia").createNewFile()
+                File(file.path, FILE_NOMEDIA).createNewFile()
             } catch (e: IOException) {
                 e.printStackTrace()
             }

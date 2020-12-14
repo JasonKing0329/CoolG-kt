@@ -32,7 +32,7 @@ abstract class RootActivity : AppCompatActivity() {
         //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
 
         if (updateStatusBarColor()) {
-            ScreenUtils.setStatusBarColor(this, resources.getColor(R.color.white));
+            ScreenUtils.setStatusBarColor(this, getStatusBarColor());
         }
 
         super.onCreate(savedInstanceState)
@@ -43,6 +43,8 @@ abstract class RootActivity : AppCompatActivity() {
      * @return
      */
     open fun updateStatusBarColor(): Boolean = true
+
+    open fun getStatusBarColor():Int = resources.getColor(R.color.white)
 
     fun showConfirmMessage(msg: String, listener: DialogInterface.OnClickListener) {
         AlertDialog.Builder(this)

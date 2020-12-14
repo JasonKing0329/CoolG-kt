@@ -11,6 +11,7 @@
     <color name="yellowF7D23E">#FFF7D23E</color>
     <color name="green34A350">#FF34A350</color>
     <color name="white">#ffffff</color>
+    <color name="white_dim">#f2f2f2</color>
 
     <color name="text_title">#000000</color>
     <color name="text_normal">#333333</color>

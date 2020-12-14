@@ -36,6 +36,8 @@
 
         <activity android:name=".page.setting.ManageActivity"/>
 
+        <service android:name=".service.FileService"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.king.app.coolg_kt.fileProvider"

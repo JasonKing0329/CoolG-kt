@@ -18,6 +18,9 @@ interface RecordDao {
     @Query("select * from record")
     fun getAllRecords(): List<RecordWrap>
 
+    @Query("select * from record")
+    fun getAllBasicRecords(): List<Record>
+
     @Query("select * from record order by SCORE desc")
     fun getAllBasicRecordsOrderByScore(): List<Record>
 

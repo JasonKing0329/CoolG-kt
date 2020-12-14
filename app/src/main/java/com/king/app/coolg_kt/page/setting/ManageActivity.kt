@@ -123,7 +123,7 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
         content.downloadDialogBean = mModel.getDownloadDatabaseBean(size, isUploadedDb)
         content.onDownloadListener = object : OnDownloadListener {
             override fun onDownloadFinish(item: DownloadItem) {
-//                mModel.databaseDownloaded(isUploadedDb)
+                mModel.databaseDownloaded(isUploadedDb)
             }
 
             override fun onDownloadFinish() {

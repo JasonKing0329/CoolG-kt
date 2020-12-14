@@ -33,4 +33,8 @@ class CoolApplication: Application() {
     fun createDatabase() {
         database = AppDatabase.getInstance(this, AppConfig.GDB_DB_FULL_PATH)
     }
+
+    fun reCreateDatabase() {
+        database = AppDatabase.newInstance(this, AppConfig.GDB_DB_FULL_PATH)
+    }
 }

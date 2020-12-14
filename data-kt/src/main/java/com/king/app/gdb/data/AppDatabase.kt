@@ -38,6 +38,11 @@ abstract class AppDatabase : RoomDatabase() {
             return instance!!
         }
 
+        fun newInstance(context: Context, dbPath: String): AppDatabase {
+            instance = buildDatabase(context, dbPath)
+            return instance!!
+        }
+
         private fun buildDatabase(appContext: Context, dbPath: String): AppDatabase {
             Log.e(AppDatabase::class.simpleName, dbPath)
             return Room.databaseBuilder(

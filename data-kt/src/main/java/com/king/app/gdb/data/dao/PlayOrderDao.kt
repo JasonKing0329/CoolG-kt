@@ -33,4 +33,34 @@ interface PlayOrderDao {
 
     @Query("select * from video_cover_order")
     fun getVideoCoverOrders(): List<VideoCoverPlayOrder>
+
+    @Insert
+    fun insertPlayItems(list: List<PlayItem>)
+
+    @Insert
+    fun insertPlayOrders(list: List<PlayOrder>)
+
+    @Insert
+    fun insertPlayDurations(list: List<PlayDuration>)
+
+    @Insert
+    fun insertVideoCoverStars(list: List<VideoCoverStar>)
+
+    @Insert
+    fun insertVideoCoverPlayOrders(list: List<VideoCoverPlayOrder>)
+
+    @Query("delete from play_item")
+    fun deletePlayItems()
+
+    @Query("delete from play_order")
+    fun deletePlayOrders()
+
+    @Query("delete from play_duration")
+    fun deletePlayDurations()
+
+    @Query("delete from video_cover_star")
+    fun deleteVideoCoverStars()
+
+    @Query("delete from video_cover_order")
+    fun deleteVideoCoverPlayOrders()
 }

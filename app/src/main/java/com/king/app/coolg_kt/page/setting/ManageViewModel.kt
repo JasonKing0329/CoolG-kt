@@ -4,6 +4,7 @@ import android.app.Application
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
+import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConfig
 import com.king.app.coolg_kt.model.bean.CheckDownloadBean
@@ -160,8 +161,13 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
 
     }
 
-    fun checkSyncVersion(view: View) {
+    fun uploadDatabase() {
 
+    }
+
+    fun checkSyncVersion(view: View) {
+        // sync无视版本信息
+        warningSync.value = true
     }
 
     fun onReceiveIp(view: View) {
@@ -174,10 +180,6 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
 
     fun moveRecord() {
         requestServeMoveImages(Command.TYPE_RECORD)
-    }
-
-    fun uploadDatabase() {
-
     }
 
     private fun parseCheckStarBean(bean: GdbCheckNewFileBean): ObservableSource<CheckDownloadBean> {
@@ -381,10 +383,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    fun getDownloadDatabaseBean(
-        size: Long,
-        isUploadedDb: Boolean
-    ): DownloadDialogBean? {
+    fun getDownloadDatabaseBean(size: Long, isUploadedDb: Boolean): DownloadDialogBean? {
         val bean = DownloadDialogBean()
         bean.isShowPreview = false
         bean.savePath = AppConfig.APP_DIR_CONF
@@ -402,6 +401,122 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         list.add(item)
         bean.downloadList = list
         return bean
+    }
+
+    fun databaseDownloaded(uploadedDb: Boolean) {
+        loadingObserver.value = true
+        updateLocalData(uploadedDb)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    loadingObserver.value = false
+                    messageObserver.value = "Update successfully"
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message
+                }
+            })
+    }
+
+    /**
+     * 如果是更新的upload数据库，直接替换后就完成了；下载的是默认database，保存本地的其他表单
+     * @param isUploadedDb
+     * @return
+     */
+    private fun updateLocalData(isUploadedDb: Boolean): Observable<Boolean> {
+        return Observable.create {
+            File(AppConfig.GDB_DB_JOURNAL).delete()
+            // 重新加载数据库
+            CoolApplication.instance.reCreateDatabase()
+            if (!isUploadedDb) {
+                updateStarFavorFiled()
+                updateFavorTables()
+                updateStarRelated()
+                updatePlayList()
+                updateTags()
+                createCountData()
+            }
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
+
+    /**
+     * star favor
+     */
+    private fun updateStarFavorFiled() {
+        var stars = getDatabase().getStarDao().getAllBasicStars()
+        stars.forEach { star ->
+            var favor = mLocalData!!.favorMap[star.name]
+            favor?.let {
+                star.favor = favor
+                getDatabase().getStarDao().updateStar(star)
+            }
+        }
+    }
+
+    private fun updateFavorTables() {
+        getDatabase().getFavorDao().deleteFavorRecordOrders()
+        getDatabase().getFavorDao().deleteFavorRecords()
+        getDatabase().getFavorDao().deleteFavorStarOrders()
+        getDatabase().getFavorDao().deleteFavorStars()
+        getDatabase().getFavorDao().insertFavorRecordOrders(mLocalData!!.favorRecordOrderList)
+        getDatabase().getFavorDao().insertFavorRecords(mLocalData!!.favorRecordList)
+        getDatabase().getFavorDao().insertFavorStarOrders(mLocalData!!.favorStarOrderList)
+        getDatabase().getFavorDao().insertFavorStars(mLocalData!!.favorStarList)
+    }
+
+    private fun updateStarRelated() {
+        getDatabase().getStarDao().deleteStarRatings()
+        getDatabase().getStarDao().deleteTopStarCategories()
+        getDatabase().getStarDao().deleteTopStars()
+        getDatabase().getStarDao().insertStarRatings(mLocalData!!.starRatingList)
+        getDatabase().getStarDao().insertTopStarCategories(mLocalData!!.categoryList)
+        getDatabase().getStarDao().insertTopStars(mLocalData!!.categoryStarList)
+    }
+
+    private fun updatePlayList() {
+        getDatabase().getPlayOrderDao().deletePlayDurations()
+        getDatabase().getPlayOrderDao().deletePlayItems()
+        getDatabase().getPlayOrderDao().deletePlayOrders()
+        getDatabase().getPlayOrderDao().deleteVideoCoverPlayOrders()
+        getDatabase().getPlayOrderDao().deleteVideoCoverStars()
+        getDatabase().getPlayOrderDao().insertPlayDurations(mLocalData!!.playDurationList)
+        getDatabase().getPlayOrderDao().insertPlayItems(mLocalData!!.playItemList)
+        getDatabase().getPlayOrderDao().insertPlayOrders(mLocalData!!.playOrderList)
+        getDatabase().getPlayOrderDao().insertVideoCoverPlayOrders(mLocalData!!.videoCoverPlayOrders)
+        getDatabase().getPlayOrderDao().insertVideoCoverStars(mLocalData!!.videoCoverStars)
+    }
+
+    private fun updateTags() {
+        getDatabase().getTagDao().deleteTags()
+        getDatabase().getTagDao().deleteTagStars()
+        getDatabase().getTagDao().deleteTagRecords()
+        getDatabase().getTagDao().insertTags(mLocalData!!.tagList)
+        getDatabase().getTagDao().insertTagStars(mLocalData!!.tagStarList)
+        getDatabase().getTagDao().insertTagRecords(mLocalData!!.tagRecordList)
+    }
+
+    /**
+     * CountStar and CountRecord
+     */
+    private fun createCountData() {
+        var ratings = getDatabase().getStarDao().getAllStarRatingsDesc()
+        var countStars = mutableListOf<CountStar>()
+        ratings.forEachIndexed { index, starRating ->
+            countStars.add(CountStar(starRating.starId, index + 1))
+        }
+        getDatabase().getStarDao().insertCountStars(countStars)
+
+        var records = getDatabase().getRecordDao().getAllBasicRecordsOrderByScore()
+        var countRecords = mutableListOf<CountRecord>()
+        records.forEachIndexed { index, record ->
+            countRecords.add(CountRecord(record.id, index + 1))
+        }
+        getDatabase().getRecordDao().insertCountRecords(countRecords)
     }
 
     data class LocalData (

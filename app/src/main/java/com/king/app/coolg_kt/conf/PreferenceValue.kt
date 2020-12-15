@@ -44,4 +44,15 @@ object PreferenceValue {
     const val GDB_SR_ORDERBY_COCK = 34
     const val GDB_SR_ORDERBY_ASS = 35
 
+    const val SORT_COLUMN_KEY_NAME = "Name"
+    const val SORT_COLUMN_KEY_DATE = "Date"
+    const val SORT_COLUMN_KEY_SCORE = "Score"
+    const val SORT_COLUMN_KEY_PASSION = "Passion"
+    const val SORT_COLUMN_KEY_CUM = "Cum"
+    const val SORT_COLUMN_KEY_FEEL = "ScoreFeel"
+    const val SORT_COLUMN_KEY_SPECIAL = "Special"
+    const val SORT_COLUMN_KEY_STAR = "Star"
+    const val SORT_COLUMN_KEY_BODY = "Body"
+    const val SORT_COLUMN_KEY_COCK = "Cock"
+    const val SORT_COLUMN_KEY_ASS = "Ass"
 }

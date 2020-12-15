@@ -38,19 +38,36 @@ class SettingProperty: BaseProperty() {
             return getString("pref_http_server")
         }
 
-        /**
-         *
-         */
         fun getUploadVersion(): String {
             return getString("upload_version")
         }
 
-        /**
-         *
-         * @param version version name
-         */
         fun setUploadVersion(version: String) {
             setString("upload_version", version!!)
+        }
+
+        fun getTagSortType(): Int {
+            return getInt("pref_tag_sort")
+        }
+
+        fun setTagSortType(type: Int) {
+            setInt("pref_tag_sort", type)
+        }
+
+        fun isRecordSortDesc(): Boolean {
+            return getBoolean("pref_gdb_record_order_desc")
+        }
+
+        fun setRecordSortDesc(desc: Boolean) {
+            setBoolean("pref_gdb_record_order_desc", desc)
+        }
+
+        fun getRecordSortType(): Int {
+            return getInt("pref_gdb_record_order")
+        }
+
+        fun setRecordSortType(type: Int) {
+            setInt("pref_gdb_record_order", type)
         }
 
     }

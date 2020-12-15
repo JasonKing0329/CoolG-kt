@@ -3,7 +3,6 @@ package com.king.app.gdb.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.king.app.gdb.data.entity.Star
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.entity.TagRecord
 import com.king.app.gdb.data.entity.TagStar
@@ -17,6 +16,9 @@ import com.king.app.gdb.data.entity.TagStar
 interface TagDao {
     @Query("select * from tag")
     fun getAllTags(): List<Tag>
+
+    @Query("select * from tag where TYPE=:type")
+    fun getTagsByType(type:Int): List<Tag>
 
     @Query("select * from tag_star")
     fun getAllTagStars(): List<TagStar>
@@ -41,5 +43,17 @@ interface TagDao {
 
     @Query("delete from tag_record")
     fun deleteTagRecords()
+
+    @Query("delete from tag where _id=:tagId")
+    fun deleteTagById(tagId: Long)
+
+    @Query("delete from tag_record where TAG_ID=:tagId")
+    fun deleteTagRecordsByTag(tagId: Long)
+
+    @Query("delete from tag_star where TAG_ID=:tagId")
+    fun deleteTagStarsByTag(tagId: Long)
+
+    @Query("select count(*) from tag where NAME=:name and TYPE=:type")
+    fun getTagCountBy(name: String, type: Int): Int
 
 }

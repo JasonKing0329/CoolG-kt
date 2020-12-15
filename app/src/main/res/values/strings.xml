@@ -6,39 +6,153 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="successful">successful!</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="login">Identity Confirm</string>
+    <string name="error_password">error password</string>
+    <string name="back">Back</string>
     <string name="loading">loading...</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="warning">warning</string>
+    <string name="action_settings">Settings</string>
+    <string name="no_content">No content</string>
+    <string name="save_success">Save success</string>
 
+    <!-- login -->
+    <string name="username">User name</string>
+    <string name="password">Password</string>
+    <string name="signin">Sign in</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="option">Option</string>
+    <string name="app_init">Initializing application&#8230;&#8230;</string>
+    <string name="allno">All no</string>
+    <string name="giveup">Give up</string>
+    <string name="create_folder">Create folder</string>
+    <string name="select_all">Select all</string>
+    <string name="unselect_all">Unelect all</string>
+    <string name="success">Success</string>
+    <string name="failed">Failed</string>
+
+    <!--************************** login **************************-->
+    <string name="login_user">User</string>
+    <string name="login_pwd">Password</string>
+    <string name="login_pwd_error">error</string>
+    <string name="login_fingerprint">Fingerprint Unlock</string>
+    <string name="login_finger_not_register">Fingerprint has never been registered in device, please register first!</string>
+
+    <string name="login_loading_text">Service updating&#8230;&#8230;</string>
+    <string name="login_start_service_insert">Open manage page?</string>
+    <string name="login_extend_pref_exist">Extend preference file existed, replace it with application preference?</string>
+
+    <string name="server_not_conf">Please set server url!</string>
+    <string name="app_update_found">Found new application version %s, click ok to update.</string>
+
+    <!--************************** setting preference **************************-->
+    <string name="pref_header_safety">Safety</string>
+    <string name="pref_header_general">General</string>
     <string name="pref_safety_fingerprint_title">Fingerprint</string>
     <string name="pref_safety_fingerprint_desc">Use fingerprint</string>
+    <string name="pref_general_home_title">Home</string>
+    <string name="setting_gdb_title" translatable="false">GDB</string>
+    <string name="setting_http_title">Network</string>
+    <string name="setting_http_server">Config server</string>
+    <string name="setting_http_download_max">Max download item in same time</string>
+    <string name="setting_http_update">Check update</string>
+    <string name="setting_http_update_gdb">Check GDB database update</string>
+    <string name="setting_http_backup">Backup</string>
+    <string name="setting_http_backup_summary">preference, database, GDB, colors</string>
 
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
+    <string name="setting_gdb_latest_num">Latest records number</string>
+    <string name="setting_gdb_no_image">No image mode</string>
+    <string name="setting_demo_image">Demo image mode</string>
+    <string name="pref_gdb_surf_relate" translatable="false">Auto-relate surf files to record</string>
 
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
+    <string name="login_finger_not_support">Fingerprint is not supported on current device!</string>
 
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!--************************** gdb **************************-->
+    <string name="gdb_star_file_numbers">%d video files</string>
+    <string name="gdb_no_conf">No database found in conf folder.</string>
+    <string name="gdb_sort_asc">ASC</string>
+    <string name="gdb_sort_desc">DESC</string>
+    <string name="gdb_sort_title">Sort</string>
+    <string name="gdb_server_online">Connect to server successfully!</string>
+    <string name="gdb_server_offline">Can\'t connect to server!</string>
+    <string name="gdb_request_fail">Rquest failed!</string>
+    <string name="gdb_option_download">Click ok to download %d files</string>
+    <string name="gdb_download_done">Download finished</string>
+    <string name="gdb_move_record">Request server to move records?</string>
+    <string name="gdb_move_star">Request server to move stars?</string>
+    <string name="gdb_clear_useless">Operation will remove all useless images under gdb record/star folder. Are you sure to continue?</string>
+    <string name="gdb_no_new_images">No new images found.</string>
+    <string name="gdb_rec_filter_min">min</string>
+    <string name="gdb_rec_filter_max">max</string>
+    <string name="gdb_rec_filter_title">Recommend filter</string>
+    <string name="gdb_rec_no_match">No matched record found</string>
+    <string name="gdb_title_star" translatable="false">Stars</string>
+    <string name="gdb_title_record" translatable="false">Records</string>
+    <string name="gdb_title_scene" translatable="false">Scenes</string>
+    <string name="gdb_nav_setting" translatable="false">Navigation setting</string>
+
+    <string name="menu_gdb_download">Open download manager</string>
+    <string name="menu_gdb_check_server">Check update</string>
+    <string name="menu_exit">Exit</string>
+    <string name="menu_filemanager">File manager</string>
+    <string name="menu_by_name">Order by name</string>
+    <string name="menu_by_date">Order by date</string>
+    <string name="menu_by_size">Order by size</string>
+    <string name="menu_by_none">No order</string>
+    <string name="menu_gdb_surf_relate" translatable="false">Relate</string>
+    <string name="menu_gdb_surf_refresh">Refresh</string>
+    <string name="menu_swipe_star" translatable="false">Swipe star</string>
+    <string name="menu_random" translatable="false">Random</string>
+
+    <!--************************** transition **************************-->
+    <string name="trans_surf_center" translatable="false">trans_surf_center</string>
+    <string name="trans_wall" translatable="false">trans_wall</string>
+    <string name="trans_book" translatable="false">trans_book</string>
+    <string name="trans_waterfall" translatable="false">trans_waterfall</string>
+    <string name="gdb_update_found">Found new GDB database version %s, click ok to update.</string>
 
     <!--************************** download **************************-->
     <string name="download_title">Download</string>
     <string name="download_empty">No items to download.</string>
     <string name="download_option_exist">Files below are already existed in file system, select to continue: </string>
     <string name="download_continue">Continue</string>
-    <string name="gdb_option_download">Click ok to download %d files</string>
-    <string name="gdb_download_done">Download finished</string>
-    <string name="gdb_update_found">Found new GDB database version %s, click ok to update.</string>
 
+    <!--************************** update **************************-->
+    <string name="app_is_latest">Applacation is already the latest version.</string>
+    <string name="gdb_is_latest">GDB database is already the latest version.</string>
 
-    <string name="select_all">Select all</string>
-    <string name="unselect_all">Unelect all</string>
+    <!--************************** upload **************************-->
+    <string name="upload_success">Upload success</string>
+    <string name="upload_fail">Upload fail</string>
+    <string name="title_activity_gdb_guide">GdbGuideActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!--************************** game **************************-->
+    <string name="gdb_game_repeat_coach">Repeat coach selected, please re-select</string>
+    <string name="gdb_game_delete_season" translatable="false">Delete operation will delete all data related to this season. Be careful to continue!</string>
+    <string name="gdb_game_battle_result_exist">Battle results of coach %s are existed, continue to replace them?</string>
+
+    <string name="save_image">Save image</string>
+    <string name="show_time">Show time</string>
+
+    <!--************************** transition anim **************************-->
+    <string name="anim_record_page_img" translatable="false">anim_record_page_img</string>
+    <string name="anim_record_page_star1_name" translatable="false">anim_record_page_star1_name</string>
+    <string name="anim_record_page_star2_name" translatable="false">anim_record_page_star2_name</string>
+    <string name="anim_record_page_score" translatable="false">anim_record_page_score</string>
+    <string name="anim_record_page_scene" translatable="false">anim_record_page_scene</string>
+    <string name="anim_record_page_star1_img" translatable="false">anim_record_page_star1_img</string>
+    <string name="anim_record_page_star2_img" translatable="false">anim_record_page_star2_img</string>
+    <string name="menu_view_mode_grid">Grid</string>
+    <string name="menu_view_mode_list">List</string>
+    <string name="menu_view_mode_rich">Rich list</string>
+    <string name="menu_view_mode_circle">Circle list</string>
+
+    <string name="warning_delete_folder">There are %d files in current folder, are you sure to delete them all?</string>
+
 </resources>

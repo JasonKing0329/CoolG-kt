@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TvDialogConfirm"
+            android:layout_alignParentBottom="true"
+            android:text="@string/ok" />
+
+        <RadioGroup
+            android:id="@+id/group_radio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_above="@id/tv_ok"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="20dp">
+            <RadioButton
+                android:id="@+id/rb_asc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gdb_sort_asc"/>
+            <RadioButton
+                android:id="@+id/rb_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:checked="true"
+                android:text="@string/gdb_sort_desc"/>
+        </RadioGroup>
+
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/group_radio"
+            android:numColumns="3"/>
+    </RelativeLayout>
+</layout>

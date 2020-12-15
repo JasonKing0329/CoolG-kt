@@ -10,6 +10,7 @@
     <color name="blue375BF1">#FF375BF1</color>
     <color name="yellowF7D23E">#FFF7D23E</color>
     <color name="green34A350">#FF34A350</color>
+    <color name="red_f1303d">#f1303d</color>
     <color name="white">#ffffff</color>
     <color name="white_dim">#f2f2f2</color>
 
@@ -19,4 +20,5 @@
     <color name="text_second">#666666</color>
     <color name="actionbar_bg">#ffffff</color>
     <color name="actionbar_bk_blue">#00a5c4</color>
+    <color name="actionbar_element">@color/text_normal</color>
 </resources>

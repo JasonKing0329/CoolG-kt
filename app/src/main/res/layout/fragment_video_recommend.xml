@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.record.popup.RecommendBean"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_ok">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/btn_often"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:text="Expressions for record"
+                    android:textAllCaps="false"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/et_sql"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/dlg_recommend_margin_hor"
+                    android:hint="eg. T.score>=400 and T.scene='bed'"
+                    android:textSize="14dp"
+                    android:text="@{bean.sql}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_often" />
+
+                <LinearLayout
+                    android:id="@+id/ll_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/dlg_recommend_margin_hor"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/et_sql">
+
+                    <CheckBox
+                        android:id="@+id/cb_type_all"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{bean.typeAll}"
+                        android:text="All" />
+
+                    <CheckBox
+                        android:id="@+id/cb_type_1v1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{bean.type1v1}"
+                        android:text="1v1" />
+
+                    <CheckBox
+                        android:id="@+id/cb_type_3w"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{bean.type3w}"
+                        android:text="3w" />
+
+                    <CheckBox
+                        android:id="@+id/cb_type_multi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{bean.typeMulti}"
+                        android:text="Multi" />
+
+                    <CheckBox
+                        android:id="@+id/cb_type_together"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{bean.typeTogether}"
+                        android:text="Together" />
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_often_1v1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:text="Expressions for record_type1"
+                    android:textAllCaps="false"
+                    android:visibility="@{bean.isOnlyType1v1() ? View.VISIBLE:View.GONE}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ll_type" />
+
+                <EditText
+                    android:id="@+id/et_sql_1v1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/dlg_recommend_margin_hor"
+                    android:hint="eg. RT.score_cshow>0 and RT.score_fk_type1>0"
+                    android:text="@{bean.sql1v1}"
+                    android:textSize="14dp"
+                    android:visibility="@{bean.isOnlyType1v1() ? View.VISIBLE:View.GONE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_often_1v1" />
+
+                <Button
+                    android:id="@+id/btn_often_3w"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:text="Expressions for record_type3"
+                    android:textAllCaps="false"
+                    android:visibility="@{bean.isOnlyType3w() ? View.VISIBLE:View.INVISIBLE}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/et_sql_1v1" />
+
+                <EditText
+                    android:id="@+id/et_sql_3w"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dlg_recommend_margin_hor"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/dlg_recommend_margin_hor"
+                    android:hint="eg. RT.score_cshow>0 and RT.score_fk_type1>0"
+                    android:text="@{bean.sql3w}"
+                    android:visibility="@{bean.isOnlyType3w() ? View.VISIBLE:View.INVISIBLE}"
+                    android:textSize="14dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_often_3w" />
+
+                <CheckBox
+                    android:id="@+id/cb_online"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="Online"
+                    android:checked="@{bean.online}"
+                    app:layout_constraintBottom_toBottomOf="@+id/btn_often"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/btn_often" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TvDialogConfirmBase"
+            android:layout_width="0dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/ok"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

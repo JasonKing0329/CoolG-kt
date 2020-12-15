@@ -1,9 +1,7 @@
 package com.king.app.gdb.data.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.king.app.gdb.data.entity.CountRecord
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordWrap
@@ -31,4 +29,6 @@ interface RecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCountRecords(list: List<CountRecord>)
 
+    @RawQuery
+    fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
 }

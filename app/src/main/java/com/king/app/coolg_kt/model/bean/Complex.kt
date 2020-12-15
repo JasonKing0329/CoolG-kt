@@ -1,6 +1,8 @@
 package com.king.app.coolg_kt.model.bean
 
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
+import com.king.app.coolg_kt.page.record.popup.RecommendBean
+import com.king.app.gdb.data.RecordCursor
 
 /**
  * @description:
@@ -52,4 +54,18 @@ class CheckDownloadBean {
     var downloadList = mutableListOf<DownloadItem>()
     var repeatList = mutableListOf<DownloadItem>()
     var targetPath: String = ""
+}
+class RecordComplexFilter {
+    var sortType = 0
+    // 固定recordType
+    var recordType: Int? = null
+    var desc = false
+    var nameLike: String? = null
+    var scene: String? = null
+    var tagId: Long = 0
+    var cursor: RecordCursor? = null
+    var filter: RecommendBean? = null
+    var starId: Long = 0
+    var studioId: Long = 0
+
 }

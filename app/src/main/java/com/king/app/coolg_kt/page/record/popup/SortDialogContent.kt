@@ -18,8 +18,6 @@ import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
  */
 class SortDialogContent : DraggableContentFragment<FragmentDialogSortRecordBinding>() {
 
-    private var itemAdapter = ItemAdapter()
-
     var mDesc = false
     var mSortType = 0
     var onSortListener: OnSortListener? = null
@@ -38,6 +36,8 @@ class SortDialogContent : DraggableContentFragment<FragmentDialogSortRecordBindi
         , SortItem(PreferenceValue.SORT_COLUMN_KEY_COCK, PreferenceValue.GDB_SR_ORDERBY_COCK)
         , SortItem(PreferenceValue.SORT_COLUMN_KEY_ASS, PreferenceValue.GDB_SR_ORDERBY_ASS)
     )
+    private lateinit var itemAdapter: ItemAdapter
+
     private var textPadding = 0
     private var focusColor = 0
 
@@ -45,6 +45,8 @@ class SortDialogContent : DraggableContentFragment<FragmentDialogSortRecordBindi
             : FragmentDialogSortRecordBinding = FragmentDialogSortRecordBinding.inflate(inflater)
 
     override fun initData() {
+        itemAdapter = ItemAdapter()
+
         textPadding = ScreenUtils.dp2px(20f)
         focusColor = resources.getColor(R.color.redC93437)
         itemAdapter = ItemAdapter()
@@ -100,11 +102,7 @@ class SortDialogContent : DraggableContentFragment<FragmentDialogSortRecordBindi
             return position.toLong()
         }
 
-        override fun getView(
-            position: Int,
-            convertView: View,
-            parent: ViewGroup
-        ): View {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val textView = TextView(context)
             textView.text = items[position].name
             textView.gravity = Gravity.CENTER

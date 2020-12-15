@@ -147,7 +147,7 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.setTitle("Recommend Setting")
         dialogFragment.contentFragment = content
-        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
+        dialogFragment.maxHeight = ScreenUtils.getScreenHeight() * 2 / 3
         dialogFragment.show(supportFragmentManager, "RecommendFragment")
     }
 

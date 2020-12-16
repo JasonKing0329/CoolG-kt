@@ -165,7 +165,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
     private fun getPathRequest(): PathRequest {
         val request = PathRequest()
         request.path = (mRecord.bean.directory)
-        request.path = (mRecord.bean.name)
+        request.name = (mRecord.bean.name)
         // test code
 //        request.setPath("E:\\temp\\coolg\\server_root\\f_3");
 //        request.setName("large");

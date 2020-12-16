@@ -25,7 +25,7 @@ abstract class BaseProperty {
             return sp.getString(key, "")!!
         }
 
-        fun setString(key: String, value: String) {
+        fun setString(key: String, value: String?) {
             val sp = PreferenceManager.getDefaultSharedPreferences(CoolApplication.instance)
             val editor = sp.edit()
             editor.putString(key, value)

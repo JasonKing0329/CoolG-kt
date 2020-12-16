@@ -1,5 +1,8 @@
 package com.king.app.coolg_kt.model.bean
 
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import com.king.app.coolg_kt.BR
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.gdb.data.RecordCursor
@@ -83,4 +86,18 @@ class TitleValueBean {
 class PassionPoint {
     var key: String? = null
     var content: String? = null
+}
+
+class ImageBean : BaseObservable() {
+    var url: String? = null
+    var width = 0
+    var height = 0
+
+    @get:Bindable
+    var isSelected = false
+        set(selected) {
+            field = selected
+            notifyPropertyChanged(BR.selected)
+        }
+
 }

@@ -42,6 +42,9 @@
         <activity android:name=".page.record.phone.RecordActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.image.ImageManagerActivity"
+            android:screenOrientation="portrait"/>
+
         <service android:name=".service.FileService"/>
 
         <provider

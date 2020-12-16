@@ -1,5 +1,8 @@
 package com.king.app.coolg_kt.model.setting
 
+import com.google.gson.Gson
+import com.king.app.coolg_kt.model.bean.PlayList
+
 /**
  * Desc:
  * @author：Jing Yang
@@ -68,6 +71,29 @@ class SettingProperty: BaseProperty() {
 
         fun setRecordSortType(type: Int) {
             setInt("pref_gdb_record_order", type)
+        }
+
+        fun setPlayList(bean: PlayList?) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: Exception) {
+            }
+            setString("pref_play_list", sql)
+        }
+
+        fun getPlayList(): PlayList {
+            val json = getString("pref_play_list")
+            var bean: PlayList? = null
+            try {
+                bean = Gson().fromJson(json, PlayList::class.java)
+            } catch (e: Exception) {
+            }
+            if (bean == null) {
+                bean = PlayList()
+                bean.list = mutableListOf()
+            }
+            return bean
         }
 
     }

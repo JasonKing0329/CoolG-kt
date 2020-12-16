@@ -50,7 +50,7 @@ object ImageProvider {
         return getImagePath(AppConfig.GDB_IMG_STAR, name, index, null)
     }
 
-    fun getStarPathList(name: String): List<String?> {
+    fun getStarPathList(name: String?): List<String> {
         return getImagePathList(AppConfig.GDB_IMG_STAR, name)
     }
 

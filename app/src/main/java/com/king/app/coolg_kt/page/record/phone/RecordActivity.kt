@@ -28,6 +28,7 @@ import com.king.app.coolg_kt.model.bean.VideoPlayList
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.model.image.ImageProvider.getRecordCuPath
 import com.king.app.coolg_kt.model.setting.ViewProperty
+import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagFragment
 import com.king.app.coolg_kt.page.record.*
@@ -174,11 +175,10 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             tagAdapter!!.notifyDataSetChanged()
         }
         mBinding.ivMore.setOnClickListener {
-//            Router.build("ImageManager")
-//                .with(ImageManagerActivity.EXTRA_TYPE, ImageManagerActivity.TYPE_RECORD)
-//                .with(ImageManagerActivity.EXTRA_DATA, recordId)
-//                .go(this@RecordActivity)
-            TODO()
+            var intent = Intent(this@RecordActivity, ImageManagerActivity::class.java)
+            intent.putExtra(ImageManagerActivity.EXTRA_TYPE, ImageManagerActivity.TYPE_RECORD)
+            intent.putExtra(ImageManagerActivity.EXTRA_DATA, recordId)
+            startActivity(intent)
         }
     }
 

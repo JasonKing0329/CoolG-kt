@@ -66,6 +66,9 @@ interface PlayOrderDao {
     fun deleteVideoCoverPlayOrders()
 
     @Insert
+    fun updatePlayOrder(bean: PlayOrder)
+
+    @Insert
     fun updatePlayDuration(bean: PlayDuration)
 
     @Delete

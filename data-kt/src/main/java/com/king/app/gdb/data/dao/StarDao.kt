@@ -56,4 +56,8 @@ interface StarDao {
 
     @Query("delete from star_category_details")
     fun deleteTopStars()
+
+    @Query("select * from stars where _id=:id")
+    fun getStar(id: Long): Star
+
 }

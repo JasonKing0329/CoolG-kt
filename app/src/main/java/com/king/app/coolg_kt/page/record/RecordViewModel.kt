@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
+import com.king.app.coolg_kt.page.video.PlayListInstance
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.UrlUtil
 import com.king.app.gdb.data.entity.*
@@ -208,7 +209,10 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun playInPlayer() {
-        TODO("Not yet implemented")
+        // 将视频url添加到临时播放列表的末尾
+        PlayListInstance.getInstance().addRecord(mRecord.bean, mPlayUrl)
+        PlayListInstance.getInstance().setPlayIndexAsLast()
+        playVideoInPlayer.value = true
     }
 
     fun refreshTags() {

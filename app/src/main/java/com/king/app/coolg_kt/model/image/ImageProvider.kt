@@ -42,7 +42,7 @@ object ImageProvider {
      * @param indexPackage save the real index, can be null
      * @return
      */
-    fun getStarRandomPath(name: String, indexPackage: IndexPackage?): String? {
+    fun getStarRandomPath(name: String?, indexPackage: IndexPackage?): String? {
         return getImagePath(AppConfig.GDB_IMG_STAR, name, -1, indexPackage)
     }
 

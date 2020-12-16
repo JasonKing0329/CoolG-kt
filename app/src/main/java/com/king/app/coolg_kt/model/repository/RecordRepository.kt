@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.model.bean.PassionPoint
 import com.king.app.coolg_kt.model.bean.RecordComplexFilter
 import com.king.app.coolg_kt.model.bean.TitleValueBean
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
@@ -33,7 +34,12 @@ class RecordRepository: BaseRepository() {
     }
     
     fun getRecordStars(recordId: Long): List<RecordStarWrap> {
-        return getDatabase().getRecordDao().getRecordStars(recordId)
+        var list = getDatabase().getRecordDao().getRecordStars(recordId)
+        // load image url
+        list.forEach {
+            it.imageUrl = ImageProvider.getStarRandomPath(it.star.name, null)
+        }
+        return list
     }
 
     fun getRecordFilter(

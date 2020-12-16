@@ -29,4 +29,29 @@
         <attr name="ratioHeight" format="integer"/>
         <attr name="baseOnHeight" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="PointListView">
+        <attr name="pointSize" format="dimension" />
+        <attr name="pointMargin" format="dimension" />
+        <attr name="pointTextSize" format="dimension" />
+        <attr name="resizeWhenOver" format="boolean" />
+    </declare-styleable>
+
+    <!-- 流式布局 -->
+    <declare-styleable name="FlowLayout">
+        <attr name="android:orientation" />
+        <attr name="layoutDirection" format="enum">
+            <enum name="ltr" value="0"/>
+            <enum name="rtl" value="1"/>
+        </attr>
+        <attr name="debugDraw" format="boolean"/>
+        <attr name="weightDefault" format="float" />
+        <attr name="android:gravity"/>
+    </declare-styleable>
+    <declare-styleable name="FlowLayout_LayoutParams">
+        <attr name="layout_newLine" format="boolean"/>
+        <attr name="layout_weight" format="float"/>
+        <attr name="android:layout_gravity"/>
+    </declare-styleable>
+
 </resources>

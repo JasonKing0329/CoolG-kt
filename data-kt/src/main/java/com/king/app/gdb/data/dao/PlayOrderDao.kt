@@ -1,6 +1,7 @@
 package com.king.app.gdb.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.king.app.gdb.data.entity.*
@@ -63,4 +64,23 @@ interface PlayOrderDao {
 
     @Query("delete from video_cover_order")
     fun deleteVideoCoverPlayOrders()
+
+    @Insert
+    fun updatePlayDuration(bean: PlayDuration)
+
+    @Delete
+    fun deletePlayDuration(bean: PlayDuration)
+
+    @Query("select t.* from play_order t join play_item pi on t._id=pi.ORDER_ID where pi.RECORD_ID=:recordId")
+    fun getRecordOrders(recordId: Long): List<PlayOrder>
+
+    @Query("delete from play_item where RECORD_ID=:recordId")
+    fun deleteRecordFromOrder(recordId: Long)
+
+    @Query("select count(*) from play_item where RECORD_ID=:recordId and ORDER_ID=:orderId")
+    fun countPlayItem(recordId: Long, orderId: Long): Int
+
+    @Query("select * from play_duration where RECORD_ID=:recordId")
+    fun getDurationByRecord(recordId: Long): PlayDuration?
+
 }

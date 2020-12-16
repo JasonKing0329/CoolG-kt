@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp">
+
+        <TextView
+            android:id="@+id/tv_anim_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="View pager animation" />
+
+        <RadioGroup
+            android:id="@+id/group_anim"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rb_random"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Random" />
+
+            <RadioButton
+                android:id="@+id/rb_fixed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fixed" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duration time" />
+
+            <EditText
+                android:id="@+id/et_time"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TvDialogConfirm"
+            android:text="@string/ok"/>
+    </LinearLayout>
+</layout>

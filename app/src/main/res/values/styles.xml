@@ -79,4 +79,41 @@
         <item name="android:layout_width">match_parent</item>
     </style>
 
+    <style name="IvVideoIcon">
+        <item name="android:layout_width">@dimen/video_player_icon_size</item>
+        <item name="android:layout_height">@dimen/video_player_icon_size</item>
+        <item name="android:padding">@dimen/video_player_icon_padding</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="GroupWhiteSecBg">
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+    </style>
+
+    <style name="GroupWhiteSecOnBg">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+    </style>
+
+    <style name="GroupStarSecItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/gdb_record_line_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="IvRecordLineIcon">
+        <item name="android:layout_width">@dimen/record_line_icon_size</item>
+        <item name="android:layout_height">@dimen/record_line_icon_size</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
 </resources>

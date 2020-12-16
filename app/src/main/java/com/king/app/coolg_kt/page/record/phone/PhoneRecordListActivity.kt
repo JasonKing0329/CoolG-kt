@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.record.phone
 
+import android.content.Intent
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
@@ -78,7 +79,9 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
     }
 
     override fun goToRecordPage(record: Record) {
-        TODO("Not yet implemented")
+        var intent = Intent(this, RecordActivity::class.java)
+        intent.putExtra(RecordActivity.EXTRA_RECORD_ID, record.id)
+        startActivity(intent)
     }
 
     override fun addToPlayOrder(data: Record) {

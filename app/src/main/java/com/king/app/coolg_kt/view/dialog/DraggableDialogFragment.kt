@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
-import androidx.databinding.ViewDataBinding
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BindingDialogFragment
 import com.king.app.coolg_kt.databinding.DialogBaseBinding
@@ -136,7 +135,7 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
         this.hideClose = hideClose
     }
 
-    override fun inflateToolbar(layout: Int): View? {
+    override fun inflateToolbar(layout: Int): View {
         val view = layoutInflater.inflate(layout, null)
         mBinding.flToolbar.addView(view)
         return view

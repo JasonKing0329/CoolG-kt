@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="cvv_group_rich_tools" type="id"/>
+    <item name="cvv_iv_next" type="id"/>
+    <item name="cvv_iv_previous" type="id"/>
+    <item name="cvv_iv_list" type="id"/>
+</resources>

@@ -4,6 +4,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.king.app.gdb.data.entity.CountRecord
 import com.king.app.gdb.data.entity.Record
+import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 
 /**
@@ -13,6 +14,9 @@ import com.king.app.gdb.data.relation.RecordWrap
  */
 @Dao
 interface RecordDao {
+
+    @Query("select * from record where _id=:id")
+    fun getRecord(id: Long): RecordWrap
 
     @Query("select * from record")
     fun getAllRecords(): List<RecordWrap>
@@ -31,4 +35,8 @@ interface RecordDao {
 
     @RawQuery
     fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
+
+    @Query("select * from record_star where RECORD_ID=:recordId")
+    fun getRecordStars(recordId: Long): List<RecordStarWrap>
+
 }

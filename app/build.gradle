@@ -76,8 +76,11 @@ dependencies {
     implementation "com.github.tbruyelle:rxpermissions:0.12"
 
     implementation 'com.king.lib:jactionbar:1.1.2'
+    implementation 'com.king.lib:banner:1.0.5'
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
 
+    /*giraffe player*/
+    implementation 'com.github.tcking:giraffeplayer2:0.1.25'
     /*compressor*/
     implementation 'id.zelory:compressor:2.1.0'
 

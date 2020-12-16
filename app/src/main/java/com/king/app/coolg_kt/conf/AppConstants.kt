@@ -9,6 +9,8 @@ object AppConstants {
 
     const val KEY_SCENE_ALL = "All"
 
+    const val RESP_ORDER_ID = "order_id"
+
     val RECORD_SQL_EXPRESSIONS = arrayOf(
         "score > ",
         "score_bareback > 0",

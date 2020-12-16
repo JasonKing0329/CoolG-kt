@@ -13,6 +13,7 @@
     <color name="red_f1303d">#f1303d</color>
     <color name="white">#ffffff</color>
     <color name="white_dim">#f2f2f2</color>
+    <color name="divider">#efefef</color>
 
     <color name="text_title">#000000</color>
     <color name="text_normal">#333333</color>

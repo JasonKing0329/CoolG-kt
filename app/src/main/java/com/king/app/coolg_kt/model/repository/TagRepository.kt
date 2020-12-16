@@ -52,4 +52,15 @@ class TagRepository : BaseRepository() {
         }
         return false
     }
+
+    fun getTagItemCount(type: Int, id: Long?): Int {
+        id?.let {
+            return when(type) {
+                DataConstants.TAG_TYPE_STAR -> getDatabase().getTagDao().countStarTagItems(it)
+                DataConstants.TAG_TYPE_RECORD -> getDatabase().getTagDao().countRecordTagItems(it)
+                else -> 0
+            }
+        }
+        return 0
+    }
 }

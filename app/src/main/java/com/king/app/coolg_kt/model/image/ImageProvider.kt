@@ -20,7 +20,7 @@ object ImageProvider {
      * @param indexPackage save the real index, can be null
      * @return
      */
-    fun getRecordRandomPath(name: String, indexPackage: IndexPackage?): String? {
+    fun getRecordRandomPath(name: String?, indexPackage: IndexPackage?): String? {
         return getImagePath(AppConfig.GDB_IMG_RECORD, name, -1, indexPackage)
     }
 
@@ -28,11 +28,11 @@ object ImageProvider {
         return getImagePath(AppConfig.GDB_IMG_RECORD, name, index, null)
     }
 
-    fun getRecordPathList(name: String): List<String?> {
+    fun getRecordPathList(name: String?): List<String> {
         return getImagePathList(AppConfig.GDB_IMG_RECORD, name)
     }
 
-    fun hasRecordFolder(name: String): Boolean {
+    fun hasRecordFolder(name: String?): Boolean {
         return hasFolder(AppConfig.GDB_IMG_RECORD, name)
     }
 
@@ -58,7 +58,7 @@ object ImageProvider {
         return hasFolder(AppConfig.GDB_IMG_STAR, name)
     }
 
-    private fun hasFolder(parent: String, name: String): Boolean {
+    private fun hasFolder(parent: String, name: String?): Boolean {
         val file = File("$parent/$name")
         return file.exists() && file.isDirectory
     }
@@ -103,10 +103,13 @@ object ImageProvider {
      */
     private fun getImagePath(
         parent: String,
-        name: String,
+        name: String?,
         index: Int,
         indexPackage: IndexPackage?
     ): String? {
+        if (name == null) {
+            return ""
+        }
         if (SettingProperty.isNoImageMode()) {
             return ""
         }
@@ -162,9 +165,9 @@ object ImageProvider {
         return path
     }
 
-    private val demoImages: List<String?>
+    private val demoImages: List<String>
         private get() {
-            val list: MutableList<String?> =
+            val list: MutableList<String> =
                 ArrayList()
             val fileList =
                 File(AppConfig.GDB_IMG_DEMO).listFiles(fileFilter)
@@ -214,13 +217,12 @@ object ImageProvider {
 
     private fun getImagePathList(
         parent: String,
-        name: String
-    ): List<String?> {
+        name: String?
+    ): List<String> {
         if (SettingProperty.isDemoImageMode()) {
             return demoImages
         }
-        val list: MutableList<String?> =
-            ArrayList()
+        val list: MutableList<String> = ArrayList()
         val file = File("$parent/$name")
         val fileList: MutableList<File> =
             ArrayList()
@@ -233,7 +235,7 @@ object ImageProvider {
                     list.add(f.path)
                 }
             }
-            Collections.shuffle(list)
+            list.shuffle()
         }
         return list
     }

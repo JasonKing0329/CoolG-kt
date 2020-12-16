@@ -4,11 +4,16 @@ import android.text.TextUtils
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.PreferenceValue
+import com.king.app.coolg_kt.model.bean.PassionPoint
 import com.king.app.coolg_kt.model.bean.RecordComplexFilter
+import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
+import com.king.app.gdb.data.entity.RecordType1v1
+import com.king.app.gdb.data.entity.RecordType3w
+import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import java.util.*
@@ -19,6 +24,17 @@ import java.util.*
  * @date: 2020/12/15 10:37
  */
 class RecordRepository: BaseRepository() {
+
+    fun getRecord(recordId: Long): Observable<RecordWrap> {
+        return Observable.create {
+            it.onNext(getDatabase().getRecordDao().getRecord(recordId))
+            it.onComplete()
+        }
+    }
+    
+    fun getRecordStars(recordId: Long): List<RecordStarWrap> {
+        return getDatabase().getRecordDao().getRecordStars(recordId)
+    }
 
     fun getRecordFilter(
         sortMode: Int,
@@ -230,6 +246,169 @@ class RecordRepository: BaseRepository() {
 
     private fun isBuildType3w(bean: RecommendBean): Boolean {
         return bean.isOnlyType3w && !TextUtils.isEmpty(bean.sql3w)
+    }
+
+    fun getPassions(record: RecordWrap): List<PassionPoint> {
+        val pointList = mutableListOf<PassionPoint>()
+        if (record.recordType1v1 != null) {
+            getPassionList(pointList, record.recordType1v1!!)
+        } else if (record.recordType3w != null) {
+            getPassionList(pointList, record.recordType3w!!)
+        }
+        return pointList
+    }
+
+    private fun getPassionList(pointList: MutableList<PassionPoint>, record: RecordType3w) {
+        if (record.scoreFkType1 > 0) {
+            val point = PassionPoint()
+            point.key = "For Sit"
+            point.content = record.scoreFkType1.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType2 > 0) {
+            val point = PassionPoint()
+            point.key = "Back Sit"
+            point.content = record.scoreFkType2.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType3 > 0) {
+            val point = PassionPoint()
+            point.key = "For"
+            point.content = record.scoreFkType3.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType4 > 0) {
+            val point = PassionPoint()
+            point.key = "Back"
+            point.content = record.scoreFkType4.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType5 > 0) {
+            val point = PassionPoint()
+            point.key = "Side"
+            point.content = record.scoreFkType5.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType6 > 0) {
+            val point = PassionPoint()
+            point.key = "Double"
+            point.content = record.scoreFkType6.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType7 > 0) {
+            val point = PassionPoint()
+            point.key = "Sequence"
+            point.content = record.scoreFkType7.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType8 > 0) {
+            val point = PassionPoint()
+            point.key = "Special"
+            point.content = record.scoreFkType8.toString() + ""
+            pointList.add(point)
+        }
+    }
+
+    private fun getPassionList(
+        pointList: MutableList<PassionPoint>,
+        record: RecordType1v1
+    ) {
+        if (record.scoreFkType1 > 0) {
+            val point = PassionPoint()
+            point.key = "For Sit"
+            point.content = record.scoreFkType1.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType2 > 0) {
+            val point = PassionPoint()
+            point.key = "Back Sit"
+            point.content = record.scoreFkType2.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType3 > 0) {
+            val point = PassionPoint()
+            point.key = "For Stand"
+            point.content = record.scoreFkType3.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType4 > 0) {
+            val point = PassionPoint()
+            point.key = "Back Stand"
+            point.content = record.scoreFkType4.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType5 > 0) {
+            val point = PassionPoint()
+            point.key = "Side"
+            point.content = record.scoreFkType5.toString() + ""
+            pointList.add(point)
+        }
+        if (record.scoreFkType6 > 0) {
+            val point = PassionPoint()
+            point.key = "Special"
+            point.content = record.scoreFkType6.toString() + ""
+            pointList.add(point)
+        }
+    }
+
+    fun createScoreItems(record: RecordWrap): Observable<List<TitleValueBean>> {
+        return Observable.create {
+            val list = mutableListOf<TitleValueBean>()
+            when (record.bean.type) {
+                DataConstants.VALUE_RECORD_TYPE_1V1 -> getScoreItems(record.recordType1v1, list)
+                DataConstants.VALUE_RECORD_TYPE_3W, DataConstants.VALUE_RECORD_TYPE_MULTI, DataConstants.VALUE_RECORD_TYPE_LONG -> getScoreItems(record.recordType3w, list)
+            }
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
+    private fun getScoreItems(record: RecordType3w?, list: MutableList<TitleValueBean>) {
+        if (record == null) {
+            return
+        }
+        if (record.scoreBjob > 0) {
+            list.add(TitleValueBean("Bjob", record.scoreBjob.toString()))
+        }
+        if (record.scoreCshow > 0) {
+            list.add(TitleValueBean("CShow", record.scoreCshow.toString()))
+        }
+        if (record.scoreForePlay > 0) {
+            list.add(TitleValueBean("Foreplay", record.scoreForePlay.toString()))
+        }
+        if (record.scoreRhythm > 0) {
+            list.add(TitleValueBean("Rhythm", record.scoreRhythm.toString()))
+        }
+        if (record.scoreRim > 0) {
+            list.add(TitleValueBean("Rim", record.scoreRim.toString()))
+        }
+        if (record.scoreStory > 0) {
+            list.add(TitleValueBean("Story", record.scoreStory.toString()))
+        }
+    }
+
+    private fun getScoreItems(record: RecordType1v1?, list: MutableList<TitleValueBean>) {
+        if (record == null) {
+            return
+        }
+        if (record.scoreBjob > 0) {
+            list.add(TitleValueBean("Bjob", record.scoreBjob.toString()))
+        }
+        if (record.scoreCshow > 0) {
+            list.add(TitleValueBean("CShow", record.scoreCshow.toString()))
+        }
+        if (record.scoreForePlay > 0) {
+            list.add(TitleValueBean("Foreplay", record.scoreForePlay.toString()))
+        }
+        if (record.scoreRhythm > 0) {
+            list.add(TitleValueBean("Rhythm", record.scoreRhythm.toString()))
+        }
+        if (record.scoreRim > 0) {
+            list.add(TitleValueBean("Rim", record.scoreRim.toString()))
+        }
+        if (record.scoreStory > 0) {
+            list.add(TitleValueBean("Story", record.scoreStory.toString()))
+        }
     }
 
 }

@@ -1,9 +1,9 @@
 package com.king.app.gdb.data.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.FavorStar
@@ -52,5 +52,20 @@ interface FavorDao {
 
     @Query("delete from favor_order_star")
     fun deleteFavorStarOrders()
+
+    @Update
+    fun updateFavorRecordOrder(bean: FavorRecordOrder)
+
+    @Query("select t.* from favor_order_record t join favor_record fr on t._id=fr.ORDER_ID where fr.RECORD_ID=:recordId")
+    fun getRecordOrders(recordId: Long): List<FavorRecordOrder>
+
+    @Query("delete from favor_record where RECORD_ID=:recordId")
+    fun deleteRecordFromOrder(recordId: Long)
+
+    @Query("select * from favor_record where RECORD_ID=:recordId and ORDER_ID=:orderId")
+    fun getFavorRecordBy(recordId: Long, orderId: Long): FavorRecord?
+
+    @Query("select * from favor_order_record where _id=:orderId")
+    fun getFavorRecordOrderBy(orderId: Long): FavorRecordOrder?
 
 }

@@ -2,6 +2,7 @@ package com.king.app.gdb.data.relation
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.king.app.gdb.data.entity.CountStar
 import com.king.app.gdb.data.entity.RecordStar
 import com.king.app.gdb.data.entity.Star
 
@@ -16,5 +17,11 @@ data class RecordStarWrap (
 
     @Relation(parentColumn = "STAR_ID",
         entityColumn = "_id")
-    var star: Star
-)
+    var star: Star,
+
+    @Relation(parentColumn = "STAR_ID",
+        entityColumn = "_id")
+    var countStar: CountStar?
+) {
+    var imageUrl: String? = null
+}

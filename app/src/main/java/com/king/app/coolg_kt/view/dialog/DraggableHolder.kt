@@ -10,5 +10,5 @@ import android.view.View
 interface DraggableHolder {
     fun dismiss()
     fun dismissAllowingStateLoss()
-    fun inflateToolbar(layout: Int): View?
+    fun inflateToolbar(layout: Int): View
 }

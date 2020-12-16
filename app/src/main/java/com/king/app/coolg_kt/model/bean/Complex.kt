@@ -67,5 +67,20 @@ class RecordComplexFilter {
     var filter: RecommendBean? = null
     var starId: Long = 0
     var studioId: Long = 0
+}
 
+class TitleValueBean {
+    var title: String? = null
+    var value: String? = null
+
+    constructor() {}
+    constructor(title: String?, value: String?) {
+        this.title = title
+        this.value = value
+    }
+
+}
+class PassionPoint {
+    var key: String? = null
+    var content: String? = null
 }

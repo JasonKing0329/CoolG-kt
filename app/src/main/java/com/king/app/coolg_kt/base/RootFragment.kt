@@ -40,7 +40,7 @@ abstract class RootFragment : Fragment() {
     fun showConfirmCancelMessage(
         msg: String,
         okListener: DialogInterface.OnClickListener,
-        cancelListener: DialogInterface.OnClickListener
+        cancelListener: DialogInterface.OnClickListener?
     ) {
         AlertDialog.Builder(activity)
             .setTitle(null)

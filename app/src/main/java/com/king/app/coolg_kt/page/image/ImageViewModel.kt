@@ -36,9 +36,11 @@ class ImageViewModel(application: Application) : BaseViewModel(application) {
 
     fun loadRecordImages(recordId: Long) {
         val record = getDatabase().getRecordDao().getRecord(recordId)
-        titleText.set(record.bean.name)
-        val list = ImageProvider.getRecordPathList(record.bean.name)
-        convertToImages(list)
+        record?.let {
+            titleText.set(it.bean.name)
+            val list = ImageProvider.getRecordPathList(it.bean.name)
+            convertToImages(list)
+        }
     }
 
     private fun convertToImages(list: List<String>) {

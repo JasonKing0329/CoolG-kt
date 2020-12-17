@@ -143,6 +143,40 @@ class RecordRepository: BaseRepository() {
         return buffer
     }
 
+    fun getRecordsBy(bean: RecommendBean): Observable<List<RecordWrap>> {
+        return Observable.create {
+
+            val buffer = StringBuffer()
+            if (isBuildType1v1(bean)) {
+                buildQueryFrom1v1(bean, buffer)
+            } else if (isBuildType3w(bean)) {
+                buildQueryFrom3w(bean, buffer)
+            }
+            val where = StringBuffer()
+            if (bean.isOnline) {
+                appendWhere(where, "T.deprecated=0")
+            }
+            if (!TextUtils.isEmpty(bean.sql)) {
+                appendWhere(where, bean.sql)
+            }
+            // record type
+            // record type
+            appendType(where, bean)
+
+            buffer.append(where.toString())
+
+            buffer.append(" ORDER BY RANDOM()")
+            if (bean.number > 0) {
+                buffer.append(" LIMIT ").append(bean.number)
+            }
+            val sql = "select * from record T ${buffer.toString()}"
+            DebugLog.e(sql)
+            val list = getDatabase().getRecordDao().getRecordsBySql(SimpleSQLiteQuery(sql))
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
     private fun sortByColumn(buffer: StringBuffer, sortValue: Int, desc: Boolean) {
         when (sortValue) {
             PreferenceValue.GDB_SR_ORDERBY_DATE -> {

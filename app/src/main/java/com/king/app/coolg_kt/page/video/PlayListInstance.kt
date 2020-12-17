@@ -106,17 +106,10 @@ class PlayListInstance private constructor() {
         saveList(playList)
     }
 
-    fun addRecord(
-        record: Record?,
-        url: String?
-    ): PlayList.PlayItem? {
-        if (record == null) {
-            return null
-        }
+    fun addRecord(record: Record, url: String?): PlayList.PlayItem {
         val playList = playList
         val existIndex = findExistedItem(playList, url, record.id!!)
-        val item =
-            PlayList.PlayItem()
+        val item = PlayList.PlayItem()
         item.url = url
         item.recordId = record.id!!
         item.name = record.name

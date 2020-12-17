@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
 
+    <color name="black">#000000</color>
     <color name="darkgrey">#A9A9A9</color><!--暗灰色 -->
     <color name="grayef">#efefef</color>
     <color name="redC93437">#FFC93437</color>

@@ -21,7 +21,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
  */
 abstract class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var compositeDisposable: CompositeDisposable = CompositeDisposable()
+    var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     var loadingObserver = MutableLiveData<Boolean>()
     var messageObserver = MutableLiveData<String>()

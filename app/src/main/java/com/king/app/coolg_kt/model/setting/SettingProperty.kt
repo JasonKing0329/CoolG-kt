@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.model.setting
 
 import com.google.gson.Gson
 import com.king.app.coolg_kt.model.bean.PlayList
+import com.king.app.coolg_kt.page.record.popup.RecommendBean
 
 /**
  * Desc:
@@ -94,6 +95,24 @@ class SettingProperty: BaseProperty() {
                 bean.list = mutableListOf()
             }
             return bean
+        }
+
+        fun getVideoRecBean(): RecommendBean {
+            val sql = getString("pref_video_rec_sql")
+            try {
+                return Gson().fromJson(sql, RecommendBean::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return RecommendBean()
+        }
+
+        fun setVideoRecBean(bean: RecommendBean) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("pref_video_rec_sql", sql)
         }
 
     }

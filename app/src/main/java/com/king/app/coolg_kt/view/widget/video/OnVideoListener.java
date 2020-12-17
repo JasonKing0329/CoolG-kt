@@ -8,7 +8,7 @@ package com.king.app.coolg_kt.view.widget.video;
  */
 public interface OnVideoListener {
     int getStartSeek();
-    void updatePlayPosition(int currentPosition);
+    void updatePlayPosition(long currentPosition);
     void onPlayComplete();
     void onPause();
     void onDestroy();

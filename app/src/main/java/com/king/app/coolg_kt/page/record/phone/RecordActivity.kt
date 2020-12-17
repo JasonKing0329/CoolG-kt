@@ -10,11 +10,11 @@ import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import cn.jzvd.Jzvd
 import com.bumptech.glide.Glide
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
@@ -33,20 +33,18 @@ import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagFragment
 import com.king.app.coolg_kt.page.record.*
 import com.king.app.coolg_kt.utils.BannerHelper
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
-import com.king.app.coolg_kt.view.widget.video.OnVideoListener
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import com.king.lib.banner.CoolBannerAdapter
-import tcking.github.com.giraffeplayer2.GiraffePlayer
 import tcking.github.com.giraffeplayer2.Option
 import tcking.github.com.giraffeplayer2.PlayerManager
-import tcking.github.com.giraffeplayer2.VideoInfo
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 
 /**
@@ -131,11 +129,12 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         }
         mBinding.rvPlayOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         mBinding.groupStudio.setOnClickListener { view: View? -> selectStudio() }
-        mBinding.scrollParent.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
-            if (mBinding.videoView.visibility == View.VISIBLE && mBinding.videoView.player.isPlaying) {
-                floatOrEmbedVideo(oldScrollY, scrollY, mBinding.videoView.height)
-            }
-        }
+        // Jzvd小窗快速滑动有BUG，慎用
+//        mBinding.scrollParent.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
+//            if (mBinding.videoView.visibility == View.VISIBLE && mBinding.videoView.isPlaying) {
+//                floatOrEmbedVideo(oldScrollY, scrollY, mBinding.videoView.height)
+//            }
+//        }
         mBinding.ivDesktop.setOnClickListener {
             showConfirmCancelMessage(
                 "即将在电脑上打开视频，是否继续？",
@@ -143,7 +142,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
                 null
             )
         }
-        mBinding.videoView.interceptFullScreenListener { v: View? ->
+        mBinding.videoView.interceptFullScreenListener = View.OnClickListener {
             showConfirmCancelMessage("是否在临时列表中打开，若是，视频将从上一次记录的位置开始播放？",
                 getString(R.string.yes),
                 DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mModel.playInPlayer() },
@@ -198,19 +197,23 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         dialogFragment.show(supportFragmentManager, "TagFragment")
     }
 
+    private var tinySwitchControl: Long = 0
+
     private fun floatOrEmbedVideo(oldScrollY: Int, scrollY: Int, edge: Int) {
+        var current = System.currentTimeMillis()
+        if (current - tinySwitchControl < 3000) {
+            tinySwitchControl = current
+            return
+        }
         // 上滑且超出边界
-        if (scrollY > edge && scrollY > oldScrollY && mBinding.videoView.player
-                .displayModel != GiraffePlayer.DISPLAY_FLOAT) {
-            VideoInfo.floatView_width =
-                resources.getDimensionPixelSize(R.dimen.float_video_width)
-            VideoInfo.floatView_width =
-                resources.getDimensionPixelSize(R.dimen.float_video_height)
-            mBinding.videoView.player.displayModel = GiraffePlayer.DISPLAY_FLOAT
-        } else if (scrollY <= edge && scrollY < oldScrollY && mBinding.videoView.player
-                .displayModel != GiraffePlayer.DISPLAY_NORMAL
-        ) {
-            mBinding.videoView.player.displayModel = GiraffePlayer.DISPLAY_NORMAL
+        if (scrollY > edge && scrollY > oldScrollY && !mBinding.videoView.isTinyScreen) {
+            DebugLog.e("gotoTinyScreen")
+            mBinding.videoView.gotoTinyScreen()
+        }
+        else if (scrollY <= edge && scrollY < oldScrollY && mBinding.videoView.isTinyScreen) {
+            DebugLog.e("cancelTinyScreen")
+            // 快速滑动有BUG，慎用
+            mBinding.videoView.cancelTinyScreen()
         }
     }
 
@@ -300,10 +303,10 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         mModel.bitmapObserver.observe(this, Observer { bitmap: Bitmap ->
             mBinding.banner.visibility = View.GONE
             mBinding.videoView.visibility = View.VISIBLE
-            mBinding.videoView.coverView.scaleType = ImageView.ScaleType.CENTER_CROP
             GlideApp.with(this)
                 .load(bitmap)
-                .into(mBinding.videoView.coverView)
+                .centerCrop()
+                .into(mBinding.videoView.posterImageView)
         })
         mModel.tagsObserver.observe(this,
             Observer { tags: List<Tag> ->
@@ -472,41 +475,21 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
 
     /**
      * init video player
+     * 本页面嵌入式播放视频不做播放时间记录，全屏播放器才记录
      * @param url
      */
     private fun previewVideo(url: String) {
         mBinding.banner.visibility = View.GONE
         mBinding.videoView.visibility = View.VISIBLE
-        mBinding.videoView.coverView.scaleType = ImageView.ScaleType.CENTER_CROP
-        ImageBindingAdapter.setRecordUrl(mBinding.videoView.coverView, mModel.mVideoCover)
         // 本地没有图片，从网络视频获取帧图片
         if (mModel.mVideoCover == null) {
             mModel.loadVideoBitmap()
         }
-        mBinding.videoView.setVideoPath(url)
-        mBinding.videoView.setOnVideoListener(object : OnVideoListener {
-            override fun getStartSeek(): Int {
-                return mModel.getVideoStartSeek()
-            }
+        mBinding.videoView.setUp(url, "")
+        ImageBindingAdapter.setRecordUrl(mBinding.videoView.posterImageView, mModel.mVideoCover)
 
-            override fun updatePlayPosition(currentPosition: Int) {
-                mModel.updatePlayPosition(currentPosition)
-            }
-
-            override fun onPlayComplete() {
-                mModel.resetPlayInDb()
-            }
-
-            override fun onStart() {}
-            override fun onPause() {
-                mModel.updatePlayToDb()
-            }
-
-            override fun onDestroy() {
-                mModel.updatePlayToDb()
-            }
-        })
-        mBinding.videoView.prepare()
+//        mBinding.videoView.setVideoPath(url)
+//        mBinding.videoView.prepare()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -520,7 +503,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     override fun onBackPressed() {
-        if (PlayerManager.getInstance().onBackPressed()) {
+        if (Jzvd.backPress()) {
             return
         }
         super.onBackPressed()
@@ -528,9 +511,10 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
 
     public override fun onPause() {
         super.onPause()
-        if (mBinding != null && mBinding.banner != null) {
+        kotlin.runCatching {
             mBinding.banner.stopAutoPlay()
         }
+        Jzvd.releaseAllVideos()
     }
 
     public override fun onResume() {
@@ -578,9 +562,6 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         super.onDestroy()
         if (mBinding != null && mBinding.banner != null) {
             mBinding.banner.stopAutoPlay()
-        }
-        if (mModel != null) {
-            mModel.updatePlayToDb()
         }
     }
 

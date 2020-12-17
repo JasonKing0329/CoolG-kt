@@ -73,7 +73,6 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
 
     private var mPlayUrl: String? = null
 
-    private var mPlayDuration: PlayDuration? = null
     private val mUrlToSetCover: String? = null
 
     var bitmapObserver: MutableLiveData<Bitmap> = MutableLiveData()
@@ -186,18 +185,21 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    /**
+     * 测试用
+     */
+    private fun testPlayUrl() {
+        mPlayUrl = "http://jzvd.nathen.cn/342a5f7ef6124a4a8faf00e738b8bee4/cf6d9db0bd4d41f59d09ea0a81e918fd-5287d2089db37e62345123a1be272f8b.mp4"
+        videoUrlObserver.value = mPlayUrl
+    }
+
     private fun checkPlayable() {
         AppHttpClient.getInstance().getAppService().getVideoPath(getPathRequest())
             .flatMap { UrlUtil.toVideoUrl(it) }
-            .flatMap {
-                DebugLog.e("toVideoUrl $it")
-                mPlayUrl = it
-                playRepository.getDuration(mRecord.bean.id!!)
-            }
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<PlayDuration>(getComposite()) {
-                override fun onNext(t: PlayDuration) {
-                    mPlayDuration = t
+            .subscribe(object : SimpleObserver<String>(getComposite()) {
+                override fun onNext(t: String) {
+                    mPlayUrl = t
                     DebugLog.e("will play url: $mPlayUrl")
                     videoUrlObserver.value = mPlayUrl
                 }
@@ -314,27 +316,6 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
             val bitmap = retriever.frameAtTime
             it.onNext(bitmap)
             it.onComplete()
-        }
-    }
-
-    fun getVideoStartSeek(): Int {
-        return mPlayDuration?.duration ?: 0
-    }
-
-    fun updatePlayPosition(currentPosition: Int) {
-        mPlayDuration?.duration = currentPosition
-    }
-
-    fun updatePlayToDb() {
-        mPlayDuration?.let {
-            DebugLog.e("duration=" + it.duration)
-            getDatabase().getPlayOrderDao().updatePlayDuration(it)
-        }
-    }
-
-    fun resetPlayInDb() {
-        mPlayDuration?.let {
-            getDatabase().getPlayOrderDao().deletePlayDuration(it)
         }
     }
 

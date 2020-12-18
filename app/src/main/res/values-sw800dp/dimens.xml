@@ -220,4 +220,7 @@
     <dimen name="star_stagger_video_text">16dp</dimen>
     <dimen name="video_player_mode_width">52dp</dimen>
     <dimen name="video_player_mode_height">32dp</dimen>
+    <dimen name="video_back_size">50dp</dimen>
+    <dimen name="video_back_padding">10dp</dimen>
+    <dimen name="video_loading_size">80dp</dimen>
 </resources>

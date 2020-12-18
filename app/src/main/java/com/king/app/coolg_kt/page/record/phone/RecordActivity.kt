@@ -32,6 +32,7 @@ import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagFragment
 import com.king.app.coolg_kt.page.record.*
+import com.king.app.coolg_kt.page.video.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.FormatUtil
@@ -43,9 +44,7 @@ import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import com.king.lib.banner.CoolBannerAdapter
-import tcking.github.com.giraffeplayer2.Option
 import tcking.github.com.giraffeplayer2.PlayerManager
-import tv.danmaku.ijk.media.player.IjkMediaPlayer
 
 /**
  * Desc:
@@ -69,14 +68,6 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     override fun createViewModel(): RecordViewModel = generateViewModel(RecordViewModel::class.java)
 
     override fun initView() {
-        //set global configuration: turn on multiple_requests
-        PlayerManager.getInstance().defaultVideoInfo.addOption(
-            Option.create(
-                IjkMediaPlayer.OPT_CATEGORY_FORMAT,
-                "multiple_requests",
-                1L
-            )
-        )
         mBinding.rvStars.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         mBinding.rvScores.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.actionbar.setOnBackListener { onBackPressed() }
@@ -374,9 +365,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun playList() {
-//        Router.build("Player")
-//            .go(this)
-        TODO()
+        startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     private fun showScores(list: List<TitleValueBean>) {

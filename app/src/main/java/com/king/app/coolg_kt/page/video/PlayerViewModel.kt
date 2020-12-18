@@ -14,7 +14,6 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.UrlUtil
-import com.king.app.coolg_kt.view.widget.video.UrlCallback
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
@@ -28,12 +27,13 @@ import kotlin.collections.ArrayList
  * @date: 2018/11/15 16:36
  */
 class PlayerViewModel(application: Application) : BaseViewModel(application) {
+
     var itemsObserver: MutableLiveData<MutableList<PlayList.PlayItem>> = MutableLiveData()
     var playVideo: MutableLiveData<PlayList.PlayItem> = MutableLiveData()
     var prepareVideo: MutableLiveData<PlayList.PlayItem> = MutableLiveData()
-    var videoUrlIsReady: MutableLiveData<PlayList.PlayItem> = MutableLiveData()
     var closeListObserver: MutableLiveData<Boolean> = MutableLiveData()
     var stopVideoObserver: MutableLiveData<Boolean> = MutableLiveData()
+    var videoUrlIsReady: MutableLiveData<PlayList.PlayItem> = MutableLiveData()
     var playIndexObserver: MutableLiveData<Int> = MutableLiveData()
     var playModeText: ObservableField<String> = ObservableField()
     var playListText: ObservableField<String> = ObservableField()
@@ -156,9 +156,9 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    fun updateDuration(duration: Int) {
+    fun updateDuration(duration: Long) {
         mPlayBean?.let {
-            it.duration = duration
+            it.duration = duration.toInt()
             PlayListInstance.getInstance().updatePlayItem(it)
         }
     }
@@ -292,7 +292,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
                 playIndex--
             }
             if (playIndex < 0) {
-                messageObserver.setValue("No more videos")
+                messageObserver.value = "No more videos"
                 return
             }
         }
@@ -301,22 +301,24 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
 
     private fun prepareVideoAt(position: Int) {
         playIndex = position
-        if (playIndex > itemsObserver.value!!.size) {
-            playIndex = itemsObserver.value!!.size - 1
+        itemsObserver.value?.let {
+            if (playIndex > it.size) {
+                playIndex = it.size - 1
+            }
+            if (playIndex < 0) {
+                return
+            }
+            mPlayBean = it[playIndex]
+            DebugLog.e("play " + mPlayBean!!.url)
+            prepareVideo.value = mPlayBean
+            playIndexObserver.value = playIndex
+            PlayListInstance.getInstance().updatePlayIndex(playIndex)
         }
-        if (playIndex < 0) {
-            return
-        }
-        mPlayBean = itemsObserver.value!![playIndex]
-        DebugLog.e("play " + mPlayBean!!.url)
-        prepareVideo.value = mPlayBean
-        playIndexObserver.value = playIndex
-        PlayListInstance.getInstance().updatePlayIndex(playIndex)
     }
 
     fun playVideoAt(position: Int) {
         prepareVideoAt(position)
-        playVideo!!.value = mPlayBean
+        playVideo.value = mPlayBean
     }
 
     fun loadPlayUrl(item: PlayList.PlayItem) {
@@ -345,51 +347,11 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    /**
-     * record最初被加到list中url都是null，采用即时获取url的方法
-     * @param callback
-     */
-    fun loadPlayUrl(callback: UrlCallback) {
-        mPlayBean?.let {
-            var record = getDatabase().getRecordDao().getRecord(it.recordId)
-            record?.let {
-                val request = PathRequest()
-                request.name = it.bean.name
-                request.path = it.bean.directory
-                loadingObserver.setValue(true)
-                AppHttpClient.getInstance().getAppService().getVideoPath(request)
-                    .flatMap { response -> UrlUtil.toVideoUrl(response) }
-                    .compose(applySchedulers())
-                    .subscribe(object : SimpleObserver<String>(compositeDisposable) {
-                        override fun onNext(url: String) {
-                            loadingObserver.setValue(false)
-                            mPlayBean?.let { bean ->
-                                bean.url = url
-                                PlayListInstance.getInstance().updatePlayItem(bean)
-                                if (callback == null) {
-                                    prepareVideo.setValue(bean)
-                                    playVideo.setValue(bean)
-                                } else {
-                                    callback.onReceiveUrl(url)
-                                }
-                            }
-                        }
-
-                        override fun onError(e: Throwable?) {
-                            e?.printStackTrace()
-                            loadingObserver.setValue(false)
-                            messageObserver.setValue(e?.message)
-                        }
-                    })
-            }
-        }
-    }
-
     val startSeek: Int
         get() = mPlayBean?.playTime?:0
 
-    fun updatePlayPosition(currentPosition: Int) {
-        mPlayBean?.playTime = currentPosition
+    fun updatePlayPosition(currentPosition: Long) {
+        mPlayBean?.playTime = currentPosition.toInt()
     }
 
     fun resetPlayInDb() {

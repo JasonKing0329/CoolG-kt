@@ -166,6 +166,9 @@ public class EmbedJzvd extends JzvdStd {
         }
     }
 
+    /**
+     * startVideo之后，资源一切就绪
+     */
     @Override
     public void onPrepared() {
         super.onPrepared();

@@ -90,7 +90,8 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
                     recordObserver.setValue(t)
 
                     loadScoreItems()
-                    checkPlayable()
+//                    checkPlayable()
+                    testPlayUrl()
                 }
 
                 override fun onError(e: Throwable?) {

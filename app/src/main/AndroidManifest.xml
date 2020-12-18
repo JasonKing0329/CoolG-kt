@@ -46,6 +46,9 @@
         <activity android:name=".page.image.ImageManagerActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.video.PlayerActivity"
+            android:screenOrientation="landscape"/>
+
         <service android:name=".service.FileService"/>
 
         <provider

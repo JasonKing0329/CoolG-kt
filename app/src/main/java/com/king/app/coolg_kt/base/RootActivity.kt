@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.WindowManager
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
@@ -25,17 +26,26 @@ abstract class RootActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // full screen
-        //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (isFullScreen()) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        }
 
         //prevent from task manager take screenshot
         //also prevent from system screenshot
-        //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
         if (updateStatusBarColor()) {
-            ScreenUtils.setStatusBarColor(this, getStatusBarColor());
+            ScreenUtils.setStatusBarColor(this, getStatusBarColor())
         }
 
         super.onCreate(savedInstanceState)
+    }
+
+    /**
+     * 只有PlayerActivity需要全屏，覆盖方法
+     */
+    open fun isFullScreen(): Boolean {
+        return false
     }
 
     /**

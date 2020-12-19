@@ -4,14 +4,12 @@ import android.os.Build
 import android.view.View
 import android.view.animation.*
 import androidx.lifecycle.Observer
+import cn.jzvd.Jzvd
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityVideoPlayerBinding
 import com.king.app.coolg_kt.model.bean.PlayList
-import com.king.app.coolg_kt.view.widget.video.OnVideoClickListener
-import com.king.app.coolg_kt.view.widget.video.OnVideoDurationListener
-import com.king.app.coolg_kt.view.widget.video.OnVideoListListener
-import com.king.app.coolg_kt.view.widget.video.OnVideoListener
+import com.king.app.coolg_kt.view.widget.video.*
 
 /**
  * Desc:
@@ -26,6 +24,10 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     private val ftList = PlayListFragment()
 
+    override fun isFullScreen(): Boolean {
+        return true
+    }
+
     override fun getContentView(): Int = R.layout.activity_video_player
 
     override fun createViewModel(): PlayerViewModel = generateViewModel(PlayerViewModel::class.java)
@@ -33,10 +35,12 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
     override fun initView() {
         hideBottomUIMenu()
 
+        mBinding.ftList.visibility = View.GONE
         supportFragmentManager.beginTransaction()
             .replace(R.id.ft_list, ftList, "PlayListFragment")
             .commit()
 
+        mBinding.videoView.onBackListener = FullJzvd.OnBackListener { onBackPressed() }
         mBinding.videoView.onVideoListener = object : OnVideoListener {
             override fun getStartSeek(): Int {
                 return mModel.startSeek
@@ -141,6 +145,7 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     override fun onDestroy() {
         mModel?.updatePlayToDb()
+        Jzvd.releaseAllVideos()
         PlayListInstance.getInstance().destroy()
         super.onDestroy()
     }
@@ -178,4 +183,5 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
         set.addAnimation(scale)
         return set
     }
+
 }

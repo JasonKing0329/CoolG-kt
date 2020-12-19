@@ -31,6 +31,7 @@ class PlayListAdapter: BaseBindingAdapter<AdapterPlaylistItemBinding, PlayList.P
         position: Int,
         bean: PlayList.PlayItem
     ) {
+        binding.bean = bean
         if (position == mPlayIndex) {
             binding.root.setBackgroundColor(
                 binding.root.context.resources.getColor(R.color.playlist_bg_focus)

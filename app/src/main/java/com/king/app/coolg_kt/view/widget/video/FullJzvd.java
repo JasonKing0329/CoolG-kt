@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 
 import com.king.app.coolg_kt.R;
 import com.king.app.coolg_kt.utils.DebugLog;
@@ -26,6 +27,10 @@ public class FullJzvd extends JzvdStd {
     private OnVideoDurationListener onVideoDurationListener;
 
     private OnVideoClickListener onVideoClickListener;
+
+    private OnBackListener onBackListener;
+
+    private ImageView ivBack;
 
     private boolean isSeekToAfterPrepared;
 
@@ -71,6 +76,14 @@ public class FullJzvd extends JzvdStd {
         return onVideoClickListener;
     }
 
+    public void setOnBackListener(OnBackListener onBackListener) {
+        this.onBackListener = onBackListener;
+    }
+
+    public OnBackListener getOnBackListener() {
+        return onBackListener;
+    }
+
     @Override
     public int getLayoutId() {
         return R.layout.layout_full_jzvd;
@@ -80,7 +93,13 @@ public class FullJzvd extends JzvdStd {
     public void init(Context context) {
         super.init(context);
 
-        // 扩展的4个按钮
+        // 扩展的5个按钮
+        ivBack = findViewById(R.id.iv_back);
+        ivBack.setOnClickListener(v -> {
+            if (onBackListener != null) {
+                onBackListener.onBack();
+            }
+        });
         findViewById(R.id.app_video_last).setOnClickListener(v -> {
             if (onVideoListListener != null) {
                 onVideoListListener.playPrevious();
@@ -178,7 +197,7 @@ public class FullJzvd extends JzvdStd {
         }
         if (onVideoListener != null) {
             if (isSeekToAfterPrepared) {
-                mediaInterface.seekTo(onVideoListener.getStartSeek());
+//                mediaInterface.seekTo(onVideoListener.getStartSeek());
             }
         }
     }
@@ -190,6 +209,7 @@ public class FullJzvd extends JzvdStd {
     public void onStatePlaying() {
         super.onStatePlaying();
         DebugLog.e();
+        startButton.setImageResource(R.drawable.ic_stop_white_36dp);
     }
 
     /**
@@ -203,6 +223,7 @@ public class FullJzvd extends JzvdStd {
             updatePosition();
             onVideoListener.onPause();
         }
+        startButton.setImageResource(R.drawable.ic_play_arrow_white_24dp);
     }
 
     /**
@@ -216,6 +237,7 @@ public class FullJzvd extends JzvdStd {
             updatePosition();
             onVideoListener.onPlayComplete();
         }
+        startButton.setImageResource(R.drawable.ic_stop_white_36dp);
     }
 
     /**
@@ -258,5 +280,25 @@ public class FullJzvd extends JzvdStd {
     public void pause() {
         mediaInterface.pause();
         onStatePause();
+    }
+
+    /**
+     * 控制顶部与底部按钮的显示状况，自定义扩展的view跟随topCon和bottomCon就好
+     * @param topCon
+     * @param bottomCon
+     * @param startBtn
+     * @param loadingPro
+     * @param posterImg
+     * @param bottomPro
+     * @param retryLayout
+     */
+    @Override
+    public void setAllControlsVisiblity(int topCon, int bottomCon, int startBtn, int loadingPro, int posterImg, int bottomPro, int retryLayout) {
+        super.setAllControlsVisiblity(topCon, bottomCon, startBtn, loadingPro, posterImg, bottomPro, retryLayout);
+        ivBack.setVisibility(topCon);
+    }
+
+    public interface OnBackListener {
+        void onBack();
     }
 }

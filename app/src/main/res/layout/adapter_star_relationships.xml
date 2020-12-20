@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.gdb.data.relation.StarRelationship" />
+    </data>
+    <LinearLayout
+        android:id="@+id/group_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.king.app.coolg_kt.view.widget.rc.RCImageView
+            android:id="@+id/iv_head"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/def_person_square"
+            app:round_corner="40dp"
+            app:starUrl="@{bean.imagePath}"/>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="@{bean.star.name}"
+            android:layout_marginTop="5dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="Topher Dimaggio"/>
+
+        <TextView
+            android:id="@+id/tv_count"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{bean.count + '次'}"
+            android:textSize="12dp"
+            tools:text="2次" />
+    </LinearLayout>
+</layout>

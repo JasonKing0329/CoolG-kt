@@ -54,7 +54,7 @@ object ImageProvider {
         return getImagePathList(AppConfig.GDB_IMG_STAR, name)
     }
 
-    fun hasStarFolder(name: String): Boolean {
+    fun hasStarFolder(name: String?): Boolean {
         return hasFolder(AppConfig.GDB_IMG_STAR, name)
     }
 

@@ -232,6 +232,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
             var list = mutableListOf<TagRecord>()
             list.add(TagRecord(null, tag.id!!, mRecord.bean.id!!))
             getDatabase().getTagDao().insertTagRecords(list)
+            refreshTags()
         }
     }
 
@@ -282,7 +283,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun deleteOrderOfRecord(orderId: Long) {
-        getDatabase().getFavorDao().deleteRecordFromOrder(orderId)
+        getDatabase().getFavorDao().deleteRecordFromOrder(mRecord.bean.id!!, orderId)
     }
 
     fun deletePlayOrderOfRecord(orderId: Long) {

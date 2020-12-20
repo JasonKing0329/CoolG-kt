@@ -1,11 +1,13 @@
 package com.king.app.coolg_kt.page.record
 
+import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.databinding.AdapterRecordItemGridBinding
+import com.king.app.coolg_kt.databinding.AdapterRecordItemListBinding
 import com.king.app.coolg_kt.model.GlideApp
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.utils.FormatUtil
@@ -17,6 +19,51 @@ import com.king.app.gdb.data.relation.RecordWrap
  * @author：Jing Yang
  * @date: 2020/12/14 16:37
  */
+class RecordItemBinder: BaseItemBinder() {
+    fun bind(binding: AdapterRecordItemListBinding, position: Int, item: RecordWrap) {
+        var bean = item.bean
+        binding.tvName.text = bean.name
+        if (bean.scoreBareback > 0) {
+            binding.tvName.setTextColor(
+                binding.tvName.resources.getColor(R.color.gdb_record_text_bareback_light)
+            )
+        } else {
+            binding.tvName.setTextColor(
+                binding.tvName.resources.getColor(R.color.gdb_record_text_normal_light)
+            )
+        }
+        binding.tvPath.text = bean.directory
+        binding.tvDate.text = FormatUtil.formatDate(bean.lastModifyTime)
+        binding.tvDeprecated.visibility = if (bean.deprecated == 1) View.VISIBLE else View.GONE
+        binding.tvSeq.text = (position + 1).toString()
+        if (TextUtils.isEmpty(bean.specialDesc)) {
+            binding.tvSpecial.visibility = View.GONE
+        } else {
+            binding.tvSpecial.visibility = View.VISIBLE
+            binding.tvSpecial.text = bean.specialDesc
+        }
+        binding.tvScene.text = bean.scene
+
+        if (PreferenceValue.GDB_SR_ORDERBY_DATE === mSortMode) {
+            binding.tvDate.visibility = View.INVISIBLE
+        }
+        try {
+            showSortScore(binding.tvSort, item, mSortMode)
+        } catch (e: Exception) {
+        }
+
+        bindImage(binding.ivImage, item)
+
+        if (selectionMode) {
+            binding.cbCheck.visibility = View.VISIBLE
+            var isCheck = mCheckMap[bean.id!!]
+            binding.cbCheck.isChecked =  isCheck?: false
+        } else {
+            binding.cbCheck.visibility = View.GONE
+        }
+    }
+}
+
 class RecordItemGridBinder: BaseItemBinder() {
     var onPopupListener: OnPopupListener? = null
 

@@ -32,6 +32,7 @@ import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagFragment
 import com.king.app.coolg_kt.page.record.*
+import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.video.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.DebugLog
@@ -400,10 +401,9 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun goToStarPage(data: RecordStarWrap) {
-//        Router.build("StarPhone")
-//            .with(StarActivity.EXTRA_STAR_ID, data.starId)
-//            .go(this)
-        TODO()
+        var intent = Intent(this, StarActivity::class.java)
+        intent.putExtra(StarActivity.EXTRA_STAR_ID, data.bean.starId)
+        startActivity(intent)
     }
 
     private fun showRecord(record: RecordWrap) {

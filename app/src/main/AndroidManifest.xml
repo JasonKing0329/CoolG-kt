@@ -43,6 +43,9 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.star.phone.StarActivity"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".page.image.ImageManagerActivity"
             android:screenOrientation="portrait"/>
 

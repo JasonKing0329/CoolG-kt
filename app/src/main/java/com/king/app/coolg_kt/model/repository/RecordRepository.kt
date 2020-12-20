@@ -90,6 +90,16 @@ class RecordRepository: BaseRepository() {
         }
     }
 
+    fun getRecordsImage(list: List<RecordWrap>): Observable<List<RecordWrap>> {
+        return Observable.create {
+            list.forEach {  record ->
+                record.imageUrl = ImageProvider.getRecordRandomPath(record.bean.name, null)
+            }
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
     private fun getComplexFilterBuilder(filter: RecordComplexFilter): StringBuffer {
         val buffer = StringBuffer()
         val whereBuffer = StringBuffer()

@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.record
+package com.king.app.coolg_kt.page.star
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,24 +6,22 @@ import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterStarOrdersBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
-import com.king.app.gdb.data.entity.FavorRecordOrder
+import com.king.app.gdb.data.entity.FavorStarOrder
 
 /**
- * Desc:
- * @author：Jing Yang
- * @date: 2020/12/15 16:17
+ * @description:
+ * @author：Jing
+ * @date: 2020/12/20 11:26
  */
-class RecordOrdersAdapter: BaseBindingAdapter<AdapterStarOrdersBinding, FavorRecordOrder>() {
+class StarOrdersAdapter: BaseBindingAdapter<AdapterStarOrdersBinding, FavorStarOrder>() {
 
     var deleteMode = false
 
     var onDeleteListener: OnDeleteListener? = null
 
-    var mTextColor: Int? = null
-
     init {
-        setOnItemLongClickListener(object : OnItemLongClickListener<FavorRecordOrder> {
-            override fun onLongClickItem(view: View, position: Int, data: FavorRecordOrder) {
+        setOnItemLongClickListener(object : OnItemLongClickListener<FavorStarOrder> {
+            override fun onLongClickItem(view: View, position: Int, data: FavorStarOrder) {
                 toggleDeleteMode()
                 notifyDataSetChanged()
             }
@@ -42,16 +40,13 @@ class RecordOrdersAdapter: BaseBindingAdapter<AdapterStarOrdersBinding, FavorRec
     override fun onBindItem(
         binding: AdapterStarOrdersBinding,
         position: Int,
-        bean: FavorRecordOrder
+        bean: FavorStarOrder
     ) {
         binding.tvName.text = bean.name
-        ImageBindingAdapter.setRecordUrl(binding.ivHead, bean.coverUrl)
-        mTextColor?.let {
-            binding.tvName.setTextColor(it)
-        }
+        ImageBindingAdapter.setStarUrl(binding.ivHead, bean.coverUrl)
         if (deleteMode) {
             binding.ivDelete.visibility = View.VISIBLE
-            binding.ivDelete.setOnClickListener { v ->
+            binding.ivDelete.setOnClickListener {
                 onDeleteListener?.onDeleteOrder(bean)
             }
         } else {
@@ -61,6 +56,6 @@ class RecordOrdersAdapter: BaseBindingAdapter<AdapterStarOrdersBinding, FavorRec
     }
 
     interface OnDeleteListener {
-        fun onDeleteOrder(order: FavorRecordOrder)
+        fun onDeleteOrder(order: FavorStarOrder)
     }
 }

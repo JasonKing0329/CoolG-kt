@@ -74,6 +74,22 @@ class SettingProperty: BaseProperty() {
             setInt("pref_gdb_record_order", type)
         }
 
+        fun getStarRecordsSortType(): Int {
+            return getInt("pref_gdb_star_order")
+        }
+
+        fun setStarRecordsSortType(random: Int) {
+            setInt("pref_gdb_star_order", random)
+        }
+
+        fun isStarRecordsSortDesc(): Boolean {
+            return getBoolean("pref_gdb_star_order_desc")
+        }
+
+        fun setStarRecordsSortDesc(random: Boolean) {
+            setBoolean("pref_gdb_star_order_desc", random)
+        }
+
         fun setPlayList(bean: PlayList?) {
             var sql: String? = null
             try {

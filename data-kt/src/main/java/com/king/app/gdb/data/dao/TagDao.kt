@@ -53,6 +53,9 @@ interface TagDao {
     @Query("delete from tag_record where TAG_ID=:tagId and RECORD_ID=:recordId")
     fun deleteTagRecordsBy(tagId: Long, recordId: Long)
 
+    @Query("delete from tag_star where TAG_ID=:tagId and STAR_ID=:starId")
+    fun deleteTagStarBy(tagId: Long, starId: Long)
+
     @Query("delete from tag_star where TAG_ID=:tagId")
     fun deleteTagStarsByTag(tagId: Long)
 
@@ -70,5 +73,11 @@ interface TagDao {
 
     @Query("select count(*) from tag_record where RECORD_ID=:recordId and TAG_ID=:tagId")
     fun countRecordTag(recordId: Long, tagId: Long): Int
+
+    @Query("select count(*) from tag_star where STAR_ID=:starId and TAG_ID=:tagId")
+    fun countStarTag(starId: Long, tagId: Long): Int
+
+    @Query("select t.* from tag t join tag_star tr on t._id=tr.TAG_ID where tr.STAR_ID =:starId")
+    fun getStarTags(starId: Long): List<Tag>
 
 }

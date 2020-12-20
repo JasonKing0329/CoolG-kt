@@ -11,6 +11,8 @@ object AppConstants {
 
     const val RESP_ORDER_ID = "order_id"
 
+    const val ORDER_STUDIO_NAME = "Studio"
+
     val RECORD_SQL_EXPRESSIONS = arrayOf(
         "score > ",
         "score_bareback > 0",

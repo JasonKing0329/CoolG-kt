@@ -24,5 +24,6 @@ class StarRelationshipAdapter:
         bean: StarRelationship
     ) {
         binding.bean = bean
+        binding.tvCount.text = "${bean.count}次"
     }
 }

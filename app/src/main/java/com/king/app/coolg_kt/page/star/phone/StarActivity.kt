@@ -41,7 +41,7 @@ import com.king.app.gdb.data.relation.StarWrap
  */
 class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
     private val REQUEST_ADD_ORDER = 1602
-    private var adapter: StarAdapter = StarAdapter()
+    private var adapter = StarAdapter()
     private var mFilter: RecommendBean? = null
 
     override fun getContentView(): Int = R.layout.activity_star_phone
@@ -113,7 +113,6 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
                 mModel.deleteTag(bean)
             }
         }
-        mBinding.rvList.adapter = adapter
     }
 
     override fun createViewModel(): StarViewModel = generateViewModel(StarViewModel::class.java)
@@ -175,7 +174,12 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
         adapter.mTagList = mModel.tagList
         adapter.mSortMode = SettingProperty.getStarRecordsSortType()
         adapter.list = list
-        adapter.notifyDataSetChanged()
+        if (mBinding.rvList.adapter == null) {
+            mBinding.rvList.adapter = adapter
+        }
+        else {
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun addTag() {

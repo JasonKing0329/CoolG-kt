@@ -57,7 +57,7 @@ class StarViewModel(application: Application): BaseViewModel(application) {
         starRepository.getStar(starId)
             .flatMap {
                 mStar = it
-                starObserver.value = it
+                starObserver.postValue(it)
                 toolbarText.set(it.bean.name)
                 getStarImages(mStar.bean)
             }
@@ -71,6 +71,10 @@ class StarViewModel(application: Application): BaseViewModel(application) {
             }
             .flatMap {
                 studioList = it
+                getStarTags()
+            }
+            .flatMap {
+                tagList = it
                 getComplexFilter()
             }
             .flatMap { recordRepository.getRecords(it) }
@@ -112,7 +116,7 @@ class StarViewModel(application: Application): BaseViewModel(application) {
 
     private fun getStudioTagByStar(star: StarWrap): ObservableSource<List<StarStudioTag>> {
         return ObservableSource {
-            val studio = getDatabase().getFavorDao().getStarOrderByName(AppConstants.ORDER_STUDIO_NAME)
+            val studio = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
             var list = listOf<StarStudioTag>()
             studio?.let { order ->
                 list = getDatabase().getStarDao().getStarStudioTag(star.bean.id!!, order.id!!)
@@ -192,6 +196,13 @@ class StarViewModel(application: Application): BaseViewModel(application) {
                 }
 
             })
+    }
+
+    fun getStarTags(): ObservableSource<List<Tag>> {
+        return ObservableSource {
+            it.onNext(getTags(mStar))
+            it.onComplete()
+        }
     }
 
     fun deleteOrderOfStar(orderId: Long, starId: Long) {

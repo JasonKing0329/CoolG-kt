@@ -74,8 +74,8 @@ interface FavorDao {
     @Query("delete from favor_star where STAR_ID=:starId and ORDER_ID=:orderId")
     fun deleteStarFromOrder(starId: Long, orderId: Long)
 
-    @Query("select * from favor_order_star where NAME=:name")
-    fun getStarOrderByName(name: String): FavorStarOrder?
+    @Query("select * from favor_order_record where NAME=:name")
+    fun getRecordOrderByName(name: String): FavorRecordOrder?
 
     @Query("select * from favor_star where STAR_ID=:starId and ORDER_ID=:orderId")
     fun getFavorStarBy(starId: Long, orderId: Long): FavorStar?

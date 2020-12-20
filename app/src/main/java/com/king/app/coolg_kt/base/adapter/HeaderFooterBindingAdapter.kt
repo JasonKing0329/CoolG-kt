@@ -63,7 +63,6 @@ abstract class HeaderFooterBindingAdapter<VH : ViewDataBinding, VF : ViewDataBin
     override fun onBindItemView(holder: RecyclerView.ViewHolder, position: Int) {
         val binding: VI = DataBindingUtil.getBinding(holder.itemView)!!
         onBindItem(binding, position, list!![position])
-        CamcorderProfile.get(position)
         binding.executePendingBindings()
     }
 

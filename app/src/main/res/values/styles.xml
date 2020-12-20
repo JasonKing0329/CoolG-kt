@@ -14,6 +14,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="CustomActionBarTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorPrimary">@color/white_dim</item>
+        <item name="colorPrimaryDark">@color/white_dim</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">#eeeeee</item>
+        <item name="android:actionMenuTextColor">@color/white</item>
+    </style>
+
+    <style name="CustomActionBarTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+    </style>
+
     <!--透明Dialog-->
     <style name="BaseDialogFragment" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
         <item name="android:windowFrame">@null</item>

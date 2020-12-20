@@ -24,4 +24,20 @@
     <color name="actionbar_bk_blue">#00a5c4</color>
     <color name="actionbar_element">@color/text_normal</color>
     <color name="playlist_bg_focus">#9900a5c4</color>
+    <color name="text_record_sort">#f2fa11</color>
+    <color name="gdb_record_text_bareback_light">#00a5c4</color>
+    <color name="gdb_record_text_normal_light">#3c3c3c</color>
+
+    <color name="rating_nr">#a0a0a0</color>
+    <color name="rating_e">#909090</color>
+    <color name="rating_ep">#777777</color>
+    <color name="rating_d">#99375BF1</color>
+    <color name="rating_dp">#375BF1</color>
+    <color name="rating_c">#9900a5c4</color>
+    <color name="rating_cp">#00a5c4</color>
+    <color name="rating_b">#99cc6600</color>
+    <color name="rating_bp">#cc6600</color>
+    <color name="rating_a">#A03437</color>
+    <color name="rating_ap">#C93437</color>
+    <color name="rating_s">#FF0005</color>
 </resources>

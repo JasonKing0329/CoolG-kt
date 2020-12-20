@@ -17,7 +17,7 @@ data class StarWrap (
 
     @Relation(parentColumn = "_id",
         entityColumn = "STAR_ID")
-    var ratings: StarRating? = null,
+    var rating: StarRating? = null,
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id")
@@ -39,4 +39,18 @@ data class TopStarWrap (
     @Relation(parentColumn = "STAR_ID",
         entityColumn = "_id")
     var star:Star
+)
+
+data class StarRelationship (
+    @Embedded
+    var star: Star,
+    var count: Int = 0
+) {
+    var imagePath: String? = null
+}
+
+data class StarStudioTag (
+    var studioId: Long?,
+    var name: String?,
+    var count: Int = 0
 )

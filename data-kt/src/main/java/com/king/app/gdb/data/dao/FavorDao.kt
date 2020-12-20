@@ -59,6 +59,9 @@ interface FavorDao {
     @Query("select t.* from favor_order_record t join favor_record fr on t._id=fr.ORDER_ID where fr.RECORD_ID=:recordId")
     fun getRecordOrders(recordId: Long): List<FavorRecordOrder>
 
+    @Query("delete from favor_record where RECORD_ID=:recordId and ORDER_ID=:orderId")
+    fun deleteRecordFromOrder(recordId: Long, orderId: Long)
+
     @Query("delete from favor_record where RECORD_ID=:recordId")
     fun deleteRecordFromOrder(recordId: Long)
 
@@ -67,5 +70,23 @@ interface FavorDao {
 
     @Query("select * from favor_order_record where _id=:orderId")
     fun getFavorRecordOrderBy(orderId: Long): FavorRecordOrder?
+
+    @Query("select t.* from favor_order_star t join favor_star fr on t._id=fr.ORDER_ID where fr.STAR_ID=:starId")
+    fun getStarOrders(starId: Long): List<FavorStarOrder>
+
+    @Query("delete from favor_star where STAR_ID=:starId and ORDER_ID=:orderId")
+    fun deleteStarFromOrder(starId: Long, orderId: Long)
+
+    @Query("select * from favor_order_star where NAME=:name")
+    fun getStarOrderByName(name: String): FavorStarOrder?
+
+    @Query("select * from favor_star where STAR_ID=:starId and ORDER_ID=:orderId")
+    fun getFavorStarBy(starId: Long, orderId: Long): FavorStar?
+
+    @Query("select * from favor_order_star where _id=:orderId")
+    fun getFavorStarOrderBy(orderId: Long): FavorStarOrder?
+
+    @Update
+    fun updateFavorStarOrder(bean: FavorStarOrder)
 
 }

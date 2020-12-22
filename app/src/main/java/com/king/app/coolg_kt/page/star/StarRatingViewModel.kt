@@ -37,7 +37,7 @@ class StarRatingViewModel(application: Application) : BaseViewModel(application)
                     mStar = star
                     starObserver.value = star
                     if (star.rating == null) {
-                        rating = StarRating(null)
+                        rating = StarRating(null, mStar.bean.id!!)
                     }
                     else {
                         rating = star.rating
@@ -57,7 +57,7 @@ class StarRatingViewModel(application: Application) : BaseViewModel(application)
             val complex = calculateComplex(it)
             return "${StarRatingUtil.getRatingValue(complex)}(${FormatUtil.formatScore(complex.toDouble(), 2)})"
         }
-        return ""
+        return "NR"
     }
 
     fun getStarImage(): String? {

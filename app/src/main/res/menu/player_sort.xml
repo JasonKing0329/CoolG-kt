@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_sort_name"
+        android:title="By name"/>
+    <item android:id="@+id/menu_sort_records"
+        android:title="By records number"/>
+    <item android:id="@+id/menu_sort_rating"
+        android:title="By rating"/>
+    <item android:id="@+id/menu_sort_rating_face"
+        android:title="By rating face"/>
+    <item android:id="@+id/menu_sort_rating_body"
+        android:title="By rating body"/>
+    <item android:id="@+id/menu_sort_rating_dk"
+        android:title="By rating dk"/>
+    <item android:id="@+id/menu_sort_rating_sexuality"
+        android:title="By rating sexuality"/>
+    <item android:id="@+id/menu_sort_rating_passion"
+        android:title="By rating passion"/>
+    <item android:id="@+id/menu_sort_rating_video"
+        android:title="By rating video"/>
+    <item android:id="@+id/menu_sort_rating_prefer"
+        android:title="By rating prefer"/>
+    <item android:id="@+id/menu_sort_random"
+        android:title="By Random"/>
+</menu>

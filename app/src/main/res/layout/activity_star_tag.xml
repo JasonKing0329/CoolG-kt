@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_dim">
+        <com.king.app.jactionbar.JActionbar
+            android:id="@+id/actionbar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/actionbar_height"
+            android:background="@color/actionbar_bg"
+            android:theme="@style/EtActionSearch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="Tags and records"
+            app:maxShowIcon="5"
+            app:showIconBack="true"
+            app:menu="@menu/tag_stars"
+            app:iconColor="@color/actionbar_element"
+            app:titleColor="@color/actionbar_element"
+            app:actionTextColor="@color/actionbar_element"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_stars"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rv_tags"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:id="@+id/fab_top"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_arrow_upward_white_36dp"
+            android:background="@drawable/shape_oval_index"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

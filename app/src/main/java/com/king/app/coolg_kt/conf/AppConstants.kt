@@ -65,4 +65,27 @@ object AppConstants {
         "By Name"
     )
 
+    const val STAR_SORT_NAME = 0
+    const val STAR_SORT_RECORDS = 1
+    const val STAR_SORT_RATING = 2
+    const val STAR_SORT_RATING_FACE = 3
+    const val STAR_SORT_RATING_BODY = 4
+    const val STAR_SORT_RATING_DK = 5
+    const val STAR_SORT_RATING_SEXUALITY = 6
+    const val STAR_SORT_RATING_PASSION = 7
+    const val STAR_SORT_RATING_VIDEO = 8
+    const val STAR_SORT_RANDOM = 9
+
+    const val STAR_RATING_SORT_COMPLEX = 0
+    const val STAR_RATING_SORT_FACE = 1
+    const val STAR_RATING_SORT_BODY = 2
+    const val STAR_RATING_SORT_DK = 3
+    const val STAR_RATING_SORT_SEX = 4
+    const val STAR_RATING_SORT_PASSION = 5
+    const val STAR_RATING_SORT_VIDEO = 6
+    const val STAR_RATING_SORT_PREFER = 7
+
+    const val TAG_STAR_GRID = 0
+    const val TAG_STAR_STAGGER = 1
+
 }

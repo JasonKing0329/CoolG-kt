@@ -30,7 +30,11 @@ data class StarWrap (
     )
     var recordList: List<Record>
 
-)
+) {
+    var imagePath: String? = null
+    var width: Int? = 0
+    var height: Int? = 0
+}
 
 data class TopStarWrap (
     @Embedded

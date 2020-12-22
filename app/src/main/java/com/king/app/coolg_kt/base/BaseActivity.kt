@@ -37,16 +37,14 @@ abstract class BaseActivity<T : ViewDataBinding, VM : BaseViewModel> : RootActiv
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, getContentView())
         mModel = createViewModel()
-        if (mModel != null) {
-            mModel!!.loadingObserver.observe(this, Observer { show ->
-                if (show) {
-                    showProgress("loading...")
-                } else {
-                    dismissProgress()
-                }
-            })
-            mModel!!.messageObserver.observe(this, Observer { message -> showMessageShort(message) })
-        }
+        mModel.loadingObserver.observe(this, Observer { show ->
+            if (show) {
+                showProgress("loading...")
+            } else {
+                dismissProgress()
+            }
+        })
+        mModel.messageObserver.observe(this, Observer { message -> showMessageShort(message) })
 
         initView()
         initData()

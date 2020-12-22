@@ -45,7 +45,11 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
     private var mFilter: RecommendBean? = null
 
     override fun getContentView(): Int = R.layout.activity_star_phone
-    
+
+    override fun isFullScreen(): Boolean {
+        return true
+    }
+
     override fun initView() {
         mBinding.actionbar.setOnBackListener { finish() }
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

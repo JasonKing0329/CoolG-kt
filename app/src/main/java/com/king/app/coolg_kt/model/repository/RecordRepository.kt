@@ -82,7 +82,7 @@ class RecordRepository: BaseRepository() {
                 buffer.append(" LIMIT ").append(cursor.offset).append(",")
                     .append(cursor.number)
             }
-            val sql = "select * from record T ${buffer.toString()}"
+            val sql = "select T.* from record T $buffer"
             DebugLog.e(sql)
             val list = getDatabase().getRecordDao().getRecordsBySql(SimpleSQLiteQuery(sql))
             it.onNext(list)

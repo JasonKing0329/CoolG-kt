@@ -101,3 +101,73 @@ class ImageBean : BaseObservable() {
         }
 
 }
+
+class LazyData<T>(var start: Int, var count: Int, var list: List<T>)
+
+class StarSortBuilder {
+    var tagId: Long? = null
+        private set
+    var isOrderByName = false
+        private set
+    var isOrderByRecords = false
+        private set
+    var isOrderByRandom = false
+        private set
+    var orderByRatingType: Int = -1
+        private set
+
+    fun setOrderByName(orderByName: Boolean): StarSortBuilder {
+        isOrderByName = orderByName
+        return this
+    }
+
+    fun setOrderByRecords(orderByRecords: Boolean): StarSortBuilder {
+        isOrderByRecords = orderByRecords
+        return this
+    }
+
+    fun setTagId(tagId: Long?): StarSortBuilder {
+        this.tagId = tagId
+        return this
+    }
+
+    fun setOrderByRandom(orderByRandom: Boolean): StarSortBuilder {
+        isOrderByRandom = orderByRandom
+        return this
+    }
+
+    fun setOrderByRatingType(orderByRatingType: Int): StarSortBuilder {
+        this.orderByRatingType = orderByRatingType
+        return this
+    }
+}
+class StarDetailBuilder {
+    var isLoadImagePath = false
+        private set
+    var isLoadImageSize = false
+        private set
+    var isLoadRating = false
+        private set
+
+    /**
+     * isLoadImageSize为true时，参照的缩放宽度
+     */
+    var sizeBaseWidth = 0
+        private set
+
+    fun setLoadImagePath(loadImagePath: Boolean): StarDetailBuilder {
+        isLoadImagePath = loadImagePath
+        return this
+    }
+
+    fun setLoadImageSize(loadImageSize: Boolean, sizeBaseWidth: Int): StarDetailBuilder {
+        isLoadImageSize = loadImageSize
+        this.sizeBaseWidth = sizeBaseWidth
+        return this
+    }
+
+    fun setLoadRating(loadRating: Boolean): StarDetailBuilder {
+        isLoadRating = loadRating
+        return this
+    }
+}

@@ -32,16 +32,15 @@ abstract class BaseFragment<T : ViewDataBinding, VM: BaseViewModel>: BindingFrag
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         mModel = createViewModel()
-        if (mModel != null) {
-            mModel!!.loadingObserver.observe(viewLifecycleOwner, Observer { show ->
-                if (show) {
-                    showProgress("loading...")
-                } else {
-                    dismissProgress()
-                }
-            })
-            mModel!!.messageObserver.observe(viewLifecycleOwner, Observer { message -> showMessageShort(message) })
-        }
+        mModel.loadingObserver.observe(this, Observer { show ->
+            if (show) {
+                showProgress("loading...")
+            } else {
+                dismissProgress()
+            }
+        })
+        mModel.messageObserver.observe(this, Observer { message -> showMessageShort(message) })
+
         val view = mBinding.root
         initView(view)
         return mBinding.root

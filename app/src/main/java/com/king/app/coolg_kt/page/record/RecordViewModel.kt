@@ -78,6 +78,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
     var bitmapObserver: MutableLiveData<Bitmap> = MutableLiveData()
 
     fun loadRecord(recordId: Long) {
+        DebugLog.e("recordId=$recordId")
         repository.getRecord(recordId)
             .flatMap {
                 mRecord = it

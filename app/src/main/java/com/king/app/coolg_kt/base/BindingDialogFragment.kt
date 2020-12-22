@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
+import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.R
 
 /**
@@ -93,5 +95,7 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
         windowParams!!.y += y
         dialog!!.window!!.attributes = windowParams//must have
     }
+
+    fun<VM: BaseViewModel> generateViewModel(vm: Class<VM>) = ViewModelProvider(this, ViewModelFactory(CoolApplication.instance)).get(vm)
 
 }

@@ -18,6 +18,7 @@ import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
+import com.king.app.coolg_kt.utils.CostTimeUtil
 import com.king.app.coolg_kt.utils.DebugLog
 import eightbitlab.com.blurview.RenderScriptBlur
 
@@ -37,6 +38,8 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
     override fun createViewModel(): HomeViewModel = generateViewModel(HomeViewModel::class.java)
 
     override fun initView() {
+        mBinding.model = mModel
+
         setupBlurView()
         setupMenu()
         mBinding.btnTop.setOnClickListener {
@@ -76,6 +79,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuRecord.visibility = View.GONE
         mBinding.groupMenuStar.visibility = View.GONE
         mBinding.groupMenuVideo.visibility = View.GONE
+        mBinding.groupMenuStudio.visibility = View.GONE
         mBinding.btnMenu.setOnClickListener {
             if (!isAnimating) {
                 if (mBinding.blurView.visibility != View.VISIBLE) {
@@ -89,6 +93,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuStar.setOnClickListener { TagStarActivity.startPage(this) }
         mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
         mBinding.groupMenuVideo.setOnClickListener {  }
+        mBinding.groupMenuStudio.setOnClickListener {  }
     }
 
     private var isAnimating = false
@@ -121,9 +126,11 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuStar.visibility = View.VISIBLE
         mBinding.groupMenuRecord.visibility = View.VISIBLE
         mBinding.groupMenuVideo.visibility = View.VISIBLE
+        mBinding.groupMenuStudio.visibility = View.VISIBLE
         mBinding.groupMenuStar.startAnimation(trans)
         mBinding.groupMenuRecord.startAnimation(trans)
         mBinding.groupMenuVideo.startAnimation(trans)
+        mBinding.groupMenuStudio.startAnimation(trans)
     }
 
     private fun disappearMenu() {
@@ -137,9 +144,6 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
 
             override fun onAnimationEnd(animation: Animation?) {
                 mBinding.blurView.visibility = View.GONE
-                mBinding.groupMenuStar.visibility = View.GONE
-                mBinding.groupMenuRecord.visibility = View.GONE
-                mBinding.groupMenuVideo.visibility = View.GONE
                 isAnimating = false
             }
 
@@ -152,6 +156,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuStar.visibility = View.GONE
         mBinding.groupMenuRecord.visibility = View.GONE
         mBinding.groupMenuVideo.visibility = View.GONE
+        mBinding.groupMenuStudio.visibility = View.GONE
     }
 
     private fun setupBlurView() {
@@ -167,10 +172,6 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
     }
 
     override fun initData() {
-
-        ImageBindingAdapter.setStarUrl(mBinding.ivMenuStar, ImageProvider.getStarRandomPath("", null))
-        ImageBindingAdapter.setStarUrl(mBinding.ivMenuRecord, ImageProvider.getStarRandomPath("", null))
-        ImageBindingAdapter.setStarUrl(mBinding.ivMenuVideo, ImageProvider.getStarRandomPath("", null))
 
         mModel.dataLoaded.observe(this, Observer {
             if (mBinding.rvList.adapter == null) {
@@ -188,6 +189,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
             adapter.notifyItemRangeInserted(start, count)
         })
 
+        mModel.createMenuIconUrl()
         mModel.loadData()
     }
 }

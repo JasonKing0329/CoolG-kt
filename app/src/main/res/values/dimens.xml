@@ -274,7 +274,7 @@
     <dimen name="home_star_height_cell1">210dp</dimen>
     <dimen name="home_star_height_cell2">135dp</dimen>
     <dimen name="home_record_height">200dp</dimen>
-    <dimen name="home_record_radius">0dp</dimen>
+    <dimen name="home_record_radius">3dp</dimen>
     <dimen name="home_item_margin">1dp</dimen>
     <dimen name="home_menu_height">60dp</dimen>
     <dimen name="home_menu_radius">30dp</dimen>

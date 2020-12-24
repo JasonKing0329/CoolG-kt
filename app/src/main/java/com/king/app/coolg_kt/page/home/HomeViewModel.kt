@@ -1,12 +1,14 @@
 package com.king.app.coolg_kt.page.home
 
 import android.app.Application
+import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.gdb.data.relation.RecordWrap
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,12 +24,17 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
 
     private var mOffset = 0
 
-    var recordRepository = RecordRepository()
+    private var recordRepository = RecordRepository()
 
     var newRecordsObserver = MutableLiveData<Int>()
     var dataLoaded = MutableLiveData<Boolean>()
 
     var viewList = mutableListOf<Any>()
+
+    var menuStarUrl = ObservableField<String>()
+    var menuRecordUrl = ObservableField<String>()
+    var menuVideoUrl = ObservableField<String>()
+    var menuStudioUrl = ObservableField<String>()
 
     var dateFormat = SimpleDateFormat("yyyy-MM-dd")
     fun loadData() {
@@ -122,5 +129,48 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
             }
         }
         return date
+    }
+
+    fun createMenuIconUrl() {
+        getMenuIconUrl()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<List<String>>(getComposite()) {
+                override fun onNext(t: List<String>) {
+                    if (t.isNotEmpty()) {
+                        menuStarUrl.set(t[0])
+                    }
+                    if (t.size > 1) {
+                        menuRecordUrl.set(t[1])
+                    }
+                    if (t.size > 2) {
+                        menuStudioUrl.set(t[2])
+                    }
+                    if (t.size > 3) {
+                        menuVideoUrl.set(t[3])
+                    }
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                }
+            })
+    }
+
+    private fun getMenuIconUrl(): Observable<List<String>> {
+        return Observable.create {
+            var stars = getDatabase().getStarDao().getStarByRating(3.8f, 10)
+            var urls = mutableListOf<String>()
+            for (star in stars) {
+                var url = ImageProvider.getStarRandomPath(star.name, null)
+                url?.let {
+                    urls.add(url)
+                }
+                if (urls.size == 4) {
+                    break
+                }
+            }
+            it.onNext(urls)
+            it.onComplete()
+        }
     }
 }

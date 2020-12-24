@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.star.phone
 
 import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
@@ -40,6 +41,16 @@ import com.king.app.gdb.data.relation.StarWrap
  * Created by Administrator on 2018/8/12 0012.
  */
 class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
+
+    companion object {
+        const val EXTRA_STAR_ID = "key_star_id"
+        fun startPage(context: Context, starId: Long) {
+            var intent = Intent(context, StarActivity::class.java)
+            intent.putExtra(EXTRA_STAR_ID, starId)
+            context.startActivity(intent)
+        }
+    }
+
     private val REQUEST_ADD_ORDER = 1602
     private var adapter = StarAdapter()
     private var mFilter: RecommendBean? = null
@@ -257,9 +268,7 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
     }
 
     private fun goToRecordPage(recordId: Long) {
-        var intent = Intent(this, RecordActivity::class.java)
-        intent.putExtra(RecordActivity.EXTRA_RECORD_ID, recordId)
-        startActivity(intent)
+        RecordActivity.startPage(this, recordId)
     }
 
     private fun goToStarPage(starId: Long) {
@@ -298,7 +307,4 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
         super.onStop()
     }
 
-    companion object {
-        const val EXTRA_STAR_ID = "key_star_id"
-    }
 }

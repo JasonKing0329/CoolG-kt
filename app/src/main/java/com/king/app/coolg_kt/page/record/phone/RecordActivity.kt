@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.record.phone
 
 import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
@@ -54,6 +55,17 @@ import tcking.github.com.giraffeplayer2.PlayerManager
  * @date: 2018/8/8 13:25
  */
 class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>() {
+
+    companion object {
+        const val EXTRA_RECORD_ID = "key_record_id"
+
+        fun startPage(context: Context, recordId: Long) {
+            var intent = Intent(context, RecordActivity::class.java)
+            intent.putExtra(EXTRA_RECORD_ID, recordId)
+            context.startActivity(intent)
+        }
+    }
+
     private val REQUEST_ADD_ORDER = 1602
     private val REQUEST_SELECT_STUDIO = 1603
     private val REQUEST_VIDEO_ORDER = 1604
@@ -401,9 +413,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun goToStarPage(data: RecordStarWrap) {
-        var intent = Intent(this, StarActivity::class.java)
-        intent.putExtra(StarActivity.EXTRA_STAR_ID, data.bean.starId)
-        startActivity(intent)
+        StarActivity.startPage(this, data.bean.starId)
     }
 
     private fun showRecord(record: RecordWrap) {
@@ -567,9 +577,5 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             val imageView = view.findViewById<ImageView>(R.id.iv_image)
             ImageBindingAdapter.setRecordUrl(imageView, path)
         }
-    }
-
-    companion object {
-        const val EXTRA_RECORD_ID = "key_record_id"
     }
 }

@@ -5,8 +5,6 @@ import android.util.AttributeSet;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.king.app.coolg_kt.utils.DebugLog;
-
 /**
  * 描述: 上拉到底部自动执行加载更多的recycler view
  * 只支持纵向布局
@@ -56,7 +54,6 @@ public class AutoLoadMoreRecyclerView extends RecyclerView {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             if (onLoadMoreListener != null) {
-                DebugLog.e("canScrollVertically " + canScrollVertically(1));
                 // 滑到底部了
                 if (!canScrollVertically(1)) {
                     onLoadMoreListener.onLoadMore();

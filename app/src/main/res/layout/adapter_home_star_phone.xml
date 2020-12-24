@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.home.HomeStar" />
+    </data>
+    <com.king.app.coolg_kt.view.CoverView
+        android:id="@+id/cover"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/home_star_height_cell2"
+        android:layout_margin="@dimen/home_item_margin"
+        app:coverRadius="@dimen/home_record_radius"
+        app:coverTextColor="@color/white"
+        app:coverTextBackgroundColor="#33000000"
+        app:coverText="@{bean.bean.star.name}"
+        app:coverStarUrl="@{bean.bean.imageUrl}"/>
+</layout>

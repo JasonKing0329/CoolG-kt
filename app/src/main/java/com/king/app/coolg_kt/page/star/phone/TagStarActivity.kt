@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.star.phone
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
@@ -22,6 +23,13 @@ import com.king.app.gdb.data.entity.Tag
  * @date: 2020/6/29 14:04
  */
 class TagStarActivity : AbsTagStarActivity<ActivityStarTagBinding>() {
+
+    companion object {
+        fun startPage(context: Context) {
+            var intent = Intent(context, TagStarActivity::class.java)
+            context.startActivity(intent)
+        }
+    }
 
     private var tagAdapter = TagAdapter()
 
@@ -81,8 +89,6 @@ class TagStarActivity : AbsTagStarActivity<ActivityStarTagBinding>() {
     }
 
     override fun goToStarPage(starId: Long) {
-        var intent = Intent(this, StarActivity::class.java)
-        intent.putExtra(StarActivity.EXTRA_STAR_ID, starId)
-        startActivity(intent)
+        StarActivity.startPage(this, starId)
     }
 }

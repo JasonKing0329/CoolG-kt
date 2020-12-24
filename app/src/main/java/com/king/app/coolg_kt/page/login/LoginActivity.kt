@@ -14,9 +14,9 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
+import com.king.app.coolg_kt.page.home.phone.PhoneHomeActivity
 import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
-import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.utils.AppUtil
 import com.tbruyelle.rxpermissions3.RxPermissions
 
@@ -96,7 +96,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 
     private fun goToHome() {
 //        startActivity(Intent().setClass(this, PhoneRecordListActivity::class.java))
-        startActivity(Intent().setClass(this, TagStarActivity::class.java))
+        startActivity(Intent().setClass(this, PhoneHomeActivity::class.java))
     }
 
     private fun goToManage() {

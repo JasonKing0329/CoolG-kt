@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.record.phone
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
@@ -22,6 +23,13 @@ import com.king.app.gdb.data.entity.Tag
  * @date: 2020/12/15 9:49
  */
 class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, RecordListViewModel>() {
+
+    companion object {
+        fun startPage(context: Context) {
+            var intent = Intent(context, PhoneRecordListActivity::class.java)
+            context.startActivity(intent)
+        }
+    }
 
     var tagAdapter = TagAdapter()
 
@@ -79,9 +87,7 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
     }
 
     override fun goToRecordPage(record: Record) {
-        var intent = Intent(this, RecordActivity::class.java)
-        intent.putExtra(RecordActivity.EXTRA_RECORD_ID, record.id)
-        startActivity(intent)
+        RecordActivity.startPage(this, record.id!!)
     }
 
     override fun addToPlayOrder(data: Record) {

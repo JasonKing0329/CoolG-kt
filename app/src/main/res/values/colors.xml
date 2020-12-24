@@ -40,5 +40,6 @@
     <color name="rating_a">#A03437</color>
     <color name="rating_ap">#C93437</color>
     <color name="rating_s">#FF0005</color>
+    <color name="colorOverlay">#78ffffff</color>
 
 </resources>

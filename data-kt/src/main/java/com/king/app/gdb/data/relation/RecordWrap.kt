@@ -24,6 +24,10 @@ data class RecordWrap (
     var recordType3w: RecordType3w? = null,
 
     @Relation(parentColumn = "_id",
+        entityColumn = "RECORD_ID")
+    var recordStars: List<RecordStar>,
+
+    @Relation(parentColumn = "_id",
         entityColumn = "_id",
         entity = Star::class,
         associateBy = Junction(RecordStar::class, parentColumn = "RECORD_ID", entityColumn = "STAR_ID")

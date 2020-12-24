@@ -461,4 +461,11 @@ class RecordRepository: BaseRepository() {
         }
     }
 
+    fun getLatestRecords(limitStart: Int, limitNum: Int): Observable<List<RecordWrap>> {
+        return Observable.create {
+            var list = getDatabase().getRecordDao().getLatestRecords(limitStart, limitNum)
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
 }

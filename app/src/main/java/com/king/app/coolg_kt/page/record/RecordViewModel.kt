@@ -22,6 +22,7 @@ import com.king.app.coolg_kt.utils.UrlUtil
 import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
+import io.reactivex.Observer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import java.util.*
@@ -239,6 +240,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
 
     fun loadRecordOrders() {
         orderRepository.getRecordOrders(mRecord.bean.id!!)
+            .flatMap{ list -> findStudio(list) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<FavorRecordOrder>>(getComposite()) {
                 override fun onNext(t: List<FavorRecordOrder>) {
@@ -319,6 +321,23 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
             val bitmap = retriever.frameAtTime
             it.onNext(bitmap)
             it.onComplete()
+        }
+    }
+
+    private fun findStudio(list: List<FavorRecordOrder>): ObservableSource<List<FavorRecordOrder>> {
+        return ObservableSource {
+            var studioParent = getDatabase().getFavorDao().getStudioOrder()
+            var studioName: String? = ""
+            studioParent?.let { parent ->
+                for (order in list) {
+                    if (order.parentId == parent.id) {
+                        studioName = order.name
+                        break
+                    }
+                }
+            }
+            studioObserver.postValue(studioName)
+            it.onNext(list)
         }
     }
 

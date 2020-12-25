@@ -28,6 +28,7 @@ class OrderRepository:BaseRepository() {
                 var time = Date().time
                 bean = FavorRecord(null, orderId, recordId, time, time)
                 var list = mutableListOf<FavorRecord>()
+                list.add(bean)
                 getDatabase().getFavorDao().insertFavorRecords(list)
                 // update number in favor_record_order
                 var order = getDatabase().getFavorDao().getFavorRecordOrderBy(orderId)

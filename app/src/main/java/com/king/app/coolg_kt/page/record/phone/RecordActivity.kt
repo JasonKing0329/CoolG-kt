@@ -34,6 +34,7 @@ import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagFragment
 import com.king.app.coolg_kt.page.record.*
 import com.king.app.coolg_kt.page.star.phone.StarActivity
+import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.page.video.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.DebugLog
@@ -222,11 +223,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun selectStudio() {
-//        Router.build("StudioPhone")
-//            .with(StudioActivity.EXTRA_SELECT_MODE, true)
-//            .requestCode(REQUEST_SELECT_STUDIO)
-//            .go(this)
-        TODO()
+        StudioActivity.startPageToSelect(this, REQUEST_SELECT_STUDIO)
     }
 
     override fun onNewIntent(intent: Intent) {

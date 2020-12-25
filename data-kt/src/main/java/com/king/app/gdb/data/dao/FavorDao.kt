@@ -98,4 +98,7 @@ interface FavorDao {
 
     @Query("select count(*) from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:orderId and r.SCORE>=:score")
     fun countRecordScoreOver(orderId: Long, score: Int): Int
+
+    @Query("select * from favor_order_record where NAME='Studio'")
+    fun getStudioOrder(): FavorRecordOrder?
 }

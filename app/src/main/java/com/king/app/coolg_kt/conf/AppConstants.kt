@@ -88,4 +88,12 @@ object AppConstants {
     const val TAG_STAR_GRID = 0
     const val TAG_STAR_STAGGER = 1
 
+    const val STUDIO_LIST_TYPE_SIMPLE = 0
+    const val STUDIO_LIST_TYPE_RICH = 1
+
+    const val STUDIO_LIST_SORT_NAME = 0
+    const val STUDIO_LIST_SORT_NUM = 1
+    const val STUDIO_LIST_SORT_CREATE_TIME = 2
+    const val STUDIO_LIST_SORT_UPDATE_TIME = 3
+
 }

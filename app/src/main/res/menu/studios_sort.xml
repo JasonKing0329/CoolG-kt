@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_sort_name"
+        android:title="By name"/>
+    <item android:id="@+id/menu_sort_items"
+        android:title="By items number"/>
+    <item android:id="@+id/menu_sort_create_time"
+        android:title="By create time"/>
+    <item android:id="@+id/menu_sort_update_time"
+        android:title="By update time"/>
+</menu>

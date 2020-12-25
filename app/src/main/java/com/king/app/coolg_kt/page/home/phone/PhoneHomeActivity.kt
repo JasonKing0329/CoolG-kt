@@ -9,8 +9,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityHomeBinding
-import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
-import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.home.HomeRecord
 import com.king.app.coolg_kt.page.home.HomeStar
 import com.king.app.coolg_kt.page.home.HomeViewModel
@@ -18,7 +16,7 @@ import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
-import com.king.app.coolg_kt.utils.CostTimeUtil
+import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import eightbitlab.com.blurview.RenderScriptBlur
 
@@ -93,7 +91,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuStar.setOnClickListener { TagStarActivity.startPage(this) }
         mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
         mBinding.groupMenuVideo.setOnClickListener {  }
-        mBinding.groupMenuStudio.setOnClickListener {  }
+        mBinding.groupMenuStudio.setOnClickListener { StudioActivity.startPage(this) }
     }
 
     private var isAnimating = false

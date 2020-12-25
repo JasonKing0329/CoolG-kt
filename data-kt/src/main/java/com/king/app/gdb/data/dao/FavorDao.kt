@@ -1,9 +1,7 @@
 package com.king.app.gdb.data.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.FavorStar
@@ -56,6 +54,9 @@ interface FavorDao {
     @Update
     fun updateFavorRecordOrder(bean: FavorRecordOrder)
 
+    @Update
+    fun updateFavorRecordOrders(list: List<FavorRecordOrder>)
+
     @Query("select t.* from favor_order_record t join favor_record fr on t._id=fr.ORDER_ID where fr.RECORD_ID=:recordId")
     fun getRecordOrders(recordId: Long): List<FavorRecordOrder>
 
@@ -86,4 +87,15 @@ interface FavorDao {
     @Update
     fun updateFavorStarOrder(bean: FavorStarOrder)
 
+    @Query("select count(*) from favor_record where ORDER_ID=:orderId")
+    fun countRecordOrderItems(orderId: Long): Int
+
+    @RawQuery
+    fun getRecordOrdersBySql(query: SupportSQLiteQuery): List<FavorRecordOrder>
+
+    @Query("select count(*) from (select rs.STAR_ID as num from favor_record fr join record_star rs on fr.RECORD_ID=rs.RECORD_ID where fr.ORDER_ID=:orderId group by rs.STAR_ID)")
+    fun countStudioStarNumber(orderId: Long): Int
+
+    @Query("select count(*) from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:orderId and r.SCORE>=:score")
+    fun countRecordScoreOver(orderId: Long, score: Int): Int
 }

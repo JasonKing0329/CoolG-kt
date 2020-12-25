@@ -33,13 +33,13 @@ interface RecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCountRecords(list: List<CountRecord>)
 
-    @RawQuery
-    fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
-
     @Query("select * from record_star where RECORD_ID=:recordId")
     fun getRecordStars(recordId: Long): List<RecordStarWrap>
 
     @Query("select * from record order by LAST_MODIFY_TIME desc limit :start,:num")
     fun getLatestRecords(start: Int, num: Int): List<RecordWrap>
+
+    @RawQuery
+    fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
 
 }

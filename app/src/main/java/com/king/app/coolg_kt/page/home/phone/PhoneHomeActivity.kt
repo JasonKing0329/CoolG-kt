@@ -182,7 +182,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
             }
         })
         mModel.newRecordsObserver.observe(this, Observer { count ->
-            val start: Int = adapter.itemCount - count - 1
+            var start = adapter.itemCount - count
             DebugLog.e("start=$start, count=$count")
             adapter.notifyItemRangeInserted(start, count)
         })

@@ -7,7 +7,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.BindingHolder
-import com.king.app.coolg_kt.databinding.AdapterFooterMoreBinding
 import com.king.app.coolg_kt.databinding.AdapterHomeRecordPhoneBinding
 import com.king.app.coolg_kt.databinding.AdapterHomeStarPhoneBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
@@ -23,13 +22,11 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     val TYPE_RECORD = 0
     val TYPE_STAR = 1
-    val TYPE_FOOT = 2
     var list: List<Any> = listOf()
     var onListListener: OnListListener? = null
 
     override fun getItemViewType(position: Int): Int {
         return when {
-            position == itemCount - 1 -> TYPE_FOOT
             list[position] is HomeStar ->  TYPE_STAR
             else -> TYPE_RECORD
         }
@@ -49,10 +46,6 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }
                 holder
             }
-            TYPE_FOOT -> {
-                val binding = AdapterFooterMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                BindingHolder(binding.root)
-            }
             else -> {
                 val binding = AdapterHomeRecordPhoneBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 val holder = BindingHolder(binding.root)
@@ -71,18 +64,13 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     /**
      * 永远+1，最后一个为foot
      */
-    override fun getItemCount(): Int = list.size + 1
+    override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(getItemViewType(position)) {
             TYPE_STAR -> {
                 val binding = DataBindingUtil.getBinding<AdapterHomeStarPhoneBinding>(holder.itemView)
                 onBindStar(binding!!, position, list[position] as HomeStar)
-                binding.executePendingBindings()
-            }
-            TYPE_FOOT -> {
-                val binding = DataBindingUtil.getBinding<AdapterFooterMoreBinding>(holder.itemView)
-                onBindFoot(binding!!, position)
                 binding.executePendingBindings()
             }
             else -> {
@@ -96,11 +84,16 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private fun onBindStar(binding: AdapterHomeStarPhoneBinding, position: Int, bean: HomeStar) {
         binding.bean = bean
         var param = binding.cover.layoutParams
-        param.height = if (bean.cell == 1) {
-            binding.cover.resources.getDimensionPixelSize(R.dimen.home_star_height_cell2)
+        param.height = if (bean.imageHeight == 0) {
+            if (bean.cell == 1) {
+                binding.cover.resources.getDimensionPixelSize(R.dimen.home_star_height_cell2)
+            }
+            else {
+                binding.cover.resources.getDimensionPixelSize(R.dimen.home_star_height_cell1)
+            }
         }
         else {
-            binding.cover.resources.getDimensionPixelSize(R.dimen.home_star_height_cell1)
+            bean.imageHeight
         }
         binding.cover.layoutParams = param
     }
@@ -114,10 +107,6 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         binding.tvDeprecated.visibility = if (bean.bean.bean.deprecated == 1) View.VISIBLE else View.GONE
         binding.ivPlay.visibility = if (bean.bean.bean.deprecated == 1) View.GONE else View.VISIBLE
         binding.ivPlay.setOnClickListener { onListListener?.onAddPlay(bean) }
-    }
-
-    private fun onBindFoot(binding: AdapterFooterMoreBinding, position: Int) {
-        onListListener?.onLoadMore()
     }
 
     private fun onClickStar(view: View, position: Int, bean: HomeStar) {

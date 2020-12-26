@@ -17,5 +17,6 @@ data class HomeRecord(
 data class HomeStar(
     var bean: RecordStarWrap,
     var cell: Int = 1,
-    var gravity: Int = 0
+    var gravity: Int = 0,
+    var imageHeight: Int = 0
 )

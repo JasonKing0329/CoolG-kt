@@ -1,15 +1,20 @@
 package com.king.app.coolg_kt.page.home
 
 import android.app.Application
+import android.graphics.BitmapFactory
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RecordRepository
+import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,6 +42,9 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     var menuStudioUrl = ObservableField<String>()
 
     var dateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+    private var isLoadingMore = false
+
     fun loadData() {
         mOffset = 0
         viewList.clear()
@@ -44,9 +52,11 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
         recordRepository.getLatestRecords(mOffset, LOAD_NUM)
             .flatMap { toViewList(it) }
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<Int>(getComposite()) {
-                override fun onNext(count: Int) {
+            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
+                override fun onNext(list: List<Any>) {
                     loadingObserver.value = false
+                    viewList.addAll(list)
+                    DebugLog.e("viewList.size=${viewList.size}")
                     dataLoaded.value = true
                 }
 
@@ -60,31 +70,44 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun loadMore() {
+        if (isLoadingMore) {
+            return
+        }
+        isLoadingMore = true
+
         recordRepository.getLatestRecords(mOffset, LOAD_NUM)
             .flatMap { toViewList(it) }
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<Int>(getComposite()) {
-                override fun onNext(count: Int) {
-                    newRecordsObserver.value = count
+            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
+                override fun onNext(list: List<Any>) {
+                    viewList.addAll(list)
+                    DebugLog.e("viewList.size=${viewList.size}")
+                    newRecordsObserver.value = list.size
+                    isLoadingMore = false
                 }
 
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
                     messageObserver.value = e?.message
+                    isLoadingMore = false
                 }
             })
     }
 
-    private fun toViewList(list: List<RecordWrap>): ObservableSource<Int> {
+    /**
+     * 返回实际添加的item数，不包含HomeFoot
+     */
+    private fun toViewList(list: List<RecordWrap>): ObservableSource<List<Any>> {
         return ObservableSource {
+            DebugLog.e("start toViewList")
+
             mOffset += list.size
+            var addList = mutableListOf<Any>()
             var lastDate = findLastDate()
-            var totalCount = 0
             list.forEach {  record ->
                 var homeRecord = toHomeRecord(record, lastDate)
-                viewList.add(homeRecord)
+                addList.add(homeRecord)
                 lastDate = homeRecord.date
-                totalCount ++
 
                 var stars = getDatabase().getRecordDao().getRecordStars(record.bean.id!!)
                     .filter { s -> s.bean.score >= 80 }
@@ -92,19 +115,31 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
                     // 超出两个只取前两个
                     .take(2)
                 stars.forEach { star ->
-                    // image url
-                    star.imageUrl = ImageProvider.getStarRandomPath(star.star.name, null)
-
-                    // as list member
-                    var homeStar = HomeStar(star)
-                    homeStar.cell = if (stars.size == 1) 2 else 1
-                    viewList.add(homeStar)
-                    totalCount ++
+                    var homeStar = toHomeStar(star, stars.size)
+                    addList.add(homeStar)
                 }
             }
-            it.onNext(totalCount)
+
+            DebugLog.e("addList.size=${viewList.size}")
+
+            it.onNext(addList)
             it.onComplete()
         }
+    }
+
+    private fun toHomeStar(star: RecordStarWrap, totalSize: Int): HomeStar {
+        // image url
+        star.imageUrl = ImageProvider.getStarRandomPath(star.star.name, null)
+
+        // as list member
+        var homeStar = HomeStar(star)
+        homeStar.cell = if (totalSize == 1) 2 else 1
+
+        if (homeStar.cell == 2) {
+            // 按屏幕宽度缩放高度
+            homeStar.imageHeight = calcImageHeight(star.imageUrl, ScreenUtils.getScreenWidth())
+        }
+        return homeStar
     }
 
     private fun toHomeRecord(record: RecordWrap, lastDate: String): HomeRecord {
@@ -118,6 +153,23 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
             starBuffer.append("&").append(s.name)
         }
         return HomeRecord(record, date, date != lastDate)
+    }
+
+
+    private fun calcImageHeight(url: String?, baseWidth: Int): Int {
+        // 无图按16:9
+        return if (url == null || !File(url).exists()) {
+            0
+        } else {
+            //缩放图片的实际宽高
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(url, options)
+            var height = options.outHeight
+            val width = options.outWidth
+            val ratio = baseWidth.toFloat() / width.toFloat()
+            (height * ratio).toInt()
+        }
     }
 
     private fun findLastDate(): String {

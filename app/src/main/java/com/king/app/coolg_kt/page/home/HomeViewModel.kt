@@ -115,7 +115,7 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
                     // 超出两个只取前两个
                     .take(2)
                 stars.forEach { star ->
-                    var homeStar = toHomeStar(star, stars.size)
+                    var homeStar = toHomeStar(star, stars.size, lastDate)
                     addList.add(homeStar)
                 }
             }
@@ -127,12 +127,12 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    private fun toHomeStar(star: RecordStarWrap, totalSize: Int): HomeStar {
+    private fun toHomeStar(star: RecordStarWrap, totalSize: Int, date: String): HomeStar {
         // image url
         star.imageUrl = ImageProvider.getStarRandomPath(star.star.name, null)
 
         // as list member
-        var homeStar = HomeStar(star)
+        var homeStar = HomeStar(star, date)
         homeStar.cell = if (totalSize == 1) 2 else 1
 
         if (homeStar.cell == 2) {

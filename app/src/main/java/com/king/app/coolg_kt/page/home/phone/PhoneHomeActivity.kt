@@ -1,11 +1,13 @@
 package com.king.app.coolg_kt.page.home.phone
 
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityHomeBinding
@@ -19,6 +21,7 @@ import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import eightbitlab.com.blurview.RenderScriptBlur
+import kotlin.math.abs
 
 /**
  * Desc:
@@ -53,6 +56,13 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         }
         mBinding.rvList.layoutManager = manager
         mBinding.rvList.setOnLoadMoreListener { mModel.loadMore() }
+        mBinding.rvList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                var first = manager.findFirstVisibleItemPosition()
+                mBinding.tvDate.text = adapter.getItemDate(first)
+            }
+        })
 
         adapter.onListListener = object : HomeAdapter.OnListListener {
             override fun onLoadMore() {
@@ -88,10 +98,39 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
                 }
             }
         }
+        mBinding.blurView.setOnTouchListener(touchListener)
         mBinding.groupMenuStar.setOnClickListener { TagStarActivity.startPage(this) }
         mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
         mBinding.groupMenuVideo.setOnClickListener {  }
         mBinding.groupMenuStudio.setOnClickListener { StudioActivity.startPage(this) }
+    }
+
+    /**
+     * blurView的onClick事件太容易触发，没有控制时间和距离。通过onTouch来控制，不过这样就得消耗touch事件，让底层的list滑动不起来了
+     */
+    var downTime = 0L
+    var downX = 0f
+    var downY = 0f
+    private var touchListener = View.OnTouchListener { v, event ->
+        when(event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                downTime = System.currentTimeMillis()
+                downX = event.x
+                downY = event.y
+            }
+            MotionEvent.ACTION_UP -> {
+                var moveTime = System.currentTimeMillis() - downTime
+                var moveX = event.x - downX
+                var moveY = event.y - downY
+                DebugLog.e("moveTime=$moveTime, moveX=$moveX, moveY=$moveY")
+                if (moveTime < 300 && abs(moveX) < 50 && abs(moveY) < 50) {
+                    if (!isAnimating) {
+                        disappearMenu()
+                    }
+                }
+            }
+        }
+        true
     }
 
     private var isAnimating = false
@@ -189,5 +228,16 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
 
         mModel.createMenuIconUrl()
         mModel.loadData()
+    }
+
+    override fun onBackPressed() {
+        if (mBinding.blurView.visibility == View.VISIBLE) {
+            if (!isAnimating) {
+                disappearMenu()
+            }
+        }
+        else {
+            super.onBackPressed()
+        }
     }
 }

@@ -5,30 +5,18 @@
         android:id="@+id/group_item"
         android:layout_margin="@dimen/home_item_margin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:round_corner="@dimen/home_record_radius">
 
-        <TextView
-            android:id="@+id/tv_record_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:textSize="@dimen/gdb_home_date_size"
-            android:textColor="@color/colorPrimary"
-            android:paddingTop="@dimen/common_margin_8"
-            android:paddingBottom="@dimen/common_margin_8"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <com.king.app.coolg_kt.view.widget.rc.RCImageView
+        <ImageView
             android:id="@+id/iv_record_image"
             android:layout_width="0dp"
             android:layout_height="@dimen/home_record_height"
             android:scaleType="fitXY"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_record_date"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:round_corner="@dimen/home_record_radius"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/tv_name"

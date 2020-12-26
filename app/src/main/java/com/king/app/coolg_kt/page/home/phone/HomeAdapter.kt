@@ -102,8 +102,6 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         ImageBindingAdapter.setRecordUrl(binding.ivRecordImage, bean.bean.imageUrl)
         binding.tvName.text = bean.bean.bean.name
         binding.tvRank.text = "R-${bean.bean.countRecord?.rank}"
-        binding.tvRecordDate.visibility = if (bean.showDate) View.VISIBLE else View.GONE
-        binding.tvRecordDate.text = bean.date
         binding.tvDeprecated.visibility = if (bean.bean.bean.deprecated == 1) View.VISIBLE else View.GONE
         binding.ivPlay.visibility = if (bean.bean.bean.deprecated == 1) View.GONE else View.VISIBLE
         binding.ivPlay.setOnClickListener { onListListener?.onAddPlay(bean) }
@@ -121,6 +119,20 @@ class HomeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return when(getItemViewType(position)) {
             TYPE_STAR -> (list[position] as HomeStar).cell
             else -> 2
+        }
+    }
+
+    fun getItemDate(position: Int): String {
+        return when {
+            list[position] is HomeStar -> {
+                " ${(list[position] as HomeStar).date} "
+            }
+            list[position] is HomeRecord -> {
+                " ${(list[position] as HomeRecord).date} "
+            }
+            else -> {
+                ""
+            }
         }
     }
 

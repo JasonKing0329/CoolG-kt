@@ -16,6 +16,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:layout="@layout/adapter_home_record_phone"/>
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:outlineProvider="bounds"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="16dp"
+            android:textSize="28dp"
+            android:textStyle="bold|italic"
+            android:textColor="@color/white_dim"
+            android:shadowColor="#000000"
+            android:shadowRadius="20"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text=" 2020-12-26 "/>
         <eightbitlab.com.blurview.BlurView
             android:id="@+id/blur_view"
             android:layout_width="match_parent"

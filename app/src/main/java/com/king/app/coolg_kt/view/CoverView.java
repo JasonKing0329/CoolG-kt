@@ -97,6 +97,11 @@ public class CoverView extends RCRelativeLayout {
         coverTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
     }
 
+    public void setTextSize(int unit, float textSize) {
+        this.textSize = textSize;
+        coverTextView.setTextSize(unit, textSize);
+    }
+
     public void setTextBackgroundColor(int textBackgroundColor) {
         this.textBackgroundColor = textBackgroundColor;
         coverTextView.setBackgroundColor(textBackgroundColor);

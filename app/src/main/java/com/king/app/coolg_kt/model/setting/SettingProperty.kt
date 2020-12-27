@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.model.setting
 
 import com.google.gson.Gson
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 
@@ -104,6 +105,14 @@ class SettingProperty: BaseProperty() {
 
         fun setStudioListSortType(type: Int) {
             setInt("studio_list_sort_type", type)
+        }
+
+        fun getVideoPlayOrderViewType(): Int {
+            return getInt("pref_video_play_order_view_type", AppConstants.VIEW_TYPE_GRID)
+        }
+
+        fun setVideoPlayOrderViewType(type: Int) {
+            setInt("pref_video_play_order_view_type", type)
         }
 
         fun setPlayList(bean: PlayList?) {

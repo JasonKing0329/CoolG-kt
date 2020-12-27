@@ -56,6 +56,15 @@ interface PlayOrderDao {
     @Query("delete from play_order")
     fun deletePlayOrders()
 
+    @Delete
+    fun deletePlayOrder(playOrder: PlayOrder)
+
+    @Query("delete from play_item where ORDER_ID=:orderId")
+    fun deleteItemsInPlayOrder(orderId: Long)
+
+    @Query("delete from video_cover_order where ORDER_ID=:orderId")
+    fun deletePlayOrderCover(orderId: Long)
+
     @Query("delete from play_duration")
     fun deletePlayDurations()
 
@@ -85,5 +94,8 @@ interface PlayOrderDao {
 
     @Query("select * from play_duration where RECORD_ID=:recordId")
     fun getDurationByRecord(recordId: Long): PlayDuration?
+
+    @Query("select count(*) from play_item where ORDER_ID=:orderId")
+    fun countOrderItems(orderId: Long): Int
 
 }

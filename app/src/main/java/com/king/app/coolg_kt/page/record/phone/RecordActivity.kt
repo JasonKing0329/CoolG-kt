@@ -36,6 +36,7 @@ import com.king.app.coolg_kt.page.record.*
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.page.video.PlayerActivity
+import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.FormatUtil
@@ -110,11 +111,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         }
         mBinding.rvOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         mBinding.ivPlayOrderAdd.setOnClickListener {
-//            Router.build("PlayOrder")
-//                .with(PlayOrderActivity.EXTRA_MULTI_SELECT, true)
-//                .requestCode(REQUEST_VIDEO_ORDER)
-//                .go(this@RecordActivity)
-            TODO()
+            PlayOrderActivity.startPageToSelect(this@RecordActivity, REQUEST_VIDEO_ORDER)
         }
         mBinding.ivPlayOrderDelete.setOnClickListener {
             playOrdersAdapter.toggleDeleteMode()
@@ -547,9 +544,8 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             }
         } else if (requestCode == REQUEST_VIDEO_ORDER) {
             if (resultCode == Activity.RESULT_OK) {
-                TODO()
-//                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
-//                mModel.addToPlay(list)
+                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                mModel.addToPlay(list)
             }
         }
     }

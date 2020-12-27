@@ -58,6 +58,9 @@
         <activity android:name=".page.studio.phone.StudioActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.video.order.PlayOrderActivity"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".page.video.PlayerActivity"
             android:screenOrientation="landscape"/>
 

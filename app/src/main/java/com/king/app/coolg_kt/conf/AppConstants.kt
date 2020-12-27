@@ -96,4 +96,7 @@ object AppConstants {
     const val STUDIO_LIST_SORT_CREATE_TIME = 2
     const val STUDIO_LIST_SORT_UPDATE_TIME = 3
 
+    const val VIEW_TYPE_LIST = 0
+    const val VIEW_TYPE_GRID = 1
+    const val VIEW_TYPE_GRID_TAB = 2
 }

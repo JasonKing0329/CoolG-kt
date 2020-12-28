@@ -151,6 +151,7 @@
     <dimen name="starlist_grid_img_height">139dp</dimen>
     <dimen name="starlist_grid_favor_size">50dp</dimen>
     <dimen name="starlist_pad_circle_size">130dp</dimen>
+    <dimen name="starlist_pad_circle_radius">65dp</dimen>
     <dimen name="home_star_gap">20dp</dimen>
     <dimen name="loading_cicular_size">80dp</dimen>
 

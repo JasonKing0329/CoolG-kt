@@ -85,7 +85,7 @@ class TagStarActivity : AbsTagStarActivity<ActivityStarTagBinding>() {
     }
 
     override fun goToClassicPage() {
-        TODO()
+        StarListPhoneActivity.startPage(this)
     }
 
     override fun goToStarPage(starId: Long) {

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="0dp"
+            app:elevation="0dp"
+            android:theme="@style/CustomActionBarTheme.AppBarOverlay">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/ctl_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentScrim="@color/actionbar_bg"
+                app:scrimVisibleHeightTrigger="@dimen/home_scrim_visible_height"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+                <RelativeLayout
+                    android:id="@+id/rl_banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/gdb_star_header_height">
+
+                    <com.king.lib.banner.CoolBanner
+                        android:id="@+id/banner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        app:switchDuration="5000"/>
+                    <RelativeLayout
+                        android:id="@+id/group_setting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/shape_oval_transgrey">
+                        <ImageView
+                            android:layout_width="@dimen/gdb_star_header_icon_size"
+                            android:layout_height="@dimen/gdb_star_header_icon_size"
+                            android:layout_margin="10dp"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_settings_white_36dp"
+                            android:scaleType="fitCenter"/>
+                    </RelativeLayout>
+                </RelativeLayout>
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/actionbar_height"
+                    app:title="Glory"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/CustomActionBarTheme.PopupOverlay"
+                    app:contentInsetStart="0dp"
+                    app:contentInsetLeft="0dp">
+                    <com.king.app.jactionbar.JActionbar
+                        android:id="@+id/actionbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/actionbar_height"
+                        android:background="@color/actionbar_bg"
+                        android:theme="@style/EtActionSearch"
+                        app:title="Stars"
+                        app:maxShowIcon="5"
+                        app:supportSearch="true"
+                        app:showIconBack="true"
+                        app:menu="@menu/player_list"
+                        app:iconColor="@color/actionbar_element"
+                        app:titleColor="@color/actionbar_element"
+                        app:actionTextColor="@color/actionbar_element"/>
+                </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/actionbar_height"
+                android:background="@color/actionbar_bg"
+                app:tabGravity="fill"
+                app:tabMode="fixed"
+                app:tabSelectedTextColor="@color/colorAccent"
+                app:tabTextColor="@color/actionbar_element"
+                app:tabIndicatorColor="@color/colorAccent"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:scrollbars="none"
+            app:layout_behavior=".page.star.list.StarListBehavior">
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_index"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center_horizontal|top"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/shape_oval_index"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

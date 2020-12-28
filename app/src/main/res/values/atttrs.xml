@@ -54,4 +54,15 @@
         <attr name="android:layout_gravity"/>
     </declare-styleable>
 
+    <declare-styleable name="FitSideBar">
+        <attr name="android:gravity" />
+        <attr name="textColor" format="color"/>
+        <attr name="textSize" format="dimension"/>
+        <attr name="textColorFocus" format="color"/>
+        <attr name="textSizeFocus" format="dimension"/>
+        <attr name="minHorizontalPadding" format="dimension"/>
+        <attr name="minWidth" format="dimension"/>
+        <attr name="maxWidth" format="dimension"/>
+    </declare-styleable>
+
 </resources>

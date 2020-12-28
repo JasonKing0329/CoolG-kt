@@ -3,8 +3,10 @@ package com.king.app.coolg_kt.model.bean
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
+import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
 
 /**
@@ -104,43 +106,48 @@ class ImageBean : BaseObservable() {
 
 class LazyData<T>(var start: Int, var count: Int, var list: List<T>)
 
-class StarSortBuilder {
+class StarBuilder {
+
+    /**
+     * tagId与studioId只支持二选一
+     */
     var tagId: Long? = null
         private set
-    var isOrderByName = false
-        private set
-    var isOrderByRecords = false
-        private set
-    var isOrderByRandom = false
-        private set
-    var orderByRatingType: Int = -1
+    var studioId: Long? = null
         private set
 
-    fun setOrderByName(orderByName: Boolean): StarSortBuilder {
-        isOrderByName = orderByName
-        return this
+    var type: String = DataConstants.STAR_MODE_ALL
+        private set
+
+    var sortType: Int = AppConstants.STAR_SORT_NAME
+        private set
+
+    fun isSortByRating(): Boolean {
+        return sortType >= AppConstants.STAR_SORT_RATING && sortType <= AppConstants.STAR_SORT_RATING_PREFER
     }
 
-    fun setOrderByRecords(orderByRecords: Boolean): StarSortBuilder {
-        isOrderByRecords = orderByRecords
-        return this
-    }
-
-    fun setTagId(tagId: Long?): StarSortBuilder {
+    fun setTagId(tagId: Long?): StarBuilder {
         this.tagId = tagId
         return this
     }
 
-    fun setOrderByRandom(orderByRandom: Boolean): StarSortBuilder {
-        isOrderByRandom = orderByRandom
+    fun setStudioId(studioId: Long?): StarBuilder {
+        this.studioId = tagId
         return this
     }
 
-    fun setOrderByRatingType(orderByRatingType: Int): StarSortBuilder {
-        this.orderByRatingType = orderByRatingType
+    fun setType(type: String): StarBuilder {
+        this.type = type
         return this
     }
+
+    fun setSortType(type: Int): StarBuilder {
+        this.sortType = type
+        return this
+    }
+
 }
+
 class StarDetailBuilder {
     var isLoadImagePath = false
         private set
@@ -170,4 +177,9 @@ class StarDetailBuilder {
         isLoadRating = loadRating
         return this
     }
+}
+
+class IndexRange {
+    var start = 0
+    var end = 0
 }

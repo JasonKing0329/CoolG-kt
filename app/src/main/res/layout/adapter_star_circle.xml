@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:id="@+id/group_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.king.app.coolg_kt.view.widget.rc.RCImageView
+            android:id="@+id/iv_head"
+            android:layout_width="@dimen/starlist_pad_circle_size"
+            android:layout_height="@dimen/starlist_pad_circle_size"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            app:round_corner="@dimen/starlist_pad_circle_radius"/>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_below="@id/iv_head"
+            android:textSize="15dp"
+            android:textColor="@color/text_sub"
+            android:layout_marginTop="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/tv_rating"
+            style="@style/TvStarRating"
+            android:layout_centerVertical="true"
+            android:layout_alignBottom="@id/iv_head"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_above="@id/tv_name" />
+
+        <CheckBox
+            android:id="@+id/cb_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:visibility="gone"/>
+    </RelativeLayout>
+</layout>

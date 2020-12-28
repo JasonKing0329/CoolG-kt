@@ -4,10 +4,11 @@ import android.graphics.BitmapFactory
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.LazyData
+import com.king.app.coolg_kt.model.bean.StarBuilder
 import com.king.app.coolg_kt.model.bean.StarDetailBuilder
-import com.king.app.coolg_kt.model.bean.StarSortBuilder
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.relation.StarWrap
 import io.reactivex.rxjava3.core.Observable
 
@@ -25,20 +26,45 @@ class StarRepository: BaseRepository() {
         }
     }
 
-    fun queryStarsBy(builder: StarSortBuilder): Observable<List<StarWrap>> {
+    fun queryStarsBy(builder: StarBuilder): Observable<List<StarWrap>> {
         return Observable.create {
-            var buffer = StringBuffer("select T.* from stars T ")
-            builder.tagId?.let { tagId ->
-                buffer.append("join tag_star TS on T._id=TS.STAR_ID and TS.TAG_ID=").append(tagId).append(" ")
-            }
-            when {
-                builder.isOrderByName -> buffer.append("order by T.NAME")
-                builder.isOrderByRecords -> buffer.append("order by T.RECORDS")
-                builder.isOrderByRandom -> buffer.append("order by RANDOM()")
-                builder.orderByRatingType != -1 -> {
-                    buffer.append("join star_rating SR on T._id=SR.STAR_ID ")
-                        .append(convertSortRatingType(builder.orderByRatingType))
+            var buffer = StringBuffer()
+            // tables and joins
+            if (builder.studioId == null) {
+                buffer.append("select T.* from stars T ")
+                builder.tagId?.let { tagId ->
+                    buffer.append("join tag_star TS on T._id=TS.STAR_ID and TS.TAG_ID=${tagId} ")
                 }
+            }
+            else {
+                // 有studioId的情况目前不支持tagId
+                buffer.append("select T.* from favor_record fr " +
+                        "join record_star rs on fr.RECORD_ID=rs.RECORD_ID and fr.ORDER_ID=${builder.studioId} " +
+                        "join stars T on rs.STAR_ID=T._id ")
+            }
+            // star_rating必须是left join，否则未评级的直接被过滤掉了
+            if (builder.isSortByRating()) {
+                buffer.append("left join star_rating SR on T._id=SR.STAR_ID ")
+            }
+
+            // where
+            var where = ""
+            var typeSql = when(builder.type) {
+                DataConstants.STAR_MODE_TOP -> "T.BETOP>0 and T.BEBOTTOM=0 "
+                DataConstants.STAR_MODE_BOTTOM -> "T.BEBOTTOM>0 and T.BETOP=0 "
+                DataConstants.STAR_MODE_HALF -> "T.BEBOTTOM>0 and T.BETOP>0 "
+                else -> ""
+            }
+            where = addToWhere(where, typeSql)
+            if (where.isNotEmpty()) {
+                buffer.append(where)
+            }
+            // order by
+            when (builder.sortType){
+                AppConstants.STAR_SORT_NAME -> buffer.append("order by T.NAME COLLATE NOCASE")// 名称不区分大小写
+                AppConstants.STAR_SORT_RECORDS -> buffer.append("order by T.RECORDS")
+                AppConstants.STAR_SORT_RANDOM -> buffer.append("order by RANDOM()")
+                else -> buffer.append(convertSortRatingType(builder.sortType))
             }
             var sql = buffer.toString()
             DebugLog.e(sql)
@@ -48,15 +74,23 @@ class StarRepository: BaseRepository() {
         }
     }
 
+    private fun addToWhere(where: String, condition: String): String {
+        if (condition.isNotEmpty()) {
+            return if (where.isEmpty()) "where $condition"
+            else "$where and $condition"
+        }
+        return where
+    }
+
     private fun convertSortRatingType(type: Int): String {
         return when(type) {
-            AppConstants.STAR_RATING_SORT_FACE -> "order by SR.FACE desc"
-            AppConstants.STAR_RATING_SORT_BODY -> "order by SR.BODY desc"
-            AppConstants.STAR_RATING_SORT_SEX -> "order by SR.SEXUALITY desc"
-            AppConstants.STAR_RATING_SORT_DK -> "order by SR.DK desc"
-            AppConstants.STAR_RATING_SORT_PASSION -> "order by SR.PASSION desc"
-            AppConstants.STAR_RATING_SORT_VIDEO -> "order by SR.VIDEO desc"
-            AppConstants.STAR_RATING_SORT_PREFER -> "order by SR.PREFER desc"
+            AppConstants.STAR_SORT_RATING_FACE -> "order by SR.FACE desc"
+            AppConstants.STAR_SORT_RATING_BODY -> "order by SR.BODY desc"
+            AppConstants.STAR_SORT_RATING_SEXUALITY -> "order by SR.SEXUALITY desc"
+            AppConstants.STAR_SORT_RATING_DK -> "order by SR.DK desc"
+            AppConstants.STAR_SORT_RATING_PASSION -> "order by SR.PASSION desc"
+            AppConstants.STAR_SORT_RATING_VIDEO -> "order by SR.VIDEO desc"
+            AppConstants.STAR_SORT_RATING_PREFER -> "order by SR.PREFER desc"
             else -> "order by SR.COMPLEX desc"
         }
     }
@@ -122,5 +156,4 @@ class StarRepository: BaseRepository() {
             bean.height = (height * ratio).toInt()
         }
     }
-
 }

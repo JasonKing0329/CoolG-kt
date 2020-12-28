@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="3dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/iv_player"
+                android:layout_width="146dp"
+                android:layout_height="90dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_def_person" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:text="Alexander Meslicoff"
+                android:textColor="@color/gdb_record_text_normal_light"
+                android:textSize="18dp"
+                app:layout_constraintStart_toEndOf="@+id/iv_player"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_index"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="0dp"
+                android:padding="5dp"
+                android:gravity="center"
+                android:text="135"
+                android:textColor="@color/gdb_record_text_normal_light"
+                android:textSize="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_videos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="5dp"
+                android:text="29 Videos"
+                android:textColor="@color/text_sub"
+                android:textSize="14dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_player"
+                app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+            <TextView
+                android:id="@+id/tv_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="5dp"
+                android:text="Top 10, Bottom 19"
+                android:textColor="@color/text_sub"
+                android:textSize="12dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_player"
+                app:layout_constraintTop_toBottomOf="@+id/tv_videos" />
+
+            <TextView
+                android:id="@+id/tv_rating"
+                style="@style/TvStarRating"
+                android:layout_marginEnd="4dp"
+                android:text="B+"
+                app:layout_constraintBottom_toTopOf="@+id/iv_more"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <ImageView
+                android:id="@+id/iv_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:layout_marginEnd="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="5dp"
+                app:layout_constraintBottom_toTopOf="@+id/group_expand"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/ic_keyboard_arrow_down_666_24dp" />
+
+            <LinearLayout
+                android:id="@+id/group_expand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/iv_player">
+
+                <TextView
+                    android:id="@+id/tv_score"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="max(95)  min(88)  avg(94.1)"/>
+
+                <TextView
+                    android:id="@+id/tv_score_c"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="C max(95)  min(88)  avg(94.1)"/>
+
+                <TableLayout
+                    android:id="@+id/group_rating"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+                    <TableRow>
+                        <TextView
+                            android:id="@+id/tv_face"
+                            android:layout_weight="1"
+                            android:text="Face  B+"/>
+                        <TextView
+                            android:id="@+id/tv_body"
+                            android:layout_weight="1"
+                            android:text="Body  B+"/>
+                        <TextView
+                            android:id="@+id/tv_video"
+                            android:layout_weight="1"
+                            android:text="Video  B+"/>
+                        <TextView
+                            android:id="@+id/tv_prefer"
+                            android:layout_weight="1"
+                            android:text="Prefer  B+"/>
+                    </TableRow>
+                    <TableRow android:layout_marginTop="5dp">
+                        <TextView
+                            android:id="@+id/tv_sex"
+                            android:layout_weight="1"
+                            android:text="Sexuality  B+"/>
+                        <TextView
+                            android:id="@+id/tv_dk"
+                            android:layout_weight="1"
+                            android:text="Dk/Butt  B+"/>
+                        <TextView
+                            android:id="@+id/tv_passion"
+                            android:layout_weight="1"
+                            android:text="Passion  B+"/>
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

@@ -94,47 +94,36 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
         menu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.menu_sort_name -> {
-                    mModel.mRatingSortType = -1
                     mModel.sortList(AppConstants.STAR_SORT_NAME)
                 }
                 R.id.menu_sort_records -> {
-                    mModel.mRatingSortType = -1
                     mModel.sortList(AppConstants.STAR_SORT_RECORDS)
                 }
                 R.id.menu_sort_rating -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_COMPLEX
                     mModel.sortList(AppConstants.STAR_SORT_RATING)
                 }
                 R.id.menu_sort_rating_face -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_FACE
                     mModel.sortList(AppConstants.STAR_SORT_RATING_FACE)
                 }
                 R.id.menu_sort_rating_body -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_BODY
                     mModel.sortList(AppConstants.STAR_SORT_RATING_BODY)
                 }
                 R.id.menu_sort_rating_dk -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_DK
                     mModel.sortList(AppConstants.STAR_SORT_RATING_DK)
                 }
                 R.id.menu_sort_rating_sexuality -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_SEX
                     mModel.sortList(AppConstants.STAR_SORT_RATING_SEXUALITY)
                 }
                 R.id.menu_sort_rating_passion -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_PASSION
                     mModel.sortList(AppConstants.STAR_SORT_RATING_PASSION)
                 }
                 R.id.menu_sort_rating_video -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_VIDEO
                     mModel.sortList(AppConstants.STAR_SORT_RATING_VIDEO)
                 }
                 R.id.menu_sort_rating_prefer -> {
-                    mModel.mRatingSortType = AppConstants.STAR_RATING_SORT_PREFER
-                    mModel.sortList(AppConstants.STAR_RATING_SORT_PREFER)
+                    mModel.sortList(AppConstants.STAR_SORT_RATING_PREFER)
                 }
                 R.id.menu_sort_random -> {
-                    mModel.mRatingSortType = -1
                     mModel.sortList(AppConstants.STAR_SORT_RANDOM)
                 }
             }

@@ -55,4 +55,7 @@ object PreferenceValue {
     const val SORT_COLUMN_KEY_BODY = "Body"
     const val SORT_COLUMN_KEY_COCK = "Cock"
     const val SORT_COLUMN_KEY_ASS = "Ass"
+
+    const val STAR_LIST_VIEW_CIRCLE = 2
+    const val STAR_LIST_VIEW_RICH = 3
 }

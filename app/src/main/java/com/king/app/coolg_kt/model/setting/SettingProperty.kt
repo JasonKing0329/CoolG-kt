@@ -115,6 +115,14 @@ class SettingProperty: BaseProperty() {
             setInt("pref_video_play_order_view_type", type)
         }
 
+        fun getStarListViewMode(): Int {
+            return getInt("pref_star_list_view_mode")
+        }
+
+        fun setStarListViewMode(random: Int) {
+            setInt("pref_star_list_view_mode", random)
+        }
+
         fun setPlayList(bean: PlayList?) {
             var sql: String? = null
             try {

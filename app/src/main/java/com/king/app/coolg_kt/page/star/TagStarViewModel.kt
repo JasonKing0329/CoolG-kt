@@ -1,15 +1,17 @@
 package com.king.app.coolg_kt.page.star
 
 import android.app.Application
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.LazyData
+import com.king.app.coolg_kt.model.bean.StarBuilder
 import com.king.app.coolg_kt.model.bean.StarDetailBuilder
-import com.king.app.coolg_kt.model.bean.StarSortBuilder
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.module.StarIndexEmitter
 import com.king.app.coolg_kt.model.repository.StarRepository
 import com.king.app.coolg_kt.model.repository.TagRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
@@ -38,7 +40,6 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
 
     // see AppConstants.STAR_SORT_XXX
     var mSortType = AppConstants.STAR_SORT_RATING
-    var mRatingSortType = AppConstants.STAR_RATING_SORT_COMPLEX
     /**
      * 瀑布流模式下item宽度
      */
@@ -46,6 +47,9 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
     var viewColumn = 0
     // see AppConstants.TAG_STAR_XXX
     var viewType = 0
+
+    var indexBarVisibility = ObservableInt()
+    var indexEmitter = StarIndexEmitter()
 
     fun setListViewType(type: Int, column: Int) {
         viewType = type
@@ -111,17 +115,14 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
 
     fun loadTagStars(tagId: Long?) {
         mTagId = tagId
-        val sortBuilder = StarSortBuilder()
+        val builder = StarBuilder()
             .setTagId(tagId)
-            .setOrderByName(mSortType == AppConstants.STAR_SORT_NAME)
-            .setOrderByRecords(mSortType == AppConstants.STAR_SORT_RECORDS)
-            .setOrderByRandom(mSortType == AppConstants.STAR_SORT_RANDOM)
-            .setOrderByRatingType(mRatingSortType)
+            .setSortType(mSortType)
         val detailBuilder = StarDetailBuilder()
             .setLoadImagePath(true)
             .setLoadRating(true)
             .setLoadImageSize(viewType == AppConstants.TAG_STAR_STAGGER, mStaggerColWidth)
-        starRepository.queryStarsBy(sortBuilder)
+        starRepository.queryStarsBy(builder)
             .flatMap { list -> starRepository.lazyLoad(list, 30, detailBuilder) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<LazyData<StarWrap>>(getComposite()) {

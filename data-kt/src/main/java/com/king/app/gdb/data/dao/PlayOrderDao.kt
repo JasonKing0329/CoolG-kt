@@ -1,10 +1,10 @@
 package com.king.app.gdb.data.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.relation.FavorStarOrderWrap
+import com.king.app.gdb.data.relation.VideoCoverPlayOrderWrap
+import com.king.app.gdb.data.relation.VideoCoverStarWrap
 
 /**
  * @description:
@@ -35,7 +35,10 @@ interface PlayOrderDao {
     @Query("select * from video_cover_order")
     fun getVideoCoverOrders(): List<VideoCoverPlayOrder>
 
-    @Insert
+    @Query("select * from video_cover_order")
+    fun getVideoCoverOrderWraps(): List<VideoCoverPlayOrderWrap>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPlayItems(list: List<PlayItem>)
 
     @Insert
@@ -97,5 +100,8 @@ interface PlayOrderDao {
 
     @Query("select count(*) from play_item where ORDER_ID=:orderId")
     fun countOrderItems(orderId: Long): Int
+
+    @Query("select t.* from video_cover_star t order by random() limit :number")
+    fun getRandomStarOrders(number: Int): List<VideoCoverStarWrap>
 
 }

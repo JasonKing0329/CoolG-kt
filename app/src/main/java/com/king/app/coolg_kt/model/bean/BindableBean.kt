@@ -4,6 +4,7 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
 import com.king.app.gdb.data.entity.PlayOrder
+import com.king.app.gdb.data.entity.Star
 
 /**
  * Desc:
@@ -30,5 +31,26 @@ class VideoPlayList : BaseObservable() {
         }
 
     var videos = 0
+
+}
+
+class VideoGuy : BaseObservable() {
+    var star: Star? = null
+    var imageUrl: String? = null
+    var videos = 0
+
+    @get:Bindable
+    var isChecked = false
+        set(checked) {
+            field = checked
+            notifyPropertyChanged(BR.checked)
+        }
+
+    @get:Bindable
+    var visibility = 0
+        set(visibility) {
+            field = visibility
+            notifyPropertyChanged(BR.visibility)
+        }
 
 }

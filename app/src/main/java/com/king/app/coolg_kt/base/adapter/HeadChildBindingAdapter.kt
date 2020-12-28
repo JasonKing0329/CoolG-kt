@@ -101,32 +101,28 @@ abstract class HeadChildBindingAdapter<VH : ViewDataBinding, VI : ViewDataBindin
     ): VI
 
     open fun onClickHead(view: View, position: Int, data: H) {
-        if (onHeadClickListener != null) {
-            onHeadClickListener!!.onClickHead(view, position, data)
-        }
+        onHeadClickListener?.onClickHead(view, position, data)
     }
 
     open fun onClickItem(view: View, position: Int, data: I) {
-        if (onItemClickListener != null) {
-            onItemClickListener!!.onClickItem(view, position, data)
-        }
+        onItemClickListener?.onClickItem(view, position, data)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == TYPE_HEAD) {
             val binding = DataBindingUtil.getBinding<VH>(holder.itemView)
-            onBindHead(binding, position, list!![position] as H)
+            onBindHead(binding!!, position, list!![position] as H)
             binding!!.executePendingBindings()
         } else {
             val binding = DataBindingUtil.getBinding<VI>(holder.itemView)
-            onBindItem(binding, position, list!![position] as I)
+            onBindItem(binding!!, position, list!![position] as I)
             binding!!.executePendingBindings()
         }
     }
 
-    protected abstract fun onBindHead(binding: VH?, position: Int, head: H)
+    protected abstract fun onBindHead(binding: VH, position: Int, head: H)
 
-    protected abstract fun onBindItem(binding: VI?, position: Int, item: I)
+    protected abstract fun onBindItem(binding: VI, position: Int, item: I)
 
     override fun getItemCount(): Int {
         return if (list == null) 0 else list!!.size// 首尾分别为header和footer

@@ -16,13 +16,12 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
-import com.king.app.coolg_kt.page.video.PlayListInstance
+import com.king.app.coolg_kt.page.video.player.PlayListInstance
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.UrlUtil
 import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
-import io.reactivex.Observer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import java.util.*

@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.video
+package com.king.app.coolg_kt.page.video.player
 
 import android.os.Build
 import android.view.View
@@ -22,7 +22,8 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
         val EXTRA_AUTO_PLAY = "auto_play"
     }
 
-    private val ftList = PlayListFragment()
+    private val ftList =
+        PlayListFragment()
 
     override fun isFullScreen(): Boolean {
         return true
@@ -30,7 +31,8 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     override fun getContentView(): Int = R.layout.activity_video_player
 
-    override fun createViewModel(): PlayerViewModel = generateViewModel(PlayerViewModel::class.java)
+    override fun createViewModel(): PlayerViewModel = generateViewModel(
+        PlayerViewModel::class.java)
 
     override fun initView() {
         hideBottomUIMenu()

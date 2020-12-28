@@ -6,6 +6,7 @@ import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.FavorStar
 import com.king.app.gdb.data.entity.FavorStarOrder
+import com.king.app.gdb.data.relation.FavorStarOrderWrap
 
 /**
  * @description:
@@ -101,4 +102,5 @@ interface FavorDao {
 
     @Query("select * from favor_order_record where NAME='Studio'")
     fun getStudioOrder(): FavorRecordOrder?
+
 }

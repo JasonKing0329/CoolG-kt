@@ -44,5 +44,5 @@ data class VideoCoverStarWrap(
 
     @Relation(parentColumn = "STAR_ID",
         entityColumn = "_id")
-    var playOrder: Star? = null
+    var star: Star? = null
 )

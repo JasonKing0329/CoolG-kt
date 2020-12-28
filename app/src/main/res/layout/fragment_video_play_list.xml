@@ -5,7 +5,7 @@
     <data>
         <variable
             name="model"
-            type="com.king.app.coolg_kt.page.video.PlayerViewModel" />
+            type="com.king.app.coolg_kt.page.video.player.PlayerViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

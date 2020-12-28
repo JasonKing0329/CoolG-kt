@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.video
+package com.king.app.coolg_kt.page.video.player
 
 import android.app.Application
 import androidx.databinding.ObservableField

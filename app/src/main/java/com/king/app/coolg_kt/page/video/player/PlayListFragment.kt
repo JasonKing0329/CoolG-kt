@@ -1,15 +1,13 @@
-package com.king.app.coolg_kt.page.video
+package com.king.app.coolg_kt.page.video.player
 
 import android.content.DialogInterface
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseFragment
-import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.base.EmptyViewModel
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.FragmentVideoPlayListBinding
@@ -30,7 +28,8 @@ import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 class PlayListFragment : BaseFragment<FragmentVideoPlayListBinding, EmptyViewModel>() {
     
     private lateinit var playerViewModel: PlayerViewModel
-    private var adapter: PlayListAdapter = PlayListAdapter()
+    private var adapter: PlayListAdapter =
+        PlayListAdapter()
     
     override fun getBinding(inflater: LayoutInflater): FragmentVideoPlayListBinding = FragmentVideoPlayListBinding.inflate(inflater)
     

@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.video
+package com.king.app.coolg_kt.page.video.player
 
 import com.king.app.coolg_kt.model.bean.PlayItemViewBean
 import com.king.app.coolg_kt.model.bean.PlayList
@@ -18,7 +18,8 @@ class PlayListInstance private constructor() {
         fun getInstance(): PlayListInstance {
             synchronized(PlayListInstance::class.java) {
                 if (instance == null) {
-                    instance = PlayListInstance()
+                    instance =
+                        PlayListInstance()
                 }
             }
             return instance!!
@@ -85,25 +86,23 @@ class PlayListInstance private constructor() {
     }
 
     fun addPlayItemViewBean(bean: PlayItemViewBean) {
-        if (bean.record == null) {
-            return
+        bean.record?.let {
+            val playList = playList
+            val existIndex = findExistedItem(playList, bean.playUrl, it.bean.id!!)
+            val item = PlayList.PlayItem()
+            item.url = bean.playUrl
+            item.recordId = it.bean.id!!
+            item.name = it.bean.name
+            //        item.setDuration();
+            // 已有则删除并重新加在末尾，但保留播放时长
+            if (existIndex != -1) {
+                item.playTime = playList.list[existIndex].playTime
+                playList.list.removeAt(existIndex)
+            }
+            item.index = playList.list.size
+            playList.list.add(item)
+            saveList(playList)
         }
-        val playList = playList
-        val existIndex = findExistedItem(playList, bean.playUrl, bean.record!!.id!!)
-        val item =
-            PlayList.PlayItem()
-        item.url = bean.playUrl
-        item.recordId = bean.record!!.id!!
-        item.name = bean.record!!.name
-        //        item.setDuration();
-        // 已有则删除并重新加在末尾，但保留播放时长
-        if (existIndex != -1) {
-            item.playTime = playList.list[existIndex].playTime
-            playList.list.removeAt(existIndex)
-        }
-        item.index = playList.list.size
-        playList.list.add(item)
-        saveList(playList)
     }
 
     fun addRecord(record: Record, url: String?): PlayList.PlayItem {

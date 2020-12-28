@@ -64,7 +64,7 @@
         <activity android:name=".page.video.order.PlayOrderActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".page.video.PlayerActivity"
+        <activity android:name=".page.video.player.PlayerActivity"
             android:screenOrientation="landscape"/>
 
         <service android:name=".service.FileService"/>

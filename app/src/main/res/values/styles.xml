@@ -209,4 +209,26 @@
         <item name="android:layout_marginEnd">@dimen/home_menu_height</item>
     </style>
 
+    <style name="TvSectionTitle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:drawableRight">@drawable/ic_keyboard_arrow_right_grey_700_24dp</item>
+        <item name="android:textColor">@color/text_normal</item>
+    </style>
+
+    <style name="CoverViewOrder">
+        <item name="android:layout_width">165dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="coverTextColor">@color/white</item>
+        <item name="coverTextSize">14dp</item>
+        <item name="coverTextBackgroundColor">#33000000</item>
+        <item name="coverRadius">8dp</item>
+    </style>
+
 </resources>

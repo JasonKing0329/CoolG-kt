@@ -468,4 +468,11 @@ class RecordRepository: BaseRepository() {
             it.onComplete()
         }
     }
+
+    fun getLatestPlayableRecords(limitStart: Int, limitNum: Int): Observable<List<RecordWrap>> {
+        return Observable.create {
+            it.onNext(getDatabase().getRecordDao().getOnlineRecords(limitStart, limitNum))
+            it.onComplete()
+        }
+    }
 }

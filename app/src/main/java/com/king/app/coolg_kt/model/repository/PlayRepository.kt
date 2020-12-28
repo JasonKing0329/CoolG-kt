@@ -52,4 +52,8 @@ class PlayRepository:BaseRepository() {
             it.onComplete()
         }
     }
+
+    fun isExist(orderId: Long, recordId: Long): Boolean {
+        return getDatabase().getPlayOrderDao().countPlayItem(recordId, orderId) > 0
+    }
 }

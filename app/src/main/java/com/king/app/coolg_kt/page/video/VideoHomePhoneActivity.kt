@@ -27,6 +27,7 @@ import com.king.app.coolg_kt.page.video.VideoRecAdapter.OnPlayListener
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.page.video.phone.HomeAdapter
 import com.king.app.coolg_kt.page.video.player.PlayerActivity
+import com.king.app.coolg_kt.page.video.server.VideoServerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
@@ -70,9 +71,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                     showMessageShort("Please stop video first!")
                 }
                 R.id.menu_desktop -> {
-//                    Router.build("VideoServer")
-//                        .go(this@VideoHomePhoneActivity)
-                    TODO()
+                    VideoServerActivity.startPage(this@VideoHomePhoneActivity)
                 }
                 R.id.menu_recommend_setting -> {
                     val content = RecommendFragment()

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="com.king.app.coolg_kt.utils.FormatUtil"/>
+        <import type="android.view.View"/>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.model.http.bean.data.FileBean" />
+        <variable
+            name="isTablet"
+            type="Boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/iv_folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_name"
+            app:srcCompat="@drawable/ic_folder_yellow_700_36dp" />
+
+        <ImageView
+            android:id="@+id/iv_open"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_name"
+            app:srcCompat="@drawable/ic_open_in_browser_red_a200_24dp" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:minHeight="36dp"
+            android:text="@{bean.name}"
+            android:textSize="16dp"
+            android:textColor="@color/text_normal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_folder"
+            app:layout_constraintEnd_toStartOf="@+id/iv_open"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{isTablet ? FormatUtil.formatWholeDate(bean.lastModifyTime) : FormatUtil.formatDate(bean.lastModifyTime)}"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/iv_folder"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{FormatUtil.formatSize(bean.size)}"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_date"
+            app:layout_constraintEnd_toEndOf="@+id/tv_name"
+            app:layout_constraintTop_toTopOf="@+id/tv_date" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

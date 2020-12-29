@@ -58,4 +58,8 @@ object PreferenceValue {
 
     const val STAR_LIST_VIEW_CIRCLE = 2
     const val STAR_LIST_VIEW_RICH = 3
+
+    const val VIDEO_SERVER_SORT_NAME = 0
+    const val VIDEO_SERVER_SORT_DATE = 1
+    const val VIDEO_SERVER_SORT_SIZE = 2
 }

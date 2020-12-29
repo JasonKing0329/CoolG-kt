@@ -1,5 +1,7 @@
 package com.king.app.coolg_kt.page.home.phone
 
+import android.app.Activity
+import android.content.Intent
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -20,6 +22,7 @@ import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.page.video.VideoHomePhoneActivity
+import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import eightbitlab.com.blurview.RenderScriptBlur
 import kotlin.math.abs
@@ -30,6 +33,8 @@ import kotlin.math.abs
  * @date: 2020/12/23 10:04
  */
 class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
+
+    private val REQUEST_VIDEO_ORDER = 101
 
     var adapter = HomeAdapter()
 
@@ -79,7 +84,8 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
             }
 
             override fun onAddPlay(record: HomeRecord) {
-                TODO()
+                mModel.saveRecordToAddViewOrder(record.bean.bean)
+                PlayOrderActivity.startPageToSelect(this@PhoneHomeActivity, REQUEST_VIDEO_ORDER)
             }
         }
     }
@@ -239,6 +245,20 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         }
         else {
             super.onBackPressed()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(requestCode) {
+            REQUEST_VIDEO_ORDER -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (resultCode == RESULT_OK) {
+                        val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                        mModel.insertToPlayList(list)
+                    }
+                }
+            }
         }
     }
 }

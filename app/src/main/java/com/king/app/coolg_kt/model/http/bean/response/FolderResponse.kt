@@ -7,6 +7,6 @@ class FolderResponse {
      * see HttpConstants.FOLDER_TYPE_XX
      */
     var type: String? = null
-    var fileList: List<FileBean>? = null
+    var fileList: MutableList<FileBean> = mutableListOf()
 
 }

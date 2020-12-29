@@ -5,11 +5,16 @@ import android.graphics.BitmapFactory
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.model.http.AppHttpClient
+import com.king.app.coolg_kt.model.http.bean.request.PathRequest
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.utils.UrlUtil
+import com.king.app.gdb.data.entity.PlayItem
+import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -44,6 +49,8 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     var dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
     private var isLoadingMore = false
+
+    private var mRecordAddViewOrder: Record? = null
 
     fun loadData() {
         mOffset = 0
@@ -222,6 +229,57 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
                 }
             }
             it.onNext(urls)
+            it.onComplete()
+        }
+    }
+
+    fun saveRecordToAddViewOrder(record: Record) {
+        mRecordAddViewOrder = record
+    }
+
+    fun insertToPlayList(list: ArrayList<CharSequence>?) {
+        if (list == null) {
+            return
+        }
+        mRecordAddViewOrder?.let {
+            val request = PathRequest()
+            request.path = it.directory
+            request.name = it.name
+            loadingObserver.value = true
+            AppHttpClient.getInstance().getAppService().getVideoPath(request)
+                .flatMap { response -> UrlUtil.toVideoUrl(response) }
+                .flatMap { url -> insertToPlayerListDb(list, it.id!!, url) }
+                .compose(applySchedulers())
+                .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                    override fun onNext(t: Boolean) {
+                        loadingObserver.value = false
+                        messageObserver.value = "success"
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                        loadingObserver.value = false
+                        messageObserver.value = e?.message
+                    }
+                })
+        }
+    }
+
+    private fun insertToPlayerListDb(list: ArrayList<CharSequence>, recordId: Long, url: String): ObservableSource<Boolean> {
+        return ObservableSource {
+            var list = mutableListOf<PlayItem>()
+            list.forEach { id ->
+                val orderId: Long = id.toString().toLong()
+                // 不存在才插入
+                if (getDatabase().getPlayOrderDao().countPlayItem(recordId, orderId) == 0) {
+                    var item = PlayItem(null, orderId, recordId, url)
+                    list.add(item)
+                }
+            }
+            if (list.isNotEmpty()) {
+                getDatabase().getPlayOrderDao().insertPlayItems(list)
+            }
+            it.onNext(true)
             it.onComplete()
         }
     }

@@ -79,7 +79,7 @@ class VideoRecAdapter : CoolBannerAdapter<PlayItemViewBean>() {
         }
         val testView = view.findViewById<TextView>(R.id.tv_index)
         testView.text = position.toString() + "--" + item.name
-        bean.record?.countRecord?.let {
+        bean.record.countRecord?.let {
             tvRank.text = "R-${it.rank}"
         }
     }
@@ -87,7 +87,7 @@ class VideoRecAdapter : CoolBannerAdapter<PlayItemViewBean>() {
     interface OnPlayListener {
         fun onStartPlay()
         fun onPausePlay()
-        fun onClickPlayItem(item: PlayItemViewBean?)
-        fun onInterceptFullScreen(item: PlayItemViewBean?)
+        fun onClickPlayItem(item: PlayItemViewBean)
+        fun onInterceptFullScreen(item: PlayItemViewBean)
     }
 }

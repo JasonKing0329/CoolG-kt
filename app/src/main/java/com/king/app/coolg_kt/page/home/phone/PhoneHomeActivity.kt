@@ -19,6 +19,7 @@ import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
+import com.king.app.coolg_kt.page.video.VideoHomePhoneActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import eightbitlab.com.blurview.RenderScriptBlur
 import kotlin.math.abs
@@ -101,7 +102,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.blurView.setOnTouchListener(touchListener)
         mBinding.groupMenuStar.setOnClickListener { TagStarActivity.startPage(this) }
         mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
-        mBinding.groupMenuVideo.setOnClickListener {  }
+        mBinding.groupMenuVideo.setOnClickListener { VideoHomePhoneActivity.startPage(this) }
         mBinding.groupMenuStudio.setOnClickListener { StudioActivity.startPage(this) }
     }
 

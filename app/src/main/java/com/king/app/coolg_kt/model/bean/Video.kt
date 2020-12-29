@@ -1,7 +1,6 @@
 package com.king.app.coolg_kt.model.bean
 
 import com.king.app.gdb.data.entity.PlayItem
-import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordWrap
 
 /**
@@ -32,10 +31,10 @@ class PlayList {
     }
 }
 
-class PlayItemViewBean {
-    var playItem: PlayItem? = null
-    var cover: String? = null
-    var record: RecordWrap? = null
-    var playUrl: String? = null
+data class PlayItemViewBean (
+    var record: RecordWrap,
+    var playItem: PlayItem? = null,
+    var cover: String? = null,
+    var playUrl: String? = null,
     var name: String? = null
-}
+)

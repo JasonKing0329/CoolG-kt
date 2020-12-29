@@ -18,13 +18,11 @@ import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.video.player.PlayListInstance
 import com.king.app.coolg_kt.utils.UrlUtil
 import com.king.app.coolg_kt.view.widget.video.UrlCallback
-import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.entity.PlayItem
+import com.king.app.gdb.data.entity.VideoCoverPlayOrder
 import com.king.app.gdb.data.relation.RecordWrap
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableEmitter
 import io.reactivex.rxjava3.core.ObservableSource
-import io.reactivex.rxjava3.functions.Function
 import java.util.*
 
 /**
@@ -35,7 +33,8 @@ import java.util.*
  */
 class VideoHomeViewModel(application: Application) : BaseViewModel(application) {
     var recommendObserver: MutableLiveData<MutableList<PlayItemViewBean>> = MutableLiveData()
-    var recentVideosObserver: MutableLiveData<MutableList<Any>> = MutableLiveData()
+    var recentVideosObserver: MutableLiveData<MutableList<PlayItemViewBean>> = MutableLiveData()
+    var headDataObserver: MutableLiveData<VideoHeadData> = MutableLiveData()
     var getPlayUrlFailed: MutableLiveData<Boolean> = MutableLiveData()
     var videoPlayOnReadyObserver: MutableLiveData<Boolean> = MutableLiveData()
     var playRepository = PlayRepository()
@@ -73,8 +72,7 @@ class VideoHomeViewModel(application: Application) : BaseViewModel(application) 
         return ObservableSource {
             val list = mutableListOf<PlayItemViewBean>()
             records.forEach { record ->
-                val bean = PlayItemViewBean()
-                bean.record = record
+                val bean = PlayItemViewBean(record)
                 bean.cover = ImageProvider.getRecordRandomPath(record.bean.name, null)
                 bean.name = parseVideoName(record)
                 list.add(bean)
@@ -146,7 +144,10 @@ class VideoHomeViewModel(application: Application) : BaseViewModel(application) 
             return guys
         }
 
-    fun updateVideoCoverPlayList(list: ArrayList<CharSequence>) {
+    fun updateVideoCoverPlayList(list: ArrayList<CharSequence>?) {
+        if (list == null) {
+            return
+        }
         updateCoverPlayList(list)
             .flatMap { loadCoverPlayLists() }
             .compose(applySchedulers())
@@ -212,8 +213,8 @@ class VideoHomeViewModel(application: Application) : BaseViewModel(application) 
         liveData.value?.let {
             val bean = it[position]
             val request = PathRequest()
-            request.name = bean.record?.bean?.name
-            request.path = bean.record?.bean?.directory
+            request.name = bean.record.bean.name
+            request.path = bean.record.bean.directory
             loadingObserver.value = true
             AppHttpClient.getInstance().getAppService().getVideoPath(request)
                 .flatMap { response -> UrlUtil.toVideoUrl(response) }
@@ -281,19 +282,22 @@ class VideoHomeViewModel(application: Application) : BaseViewModel(application) 
         mItemToAddOrder = bean
     }
 
-    fun insertToPlayList(list: ArrayList<CharSequence>) {
+    fun insertToPlayList(list: ArrayList<CharSequence>?) {
+        if (list == null) {
+            return
+        }
         mItemToAddOrder?.let {
             val observable: Observable<Boolean>
-            loadingObserver.setValue(true)
+            loadingObserver.value = true
             if (it.playUrl?.isEmpty() == true) {
                 val request = PathRequest()
-                request.path = it.record?.bean?.directory
-                request.name = it.record?.bean?.name
+                request.path = it.record.bean.directory
+                request.name = it.record.bean.name
                 observable = AppHttpClient.getInstance().getAppService().getVideoPath(request)
                     .flatMap { response -> UrlUtil.toVideoUrl(response) }
-                    .flatMap { url -> insertToPlayerListDb(list, it.record?.bean?.id!!, it.playUrl) }
+                    .flatMap { url -> insertToPlayerListDb(list, it.record.bean.id!!, it.playUrl) }
             } else {
-                observable = insertToPlayerListDb(list, it.record?.bean?.id!!, it.playUrl)
+                observable = insertToPlayerListDb(list, it.record.bean.id!!, it.playUrl)
             }
             observable
                 .compose(applySchedulers())

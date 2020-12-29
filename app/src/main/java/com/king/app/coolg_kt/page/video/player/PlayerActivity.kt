@@ -1,5 +1,7 @@
 package com.king.app.coolg_kt.page.video.player
 
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.view.animation.*
@@ -20,6 +22,11 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     companion object {
         val EXTRA_AUTO_PLAY = "auto_play"
+        fun startPage(context: Context, autoPlay: Boolean) {
+            var intent = Intent(context, PlayerActivity::class.java)
+            intent.putExtra(EXTRA_AUTO_PLAY, autoPlay)
+            context.startActivity(intent)
+        }
     }
 
     private val ftList =

@@ -61,6 +61,9 @@
         <activity android:name=".page.studio.phone.StudioActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.video.VideoHomePhoneActivity"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".page.video.order.PlayOrderActivity"
             android:screenOrientation="portrait"/>
 

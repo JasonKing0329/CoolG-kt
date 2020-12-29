@@ -1,9 +1,9 @@
 package com.king.app.coolg_kt.page.video.phone
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
+import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.base.adapter.HeaderFooterBindingAdapter
+import com.king.app.coolg_kt.databinding.AdapterFooterMoreBinding
 import com.king.app.coolg_kt.databinding.AdapterVideoHeadBinding
 import com.king.app.coolg_kt.databinding.AdapterVideoHomeItemBinding
 import com.king.app.coolg_kt.model.bean.PlayItemViewBean
@@ -22,56 +22,63 @@ import java.util.*
  * @author：Jing Yang
  * @date: 2019/2/22 16:20
  */
-class HomeAdapter : HeadChildBindingAdapter<AdapterVideoHeadBinding, AdapterVideoHomeItemBinding, VideoHeadData, PlayItemViewBean>() {
+class HomeAdapter :
+    HeaderFooterBindingAdapter<AdapterVideoHeadBinding, AdapterFooterMoreBinding, AdapterVideoHomeItemBinding, PlayItemViewBean>() {
     var onListListener: OnListListener? = null
     var onHeadActionListener: OnHeadActionListener? = null
+    var headData = VideoHeadData()
     var onPlayEmptyUrlListener: OnPlayEmptyUrlListener? = null
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-    
-    override fun onCreateHeadBind(
-        from: LayoutInflater,
-        parent: ViewGroup
-    ): AdapterVideoHeadBinding = AdapterVideoHeadBinding.inflate(from, parent, false)
 
-    override fun onCreateItemBind(
-        from: LayoutInflater,
-        parent: ViewGroup
-    ): AdapterVideoHomeItemBinding = AdapterVideoHomeItemBinding.inflate(from, parent, false)
+    override val headerRes: Int
+        get() = R.layout.adapter_video_head
 
-    override fun onBindHead(binding: AdapterVideoHeadBinding, position: Int, head: VideoHeadData) {
-        binding.data = head
+    override val footerRes: Int
+        get() = R.layout.adapter_footer_more
+
+    override val itemRes: Int
+        get() = R.layout.adapter_video_home_item
+
+    override fun onBindHead(binding: AdapterVideoHeadBinding) {
+        binding.data = headData
         binding.ivRefreshGuys.setOnClickListener { onHeadActionListener?.onRefreshGuy() }
         binding.tvGuys.setOnClickListener {
             onHeadActionListener?.onGuy()
         }
         binding.ivStar0.setOnClickListener {
-            onHeadActionListener?.onClickGuy(head.getGuy(0)!!)
+            onHeadActionListener?.onClickGuy(headData.getGuy(0)!!)
         }
-        binding.ivStar1.setOnClickListener { 
-            onHeadActionListener?.onClickGuy(head.getGuy(1)!!)
+        binding.ivStar1.setOnClickListener {
+            onHeadActionListener?.onClickGuy(headData.getGuy(1)!!)
         }
         binding.ivStar2.setOnClickListener {
-            onHeadActionListener?.onClickGuy(head.getGuy(2)!!)
+            onHeadActionListener?.onClickGuy(headData.getGuy(2)!!)
         }
         binding.ivStar3.setOnClickListener {
-            onHeadActionListener?.onClickGuy(head.getGuy(3)!!)
+            onHeadActionListener?.onClickGuy(headData.getGuy(3)!!)
         }
         binding.ivSetPlayList.setOnClickListener { onHeadActionListener?.onSetPlayList() }
         binding.tvPlayList.setOnClickListener { onHeadActionListener?.onPlayList() }
         binding.ivList0.setOnClickListener {
-            onHeadActionListener?.onClickPlayList(head.getPlayList(0)!!)
+            onHeadActionListener?.onClickPlayList(headData.getPlayList(0)!!)
         }
         binding.ivList1.setOnClickListener {
-            onHeadActionListener?.onClickPlayList(head.getPlayList(1)!!)
+            onHeadActionListener?.onClickPlayList(headData.getPlayList(1)!!)
         }
         binding.ivList2.setOnClickListener {
-            onHeadActionListener?.onClickPlayList(head.getPlayList(2)!!)
+            onHeadActionListener?.onClickPlayList(headData.getPlayList(2)!!)
         }
         binding.ivList3.setOnClickListener {
-            onHeadActionListener?.onClickPlayList(head.getPlayList(3)!!)
+            onHeadActionListener?.onClickPlayList(headData.getPlayList(3)!!)
         }
     }
-    
+
+    override fun onBindFooter(binding: AdapterFooterMoreBinding) {
+        binding.groupMore.setOnClickListener {
+            onListListener?.onLoadMore()
+        }
+    }
+
     override fun onBindItem(binding: AdapterVideoHomeItemBinding, position: Int, bean: PlayItemViewBean) {
         binding.bean = bean
         ImageBindingAdapter.setRecordUrl(binding.videoView.posterImageView, bean.cover)
@@ -85,14 +92,14 @@ class HomeAdapter : HeadChildBindingAdapter<AdapterVideoHeadBinding, AdapterVide
         }
 
         // 第一个位置以及与上一个位置日期不同的，显示日期
-        if (position == 1 || isNotSameDay(bean.record!!, (list!![position - 1]!! as PlayItemViewBean).record!!)) {
+        if (position == 0 || isNotSameDay(bean.record, list!![position - 1].record)) {
             binding.tvDate.visibility = View.VISIBLE
-            binding.tvDate.text = dateFormat.format(Date(bean.record!!.bean.lastModifyTime))
+            binding.tvDate.text = dateFormat.format(Date(bean.record.bean.lastModifyTime))
         } else {
             binding.tvDate.visibility = View.GONE
         }
-        if (bean.record!!.countRecord != null) {
-            binding.tvRank.text = "R-" + bean.record!!.countRecord!!.rank
+        bean.record.countRecord?.let {
+            binding.tvRank.text = "R-${it.rank}"
         }
     }
 
@@ -117,6 +124,4 @@ class HomeAdapter : HeadChildBindingAdapter<AdapterVideoHeadBinding, AdapterVide
         fun onClickGuy(guy: VideoGuy)
     }
 
-    override val itemClass: Class<*>
-        get() = PlayItemViewBean::class.java
 }

@@ -1,8 +1,8 @@
 package com.king.app.coolg_kt.page.video
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Rect
 import android.view.View
 import androidx.lifecycle.Observer
@@ -26,6 +26,7 @@ import com.king.app.coolg_kt.page.record.popup.RecommendFragment.OnRecommendList
 import com.king.app.coolg_kt.page.video.VideoRecAdapter.OnPlayListener
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.page.video.phone.HomeAdapter
+import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
@@ -40,6 +41,14 @@ import tcking.github.com.giraffeplayer2.PlayerManager
  * @date: 2019/2/22 15:26
  */
 class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHomeViewModel>() {
+
+    companion object {
+        fun startPage(context: Context) {
+            var intent = Intent(context, VideoHomePhoneActivity::class.java)
+            context.startActivity(intent)
+        }
+    }
+
     private val REQUEST_INSERT_TO_PLAY_ORDER = 6051
     private val REQUEST_SET_PLAY_ORDER = 6052
     private val REQUEST_ENTER_PLAY_ORDER = 6053
@@ -49,6 +58,8 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
     override fun createViewModel(): VideoHomeViewModel = generateViewModel(VideoHomeViewModel::class.java)
     
     override fun getContentView(): Int = R.layout.activity_video_phone
+
+    override fun isFullScreen(): Boolean = true
 
     override fun initView() {
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
@@ -100,6 +111,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
         // 不自动加载更多
 //        mBinding.rvItems.setOnLoadMoreListener(() -> mModel.loadMore());
         mBinding.fabPlay.setOnClickListener { playList(false) }
+        mBinding.fabTop.setOnClickListener { mBinding.rvItems.scrollToPosition(0) }
 
         // viewpager切换效果
         BannerHelper.setBannerParams(mBinding.banner, ViewProperty.getVideoHomeBannerParams())
@@ -157,7 +169,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 }
 
                 override fun onClickItem(position: Int, bean: PlayItemViewBean) {
-                    RecordActivity.startPage(this@VideoHomePhoneActivity, bean.record!!.bean.id!!)
+                    RecordActivity.startPage(this@VideoHomePhoneActivity, bean.record.bean.id!!)
                 }
 
                 override fun onAddToVideoOrder(bean: PlayItemViewBean) {
@@ -170,50 +182,46 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 mModel.getRecentPlayUrl(position, callback)
             }
         mBinding.rvItems.adapter = adapter
-        mModel.headDataObserver.observe(
-            this,
-            Observer { data: VideoHeadData? ->
-                adapter.setHeadData(data)
-                adapter!!.notifyDataSetChanged()
+        mModel.headDataObserver.observe(this,
+            Observer {
+                adapter.headData = it
+                adapter.notifyDataSetChanged()
             }
         )
-        mModel.recentVideosObserver.observe(
-            this,
-            Observer<List<PlayItemViewBean?>> { list: List<PlayItemViewBean?>? ->
-                adapter!!.list = list
-                adapter!!.notifyDataSetChanged()
+        mModel.recentVideosObserver.observe(this,
+            Observer {
+                adapter.list = it
+                adapter.notifyDataSetChanged()
             }
         )
         // 获取url失败，重新启动轮播
-        mModel.getPlayUrlFailed.observe(
-            this,
-            Observer { failed: Boolean? ->
+        mModel.getPlayUrlFailed.observe(this,
+            Observer {
                 mBinding.banner.startAutoPlay()
                 mBinding.banner.isEnableSwitch = true
             }
         )
-        mModel.recommendObserver.observe(
-            this,
-            Observer<List<PlayItemViewBean?>> { list: List<PlayItemViewBean?> ->
+        mModel.recommendObserver.observe(this,
+            Observer { list ->
                 mBinding.banner.stopAutoPlay()
-                if (list.size == 0) {
+                if (list.isEmpty()) {
                     showMessageShort("No video to recommend")
                     mBinding.banner.adapter = null
-                    return@observe
+                    return@Observer
                 }
                 recAdapter = VideoRecAdapter()
-                recAdapter!!.list = list
-                recAdapter!!.interceptFullScreen = true
+                recAdapter.list = list
+                recAdapter.interceptFullScreen = true
                 // 只要按下播放键就停止轮播
                 // url尚未获取，需要先获取url
-                recAdapter!!.onPlayEmptyUrlListener =
+                recAdapter.onPlayEmptyUrlListener =
                     OnPlayEmptyUrlListener { fingerprint: String, callback: UrlCallback? ->
                         mBinding.banner.stopAutoPlay()
                         mBinding.banner.isEnableSwitch = false
                         val position = fingerprint.toInt()
                         mModel.getRecommendPlayUrl(position, callback!!)
                     }
-                recAdapter!!.onPlayListener = object : OnPlayListener {
+                recAdapter.onPlayListener = object : OnPlayListener {
                     override fun onStartPlay() {
                         // 有可能是url已获取的情况按播放键直接播放了
                         mBinding.banner.stopAutoPlay()
@@ -225,13 +233,11 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                         mBinding.banner.isEnableSwitch = true
                     }
 
-                    override fun onClickPlayItem(item: PlayItemViewBean?) {
-                        Router.build("RecordPhone")
-                            .with(RecordActivity.EXTRA_RECORD_ID, item!!.record.getId())
-                            .go(this@VideoHomePhoneActivity)
+                    override fun onClickPlayItem(item: PlayItemViewBean) {
+                        RecordActivity.startPage(this@VideoHomePhoneActivity, item.record.bean.id!!)
                     }
 
-                    override fun onInterceptFullScreen(item: PlayItemViewBean?) {
+                    override fun onInterceptFullScreen(item: PlayItemViewBean) {
                         mModel.playItem(item!!)
                     }
                 }
@@ -241,23 +247,21 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
         )
         mModel.videoPlayOnReadyObserver.observe(
             this,
-            Observer { play: Boolean? -> playList(true) }
+            Observer { playList(true) }
         )
         mModel.buildPage()
     }
 
     private fun playList(autoPlay: Boolean) {
-        Router.build("Player")
-            .with(PlayerActivity.EXTRA_AUTO_PLAY, autoPlay)
-            .go(this)
+        PlayerActivity.startPage(this, autoPlay)
     }
 
     private fun showBannerSetting() {
         val bannerSettingDialog = BannerSettingFragment()
         bannerSettingDialog.params = ViewProperty.getVideoHomeBannerParams()
         bannerSettingDialog.onAnimSettingListener = object : OnAnimSettingListener {
-            fun onParamsUpdated(params: BannerParams?) {}
-            fun onParamsSaved(params: BannerParams?) {
+            override fun onParamsUpdated(params: BannerHelper.BannerParams) {}
+            override fun onParamsSaved(params: BannerHelper.BannerParams) {
                 ViewProperty.setVideoHomeBannerParams(params)
                 BannerHelper.setBannerParams(mBinding.banner, params)
             }
@@ -273,16 +277,15 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
         resultCode: Int,
         data: Intent?
     ) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SET_PLAY_ORDER) {
             if (resultCode == Activity.RESULT_OK) {
-                val list =
-                    data!!.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
                 mModel.updateVideoCoverPlayList(list)
             }
         } else if (requestCode == REQUEST_INSERT_TO_PLAY_ORDER) {
             if (resultCode == Activity.RESULT_OK) {
-                val list =
-                    data!!.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
                 mModel.insertToPlayList(list)
             }
         } else if (requestCode == REQUEST_ENTER_PLAY_ORDER) {
@@ -290,16 +293,6 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 mModel.loadHeadData()
             }
         }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        // videoView必须在manifest中所属activity指定
-        // android:configChanges="orientation|screenSize",且其中两个参数缺一不可
-        // 同时在onConfigurationChanged中加入相关代码。
-        // 这样在点击全屏时才能顺畅地切换为全屏
-        PlayerManager.getInstance().onConfigurationChanged(newConfig)
     }
 
     override fun onBackPressed() {

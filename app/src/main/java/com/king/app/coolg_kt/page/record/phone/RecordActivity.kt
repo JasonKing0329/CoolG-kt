@@ -372,7 +372,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun playList() {
-        startActivity(Intent(this, PlayerActivity::class.java))
+        PlayerActivity.startPage(this, false)
     }
 
     private fun showScores(list: List<TitleValueBean>) {

@@ -61,7 +61,7 @@ interface StarDao {
     fun deleteTopStars()
 
     @Query("select * from stars where _id=:id")
-    fun getStar(id: Long): Star
+    fun getStar(id: Long): Star?
 
     @Query("select * from stars where _id=:id")
     fun getStarWrap(id: Long): StarWrap

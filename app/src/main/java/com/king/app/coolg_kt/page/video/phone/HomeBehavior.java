@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.video;
+package com.king.app.coolg_kt.page.video.phone;
 
 import android.content.Context;
 import android.graphics.Color;

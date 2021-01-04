@@ -27,6 +27,8 @@ public class EmbedJzvd extends JzvdStd {
 
     private OnVideoListener onVideoListener;
 
+    private int indexInList;
+
     public EmbedJzvd(Context context) {
         super(context);
     }
@@ -55,6 +57,10 @@ public class EmbedJzvd extends JzvdStd {
         return onVideoListener;
     }
 
+    public void setIndexInList(int indexInList) {
+        this.indexInList = indexInList;
+    }
+
     /**
      * 正在播放
      * @return
@@ -69,12 +75,15 @@ public class EmbedJzvd extends JzvdStd {
     @Override
     protected void clickStart() {
         // url为空
-//        if (jzDataSource == null || jzDataSource.urlsMap.isEmpty() || jzDataSource.getCurrentUrl() == null) {
-//            if (onPlayEmptyUrlListener != null) {
-//                onPlayEmptyUrlListener.onPlayEmptyUrl();
-//                return;
-//            }
-//        }
+        if (jzDataSource == null || jzDataSource.urlsMap.isEmpty() || jzDataSource.getCurrentUrl() == null) {
+            if (onPlayEmptyUrlListener != null) {
+                onPlayEmptyUrlListener.onPlayEmptyUrl(indexInList, url -> {
+                    setUp(url, jzDataSource.title);
+                    EmbedJzvd.super.clickStart();
+                });
+                return;
+            }
+        }
         super.clickStart();
     }
 

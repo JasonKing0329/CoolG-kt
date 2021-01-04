@@ -44,6 +44,7 @@ class VideoRecAdapter : CoolBannerAdapter<PlayItemViewBean>() {
 //        if (ScreenUtils.isTablet()) {
 //            videoView.videoInfo.isPortraitWhenFullScreen = false
 //        }
+        videoView.setIndexInList(position)
         videoView.setUp(item.playUrl, "")
         videoView.setOnPlayEmptyUrlListener(onPlayEmptyUrlListener)
         if (interceptFullScreen) {

@@ -13,14 +13,16 @@ data class PlayItemWrap (
     @Embedded
     var bean: PlayItem,
 
-    @Relation(parentColumn = "ORDER_ID",
-        entityColumn = "_id")
-    var playOrder: PlayOrder? = null,
+//    @Relation(parentColumn = "ORDER_ID",
+//        entityColumn = "_id")
+//    var playOrder: PlayOrder? = null,
 
     @Relation(parentColumn = "RECORD_ID",
         entityColumn = "_id")
     var record:Record? = null
-)
+) {
+    var playOrder: PlayOrder? = null
+}
 data class PlayOrderWrap (
     @Embedded
     var bean: PlayOrder,

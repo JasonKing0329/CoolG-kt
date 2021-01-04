@@ -21,7 +21,7 @@ import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
-import com.king.app.coolg_kt.page.video.VideoHomePhoneActivity
+import com.king.app.coolg_kt.page.video.phone.VideoHomePhoneActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import eightbitlab.com.blurview.RenderScriptBlur

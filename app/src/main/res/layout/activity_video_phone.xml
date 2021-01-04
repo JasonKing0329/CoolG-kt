@@ -68,7 +68,7 @@
             android:id="@+id/rv_items"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior=".page.video.HomeBehavior" />
+            app:layout_behavior=".page.video.phone.HomeBehavior" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

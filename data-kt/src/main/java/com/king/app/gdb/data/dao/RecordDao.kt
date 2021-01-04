@@ -42,7 +42,10 @@ interface RecordDao {
     @RawQuery
     fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
 
-    @Query("select * from record where DEPRECATED=0 order by LAST_MODIFY_TIME limit :start, :num")
+    @Query("select * from record where DEPRECATED=0 order by LAST_MODIFY_TIME desc limit :start, :num")
     fun getOnlineRecords(start: Int, num: Int): List<RecordWrap>
+
+    @Query("select r.* from record r join record_star rs on r._id = rs.RECORD_ID where rs.STAR_ID=:starId and r.DEPRECATED=0 order by r.SCORE desc")
+    fun getStarOnlineRecords(starId: Long): List<RecordWrap>
 
 }

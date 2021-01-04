@@ -8,7 +8,6 @@ import android.content.pm.ActivityInfo
 import android.graphics.Rect
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +16,6 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
-import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.databinding.ActivityPlayOrderBinding
 import com.king.app.coolg_kt.model.bean.VideoPlayList
 import com.king.app.coolg_kt.model.setting.SettingProperty
@@ -30,6 +28,10 @@ class PlayOrderActivity : BaseActivity<ActivityPlayOrderBinding, PlayOrderViewMo
     companion object {
         const val EXTRA_MULTI_SELECT = "select_multi"
         const val RESP_SELECT_RESULT = "select_result"
+        fun startPage(context: Context) {
+            var intent = Intent(context, PlayOrderActivity::class.java)
+            context.startActivity(intent)
+        }
         fun startPageToSelect(activity: Activity, requestCode: Int) {
             var intent = Intent(activity, PlayOrderActivity::class.java)
             intent.putExtra(EXTRA_MULTI_SELECT, true)
@@ -202,11 +204,9 @@ class PlayOrderActivity : BaseActivity<ActivityPlayOrderBinding, PlayOrderViewMo
                             if (isEditMode) {
                                 updateOrderName(position, data)
                             } else {
-//                                Router.build("PlayList")
-//                                    .with(PlayListActivity.EXTRA_ORDER_ID, data.playOrder!!.id)
-//                                    .requestCode(REQUEST_PLAY_LIST)
-//                                    .go(this@PlayOrderActivity)
-                                TODO()
+                                data.playOrder?.let {
+                                    PlayOrderItemsActivity.playOrder(this@PlayOrderActivity, it.id!!)
+                                }
                             }
                         }
                     })

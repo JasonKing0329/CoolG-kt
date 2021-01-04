@@ -80,7 +80,6 @@ class PlayListInstance private constructor() {
             item.playTime = playList.list[existIndex].playTime
             playList.list.removeAt(existIndex)
         }
-        item.index = playList.list.size
         playList.list.add(item)
         saveList(playList)
     }
@@ -99,7 +98,6 @@ class PlayListInstance private constructor() {
                 item.playTime = playList.list[existIndex].playTime
                 playList.list.removeAt(existIndex)
             }
-            item.index = playList.list.size
             playList.list.add(item)
             saveList(playList)
         }
@@ -117,7 +115,6 @@ class PlayListInstance private constructor() {
             item.playTime = playList.list[existIndex].playTime
             playList.list.removeAt(existIndex)
         }
-        item.index = playList.list.size
         playList.list.add(item)
         saveList(playList)
         return item
@@ -158,6 +155,9 @@ class PlayListInstance private constructor() {
     }
 
     private fun saveList(playList: PlayList) {
+        playList.list.forEachIndexed { index, playItem ->
+            playItem.index = index + 1
+        }
         SettingProperty.setPlayList(playList)
     }
 

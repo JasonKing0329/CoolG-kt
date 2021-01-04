@@ -61,13 +61,14 @@
         <activity android:name=".page.studio.phone.StudioActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".page.video.VideoHomePhoneActivity"
+        <activity android:name=".page.video.phone.VideoHomePhoneActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.video.order.PlayOrderActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.video.server.VideoServerActivity"/>
+        <activity android:name=".page.video.order.PlayOrderItemsActivity"/>
 
         <activity android:name=".page.video.player.PlayerActivity"
             android:screenOrientation="landscape"/>

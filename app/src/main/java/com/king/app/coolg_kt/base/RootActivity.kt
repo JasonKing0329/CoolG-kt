@@ -110,7 +110,7 @@ abstract class RootActivity : AppCompatActivity() {
         okText: String,
         okListener: DialogInterface.OnClickListener,
         cancelText: String,
-        cancelListener: DialogInterface.OnClickListener
+        cancelListener: DialogInterface.OnClickListener?
     ) {
         AlertDialog.Builder(this)
             .setTitle(null)
@@ -120,10 +120,28 @@ abstract class RootActivity : AppCompatActivity() {
             .show()
     }
 
+    fun showNeutralMessage(
+        msg: String,
+        okText: String,
+        okListener: DialogInterface.OnClickListener,
+        neutralText: String,
+        neutralListener: DialogInterface.OnClickListener,
+        cancelText: String,
+        cancelListener: DialogInterface.OnClickListener?
+    ) {
+        AlertDialog.Builder(this)
+            .setTitle(null)
+            .setMessage(msg)
+            .setPositiveButton(okText, okListener)
+            .setNeutralButton(neutralText, neutralListener)
+            .setNegativeButton(cancelText, cancelListener)
+            .show()
+    }
+
     fun showYesNoMessage(
         msg: String,
         okListener: DialogInterface.OnClickListener,
-        cancelListener: DialogInterface.OnClickListener
+        cancelListener: DialogInterface.OnClickListener?
     ) {
         AlertDialog.Builder(this)
             .setTitle(null)

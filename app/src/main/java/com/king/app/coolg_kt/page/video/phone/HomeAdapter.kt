@@ -83,6 +83,7 @@ class HomeAdapter :
         binding.bean = bean
         ImageBindingAdapter.setRecordUrl(binding.videoView.posterImageView, bean.cover)
         binding.videoView.setOnPlayEmptyUrlListener(onPlayEmptyUrlListener)
+        binding.videoView.setIndexInList(position)
         binding.videoView.setUp(bean.playUrl, "")
         binding.ivAdd.setOnClickListener {
             onListListener?.onAddToVideoOrder(bean)

@@ -29,8 +29,8 @@ class ImageViewModel(application: Application) : BaseViewModel(application) {
 
     fun loadStarImages(starId: Long) {
         val star = getDatabase().getStarDao().getStar(starId)
-        titleText.set(star.name)
-        val list = ImageProvider.getStarPathList(star.name)
+        titleText.set(star?.name)
+        val list = ImageProvider.getStarPathList(star?.name)
         convertToImages(list)
     }
 
@@ -135,8 +135,10 @@ class ImageViewModel(application: Application) : BaseViewModel(application) {
                 for (sequence in list) {
                     val orderId = sequence.toString().toLong()
                     val order = getDatabase().getPlayOrderDao().getPlayOrder(orderId)
-                    order.coverUrl = mUrlToSetCover
-                    getDatabase().getPlayOrderDao().updatePlayOrder(order)
+                    order?.let {
+                        it.coverUrl = mUrlToSetCover
+                        getDatabase().getPlayOrderDao().updatePlayOrder(it)
+                    }
                 }
             }
             e.onNext(true)

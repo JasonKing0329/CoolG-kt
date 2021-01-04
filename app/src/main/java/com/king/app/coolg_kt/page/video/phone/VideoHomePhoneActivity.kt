@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.video
+package com.king.app.coolg_kt.page.video.phone
 
 import android.app.Activity
 import android.content.Context
@@ -23,16 +23,17 @@ import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.record.popup.RecommendFragment
 import com.king.app.coolg_kt.page.record.popup.RecommendFragment.OnRecommendListener
+import com.king.app.coolg_kt.page.video.VideoHomeViewModel
+import com.king.app.coolg_kt.page.video.VideoRecAdapter
 import com.king.app.coolg_kt.page.video.VideoRecAdapter.OnPlayListener
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
-import com.king.app.coolg_kt.page.video.phone.HomeAdapter
+import com.king.app.coolg_kt.page.video.order.PlayOrderItemsActivity
 import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.page.video.server.VideoServerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.widget.video.OnPlayEmptyUrlListener
-import com.king.app.coolg_kt.view.widget.video.UrlCallback
 import tcking.github.com.giraffeplayer2.PlayerManager
 
 /**
@@ -56,7 +57,8 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
     private var adapter = HomeAdapter()
     private var recAdapter = VideoRecAdapter()
 
-    override fun createViewModel(): VideoHomeViewModel = generateViewModel(VideoHomeViewModel::class.java)
+    override fun createViewModel(): VideoHomeViewModel = generateViewModel(
+        VideoHomeViewModel::class.java)
     
     override fun getContentView(): Int = R.layout.activity_video_phone
 
@@ -134,14 +136,13 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
             }
 
             override fun onPlayList() {
-                PlayOrderActivity.startPageToSelect(this@VideoHomePhoneActivity, REQUEST_ENTER_PLAY_ORDER)
+                PlayOrderActivity.startPage(this@VideoHomePhoneActivity)
             }
 
             override fun onClickPlayList(order: VideoPlayList) {
-//                Router.build("PlayList")
-//                    .with(PlayListActivity.EXTRA_ORDER_ID, order.playOrder!!.id)
-//                    .go(this@VideoHomePhoneActivity)
-                TODO()
+                order.playOrder?.let {
+                    PlayOrderItemsActivity.playOrder(this@VideoHomePhoneActivity, it.id!!)
+                }
             }
 
             override fun onRefreshGuy() {
@@ -155,10 +156,9 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
             }
 
             override fun onClickGuy(guy: VideoGuy) {
-//                Router.build("PlayStarList")
-//                    .with(PlayStarListActivity.EXTRA_STAR_ID, guy.star!!.id)
-//                    .go(this@VideoHomePhoneActivity)
-                TODO()
+                guy.star?.let {
+                    PlayOrderItemsActivity.playStar(this@VideoHomePhoneActivity, it.id!!)
+                }
             }
         }
         adapter.onListListener =
@@ -176,8 +176,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 }
             }
         adapter.onPlayEmptyUrlListener =
-            OnPlayEmptyUrlListener { fingerprint, callback ->
-                val position = fingerprint.toInt()
+            OnPlayEmptyUrlListener { position, callback ->
                 mModel.getRecentPlayUrl(position, callback)
             }
         mBinding.rvItems.adapter = adapter
@@ -214,11 +213,10 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 // 只要按下播放键就停止轮播
                 // url尚未获取，需要先获取url
                 recAdapter.onPlayEmptyUrlListener =
-                    OnPlayEmptyUrlListener { fingerprint: String, callback: UrlCallback? ->
+                    OnPlayEmptyUrlListener { position, callback ->
                         mBinding.banner.stopAutoPlay()
                         mBinding.banner.isEnableSwitch = false
-                        val position = fingerprint.toInt()
-                        mModel.getRecommendPlayUrl(position, callback!!)
+                        mModel.getRecommendPlayUrl(position, callback)
                     }
                 recAdapter.onPlayListener = object : OnPlayListener {
                     override fun onStartPlay() {

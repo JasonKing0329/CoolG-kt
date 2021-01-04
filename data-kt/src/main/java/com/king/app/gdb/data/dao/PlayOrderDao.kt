@@ -2,7 +2,6 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import com.king.app.gdb.data.entity.*
-import com.king.app.gdb.data.relation.FavorStarOrderWrap
 import com.king.app.gdb.data.relation.VideoCoverPlayOrderWrap
 import com.king.app.gdb.data.relation.VideoCoverStarWrap
 
@@ -15,13 +14,16 @@ import com.king.app.gdb.data.relation.VideoCoverStarWrap
 interface PlayOrderDao {
 
     @Query("select * from play_order where _id=:id")
-    fun getPlayOrder(id: Long): PlayOrder
+    fun getPlayOrder(id: Long): PlayOrder?
 
     @Insert
     fun insertPlayOrder(order: PlayOrder)
 
     @Query("select * from play_item")
     fun getAllPlayItems(): List<PlayItem>
+
+    @Query("select * from play_item where ORDER_ID=:orderId")
+    fun getPlayItemsBy(orderId: Long): List<PlayItem>
 
     @Query("select * from play_order")
     fun getAllPlayOrders(): List<PlayOrder>
@@ -55,6 +57,12 @@ interface PlayOrderDao {
 
     @Query("delete from play_item")
     fun deletePlayItems()
+
+    @Query("delete from play_item where ORDER_ID=:orderId")
+    fun deletePlayItems(orderId: Long)
+
+    @Delete
+    fun deletePlayItem(item: PlayItem)
 
     @Query("delete from play_order")
     fun deletePlayOrders()

@@ -1,5 +1,7 @@
 package com.king.app.coolg_kt.model.repository
 
+import com.king.app.coolg_kt.model.bean.PlayItemViewBean
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.gdb.data.entity.PlayDuration
 import com.king.app.gdb.data.entity.PlayItem
 import com.king.app.gdb.data.entity.PlayOrder
@@ -56,4 +58,37 @@ class PlayRepository:BaseRepository() {
     fun isExist(orderId: Long, recordId: Long): Boolean {
         return getDatabase().getPlayOrderDao().countPlayItem(recordId, orderId) > 0
     }
+
+    fun getPlayOrderItems(orderId: Long): Observable<List<PlayItemViewBean>> {
+        return Observable.create {
+            val items = getDatabase().getPlayOrderDao().getPlayItemsBy(orderId)
+            val list = mutableListOf<PlayItemViewBean>()
+            items.forEach { playItem ->
+                var record = getDatabase().getRecordDao().getRecord(playItem.recordId)
+                record?.let { rec ->
+                    val item = PlayItemViewBean(rec, playItem)
+                    item.cover = ImageProvider.getRecordRandomPath(rec.bean.name, null)
+                    item.playUrl = playItem.url
+                    list.add(item)
+                }
+            }
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
+    fun getStarPlayItems(starId: Long): Observable<List<PlayItemViewBean>> {
+        return Observable.create {
+            val records = getDatabase().getRecordDao().getStarOnlineRecords(starId)
+            val list = mutableListOf<PlayItemViewBean>()
+            records.forEach {
+                val item = PlayItemViewBean(it)
+                item.cover = ImageProvider.getRecordRandomPath(it.bean.name, null)
+                list.add(item)
+            }
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
 }

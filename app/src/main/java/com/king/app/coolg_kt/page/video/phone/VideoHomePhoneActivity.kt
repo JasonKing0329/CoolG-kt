@@ -28,6 +28,7 @@ import com.king.app.coolg_kt.page.video.VideoRecAdapter
 import com.king.app.coolg_kt.page.video.VideoRecAdapter.OnPlayListener
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderItemsActivity
+import com.king.app.coolg_kt.page.video.order.PopularStarActivity
 import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.page.video.server.VideoServerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
@@ -150,9 +151,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
             }
 
             override fun onGuy() {
-//                Router.build("PopularStar")
-//                    .go(this@VideoHomePhoneActivity)
-                TODO()
+                PopularStarActivity.startPage(this@VideoHomePhoneActivity)
             }
 
             override fun onClickGuy(guy: VideoGuy) {

@@ -48,4 +48,7 @@ interface RecordDao {
     @Query("select r.* from record r join record_star rs on r._id = rs.RECORD_ID where rs.STAR_ID=:starId and r.DEPRECATED=0 order by r.SCORE desc")
     fun getStarOnlineRecords(starId: Long): List<RecordWrap>
 
+    @Query("select count(*) from record r join record_star rs on r._id = rs.RECORD_ID where rs.STAR_ID=:starId and r.DEPRECATED=0")
+    fun countStarOnlineRecords(starId: Long): Int
+
 }

@@ -34,6 +34,12 @@ interface PlayOrderDao {
     @Query("select * from video_cover_star")
     fun getVideoCoverStars(): List<VideoCoverStar>
 
+    @Query("select * from video_cover_star")
+    fun getVideoCoverStarWraps(): List<VideoCoverStarWrap>
+
+    @Query("select * from video_cover_star where STAR_ID=:starId")
+    fun getVideoCoverStar(starId: Long): VideoCoverStar?
+
     @Query("select * from video_cover_order")
     fun getVideoCoverOrders(): List<VideoCoverPlayOrder>
 
@@ -81,6 +87,9 @@ interface PlayOrderDao {
 
     @Query("delete from video_cover_star")
     fun deleteVideoCoverStars()
+
+    @Query("delete from video_cover_star where STAR_ID=:starId")
+    fun deleteVideoCoverStar(starId: Long)
 
     @Query("delete from video_cover_order")
     fun deleteVideoCoverPlayOrders()

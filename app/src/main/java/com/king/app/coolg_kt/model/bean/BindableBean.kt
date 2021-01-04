@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.model.bean
 
+import android.view.View
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
@@ -38,6 +39,8 @@ class VideoGuy : BaseObservable() {
     var star: Star? = null
     var imageUrl: String? = null
     var videos = 0
+    var width = 0
+    var height = 0
 
     @get:Bindable
     var isChecked = false
@@ -47,7 +50,7 @@ class VideoGuy : BaseObservable() {
         }
 
     @get:Bindable
-    var visibility = 0
+    var visibility = View.GONE
         set(visibility) {
             field = visibility
             notifyPropertyChanged(BR.visibility)

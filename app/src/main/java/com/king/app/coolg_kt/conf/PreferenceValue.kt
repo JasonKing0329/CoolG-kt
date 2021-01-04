@@ -62,4 +62,8 @@ object PreferenceValue {
     const val VIDEO_SERVER_SORT_NAME = 0
     const val VIDEO_SERVER_SORT_DATE = 1
     const val VIDEO_SERVER_SORT_SIZE = 2
+
+    const val VIEW_TYPE_LIST = 0
+    const val VIEW_TYPE_GRID = 1
+
 }

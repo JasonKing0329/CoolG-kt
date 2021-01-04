@@ -131,6 +131,14 @@ class SettingProperty: BaseProperty() {
             setInt("pref_video_server_sort", type)
         }
 
+        fun getVideoStarOrderViewType(): Int {
+            return getInt("pref_video_star_order_view_type")
+        }
+
+        fun setVideoStarOrderViewType(type: Int) {
+            setInt("pref_video_star_order_view_type", type)
+        }
+
         fun setPlayList(bean: PlayList?) {
             var sql: String? = null
             try {

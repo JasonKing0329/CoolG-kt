@@ -11,6 +11,7 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityVideoPlayerBinding
 import com.king.app.coolg_kt.model.bean.PlayList
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.view.widget.video.*
 
 /**
@@ -75,6 +76,10 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
             override fun onStart() {
 
             }
+
+            override fun onError() {
+                showMessageShort("load error")
+            }
         }
         mBinding.videoView.onVideoClickListener =
             OnVideoClickListener { dismissPlayList() }
@@ -99,10 +104,15 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     override fun initData() {
         mModel.closeListObserver.observe(this, Observer{ dismissPlayList() })
-        mModel.prepareVideo.observe(this, Observer{ bean -> prepareItem(bean) })
+        mModel.prepareVideo.observe(this, Observer{ bean ->
+            DebugLog.e("prepareVideo changed")
+            prepareItem(bean)
+        })
         mModel.playVideo.observe(this, Observer{ bean -> playItem(bean) })
         mModel.stopVideoObserver.observe(this, Observer{ mBinding.videoView.pause() })
         mModel.videoUrlIsReady.observe(this, Observer{ bean -> urlIsReady(bean) })
+        mModel.playIndexObserver.observe(this, Observer { ftList.playVideoAt(it) })
+        mModel.itemsObserver.observe(this, Observer { ftList.showList(it) })
 
         mModel.loadPlayItems(isInitAutoPlay())
     }
@@ -121,7 +131,7 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
     }
 
     private fun playItem(bean: PlayList.PlayItem) {
-        mBinding.videoView.startVideo()
+//        mBinding.videoView.startVideo()
     }
 
     private fun dismissPlayList() {
@@ -152,11 +162,22 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
         }
     }
 
-    override fun onDestroy() {
+    override fun onPause() {
+        super.onPause()
         mModel?.updatePlayToDb()
         Jzvd.releaseAllVideos()
+    }
+
+    override fun onDestroy() {
         PlayListInstance.getInstance().destroy()
         super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        if (Jzvd.backPress()) {
+            return
+        }
+        super.onBackPressed()
     }
 
     private fun listAppear(): Animation {

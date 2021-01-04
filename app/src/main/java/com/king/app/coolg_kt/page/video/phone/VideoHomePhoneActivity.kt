@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import cn.jzvd.Jzvd
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityVideoPhoneBinding
@@ -34,8 +35,8 @@ import com.king.app.coolg_kt.page.video.server.VideoServerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.widget.video.EmbedJzvd
 import com.king.app.coolg_kt.view.widget.video.OnPlayEmptyUrlListener
-import tcking.github.com.giraffeplayer2.PlayerManager
 
 /**
  * Desc:
@@ -110,6 +111,8 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 }
             }
         })
+        registerVideoList(mBinding.rvItems)
+
         // 不自动加载更多
 //        mBinding.rvItems.setOnLoadMoreListener(() -> mModel.loadMore());
         mBinding.fabPlay.setOnClickListener { playList(false) }
@@ -124,8 +127,16 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
         mBinding.banner.startAutoPlay()
     }
 
+    override fun onBackPressed() {
+        if (Jzvd.backPress()) {
+            return
+        }
+        super.onBackPressed()
+    }
+
     override fun onPause() {
         super.onPause()
+        Jzvd.releaseAllVideos()
         mBinding.banner.stopAutoPlay()
     }
 
@@ -236,6 +247,10 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                     override fun onInterceptFullScreen(item: PlayItemViewBean) {
                         mModel.playItem(item!!)
                     }
+
+                    override fun onError() {
+                        showMessageShort("load error")
+                    }
                 }
                 mBinding.banner.adapter = recAdapter
                 mBinding.banner.startAutoPlay()
@@ -291,10 +306,4 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
         }
     }
 
-    override fun onBackPressed() {
-        if (PlayerManager.getInstance().onBackPressed()) {
-            return
-        }
-        super.onBackPressed()
-    }
 }

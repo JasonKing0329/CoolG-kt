@@ -77,6 +77,10 @@ class VideoRecAdapter : CoolBannerAdapter<PlayItemViewBean>() {
             override fun onStart() {
                 onPlayListener?.onStartPlay()
             }
+
+            override fun onError() {
+                onPlayListener?.onError()
+            }
         }
         val testView = view.findViewById<TextView>(R.id.tv_index)
         testView.text = position.toString() + "--" + item.name
@@ -90,5 +94,6 @@ class VideoRecAdapter : CoolBannerAdapter<PlayItemViewBean>() {
         fun onPausePlay()
         fun onClickPlayItem(item: PlayItemViewBean)
         fun onInterceptFullScreen(item: PlayItemViewBean)
+        fun onError()
     }
 }

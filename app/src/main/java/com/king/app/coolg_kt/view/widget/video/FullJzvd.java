@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.king.app.coolg_kt.R;
@@ -11,6 +12,7 @@ import com.king.app.coolg_kt.utils.DebugLog;
 import com.king.app.coolg_kt.utils.FormatUtil;
 
 import cn.jzvd.JZDataSource;
+import cn.jzvd.Jzvd;
 import cn.jzvd.JzvdStd;
 
 /**
@@ -132,12 +134,153 @@ public class FullJzvd extends JzvdStd {
     public void changeStartButtonSize(int size) { }
 
     /**
+     * setup第一个url后，会执行到这里。父类里没有显示bottom control，这里覆盖掉
+     */
+    @Override
+    public void changeUiToNormal() {
+        DebugLog.e();
+        switch (screen) {
+            case SCREEN_NORMAL:
+            case SCREEN_FULLSCREEN:
+                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
+                        View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                setPlayIcon(true);
+                break;
+            case SCREEN_TINY:
+                break;
+        }
+    }
+
+    /**
+     * 加载过程中父类什么也不显示，这里覆盖掉
+     */
+    @Override
+    public void changeUiToPreparing() {
+        DebugLog.e();
+        switch (screen) {
+            case SCREEN_NORMAL:
+            case SCREEN_FULLSCREEN:
+                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
+                        View.VISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                setPlayIcon(false);
+                break;
+            case SCREEN_TINY:
+                break;
+        }
+    }
+
+    /**
+     * 加载过程中父类什么也不显示，这里覆盖掉
+     */
+    @Override
+    public void changeUIToPreparingPlaying() {
+        DebugLog.e();
+        switch (screen) {
+            case SCREEN_NORMAL:
+            case SCREEN_FULLSCREEN:
+                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
+                        View.VISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                setPlayIcon(false);
+                break;
+            case SCREEN_TINY:
+                break;
+        }
+    }
+
+    /**
+     * 加载过程中父类什么也不显示，这里覆盖掉
+     */
+    @Override
+    public void changeUiToComplete() {
+        DebugLog.e();
+        switch (screen) {
+            case SCREEN_NORMAL:
+            case SCREEN_FULLSCREEN:
+                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
+                        View.VISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                setPlayIcon(true);
+                break;
+            case SCREEN_TINY:
+                break;
+        }
+    }
+
+    /**
+     * error后父类什么也不显示，也无法启动，这里覆盖掉
+     */
+    @Override
+    public void changeUiToError() {
+        DebugLog.e();
+        switch (screen) {
+            case SCREEN_NORMAL:
+            case SCREEN_FULLSCREEN:
+                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
+                        View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                break;
+            case SCREEN_TINY:
+                break;
+        }
+    }
+
+    /**
+     * releaseAllVideos之后会执行这个
+     */
+    @Override
+    public void onStateNormal() {
+        DebugLog.e();
+        super.onStateNormal();
+    }
+
+    /**
      * 覆盖点击播放按钮事件。这里可以检测处于播放还是暂停状态
      */
     @Override
     protected void clickStart() {
-        super.clickStart();
+        DebugLog.e();
+        if (jzDataSource == null || jzDataSource.urlsMap.isEmpty() || jzDataSource.getCurrentUrl() == null) {
+            return;
+        }
+        // 长时间一直在加载中，令其中断
+        if (state == STATE_PREPARING || state == STATE_PREPARING_PLAYING) {
+            Jzvd.releaseAllVideos();
+        }
+        // 加载出错后支持重新开始加载
+        else if (state == STATE_ERROR) {
+            startVideo();
+        }
+        else {
+            super.clickStart();
+        }
     }
+
+    /**
+     * 扩展点击事件
+     * @param v
+     */
+    @Override
+    public void onClick(View v) {
+        DebugLog.e();
+        super.onClick(v);
+        // 正在转圈的时候，点击屏幕都执行top、bottom bar的唤起与消失
+        if ((state == STATE_PREPARING || state == STATE_PREPARING_PLAYING) && v.getId() == R.id.surface_container) {
+            DebugLog.e("surface_container");
+            if (bottomContainer.getVisibility() == VISIBLE) {
+                topContainer.setVisibility(INVISIBLE);
+                bottomContainer.setVisibility(INVISIBLE);
+                startButton.setVisibility(INVISIBLE);
+            }
+            else {
+                topContainer.setVisibility(VISIBLE);
+                bottomContainer.setVisibility(VISIBLE);
+                startButton.setVisibility(VISIBLE);
+            }
+        }
+    }
+
+    /**
+     * 覆盖父类点击事件，播放与暂停全部交于startButton，不允许通过点击海报执行播放    */
+    @Override
+    protected void clickPoster() {}
 
     /**
      * 按下播放按钮后，确认是要执行播放事件，super方法中开始准备资源、加载视频
@@ -192,6 +335,7 @@ public class FullJzvd extends JzvdStd {
     @Override
     public void onPrepared() {
         super.onPrepared();
+        DebugLog.e();
         if (onVideoDurationListener != null) {
             onVideoDurationListener.onReceiveDuration(getDuration());
         }
@@ -209,7 +353,16 @@ public class FullJzvd extends JzvdStd {
     public void onStatePlaying() {
         super.onStatePlaying();
         DebugLog.e();
-        startButton.setImageResource(R.drawable.ic_stop_white_36dp);
+        setPlayIcon(false);
+    }
+
+    private void setPlayIcon(boolean isPlayIcon) {
+        if (isPlayIcon) {
+            startButton.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+        }
+        else {
+            startButton.setImageResource(R.drawable.ic_stop_white_36dp);
+        }
     }
 
     /**
@@ -223,7 +376,7 @@ public class FullJzvd extends JzvdStd {
             updatePosition();
             onVideoListener.onPause();
         }
-        startButton.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+        setPlayIcon(true);
     }
 
     /**
@@ -237,7 +390,15 @@ public class FullJzvd extends JzvdStd {
             updatePosition();
             onVideoListener.onPlayComplete();
         }
-        startButton.setImageResource(R.drawable.ic_stop_white_36dp);
+        setPlayIcon(false);
+    }
+
+    @Override
+    public void onStateError() {
+        super.onStateError();
+        DebugLog.e();
+        setPlayIcon(true);
+        onVideoListener.onError();
     }
 
     /**
@@ -254,6 +415,7 @@ public class FullJzvd extends JzvdStd {
      * @param title
      */
     public void setPlayUrl(String url, String title) {
+        DebugLog.e(url);
         // 第一次使用setUp，不自动播放
         if (jzDataSource == null) {
             setUp(url, title);
@@ -261,6 +423,7 @@ public class FullJzvd extends JzvdStd {
         // 以后的调用更换url，但父类的changeUrl直接调用了startVideo，通过覆盖onStatePreparingChangeUrl禁止自动播放
         else {
             changeUrl(new JZDataSource(url, title), 0);
+            clickStart();
         }
     }
 
@@ -270,6 +433,7 @@ public class FullJzvd extends JzvdStd {
      */
     @Override
     public void onStatePreparingChangeUrl() {
+        DebugLog.e();
         state = STATE_PREPARING_CHANGE_URL;
         releaseAllVideos();
     }
@@ -278,8 +442,11 @@ public class FullJzvd extends JzvdStd {
      * 暂停播放
      */
     public void pause() {
-        mediaInterface.pause();
-        onStatePause();
+        DebugLog.e();
+        if (mediaInterface != null) {
+            mediaInterface.pause();
+            onStatePause();
+        }
     }
 
     /**
@@ -294,6 +461,7 @@ public class FullJzvd extends JzvdStd {
      */
     @Override
     public void setAllControlsVisiblity(int topCon, int bottomCon, int startBtn, int loadingPro, int posterImg, int bottomPro, int retryLayout) {
+        DebugLog.e("bottomCon=" + bottomCon);
         super.setAllControlsVisiblity(topCon, bottomCon, startBtn, loadingPro, posterImg, bottomPro, retryLayout);
         ivBack.setVisibility(topCon);
     }

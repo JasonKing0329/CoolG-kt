@@ -2,11 +2,16 @@ package com.king.app.coolg_kt.base
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
+import cn.jzvd.Jzvd
 import com.king.app.coolg_kt.CoolApplication
+import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.view.widget.video.EmbedJzvd
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
@@ -89,5 +94,26 @@ abstract class BaseActivity<T : ViewDataBinding, VM : BaseViewModel> : RootActiv
 
     open fun getIntentBundle(intent: Intent): Bundle? {
         return intent.getBundleExtra(KEY_BUNDLE)
+    }
+
+    fun registerVideoList(recyclerView: RecyclerView) {
+        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewDetachedFromWindow(view: View) {
+
+            }
+
+            override fun onChildViewAttachedToWindow(view: View) {
+                var jzvd = view.findViewById<EmbedJzvd?>(R.id.video_view)
+                jzvd?.let { detachedJzvd ->
+                    Jzvd.CURRENT_JZVD?.let { curJzvd ->
+                        if (detachedJzvd.jzDataSource.containsTheUrl(curJzvd.jzDataSource.currentUrl)
+                            && Jzvd.CURRENT_JZVD.screen != Jzvd.SCREEN_FULLSCREEN) {
+                            Jzvd.releaseAllVideos()
+                        }
+                    }
+                }
+            }
+
+        })
     }
 }

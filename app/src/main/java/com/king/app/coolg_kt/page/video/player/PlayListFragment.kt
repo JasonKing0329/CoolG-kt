@@ -98,19 +98,16 @@ class PlayListFragment : BaseFragment<FragmentVideoPlayListBinding, EmptyViewMod
             }
         }
         mBinding.rvList.adapter = adapter
-
-        playerViewModel.playIndexObserver.observe(this,
-            Observer {
-                val manager = mBinding.rvList.layoutManager as LinearLayoutManager
-                manager.scrollToPosition(it)
-                adapter.mPlayIndex = it
-                adapter.notifyDataSetChanged()
-            }
-        )
-        playerViewModel.itemsObserver.observe(this, Observer { showList(it) })
     }
 
-    private fun showList(list: List<PlayList.PlayItem>) {
+    fun playVideoAt(position: Int) {
+        val manager = mBinding.rvList.layoutManager as LinearLayoutManager
+        manager.scrollToPosition(position)
+        adapter.mPlayIndex = position
+        adapter.notifyDataSetChanged()
+    }
+
+    fun showList(list: List<PlayList.PlayItem>) {
         adapter.list = list
         adapter.notifyDataSetChanged()
     }

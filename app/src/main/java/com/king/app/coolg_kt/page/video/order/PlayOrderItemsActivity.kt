@@ -9,6 +9,7 @@ import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import cn.jzvd.Jzvd
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
@@ -99,6 +100,7 @@ class PlayOrderItemsActivity:
                 }
             })
         }
+        registerVideoList(mBinding.rvVideos)
 
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener { menuId ->
@@ -194,6 +196,18 @@ class PlayOrderItemsActivity:
 
     fun setResultChanged() {
         setResult(RESULT_OK)
+    }
+
+    override fun onBackPressed() {
+        if (Jzvd.backPress()) {
+            return
+        }
+        super.onBackPressed()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Jzvd.releaseAllVideos()
     }
 
 }

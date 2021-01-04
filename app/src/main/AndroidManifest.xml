@@ -62,16 +62,19 @@
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.video.phone.VideoHomePhoneActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.video.order.PlayOrderActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.video.server.VideoServerActivity"/>
-        <activity android:name=".page.video.order.PlayOrderItemsActivity"/>
+        <activity android:name=".page.video.order.PlayOrderItemsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".page.video.order.PopularStarActivity"/>
 
         <activity android:name=".page.video.player.PlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="landscape"/>
 
         <service android:name=".service.FileService"/>

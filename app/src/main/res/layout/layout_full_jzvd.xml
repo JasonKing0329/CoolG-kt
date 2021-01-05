@@ -142,6 +142,7 @@
             android:id="@+id/app_video_list"
             style="@style/IvVideoIcon"
             android:src="@drawable/ic_playlist_play_white_24dp"
+            android:layout_marginEnd="@dimen/video_player_icon_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/start" />
 

@@ -139,52 +139,35 @@ public class FullJzvd extends JzvdStd {
     @Override
     public void changeUiToNormal() {
         DebugLog.e();
-        switch (screen) {
-            case SCREEN_NORMAL:
-            case SCREEN_FULLSCREEN:
-                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
-                        View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                setPlayIcon(true);
-                break;
-            case SCREEN_TINY:
-                break;
-        }
+        setControlBarVisible(false);
     }
 
     /**
-     * 加载过程中父类什么也不显示，这里覆盖掉
+     * 正在加载，覆盖父类，使control bar都可见
      */
     @Override
     public void changeUiToPreparing() {
         DebugLog.e();
-        switch (screen) {
-            case SCREEN_NORMAL:
-            case SCREEN_FULLSCREEN:
-                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
-                        View.VISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                setPlayIcon(false);
-                break;
-            case SCREEN_TINY:
-                break;
-        }
+        setControlBarVisible(true);
+        setPlayIcon(false);
     }
 
     /**
-     * 加载过程中父类什么也不显示，这里覆盖掉
+     * 正在加载变化的url，覆盖父类，使control bar都可见
+     */
+    @Override
+    public void changeUIToPreparingChangeUrl() {
+        DebugLog.e();
+        setControlBarVisible(true);
+    }
+
+    /**
+     * 正在加载变化的url，覆盖父类，使control bar都可见
      */
     @Override
     public void changeUIToPreparingPlaying() {
         DebugLog.e();
-        switch (screen) {
-            case SCREEN_NORMAL:
-            case SCREEN_FULLSCREEN:
-                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
-                        View.VISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                setPlayIcon(false);
-                break;
-            case SCREEN_TINY:
-                break;
-        }
+        setControlBarVisible(true);
     }
 
     /**
@@ -193,16 +176,7 @@ public class FullJzvd extends JzvdStd {
     @Override
     public void changeUiToComplete() {
         DebugLog.e();
-        switch (screen) {
-            case SCREEN_NORMAL:
-            case SCREEN_FULLSCREEN:
-                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
-                        View.VISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                setPlayIcon(true);
-                break;
-            case SCREEN_TINY:
-                break;
-        }
+        setControlBarVisible(false);
     }
 
     /**
@@ -211,15 +185,36 @@ public class FullJzvd extends JzvdStd {
     @Override
     public void changeUiToError() {
         DebugLog.e();
-        switch (screen) {
-            case SCREEN_NORMAL:
-            case SCREEN_FULLSCREEN:
-                setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
-                        View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                break;
-            case SCREEN_TINY:
-                break;
-        }
+        setControlBarVisible(false);
+    }
+
+    private void setControlBarVisible(boolean isLoading) {
+        setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
+                isLoading ? View.VISIBLE:View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+    }
+
+    @Override
+    public void changeUiToPauseClear() {
+        DebugLog.e();
+        super.changeUiToPauseClear();
+    }
+
+    @Override
+    public void changeUiToPauseShow() {
+        DebugLog.e();
+        super.changeUiToPauseShow();
+    }
+
+    @Override
+    public void changeUiToPlayingClear() {
+        DebugLog.e();
+        super.changeUiToPlayingClear();
+    }
+
+    @Override
+    public void changeUiToPlayingShow() {
+        DebugLog.e();
+        super.changeUiToPlayingShow();
     }
 
     /**
@@ -280,7 +275,9 @@ public class FullJzvd extends JzvdStd {
     /**
      * 覆盖父类点击事件，播放与暂停全部交于startButton，不允许通过点击海报执行播放    */
     @Override
-    protected void clickPoster() {}
+    protected void clickPoster() {
+        DebugLog.e();
+    }
 
     /**
      * 按下播放按钮后，确认是要执行播放事件，super方法中开始准备资源、加载视频
@@ -288,21 +285,7 @@ public class FullJzvd extends JzvdStd {
     @Override
     public void startVideo() {
         DebugLog.e();
-        if (onVideoListener != null) {
-            onVideoListener.onStart();
-        }
-        // 在这里处理从头播放/恢复播放
-        if (onVideoListener == null) {
-            super.startVideo();
-        }
-        else {
-            if (isInitVideo && onVideoListener.getStartSeek() > 0) {
-                restartOrRestore();
-            }
-            else {
-                super.startVideo();
-            }
-        }
+        super.startVideo();
     }
 
     private void restartOrRestore() {
@@ -410,32 +393,21 @@ public class FullJzvd extends JzvdStd {
     }
 
     /**
-     * 设置播放地址
+     * 设置播放地址并播放，如果没有setUp过用setUp在clickStart，否则直接changeUrl
      * @param url
      * @param title
      */
-    public void setPlayUrl(String url, String title) {
+    public void playUrl(String url, String title) {
         DebugLog.e(url);
-        // 第一次使用setUp，不自动播放
         if (jzDataSource == null) {
             setUp(url, title);
+            clickStart();
         }
         // 以后的调用更换url，但父类的changeUrl直接调用了startVideo，通过覆盖onStatePreparingChangeUrl禁止自动播放
         else {
+            // changeUrl，会在onStatePreparingChangeUrl状态时自动调用startVideo自动播放
             changeUrl(new JZDataSource(url, title), 0);
-            clickStart();
         }
-    }
-
-    /**
-     * 覆盖父类的更换播放地址逻辑，去掉更换url后自动播放
-     * 外界调用startVideo来启动
-     */
-    @Override
-    public void onStatePreparingChangeUrl() {
-        DebugLog.e();
-        state = STATE_PREPARING_CHANGE_URL;
-        releaseAllVideos();
     }
 
     /**

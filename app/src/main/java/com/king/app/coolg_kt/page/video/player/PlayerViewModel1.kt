@@ -20,11 +20,10 @@ import java.util.*
 
 /**
  * Desc:
- *
  * @author：Jing Yang
- * @date: 2018/11/15 16:36
+ * @date: 2021/1/5 9:43
  */
-class PlayerViewModel(application: Application) : BaseViewModel(application) {
+class PlayerViewModel1(application: Application) : BaseViewModel(application) {
 
     var playModeText: ObservableField<String> = ObservableField()
     var playListText: ObservableField<String> = ObservableField()
@@ -47,11 +46,6 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
      * 播放列表focus位置，mPlayIndex
      */
     var focusToIndex: MutableLiveData<Int> = MutableLiveData()
-
-    /**
-     * 仅仅setup视频，点击start按钮才正式开始播放
-     */
-    var onlySetupVideo: MutableLiveData<PlayList.PlayItem> = MutableLiveData()
 
     /**
      * 视频url已准备好，开始播放，mPlayBean
@@ -87,11 +81,6 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
     private val random = Random()
 
     private val recordRepository = RecordRepository()
-
-    init {
-        updatePlayListText()
-        updatePlayModeText()
-    }
 
     val startSeek: Int
         get() = mPlayBean?.playTime?:0
@@ -143,18 +132,16 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
                     loadingObserver.value = false
                     mPlayList = t
                     itemsObserver.value = t
-                    updatePlayListText()
                     if (t.size > 0) {
-                        mPlayBean = t.last()
-                        mPlayIndex = t.lastIndex
                         // 初始化自动播放，播放最末视频
                         if (initAutoPlay) {
+                            mPlayBean = t.last()
+                            mPlayIndex = t.lastIndex
                             playItem(mPlayBean!!, mPlayIndex)
                         }
                         // 只定位到最末，不播放
                         else {
-                            focusToIndex.value = mPlayIndex
-                            onlySetupVideo.value = mPlayBean
+                            focusToIndex.value = 0
                         }
                     }
                 }

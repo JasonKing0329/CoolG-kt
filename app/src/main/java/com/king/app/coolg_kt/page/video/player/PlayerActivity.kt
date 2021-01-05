@@ -1,8 +1,8 @@
 package com.king.app.coolg_kt.page.video.player
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
-import android.os.Build
 import android.view.View
 import android.view.animation.*
 import androidx.lifecycle.Observer
@@ -10,8 +10,6 @@ import cn.jzvd.Jzvd
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityVideoPlayerBinding
-import com.king.app.coolg_kt.model.bean.PlayList
-import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.view.widget.video.*
 
 /**
@@ -30,8 +28,7 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
         }
     }
 
-    private val ftList =
-        PlayListFragment()
+    private val ftList = PlayListFragment()
 
     override fun isFullScreen(): Boolean {
         return true
@@ -39,16 +36,9 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     override fun getContentView(): Int = R.layout.activity_video_player
 
-    override fun createViewModel(): PlayerViewModel = generateViewModel(
-        PlayerViewModel::class.java)
+    override fun createViewModel(): PlayerViewModel = generateViewModel(PlayerViewModel::class.java)
 
     override fun initView() {
-        hideBottomUIMenu()
-
-        mBinding.ftList.visibility = View.GONE
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.ft_list, ftList, "PlayListFragment")
-            .commit()
 
         mBinding.videoView.onBackListener = FullJzvd.OnBackListener { onBackPressed() }
         mBinding.videoView.onVideoListener = object : OnVideoListener {
@@ -104,51 +94,32 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
 
     override fun initData() {
         mModel.closeListObserver.observe(this, Observer{ dismissPlayList() })
-        mModel.prepareVideo.observe(this, Observer{ bean ->
-            DebugLog.e("prepareVideo changed")
-            prepareItem(bean)
-        })
-        mModel.playVideo.observe(this, Observer{ bean -> playItem(bean) })
+
+        // 第一次为setup，只装载不播放
+        mModel.onlySetupVideo.observe(this, Observer{ bean -> mBinding.videoView.setUp(bean.url, bean.name) })
+        // 后面的必播放（但是初始化如果列表为空，这里就要setUp后立即播放。其他情况直接changeUrl）
+        mModel.playVideo.observe(this, Observer{ bean -> mBinding.videoView.playUrl(bean.url, bean.name) })
+
         mModel.stopVideoObserver.observe(this, Observer{ mBinding.videoView.pause() })
-        mModel.videoUrlIsReady.observe(this, Observer{ bean -> urlIsReady(bean) })
-        mModel.playIndexObserver.observe(this, Observer { ftList.playVideoAt(it) })
+        mModel.focusToIndex.observe(this, Observer { ftList.focusToIndex(it) })
         mModel.itemsObserver.observe(this, Observer { ftList.showList(it) })
+        mModel.askIfLoop.observe(this, Observer{
+            showConfirmCancelMessage("There are no more videos to play. Do you want to play from beginning?",
+                DialogInterface.OnClickListener { dialog, which ->  mModel.playFromBegin()},
+                null)
+        })
 
-        mModel.loadPlayItems(isInitAutoPlay())
-    }
+        mModel.initAutoPlay = isInitAutoPlay()
 
-    private fun prepareItem(bean: PlayList.PlayItem) {
-        if (bean.url == null) {
-            mModel.loadPlayUrl(bean)
-        }
-        else {
-            mBinding.videoView.setPlayUrl(bean.url, bean.name)
-        }
-    }
-
-    private fun urlIsReady(bean: PlayList.PlayItem) {
-        mBinding.videoView.setPlayUrl(bean.url, bean.name)
-    }
-
-    private fun playItem(bean: PlayList.PlayItem) {
-//        mBinding.videoView.startVideo()
+        mBinding.ftList.visibility = View.GONE
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.ft_list, ftList, "PlayListFragment")
+            .commit()
     }
 
     private fun dismissPlayList() {
         if (mBinding.ftList.visibility !== View.GONE) {
             mBinding.ftList.startAnimation(listDisappear())
-        }
-    }
-
-    private fun hideBottomUIMenu() {
-        //隐藏虚拟按键，并且全屏
-        if (Build.VERSION.SDK_INT in 12..18) { // lower api
-            window.decorView.systemUiVisibility = View.GONE
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            //for new api versions.
-            val uiOptions = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN)
-            window.decorView.systemUiVisibility = uiOptions
         }
     }
 

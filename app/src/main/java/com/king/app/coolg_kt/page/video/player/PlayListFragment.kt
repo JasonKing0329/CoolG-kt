@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseFragment
@@ -28,8 +27,7 @@ import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 class PlayListFragment : BaseFragment<FragmentVideoPlayListBinding, EmptyViewModel>() {
     
     private lateinit var playerViewModel: PlayerViewModel
-    private var adapter: PlayListAdapter =
-        PlayListAdapter()
+    private var adapter = PlayListAdapter()
     
     override fun getBinding(inflater: LayoutInflater): FragmentVideoPlayListBinding = FragmentVideoPlayListBinding.inflate(inflater)
     
@@ -84,11 +82,10 @@ class PlayListFragment : BaseFragment<FragmentVideoPlayListBinding, EmptyViewMod
 
     override fun initData() {
 
-        adapter.mPlayIndex = playerViewModel.playIndex
         adapter.enableDelete = true
         adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<PlayList.PlayItem> {
             override fun onClickItem(view: View, position: Int, data: PlayList.PlayItem) {
-                playerViewModel.playVideoAt(position)
+                playerViewModel.playItem(data, position)
             }
         })
         adapter.onDeleteListener = object : PlayListAdapter.OnDeleteListener {
@@ -98,11 +95,12 @@ class PlayListFragment : BaseFragment<FragmentVideoPlayListBinding, EmptyViewMod
             }
         }
         mBinding.rvList.adapter = adapter
+
+        playerViewModel.loadPlayItems()
     }
 
-    fun playVideoAt(position: Int) {
-        val manager = mBinding.rvList.layoutManager as LinearLayoutManager
-        manager.scrollToPosition(position)
+    fun focusToIndex(position: Int) {
+        mBinding.rvList.scrollToPosition(position)
         adapter.mPlayIndex = position
         adapter.notifyDataSetChanged()
     }

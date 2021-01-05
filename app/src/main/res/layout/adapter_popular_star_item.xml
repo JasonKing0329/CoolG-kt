@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:text="@{bean.star.name}"
             android:textColor="@color/white"
-            android:textSize="24dp"
+            android:textSize="20dp"
             android:gravity="center"
             app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
             app:layout_constraintEnd_toEndOf="@+id/iv_cover"
@@ -66,7 +66,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:textColor="@color/white"
-            android:textSize="16dp"
+            android:textSize="12dp"
             android:text='@{bean.videos + " Videos"}'
             app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
             app:layout_constraintEnd_toEndOf="@+id/iv_cover" />

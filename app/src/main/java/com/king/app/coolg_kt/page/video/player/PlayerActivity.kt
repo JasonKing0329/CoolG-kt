@@ -68,7 +68,9 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
             }
 
             override fun onError() {
-                showMessageShort("load error")
+                showConfirmCancelMessage("Load video failed, do you want to fetch the url of current video?",
+                    DialogInterface.OnClickListener { dialog, which -> mModel.reloadPlayUrl() },
+                    null)
             }
         }
         mBinding.videoView.onVideoClickListener =
@@ -82,7 +84,12 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
             }
 
             override fun showPlayList() {
-                showList()
+                if (mBinding.ftList.visibility == View.VISIBLE) {
+                    dismissPlayList()
+                }
+                else {
+                    showList()
+                }
             }
 
             override fun playPrevious() {
@@ -106,6 +113,11 @@ class PlayerActivity: BaseActivity<ActivityVideoPlayerBinding, PlayerViewModel>(
         mModel.askIfLoop.observe(this, Observer{
             showConfirmCancelMessage("There are no more videos to play. Do you want to play from beginning?",
                 DialogInterface.OnClickListener { dialog, which ->  mModel.playFromBegin()},
+                null)
+        })
+        mModel.retryLoadUrl.observe(this, Observer{
+            showConfirmCancelMessage("Fetch url failed, do you wanna retry?",
+                DialogInterface.OnClickListener { dialog, which -> it.retry()},
                 null)
         })
 

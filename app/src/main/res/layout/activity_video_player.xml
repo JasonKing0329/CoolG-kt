@@ -16,6 +16,7 @@
             android:id="@+id/ft_list"
             android:layout_width="@dimen/video_player_list_width"
             android:layout_height="0dp"
+            android:layout_marginBottom="@dimen/video_player_icon_size"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

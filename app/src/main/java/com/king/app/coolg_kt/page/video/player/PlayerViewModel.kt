@@ -26,6 +26,10 @@ import java.util.*
  */
 class PlayerViewModel(application: Application) : BaseViewModel(application) {
 
+    interface RetryObserver {
+        fun retry()
+    }
+
     var playModeText: ObservableField<String> = ObservableField()
     var playListText: ObservableField<String> = ObservableField()
 
@@ -35,6 +39,11 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
      * 列表已播放完毕，询问是否从第一个item开始从头播放
      */
     var askIfLoop = MutableLiveData<Boolean>()
+
+    /**
+     * 获取url失败，提示是否重新获取
+     */
+    var retryLoadUrl = MutableLiveData<RetryObserver>()
 
     /**
      * 播放列表数据
@@ -172,12 +181,22 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
      * 播放item
      */
     fun playItem(bean: PlayList.PlayItem, index: Int) {
+        mPlayIndex = index
         focusToIndex.value = index
         if (bean.url == null) {
             loadPlayUrl(bean, index)
         }
         else {
             playVideo.value = bean
+        }
+    }
+
+    /**
+     * 重新获取当前item的url
+     */
+    fun reloadPlayUrl() {
+        mPlayBean?.let {
+            loadPlayUrl(it, mPlayIndex)
         }
     }
 
@@ -209,7 +228,11 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
                     override fun onError(e: Throwable?) {
                         loadingObserver.value = false
                         e?.printStackTrace()
-                        messageObserver.value = e?.message
+                        retryLoadUrl.value = object : RetryObserver {
+                            override fun retry() {
+                                loadPlayUrl(item, index)
+                            }
+                        }
                     }
                 })
         }
@@ -230,6 +253,8 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
         // 从播放列表持久化删除
         PlayListInstance.getInstance().clearPlayList()
         itemsObserver.value = mPlayList
+
+        updatePlayListText()
     }
 
     /**

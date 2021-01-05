@@ -140,6 +140,7 @@ public class FullJzvd extends JzvdStd {
     public void changeUiToNormal() {
         DebugLog.e();
         setControlBarVisible(false);
+        setPlayIcon(true);
     }
 
     /**
@@ -177,6 +178,7 @@ public class FullJzvd extends JzvdStd {
     public void changeUiToComplete() {
         DebugLog.e();
         setControlBarVisible(false);
+        setPlayIcon(true);
     }
 
     /**

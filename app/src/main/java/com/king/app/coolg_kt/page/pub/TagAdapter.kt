@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.record
+package com.king.app.coolg_kt.page.pub
 
 import android.view.LayoutInflater
 import android.view.View

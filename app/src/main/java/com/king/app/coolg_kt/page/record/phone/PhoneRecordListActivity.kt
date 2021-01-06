@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.record.phone
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -12,10 +13,10 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityRecordTagBinding
 import com.king.app.coolg_kt.page.record.AbsRecordListActivity
 import com.king.app.coolg_kt.page.record.RecordListViewModel
-import com.king.app.coolg_kt.page.record.TagAdapter
+import com.king.app.coolg_kt.page.record.RecordTag
+import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.entity.Tag
 
 /**
  * Desc:
@@ -31,7 +32,9 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
         }
     }
 
-    var tagAdapter = TagAdapter()
+    var tagAdapter = HeadTagAdapter()
+
+    var sceneAdapter = HeadTagAdapter()
 
     override fun getContentView(): Int = R.layout.activity_record_tag
 
@@ -52,9 +55,9 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
                 outRect.bottom = ScreenUtils.dp2px(5f)
             }
         })
-        tagAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<Tag>{
-            override fun onClickItem(view: View, position: Int, data: Tag) {
-                mModel.loadTagRecords(data.id!!)
+        tagAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordTag>{
+            override fun onClickItem(view: View, position: Int, data: RecordTag) {
+                mModel.loadRecordsByTag(data)
             }
         })
         mBinding.rvTags.adapter = tagAdapter
@@ -72,7 +75,7 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
         return mBinding.rvRecords
     }
 
-    override fun showTags(tags: List<Tag>) {
+    override fun showTags(tags: List<RecordTag>) {
         tagAdapter.list = tags
         tagAdapter.notifyDataSetChanged()
     }
@@ -91,6 +94,17 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
     }
 
     override fun addToPlayOrder(data: Record) {
-        TODO("Not yet implemented")
+        mModel.saveRecordToPlayOrder(data)
+        PlayOrderActivity.startPageToSelect(this, REQUEST_VIDEO_ORDER)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_VIDEO_ORDER) {
+            if (resultCode == Activity.RESULT_OK) {
+                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                mModel.addToPlay(list)
+            }
+        }
     }
 }

@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
-import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.record.popup.RecommendFragment
@@ -18,7 +17,6 @@ import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordWrap
 import com.king.app.jactionbar.JActionbar
 
@@ -53,7 +51,7 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
             Observer{ offset -> getRecordRecyclerView().scrollToPosition(offset) })
         mModel.focusTagPosition.observe(this, Observer{ position -> focusOnTag(position) })
 
-        mModel.loadTags()
+        mModel.loadHead()
     }
 
     open fun initActionBar(actionbar: JActionbar) {
@@ -65,13 +63,14 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
                 R.id.menu_classic -> goToClassicPage()
                 R.id.menu_offset -> showSetOffset()
                 R.id.menu_tag_sort_mode -> setTagSortMode()
+                R.id.menu_tag_type -> setTagType()
             }
         }
     }
 
     protected abstract fun getRecordRecyclerView(): RecyclerView
 
-    protected abstract fun showTags(tags: List<Tag>)
+    protected abstract fun showTags(tags: List<RecordTag>)
 
     protected abstract fun focusOnTag(position: Int)
 
@@ -82,12 +81,28 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
     protected abstract fun addToPlayOrder(data: Record)
 
     open fun setTagSortMode() {
+        var arrays = if (SettingProperty.getRecordListTagType() == 1) {
+            resources.getStringArray(R.array.scene_sort_mode)
+        }
+        else {
+            resources.getStringArray(R.array.tag_sort_mode)
+        }
         AlertDialogFragment()
             .setTitle(null)
-            .setItems(AppConstants.TAG_SORT_MODE_TEXT) { dialog, which ->
+            .setItems(arrays) { dialog, which ->
                 SettingProperty.setTagSortType(which)
                 mModel.onTagSortChanged()
-                mModel.startSortTag(false)
+                mModel.startSortTag()
+            }.show(supportFragmentManager, "AlertDialogFragment")
+    }
+
+    open fun setTagType() {
+        AlertDialogFragment()
+            .setTitle(null)
+            .setItems(resources.getStringArray(R.array.record_list_tag_type)) { dialog, which ->
+                SettingProperty.setRecordListTagType(which)
+                mModel.onTagTypeChanged()
+                mModel.loadHead()
             }.show(supportFragmentManager, "AlertDialogFragment")
     }
 
@@ -125,7 +140,7 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
                 SettingProperty.setRecordSortType(sortMode)
                 SettingProperty.setRecordSortDesc(desc)
                 mModel.onSortTypeChanged()
-                mModel.loadTagRecords()
+                mModel.loadRecordsByTag()
             }
         }
         val dialogFragment = DraggableDialogFragment()
@@ -141,7 +156,7 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
         content.onRecommendListener = object : RecommendFragment.OnRecommendListener {
             override fun onSetSql(bean: RecommendBean) {
                 mModel.mRecommendBean = bean
-                mModel.loadTagRecords()
+                mModel.loadRecordsByTag()
             }
         }
         val dialogFragment = DraggableDialogFragment()

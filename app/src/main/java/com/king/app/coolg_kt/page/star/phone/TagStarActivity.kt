@@ -10,7 +10,7 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityStarTagBinding
-import com.king.app.coolg_kt.page.record.TagAdapter
+import com.king.app.coolg_kt.page.pub.TagAdapter
 import com.king.app.coolg_kt.page.star.AbsTagStarActivity
 import com.king.app.coolg_kt.page.star.TagStarViewModel
 import com.king.app.coolg_kt.utils.ScreenUtils

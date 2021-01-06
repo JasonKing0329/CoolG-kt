@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.king.app.gdb.data.bean.RecordScene
 import com.king.app.gdb.data.entity.CountRecord
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordStarWrap
@@ -50,5 +51,8 @@ interface RecordDao {
 
     @Query("select count(*) from record r join record_star rs on r._id = rs.RECORD_ID where rs.STAR_ID=:starId and r.DEPRECATED=0")
     fun countStarOnlineRecords(starId: Long): Int
+
+    @Query("select SCENE as name, count(SCENE) as number from record group by SCENE")
+    fun getAllScenes(): List<RecordScene>
 
 }

@@ -17,6 +17,9 @@
     <item android:id="@+id/menu_offset"
         android:title="Set offset"
         app:showAsAction="never"/>
+    <item android:id="@+id/menu_tag_type"
+        android:title="Set tag type"
+        app:showAsAction="never"/>
     <item android:id="@+id/menu_tag_sort_mode"
         android:title="Set tag sort mode"
         app:showAsAction="never"/>

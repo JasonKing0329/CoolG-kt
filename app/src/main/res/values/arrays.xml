@@ -15,4 +15,22 @@
         <item>By Video Number</item>
     </string-array>
 
+    <string-array name="record_list_tag_type" translatable="false">
+        <item>Tag</item>
+        <item>Scene</item>
+    </string-array>
+
+    <string-array name="tag_sort_mode" translatable="false">
+        <item>No order</item>
+        <item>By name</item>
+        <item>By random</item>
+    </string-array>
+
+    <string-array name="scene_sort_mode" translatable="false">
+        <item>No order</item>
+        <item>By name</item>
+        <item>By random</item>
+        <item>By number</item>
+    </string-array>
+
 </resources>

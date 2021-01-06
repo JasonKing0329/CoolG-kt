@@ -139,6 +139,14 @@ class SettingProperty: BaseProperty() {
             setInt("pref_video_star_order_view_type", type)
         }
 
+        fun getRecordListTagType(): Int {
+            return getInt("record_list_tag_type")
+        }
+
+        fun setRecordListTagType(type: Int) {
+            setInt("record_list_tag_type", type)
+        }
+
         fun setPlayList(bean: PlayList?) {
             var sql: String? = null
             try {

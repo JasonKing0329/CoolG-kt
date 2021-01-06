@@ -57,8 +57,9 @@ object AppConstants {
     )
 
     const val TAG_SORT_NONE = 0
-    const val TAG_SORT_RANDOM = 1
-    const val TAG_SORT_NAME = 2
+    const val TAG_SORT_NAME = 1
+    const val TAG_SORT_RANDOM = 2
+    const val TAG_SORT_NUMBER = 3
     val TAG_SORT_MODE_TEXT = arrayOf(
         "No order",
         "By Random",

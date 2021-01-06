@@ -15,7 +15,7 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterStarPhoneHeaderBinding
 import com.king.app.coolg_kt.page.pub.BaseTagAdapter
 import com.king.app.coolg_kt.page.pub.BaseTagAdapter.OnItemSelectListener
-import com.king.app.coolg_kt.page.record.TagAdapter
+import com.king.app.coolg_kt.page.pub.TagAdapter
 import com.king.app.coolg_kt.page.star.*
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.utils.StarRatingUtil

@@ -277,3 +277,9 @@ open class BaseItemBinder {
         }
     }
 }
+
+data class RecordTag(
+    var name: String,
+    var id: Long,
+    var number: Int = 0
+)

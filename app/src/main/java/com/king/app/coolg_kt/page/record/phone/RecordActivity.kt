@@ -31,6 +31,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider.getRecordCuPath
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
+import com.king.app.coolg_kt.page.pub.TagAdapter
 import com.king.app.coolg_kt.page.pub.TagFragment
 import com.king.app.coolg_kt.page.record.*
 import com.king.app.coolg_kt.page.star.phone.StarActivity

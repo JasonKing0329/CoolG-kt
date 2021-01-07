@@ -15,7 +15,6 @@ import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
 import com.king.app.gdb.data.bean.RecordScene
 import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
@@ -50,7 +49,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     private var mKeyScene: String? = null
     private val mKeyword: String? = null
     private val mStarId: Long = 0
-    private val mOrderId: Long = 0
+    var mOrderId: Long = 0
     private val mRecordType: Int = 0
 
     private var tagAll = RecordTag(AppConstants.KEY_SCENE_ALL, 0L, 0)
@@ -80,12 +79,20 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     }
 
     fun loadHead() {
-        var type = SettingProperty.getRecordListTagType()
-        if (type == 1) {
-            loadScenes()
+        // studio records page, hide tag bar and related menu
+        if (mOrderId != 0L) {
+            val allList: List<RecordTag> = addTagAll(dataTagList)
+            tagsObserver.value = allList
+            loadTagRecords(allList[0].id!!)
         }
         else {
-            loadTags()
+            var type = SettingProperty.getRecordListTagType()
+            if (type == 1) {
+                loadScenes()
+            }
+            else {
+                loadTags()
+            }
         }
     }
 
@@ -350,5 +357,14 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
                     }
                 })
         }
+    }
+
+    fun loadStudioTitle(studioId: Long): String {
+        var studio = getDatabase().getFavorDao().getFavorRecordOrderBy(studioId)
+        var title: String? = null
+        studio?.let {
+            title = it.name
+        }
+        return title?:"Records"
     }
 }

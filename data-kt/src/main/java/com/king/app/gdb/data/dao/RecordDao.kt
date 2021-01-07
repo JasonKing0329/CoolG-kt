@@ -55,4 +55,10 @@ interface RecordDao {
     @Query("select SCENE as name, count(SCENE) as number from record group by SCENE")
     fun getAllScenes(): List<RecordScene>
 
+    @Query("select r.* from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:studioId order by r.SCORE desc limit :num")
+    fun getStudioTopRecords(studioId: Long, num: Int): List<RecordWrap>
+
+    @Query("select r.* from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:studioId order by r.LAST_MODIFY_TIME desc limit :num")
+    fun getStudioRecentRecords(studioId: Long, num: Int): List<RecordWrap>
+
 }

@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.king.app.gdb.data.bean.StarWrapWithCount
 import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.StarRelationship
 import com.king.app.gdb.data.relation.StarStudioTag
@@ -83,4 +84,11 @@ interface StarDao {
 
     @Query("select * from stars s join star_rating sr on s._id=sr.STAR_ID where sr.COMPLEX>=:atLeast order by random() limit :num")
     fun getStarByRating(atLeast: Float, num: Int): List<Star>
+
+    @Query("select s.*, count(s._id) as extraCount from favor_record fr join record_star rs on fr.RECORD_ID=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where fr.ORDER_ID=:orderId group by s._id order by extraCount desc limit :num")
+    fun getStudioTopStars(orderId: Long, num: Int): List<StarWrapWithCount>
+
+    @Query("select s.* from favor_record fr join record_star rs on fr.RECORD_ID=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where fr.ORDER_ID=:orderId group by s._id")
+    fun getStudioStars(orderId: Long): List<Star>
+
 }

@@ -10,10 +10,6 @@
         android:title="Filter"
         android:icon="@drawable/ic_filter_list_3f51b5"
         app:showAsAction="ifRoom"/>
-    <item android:id="@+id/menu_classic"
-        android:title="Classic page"
-        android:icon="@drawable/ic_home_purple_36dp"
-        app:showAsAction="ifRoom"/>
     <item android:id="@+id/menu_offset"
         android:title="Set offset"
         app:showAsAction="never"/>

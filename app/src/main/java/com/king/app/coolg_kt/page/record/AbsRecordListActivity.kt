@@ -60,21 +60,24 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
             when (menuId) {
                 R.id.menu_sort -> changeSortType()
                 R.id.menu_filter -> changeFilter()
-                R.id.menu_classic -> goToClassicPage()
                 R.id.menu_offset -> showSetOffset()
                 R.id.menu_tag_sort_mode -> setTagSortMode()
                 R.id.menu_tag_type -> setTagType()
             }
         }
+        if (isHideTagBar()) {
+            actionbar.updateMenuItemVisible(R.id.menu_tag_sort_mode, false)
+            actionbar.updateMenuItemVisible(R.id.menu_tag_type, false)
+        }
     }
+
+    protected abstract fun isHideTagBar(): Boolean
 
     protected abstract fun getRecordRecyclerView(): RecyclerView
 
     protected abstract fun showTags(tags: List<RecordTag>)
 
     protected abstract fun focusOnTag(position: Int)
-
-    protected abstract fun goToClassicPage()
 
     protected abstract fun goToRecordPage(record: Record)
 

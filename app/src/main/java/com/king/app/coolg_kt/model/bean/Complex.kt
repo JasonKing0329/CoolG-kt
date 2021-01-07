@@ -132,7 +132,7 @@ class StarBuilder {
     }
 
     fun setStudioId(studioId: Long?): StarBuilder {
-        this.studioId = tagId
+        this.studioId = studioId
         return this
     }
 

@@ -34,11 +34,16 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
 
     private var ftList: StudioListFragment? = null
 
+    private var ftPage: StudioPageFragment? = null
+
     override fun getContentView(): Int = R.layout.activity_record_studio
 
     override fun createViewModel(): EmptyViewModel = emptyViewModel()
 
     override fun initView() {
+
+        mBinding.actionbar.setOnBackListener { onBackPressed() }
+
         ftList = StudioListFragment.newInstance(intent.getBooleanExtra(EXTRA_SELECT_MODE, false))
         ftList!!.holder = this
         supportFragmentManager.beginTransaction()
@@ -53,11 +58,27 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
     override fun getJActionBar(): JActionbar = mBinding.actionbar
 
     override fun showStudioPage(studioId: Long, name: String?) {
+        mBinding.actionbar.setTitle(name)
+        setActionBarList(false)
+        ftPage = StudioPageFragment.newInstance(studioId)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fl_ft, ftPage!!, "StudioPageFragment")
+            .addToBackStack(null)
+            .commit()
+    }
 
+    private fun setActionBarList(isList: Boolean) {
+        mBinding.actionbar.updateMenuItemVisible(R.id.menu_sort, isList)
+        mBinding.actionbar.updateMenuItemVisible(R.id.menu_mode, isList)
     }
 
     override fun backToList() {
+        onBackPressed()
+    }
 
+    override fun onBackPressed() {
+        setActionBarList(true)
+        super.onBackPressed()
     }
 
     override fun sendSelectedOrderResult(orderId: Long?) {

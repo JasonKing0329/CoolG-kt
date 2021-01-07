@@ -59,13 +59,18 @@ class StarRepository: BaseRepository() {
             if (where.isNotEmpty()) {
                 buffer.append(where)
             }
+            // group by 过滤重复项
+            if (builder.studioId != null) {
+                buffer.append("group by T._id ")
+            }
             // order by
             when (builder.sortType){
-                AppConstants.STAR_SORT_NAME -> buffer.append("order by T.NAME COLLATE NOCASE")// 名称不区分大小写
-                AppConstants.STAR_SORT_RECORDS -> buffer.append("order by T.RECORDS")
-                AppConstants.STAR_SORT_RANDOM -> buffer.append("order by RANDOM()")
+                AppConstants.STAR_SORT_NAME -> buffer.append("order by T.NAME COLLATE NOCASE ")// 名称不区分大小写
+                AppConstants.STAR_SORT_RECORDS -> buffer.append("order by T.RECORDS ")
+                AppConstants.STAR_SORT_RANDOM -> buffer.append("order by RANDOM() ")
                 else -> buffer.append(convertSortRatingType(builder.sortType))
             }
+
             var sql = buffer.toString()
             DebugLog.e(sql)
             var list = getDatabase().getStarDao().getStarsBySql(SimpleSQLiteQuery(sql))

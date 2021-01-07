@@ -53,8 +53,6 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
             mBinding.rvList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         }
 
-        holder?.getJActionBar()?.setOnBackListener { requireActivity().finish() }
-
         initMenu()
 
         simpleAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StudioSimpleItem>{

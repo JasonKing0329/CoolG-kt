@@ -26,8 +26,14 @@ import com.king.app.gdb.data.entity.Record
 class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, RecordListViewModel>() {
 
     companion object {
+        val EXTRA_STUDIO_ID = "studio_id"
         fun startPage(context: Context) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
+            context.startActivity(intent)
+        }
+        fun startStudioPage(context: Context, studioId: Long) {
+            var intent = Intent(context, PhoneRecordListActivity::class.java)
+            intent.putExtra(EXTRA_STUDIO_ID, studioId)
             context.startActivity(intent)
         }
     }
@@ -66,10 +72,22 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
         mBinding.rvRecords.setEnableLoadMore(true)
         mBinding.rvRecords.setOnLoadMoreListener { mModel.loadMoreRecords() }
 
-        initActionBar(mBinding.actionbar)
-
         mBinding.fabTop.setOnClickListener { v -> mBinding.rvRecords.scrollToPosition(0) }
+
+        // studio records page, hide tag bar and related menu
+        var studioId = intent.getLongExtra(EXTRA_STUDIO_ID, 0)
+        mModel.mOrderId = studioId
+        if (studioId != 0L) {
+            mBinding.rvTags.visibility = View.GONE
+            mBinding.actionbar.setTitle(mModel.loadStudioTitle(studioId))
+        }
+        initActionBar(mBinding.actionbar)
     }
+
+    /**
+     * studio records page, hide tag bar and related menu
+     */
+    override fun isHideTagBar(): Boolean = intent.getLongExtra(EXTRA_STUDIO_ID, 0) != 0L
 
     override fun getRecordRecyclerView(): RecyclerView {
         return mBinding.rvRecords
@@ -83,10 +101,6 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
     override fun focusOnTag(position: Int) {
         tagAdapter.selection = position
         tagAdapter.notifyDataSetChanged()
-    }
-
-    override fun goToClassicPage() {
-        TODO("Not yet implemented")
     }
 
     override fun goToRecordPage(record: Record) {

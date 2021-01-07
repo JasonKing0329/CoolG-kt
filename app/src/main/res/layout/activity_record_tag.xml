@@ -14,7 +14,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:title="Tags and records"
+            app:title="Records"
             app:maxShowIcon="5"
             app:showIconBack="true"
             app:menu="@menu/tag_records"

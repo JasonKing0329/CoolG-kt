@@ -47,7 +47,16 @@ class FingerprintHelper {
         val mAuthenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
-                onFingerResultListener?.fingerResult(false)
+                DebugLog.e("code=$errorCode, string=$errString")
+                when (errorCode) {
+                    // 锁屏会触发
+                    BiometricPrompt.BIOMETRIC_ERROR_CANCELED -> onFingerResultListener?.onCancel()
+                    // 按返回键会触发
+                    BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED -> onFingerResultListener?.onCancel()
+                    // 大概50秒未验证会触发
+                    BiometricPrompt.BIOMETRIC_ERROR_TIMEOUT -> onFingerResultListener?.retry()
+                    else -> onFingerResultListener?.fingerResult(false)
+                }
             }
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -57,6 +66,7 @@ class FingerprintHelper {
 
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
+                DebugLog.e()
                 onFingerResultListener?.fingerResult(false)
             }
         }

@@ -62,13 +62,14 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
                 if (result) {
                     superUser()
                 }
-                else {
-                    initCreate()
-                }
             }
 
             override fun onCancel() {
                 finish()
+            }
+
+            override fun retry() {
+                initCreate()
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

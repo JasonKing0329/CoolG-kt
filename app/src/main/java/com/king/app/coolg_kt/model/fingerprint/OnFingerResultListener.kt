@@ -8,4 +8,5 @@ package com.king.app.coolg_kt.model.fingerprint
 interface OnFingerResultListener {
     fun fingerResult(result: Boolean)
     fun onCancel()
+    fun retry()
 }

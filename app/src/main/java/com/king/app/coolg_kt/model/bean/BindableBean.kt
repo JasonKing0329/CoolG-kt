@@ -4,8 +4,10 @@ import android.view.View
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
+import com.king.app.coolg_kt.page.star.list.SelectObserver
 import com.king.app.gdb.data.entity.PlayOrder
 import com.king.app.gdb.data.entity.Star
+import com.king.app.gdb.data.relation.StarWrap
 
 /**
  * Desc:
@@ -56,4 +58,17 @@ class VideoGuy : BaseObservable() {
             notifyPropertyChanged(BR.visibility)
         }
 
+}
+
+class SelectStar : BaseObservable() {
+    var star: StarWrap? = null
+
+    var observer: SelectObserver<SelectStar>? = null
+
+    @get:Bindable
+    var isChecked = false
+        set(checked) {
+            field = checked
+            notifyPropertyChanged(BR.checked)
+        }
 }

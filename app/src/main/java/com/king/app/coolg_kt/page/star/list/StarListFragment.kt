@@ -186,7 +186,9 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
         DebugLog.e(starType)
         mBinding.sidebar.clear()
         mModel.starType = starType
-        mModel.mStudioId = studioId
+        if (studioId != 0L) {
+            mModel.mStudioId = studioId
+        }
         mModel.loadStarList()
     }
 

@@ -1,9 +1,11 @@
 package com.king.app.gdb.data.relation
 
 import androidx.room.Embedded
-import androidx.room.Junction
 import androidx.room.Relation
-import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.entity.CountStar
+import com.king.app.gdb.data.entity.Star
+import com.king.app.gdb.data.entity.StarRating
+import com.king.app.gdb.data.entity.TopStar
 
 /**
  * @description:
@@ -21,14 +23,14 @@ data class StarWrap (
 
     @Relation(parentColumn = "_id",
         entityColumn = "_id")
-    var countStar: CountStar? = null,
+    var countStar: CountStar? = null
 
-    @Relation(parentColumn = "_id",
-        entityColumn = "_id",
-        entity = Record::class,
-        associateBy = Junction(RecordStar::class, parentColumn = "STAR_ID", entityColumn = "RECORD_ID")
-    )
-    var recordList: List<Record>
+//    @Relation(parentColumn = "_id",
+//        entityColumn = "_id",
+//        entity = Record::class,
+//        associateBy = Junction(RecordStar::class, parentColumn = "STAR_ID", entityColumn = "RECORD_ID")
+//    )
+//    var recordList: List<Record>
 
 ) {
     var imagePath: String? = null

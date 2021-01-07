@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.databinding.ActivityVideoStarListBinding
 import com.king.app.coolg_kt.model.bean.VideoGuy
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.star.list.StarSelectorActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
@@ -56,10 +57,7 @@ class PopularStarActivity : BaseActivity<ActivityVideoStarListBinding, PopularSt
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
             when (menuId) {
                 R.id.menu_add -> {
-//                    Router.build("StarSelector")
-//                        .requestCode(REQUEST_SELECT_STAR)
-//                        .go(this@PopularStarActivity)
-                    TODO()
+                    StarSelectorActivity.startPage(this@PopularStarActivity, false, 0, REQUEST_SELECT_STAR)
                 }
                 R.id.menu_delete -> {
                     mBinding.actionbar.showConfirmStatus(menuId)
@@ -160,10 +158,8 @@ class PopularStarActivity : BaseActivity<ActivityVideoStarListBinding, PopularSt
         if (requestCode == REQUEST_SELECT_STAR) {
             if (resultCode == Activity.RESULT_OK) {
                 data?.let {
-//                    val list =
-//                        it.getCharSequenceArrayListExtra(StarSelectorActivity.RESP_SELECT_RESULT)
-//                    mModel.insertVideoCoverStar(list)
-                    TODO()
+                    val list = it.getCharSequenceArrayListExtra(StarSelectorActivity.RESP_SELECT_RESULT)
+                    mModel.insertVideoCoverStar(list)
                 }
             }
         }

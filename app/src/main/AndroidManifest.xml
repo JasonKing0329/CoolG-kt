@@ -72,6 +72,7 @@
         <activity android:name=".page.video.order.PlayOrderItemsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".page.video.order.PopularStarActivity"/>
+        <activity android:name=".page.star.list.StarSelectorActivity"/>
 
         <activity android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

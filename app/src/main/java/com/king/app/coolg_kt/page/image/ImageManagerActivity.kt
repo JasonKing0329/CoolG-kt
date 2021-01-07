@@ -11,6 +11,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityImageManagerBinding
 import com.king.app.coolg_kt.model.bean.ImageBean
+import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 
 /**
@@ -125,11 +126,7 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
 
     private fun onSetCoverForPlayOrder(path: String?) {
         mModel.setUrlToSetCover(path)
-//        Router.build("PlayOrder")
-//            .with(PlayOrderActivity.EXTRA_MULTI_SELECT, true)
-//            .requestCode(REQUEST_SET_VIDEO_COVER)
-//            .go(this)
-        TODO()
+        PlayOrderActivity.startPageToSelect(this, REQUEST_SET_VIDEO_COVER)
     }
 
     override fun onActivityResult(
@@ -140,9 +137,8 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SET_VIDEO_COVER) {
             if (resultCode == Activity.RESULT_OK) {
-//                val list =
-//                    data!!.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
-//                mModel.setPlayOrderCover(list)
+                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                mModel.setPlayOrderCover(list)
             }
         }
     }

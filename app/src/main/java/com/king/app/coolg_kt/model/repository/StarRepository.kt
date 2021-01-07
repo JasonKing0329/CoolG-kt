@@ -26,6 +26,13 @@ class StarRepository: BaseRepository() {
         }
     }
 
+    fun getAllStarsOrderByName(): Observable<List<StarWrap>> {
+        return Observable.create {
+            it.onNext(getDatabase().getStarDao().getAllStarsOrderByName())
+            it.onComplete()
+        }
+    }
+
     fun queryStarsBy(builder: StarBuilder): Observable<List<StarWrap>> {
         return Observable.create {
             var buffer = StringBuffer()

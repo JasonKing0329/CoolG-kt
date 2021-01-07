@@ -61,7 +61,7 @@ class StudioPageViewModel(application: Application): BaseViewModel(application) 
             }
             // top records
             list.add(PageRecordHead("Top Videos", AppConstants.STUDIO_RECORD_HEAD_TOP))
-            var topRecords = getDatabase().getRecordDao().getStudioTopRecords(studioId, 8)
+            var topRecords = getDatabase().getRecordDao().getStudioTopRecords(studioId, 10)
             topRecords.forEach { record ->
                 record.imageUrl = ImageProvider.getRecordRandomPath(record.bean.name, null)
                 list.add(record)

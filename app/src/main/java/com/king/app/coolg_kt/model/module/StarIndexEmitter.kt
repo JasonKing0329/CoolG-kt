@@ -58,7 +58,7 @@ class StarIndexEmitter {
     fun createRecordsIndex(e: ObservableEmitter<String>, mList: List<StarWrap>) {
         // list查询出来已经是有序的
         mList.forEachIndexed { index, starWrap ->
-            val number: Int = starWrap.recordList.size
+            val number: Int = starWrap.bean.records
             //1 2 3 4 5 6 7 8 9 10 12 15 20 25 30 35 40 40+
             var key = when {
                 number > 40 -> "40+"

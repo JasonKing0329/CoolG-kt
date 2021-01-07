@@ -146,6 +146,7 @@ class PopularStarViewModel(application: Application): BaseViewModel(application)
         starsObserver.value
             ?.filter { it.isChecked && it.star != null }
             ?.forEach { getDatabase().getPlayOrderDao().deleteVideoCoverStar(it.star!!.id!!) }
+        loadStars()
     }
 
     fun insertVideoCoverStar(list: ArrayList<CharSequence>) {
@@ -171,9 +172,12 @@ class PopularStarViewModel(application: Application): BaseViewModel(application)
                 // insert if not exist
                 var bean = getDatabase().getPlayOrderDao().getVideoCoverStar(starId)
                 if (bean == null) {
-                    val coverStar = VideoCoverStar(starId)
+                    val coverStar = VideoCoverStar(null, starId)
                     insertList.add(coverStar)
                 }
+            }
+            if (insertList.isNotEmpty()) {
+                getDatabase().getPlayOrderDao().insertVideoCoverStars(insertList)
             }
             it.onNext(true)
             it.onComplete()

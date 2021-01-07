@@ -78,7 +78,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             helper.startBiometricPromptIn23(supportFragmentManager)
         }
         else {
-            initCreate()
+            mBinding.groupLogin.visibility = View.VISIBLE
         }
     }
 

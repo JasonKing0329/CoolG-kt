@@ -40,7 +40,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
 
     fun getComposite() = compositeDisposable
 
-    fun onDestroy() {
+    open fun onDestroy() {
         compositeDisposable.clear()
     }
 

@@ -201,6 +201,7 @@
     <dimen name="video_player_icon_margin">20dp</dimen>
     <dimen name="video_player_title_text">20dp</dimen>
     <dimen name="category_star_size">60dp</dimen>
+    <dimen name="category_star_radius">30dp</dimen>
     <dimen name="category_star_height">90dp</dimen>
     <dimen name="category_level_star_height">108dp</dimen>
 

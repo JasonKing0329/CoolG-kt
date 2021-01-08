@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
+import com.king.app.coolg_kt.page.star.random.RandomData
 
 /**
  * Desc:
@@ -186,6 +187,27 @@ class SettingProperty: BaseProperty() {
             } catch (e: java.lang.Exception) {
             }
             setString("pref_video_rec_sql", sql)
+        }
+
+        fun getStarRandomData(): RandomData {
+            val sql = getString("pref_star_random_data")
+            var bean: RandomData? = null
+            try {
+                bean = Gson().fromJson(sql, RandomData::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            if (bean == null) {
+                bean = RandomData()
+            }
+            return bean
+        }
+
+        fun setStarRandomData(bean: RandomData) {
+            try {
+                var sql = Gson().toJson(bean)
+                setString("pref_star_random_data", sql)
+            } catch (e: Exception) {
+            }
         }
 
     }

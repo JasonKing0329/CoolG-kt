@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+        <CheckBox
+            android:id="@+id/cb_exclude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exclude from marked list"/>
+        <RadioGroup
+            android:id="@+id/rb_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/rb_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                android:checked="true"/>
+            <RadioButton
+                android:id="@+id/rb_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"/>
+            <RadioButton
+                android:id="@+id/rb_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"/>
+            <RadioButton
+                android:id="@+id/rb_half"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.5"/>
+        </RadioGroup>
+        <CheckBox
+            android:id="@+id/cb_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Join rating"/>
+        <LinearLayout
+            android:id="@+id/group_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Column: complex, face, body, passion, sexuality, video, prefer, dk"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rating: S(4.6), A+(4.3), A(4.0), B+(3.6), B(3.1), C+(2.6), C(2.1), D+(1.6), D(1.1)"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sql should separated by ','(eg. complex>4.0,face>4.2)"/>
+            <EditText
+                android:id="@+id/et_sql_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TvDialogConfirm"
+            android:layout_marginTop="30dp"
+            android:text="@string/ok"/>
+    </LinearLayout>
+</layout>

@@ -15,6 +15,7 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.LazyData
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.star.random.StarRandomActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.StarWrap
@@ -87,7 +88,10 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
         }
     }
 
-    private fun showRandomPage() {}
+    private fun showRandomPage() {
+        StarRandomActivity.startPage(this)
+    }
+
     private fun createSortPopup(anchorView: View): PopupMenu {
         val menu = PopupMenu(this, anchorView)
         menu.menuInflater.inflate(R.menu.player_sort, menu.menu)

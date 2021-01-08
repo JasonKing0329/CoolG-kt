@@ -168,4 +168,30 @@ class StarRepository: BaseRepository() {
             bean.height = (height * ratio).toInt()
         }
     }
+
+    /**
+     *
+     * @param type 0 All, 1 Top, 2 bottom, 3 half
+     * @param conditions eg. {"complex > 3", "face > 4.2"}
+     * @return
+     */
+    fun queryStar(type: Int, conditions: Array<String>?): List<StarWrap> {
+        val buffer = StringBuffer("select T.* from stars T ")
+        // rating
+        conditions?.let {
+            buffer.append("join star_rating SR on T._id=SR.STAR_ID ")
+            it.forEach { condition ->
+                buffer.append(" AND SR.").append(condition)
+            }
+        }
+        when (type) {
+            1 -> buffer.append(" WHERE T.BETOP>0 AND T.BEBOTTOM=0")
+            2 -> buffer.append(" WHERE T.BEBOTTOM>0 AND T.BETOP=0")
+            3 -> buffer.append(" WHERE T.BETOP>0 AND T.BEBOTTOM>0")
+        }
+        val sql = buffer.toString()
+        DebugLog.e(sql)
+        return getDatabase().getStarDao().getStarsBySql(SimpleSQLiteQuery(sql))
+    }
+
 }

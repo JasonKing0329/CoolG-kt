@@ -68,7 +68,7 @@ interface StarDao {
     fun getStar(id: Long): Star?
 
     @Query("select * from stars where _id=:id")
-    fun getStarWrap(id: Long): StarWrap
+    fun getStarWrap(id: Long): StarWrap?
 
     @Insert
     fun insertStarRating(bean: StarRating)

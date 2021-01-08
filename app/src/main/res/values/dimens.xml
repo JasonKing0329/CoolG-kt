@@ -233,6 +233,7 @@
     <dimen name="home_play_list_height">90dp</dimen>
     <dimen name="home_play_list_width">160dp</dimen>
     <dimen name="category_star_size">60dp</dimen>
+    <dimen name="category_star_radius">30dp</dimen>
     <dimen name="category_star_height">90dp</dimen>
     <dimen name="category_level_star_height">108dp</dimen>
     <dimen name="dlg_recommend_margin_hor">16dp</dimen>

@@ -68,6 +68,9 @@
         <activity android:name=".page.video.order.PlayOrderActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.star.random.StarRandomActivity"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".page.video.server.VideoServerActivity"/>
         <activity android:name=".page.video.order.PlayOrderItemsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />

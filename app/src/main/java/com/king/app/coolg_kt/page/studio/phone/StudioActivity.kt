@@ -69,6 +69,8 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
 
     private fun setActionBarList(isList: Boolean) {
         mBinding.actionbar.updateMenuItemVisible(R.id.menu_sort, isList)
+        mBinding.actionbar.updateMenuItemVisible(R.id.menu_add, isList)
+        mBinding.actionbar.updateMenuItemVisible(R.id.menu_delete, isList)
         mBinding.actionbar.updateMenuItemVisible(R.id.menu_mode, isList)
     }
 

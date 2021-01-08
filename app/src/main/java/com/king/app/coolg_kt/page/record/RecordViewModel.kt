@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PassionPoint
 import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.model.bean.VideoPlayList
@@ -325,23 +326,33 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
 
     private fun findStudio(list: List<FavorRecordOrder>): ObservableSource<List<FavorRecordOrder>> {
         return ObservableSource {
-            var studioParent = getDatabase().getFavorDao().getStudioOrder()
-            var studioName: String? = ""
-            studioParent?.let { parent ->
-                for (order in list) {
-                    if (order.parentId == parent.id) {
-                        studioName = order.name
-                        break
-                    }
-                }
+            var studioParentId = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)?.id
+            studioParentId?.let { parentId ->
+                var studio = getDatabase().getFavorDao().getStudioByRecord(mRecord.bean.id!!, parentId)
+                studioObserver.postValue(studio?.name?:"")
             }
-            studioObserver.postValue(studioName)
             it.onNext(list)
         }
     }
 
     fun addToOrder(orderId: Long) {
         orderRepository.addFavorRecord(orderId, mRecord.bean.id!!)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<FavorRecord>(getComposite()) {
+                override fun onNext(t: FavorRecord) {
+                    messageObserver.value = "Add successfully"
+                    loadRecordOrders()
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
+    }
+
+    fun addToStudio(orderId: Long) {
+        orderRepository.addRecordToStudio(orderId, mRecord.bean.id!!)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<FavorRecord>(getComposite()) {
                 override fun onNext(t: FavorRecord) {

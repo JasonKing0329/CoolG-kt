@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.studio
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -14,6 +15,7 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.FragmentStudioListBinding
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.entity.FavorRecordOrder
 
 /**
@@ -24,6 +26,8 @@ import com.king.app.gdb.data.entity.FavorRecordOrder
 class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewModel>() {
 
     var holder: StudioHolder? = null
+
+    var isDeleting = false
 
     companion object {
 
@@ -57,22 +61,51 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
 
         simpleAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StudioSimpleItem>{
             override fun onClickItem(view: View, position: Int, data: StudioSimpleItem) {
-                onClickOrder(data.order)
+                if (isDeleting) {
+                    warningDelete(data.order)
+                }
+                else {
+                    onClickOrder(data.order)
+                }
             }
         })
         richAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StudioRichItem>{
             override fun onClickItem(view: View, position: Int, data: StudioRichItem) {
-                onClickOrder(data.order)
+                if (isDeleting) {
+                    warningDelete(data.order)
+                }
+                else {
+                    onClickOrder(data.order)
+                }
             }
         })
 
+    }
+
+    private fun warningDelete(order: FavorRecordOrder) {
+        showConfirmCancelMessage("This action will delete all video relationships under selected studio, do you want to continue?",
+            DialogInterface.OnClickListener { dialog, which ->  mModel.deleteStudio(order)},
+            null)
     }
 
     private fun initMenu() {
         holder?.getJActionBar()?.setOnMenuItemListener { menuId ->
             when (menuId) {
                 R.id.menu_mode -> mModel.toggleListType()
+                R.id.menu_add -> addNewStudio()
+                R.id.menu_delete -> {
+                    isDeleting = true
+                    holder?.getJActionBar()?.showConfirmStatus(menuId)
+                }
             }
+        }
+        holder?.getJActionBar()?.setOnConfirmListener {
+            isDeleting = false
+            true
+        }
+        holder?.getJActionBar()?.setOnCancelListener {
+            isDeleting = false
+            true
         }
         holder?.getJActionBar()?.registerPopupMenu(R.id.menu_sort)
         holder?.getJActionBar()?.setPopupMenuProvider { iconMenuId, anchorView ->
@@ -81,6 +114,13 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
             }
             null
         }
+    }
+
+    private fun addNewStudio() {
+        SimpleDialogs().openInputDialog(
+            requireContext(),
+            "Input studio's name"
+        ) { mModel.addNewStudio(it) }
     }
 
     override fun initData() {

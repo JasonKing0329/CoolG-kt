@@ -6,7 +6,7 @@ import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.FavorStar
 import com.king.app.gdb.data.entity.FavorStarOrder
-import com.king.app.gdb.data.relation.FavorStarOrderWrap
+import com.king.app.gdb.data.relation.FavorRecordWrap
 
 /**
  * @description:
@@ -53,7 +53,16 @@ interface FavorDao {
     fun deleteFavorStarOrders()
 
     @Update
+    fun updateFavorRecord(bean: FavorRecord)
+
+    @Delete
+    fun deleteFavorRecord(bean: FavorRecord)
+
+    @Update
     fun updateFavorRecordOrder(bean: FavorRecordOrder)
+
+    @Delete
+    fun deleteFavorRecordOrder(bean: FavorRecordOrder)
 
     @Update
     fun updateFavorRecordOrders(list: List<FavorRecordOrder>)
@@ -63,6 +72,9 @@ interface FavorDao {
 
     @Query("delete from favor_record where RECORD_ID=:recordId and ORDER_ID=:orderId")
     fun deleteRecordFromOrder(recordId: Long, orderId: Long)
+
+    @Query("delete from favor_record where ORDER_ID=:orderId")
+    fun deleteAllRecordsInOrder(orderId: Long)
 
     @Query("select * from favor_record where RECORD_ID=:recordId and ORDER_ID=:orderId")
     fun getFavorRecordBy(recordId: Long, orderId: Long): FavorRecord?
@@ -78,6 +90,15 @@ interface FavorDao {
 
     @Query("select * from favor_order_record where NAME=:name")
     fun getRecordOrderByName(name: String): FavorRecordOrder?
+
+    @Query("select * from favor_order_record where NAME=:name and PARENT_ID=:studioParentId")
+    fun getStudioByName(name: String, studioParentId: Long): FavorRecordOrder?
+
+    @Query("select fo.* from favor_order_record fo join favor_record fr on fo._id=fr.ORDER_ID where fr.RECORD_ID=:recordId and fo.PARENT_ID=:studioParentId")
+    fun getStudioByRecord(recordId: Long, studioParentId: Long): FavorRecordOrder?
+
+    @Query("select fr.* from favor_record fr join favor_order_record fo on fo._id=fr.ORDER_ID where fr.RECORD_ID=:recordId and fo.PARENT_ID=:studioParentId")
+    fun getStudioRelationByRecord(recordId: Long, studioParentId: Long): List<FavorRecordWrap>
 
     @Query("select * from favor_star where STAR_ID=:starId and ORDER_ID=:orderId")
     fun getFavorStarBy(starId: Long, orderId: Long): FavorStar?

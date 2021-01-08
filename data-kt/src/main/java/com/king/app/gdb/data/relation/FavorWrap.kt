@@ -17,11 +17,11 @@ data class FavorRecordWrap (
 
     @Relation(parentColumn = "RECORD_ID",
         entityColumn = "_id")
-    var record: Record,
+    var record: Record?,
 
     @Relation(parentColumn = "ORDER_ID",
         entityColumn = "_id")
-    var order: FavorRecordOrder
+    var order: FavorRecordOrder?
 )
 data class FavorRecordOrderWrap (
 

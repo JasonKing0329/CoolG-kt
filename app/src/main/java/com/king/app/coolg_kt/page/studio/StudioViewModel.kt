@@ -189,4 +189,35 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
             item.high = "600+ Videos: $countHigh"
         }
     }
+
+    fun addNewStudio(name: String?) {
+        if (name == null || name.isEmpty()) {
+            messageObserver.value = "Empty name"
+            return
+        }
+        val parent = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
+        parent?.let {
+            var studio = getDatabase().getFavorDao().getStudioByName(name, it.id!!)
+            if (studio == null) {
+                val time = System.currentTimeMillis()
+                studio = FavorRecordOrder(null, name, null, 0, 0, time, time, it.id!!)
+                val list = listOf(studio)
+                getDatabase().getFavorDao().insertFavorRecordOrders(list)
+                messageObserver.value = "success"
+                loadStudios()
+            }
+            else {
+                messageObserver.value = "Studio '$name' is already existed"
+            }
+        }
+    }
+
+    fun deleteStudio(order: FavorRecordOrder) {
+        getDatabase().runInTransaction {
+            getDatabase().getFavorDao().deleteAllRecordsInOrder(order.id!!)
+            getDatabase().getFavorDao().deleteFavorRecordOrder(order)
+            messageObserver.value = "success"
+            loadStudios()
+        }
+    }
 }

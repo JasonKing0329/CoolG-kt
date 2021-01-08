@@ -33,11 +33,14 @@ import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagAdapter
 import com.king.app.coolg_kt.page.pub.TagFragment
-import com.king.app.coolg_kt.page.record.*
+import com.king.app.coolg_kt.page.record.PassionPointAdapter
+import com.king.app.coolg_kt.page.record.RecordOrdersAdapter
+import com.king.app.coolg_kt.page.record.RecordPlayOrdersAdapter
+import com.king.app.coolg_kt.page.record.RecordViewModel
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
-import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
+import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.FormatUtil
@@ -131,7 +134,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             }
         }
         mBinding.rvPlayOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        mBinding.groupStudio.setOnClickListener { view: View? -> selectStudio() }
+        mBinding.groupStudio.setOnClickListener { selectStudio() }
         // Jzvd小窗快速滑动有BUG，慎用
 //        mBinding.scrollParent.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
 //            if (mBinding.videoView.visibility == View.VISIBLE && mBinding.videoView.isPlaying) {
@@ -541,7 +544,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         } else if (requestCode == REQUEST_SELECT_STUDIO) {
             if (resultCode == Activity.RESULT_OK) {
                 val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
-                mModel.addToOrder(orderId)
+                mModel.addToStudio(orderId)
             }
         } else if (requestCode == REQUEST_VIDEO_ORDER) {
             if (resultCode == Activity.RESULT_OK) {

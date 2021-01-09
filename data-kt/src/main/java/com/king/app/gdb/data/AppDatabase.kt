@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.king.app.gdb.data.dao.*
 import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.entity.match.*
 
 /**
  * @description:
@@ -20,8 +21,9 @@ import com.king.app.gdb.data.entity.*
         , FavorRecordOrder::class, FavorRecord::class, FavorStarOrder::class, FavorStar::class
         , GProperties::class, TopStar::class, TopStarCategory::class
         , PlayDuration::class, PlayItem::class, PlayOrder::class, VideoCoverPlayOrder::class, VideoCoverStar::class
-        , Tag::class, TagRecord::class, TagStar::class],
-    version = 11,
+        , Tag::class, TagRecord::class, TagStar::class
+        , Match::class, MatchItem::class, MatchRecord::class, MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class],
+    version = 12,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -64,6 +66,7 @@ abstract class AppDatabase : RoomDatabase() {
                 })
                 .allowMainThreadQueries() //允许主线程查询
                 .addMigrations(DataMigration.MIGRATION_1_11)
+                .addMigrations(DataMigration.MIGRATION_11_12)
                 .build()
         }
     }
@@ -79,6 +82,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getTagDao(): TagDao
 
     abstract fun getFavorDao(): FavorDao
+
+    abstract fun getMatchDao(): MatchDao
 
     fun destroy() {
         Log.e(AppDatabase::class.simpleName, "destroy")

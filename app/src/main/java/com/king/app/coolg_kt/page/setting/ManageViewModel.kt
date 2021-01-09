@@ -23,6 +23,7 @@ import com.king.app.coolg_kt.model.repository.PropertyRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.entity.match.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import okhttp3.MediaType
@@ -422,7 +423,14 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
                 getDatabase().getStarDao().getAllTopStar(),
                 getDatabase().getTagDao().getAllTags(),
                 getDatabase().getTagDao().getAllTagRecords(),
-                getDatabase().getTagDao().getAllTagStars()
+                getDatabase().getTagDao().getAllTagStars(),
+                getDatabase().getMatchDao().getAllMatches(),
+                getDatabase().getMatchDao().getAllMatchItems(),
+                getDatabase().getMatchDao().getAllMatchRecords(),
+                getDatabase().getMatchDao().getAllMatchScoreStars(),
+                getDatabase().getMatchDao().getAllMatchScoreRecords(),
+                getDatabase().getMatchDao().getAllMatchRankStars(),
+                getDatabase().getMatchDao().getAllMatchRankRecords()
             )
             // 保存star的favor字段
             // 保存star的favor字段
@@ -493,6 +501,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
                 updateStarRelated()
                 updatePlayList()
                 updateTags()
+                updateMatches()
                 createCountData()
                 // 数据插入完毕后务必先关闭数据库
                 // 根据调试发现，数据库onOpen后，部分数据可能会写入到gdata.db-wal这个文件中，如果没有执行close，-wal文件会一直存在
@@ -560,6 +569,23 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         getDatabase().getTagDao().insertTagRecords(mLocalData!!.tagRecordList)
     }
 
+    private fun updateMatches() {
+        getDatabase().getMatchDao().deleteMatchItems()
+        getDatabase().getMatchDao().deleteMatches()
+        getDatabase().getMatchDao().deleteMatchRecords()
+        getDatabase().getMatchDao().deleteMatchRankRecords()
+        getDatabase().getMatchDao().deleteMatchRankStars()
+        getDatabase().getMatchDao().deleteMatchScoreRecords()
+        getDatabase().getMatchDao().deleteMatchScoreStars()
+        getDatabase().getMatchDao().insertMatches(mLocalData!!.matchList)
+        getDatabase().getMatchDao().insertMatchItems(mLocalData!!.matchItemList)
+        getDatabase().getMatchDao().insertMatchRecords(mLocalData!!.matchRecordList)
+        getDatabase().getMatchDao().insertMatchScoreStars(mLocalData!!.matchScoreStarList)
+        getDatabase().getMatchDao().insertMatchScoreRecords(mLocalData!!.matchScoreRecordList)
+        getDatabase().getMatchDao().insertMatchRankStars(mLocalData!!.matchRankStarList)
+        getDatabase().getMatchDao().insertMatchRankRecords(mLocalData!!.matchRankRecordList)
+    }
+
     /**
      * CountStar and CountRecord
      */
@@ -595,6 +621,13 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         var tagList: List<Tag>,
         var tagRecordList: List<TagRecord>,
         var tagStarList: List<TagStar>,
+        var matchList: List<Match>,
+        var matchItemList: List<MatchItem>,
+        var matchRecordList: List<MatchRecord>,
+        var matchScoreStarList: List<MatchScoreStar>,
+        var matchScoreRecordList: List<MatchScoreRecord>,
+        var matchRankStarList: List<MatchRankStar>,
+        var matchRankRecordList: List<MatchRankRecord>,
         var favorMap: MutableMap<String, Int> = mutableMapOf()
     )
 }

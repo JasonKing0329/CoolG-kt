@@ -78,9 +78,27 @@ object DataMigration {
     }
     val MIGRATION_11_12: Migration = object : Migration(11, 12) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            logMessage("MIGRATION_4_5")
+            logMessage("MIGRATION_11_12")
             database.execSQL(
-                ""
+                "CREATE TABLE `match` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `period` INTEGER NOT NULL, `level` INTEGER NOT NULL, `draws` INTEGER NOT NULL, `byeDraws` INTEGER NOT NULL, `qualifyDraws` INTEGER NOT NULL, `date` INTEGER NOT NULL, `order` INTEGER NOT NULL, `orderInPeriod` INTEGER NOT NULL, `name` TEXT NOT NULL, `isRankCreated` INTEGER NOT NULL, `isScoreCreated` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `round` INTEGER NOT NULL, `winnerId` INTEGER, `isQualify` INTEGER NOT NULL, `isBye` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupFlag` INTEGER)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_rank_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `rank` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_rank_star` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `starId` INTEGER NOT NULL, `rank` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `matchItemId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `recordRank` INTEGER, `recordSeed` INTEGER, `order` INTEGER)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_score_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `matchItemId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `score` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_score_star` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `matchItemId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `starId` INTEGER NOT NULL, `score` INTEGER NOT NULL)"
             )
         }
     }

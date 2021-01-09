@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.databinding.ActivityHomeBinding
 import com.king.app.coolg_kt.page.home.HomeRecord
 import com.king.app.coolg_kt.page.home.HomeStar
 import com.king.app.coolg_kt.page.home.HomeViewModel
+import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
@@ -107,7 +108,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         }
         mBinding.blurView.setOnTouchListener(touchListener)
         mBinding.groupMenuStar.setOnClickListener { TagStarActivity.startPage(this) }
-        mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
+        mBinding.groupMenuRecord.setOnClickListener { MatchHomeActivity.startPage(this) }
         mBinding.groupMenuVideo.setOnClickListener { VideoHomePhoneActivity.startPage(this) }
         mBinding.groupMenuStudio.setOnClickListener { StudioActivity.startPage(this) }
     }

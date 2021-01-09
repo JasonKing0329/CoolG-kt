@@ -1,8 +1,6 @@
 package com.king.app.gdb.data.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.king.app.gdb.data.entity.match.*
 
 /**
@@ -14,6 +12,9 @@ import com.king.app.gdb.data.entity.match.*
 interface MatchDao {
     @Query("select * from `match`")
     fun getAllMatches(): List<Match>
+
+    @Query("select * from `match` order by orderInPeriod")
+    fun getAllMatchesByOrder(): List<Match>
 
     @Query("select * from match_period")
     fun getAllMatchPeriods(): List<MatchPeriod>
@@ -60,6 +61,9 @@ interface MatchDao {
     @Insert
     fun insertMatchScoreRecords(list: List<MatchScoreRecord>)
 
+    @Delete
+    fun deleteMatch(match: Match)
+
     @Query("delete from `match`")
     fun deleteMatches()
 
@@ -83,5 +87,8 @@ interface MatchDao {
 
     @Query("delete from match_score_record")
     fun deleteMatchScoreRecords()
+
+    @Update
+    fun updateMatch(match: Match)
 
 }

@@ -33,4 +33,12 @@
         <item>By number</item>
     </string-array>
 
+    <string-array name="match_level" translatable="false">
+        <item>Grand Slam</item>
+        <item>Master Final</item>
+        <item>GM1000</item>
+        <item>GM500</item>
+        <item>GM250</item>
+    </string-array>
+
 </resources>

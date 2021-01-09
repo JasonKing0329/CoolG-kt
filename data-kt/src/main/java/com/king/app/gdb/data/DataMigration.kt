@@ -80,7 +80,10 @@ object DataMigration {
         override fun migrate(database: SupportSQLiteDatabase) {
             logMessage("MIGRATION_11_12")
             database.execSQL(
-                "CREATE TABLE `match` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `period` INTEGER NOT NULL, `level` INTEGER NOT NULL, `draws` INTEGER NOT NULL, `byeDraws` INTEGER NOT NULL, `qualifyDraws` INTEGER NOT NULL, `date` INTEGER NOT NULL, `order` INTEGER NOT NULL, `orderInPeriod` INTEGER NOT NULL, `name` TEXT NOT NULL, `isRankCreated` INTEGER NOT NULL, `isScoreCreated` INTEGER NOT NULL)"
+                "CREATE TABLE `match` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `level` INTEGER NOT NULL, `draws` INTEGER NOT NULL, `byeDraws` INTEGER NOT NULL, `qualifyDraws` INTEGER NOT NULL, `wildcardDraws` INTEGER NOT NULL, `orderInPeriod` INTEGER NOT NULL, `name` TEXT NOT NULL, `imgUrl` TEXT NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_period` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `period` INTEGER NOT NULL, `orderInPeriod` INTEGER NOT NULL, `isRankCreated` INTEGER NOT NULL, `isScoreCreated` INTEGER NOT NULL)"
             )
             database.execSQL(
                 "CREATE TABLE `match_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `round` INTEGER NOT NULL, `winnerId` INTEGER, `isQualify` INTEGER NOT NULL, `isBye` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupFlag` INTEGER)"

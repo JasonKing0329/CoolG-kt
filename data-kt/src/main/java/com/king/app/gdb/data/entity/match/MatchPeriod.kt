@@ -8,25 +8,21 @@ import androidx.room.PrimaryKey
  * @author：Jing
  * @date: 2021/1/9 10:45
  */
-@Entity(tableName = "match")
-data class Match (
+@Entity(tableName = "match_period")
+data class MatchPeriod (
 
     @PrimaryKey(autoGenerate = true)
     var id: Long,
 
-    var level: Int,
+    var matchId: Long,
 
-    var draws: Int,
+    var date: Long,
 
-    var byeDraws: Int,
-
-    var qualifyDraws: Int,
-
-    var wildcardDraws: Int,
+    var period: Int,
 
     var orderInPeriod: Int,
 
-    var name: String,
+    var isRankCreated: Boolean,
 
-    var imgUrl: String
+    var isScoreCreated: Boolean
 )

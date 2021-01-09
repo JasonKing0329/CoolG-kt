@@ -425,6 +425,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
                 getDatabase().getTagDao().getAllTagRecords(),
                 getDatabase().getTagDao().getAllTagStars(),
                 getDatabase().getMatchDao().getAllMatches(),
+                getDatabase().getMatchDao().getAllMatchPeriods(),
                 getDatabase().getMatchDao().getAllMatchItems(),
                 getDatabase().getMatchDao().getAllMatchRecords(),
                 getDatabase().getMatchDao().getAllMatchScoreStars(),
@@ -570,14 +571,16 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun updateMatches() {
-        getDatabase().getMatchDao().deleteMatchItems()
         getDatabase().getMatchDao().deleteMatches()
+        getDatabase().getMatchDao().deleteMatchItems()
+        getDatabase().getMatchDao().deleteMatchPeriods()
         getDatabase().getMatchDao().deleteMatchRecords()
         getDatabase().getMatchDao().deleteMatchRankRecords()
         getDatabase().getMatchDao().deleteMatchRankStars()
         getDatabase().getMatchDao().deleteMatchScoreRecords()
         getDatabase().getMatchDao().deleteMatchScoreStars()
         getDatabase().getMatchDao().insertMatches(mLocalData!!.matchList)
+        getDatabase().getMatchDao().insertMatchPeriods(mLocalData!!.matchPeriodList)
         getDatabase().getMatchDao().insertMatchItems(mLocalData!!.matchItemList)
         getDatabase().getMatchDao().insertMatchRecords(mLocalData!!.matchRecordList)
         getDatabase().getMatchDao().insertMatchScoreStars(mLocalData!!.matchScoreStarList)
@@ -622,6 +625,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         var tagRecordList: List<TagRecord>,
         var tagStarList: List<TagStar>,
         var matchList: List<Match>,
+        var matchPeriodList: List<MatchPeriod>,
         var matchItemList: List<MatchItem>,
         var matchRecordList: List<MatchRecord>,
         var matchScoreStarList: List<MatchScoreStar>,

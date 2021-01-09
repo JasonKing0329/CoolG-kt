@@ -15,6 +15,9 @@ interface MatchDao {
     @Query("select * from `match`")
     fun getAllMatches(): List<Match>
 
+    @Query("select * from match_period")
+    fun getAllMatchPeriods(): List<MatchPeriod>
+
     @Query("select * from match_item")
     fun getAllMatchItems(): List<MatchItem>
 
@@ -37,6 +40,9 @@ interface MatchDao {
     fun insertMatches(list: List<Match>)
 
     @Insert
+    fun insertMatchPeriods(list: List<MatchPeriod>)
+
+    @Insert
     fun insertMatchItems(list: List<MatchItem>)
 
     @Insert
@@ -56,6 +62,9 @@ interface MatchDao {
 
     @Query("delete from `match`")
     fun deleteMatches()
+
+    @Query("delete from match_period")
+    fun deleteMatchPeriods()
 
     @Query("delete from match_item")
     fun deleteMatchItems()

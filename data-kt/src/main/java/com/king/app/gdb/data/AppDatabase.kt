@@ -22,7 +22,7 @@ import com.king.app.gdb.data.entity.match.*
         , GProperties::class, TopStar::class, TopStarCategory::class
         , PlayDuration::class, PlayItem::class, PlayOrder::class, VideoCoverPlayOrder::class, VideoCoverStar::class
         , Tag::class, TagRecord::class, TagStar::class
-        , Match::class, MatchItem::class, MatchRecord::class, MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class],
+        , Match::class, MatchPeriod::class, MatchItem::class, MatchRecord::class, MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class],
     version = 12,
     exportSchema = false
 )

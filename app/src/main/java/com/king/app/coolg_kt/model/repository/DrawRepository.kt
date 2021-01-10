@@ -2,9 +2,14 @@ package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.draw.GM1000Plan
+import com.king.app.coolg_kt.page.match.draw.GM250Plan
+import com.king.app.coolg_kt.page.match.draw.GM500Plan
+import com.king.app.coolg_kt.page.match.draw.GrandSlamPlan
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.Match
+import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import io.reactivex.rxjava3.core.Observable
 
@@ -50,28 +55,17 @@ class DrawRepository: BaseRepository() {
     }
 
     private fun createNormalMainDraw(match: Match, rankRecords: List<RankRecord>) {
-        var directIn = match.draws - match.byeDraws - match.qualifyDraws - match.wildcardDraws
-        var seeds = match.byeDraws
-        // gs设32种子，无轮空
-        if (match.level == 0) {
-            seeds = 32
+        var plan = when(match.level) {
+            0 -> GrandSlamPlan(rankRecords, match)
+            2 -> GM1000Plan(rankRecords, match)
+            3 -> GM500Plan(rankRecords, match)
+            else -> GM250Plan(rankRecords, match)
         }
-        // gm1000至少设16种子（也有32种子），但不一定种子全轮空（可能只轮空8个或四个）
-        else if (match.level == 2 && match.byeDraws < 16) {
-            seeds = 16
+        val draws = mutableListOf<MatchRecord?>()
+        for (i in 0 until match.draws) {
+            draws.add(null)
         }
-        // gm500至少设8种子（也有16种子），但不一定种子全轮空（可能只轮空4个或0个）
-        else if (match.level == 3 && match.byeDraws < 8) {
-            seeds = 8
-        }
-        // gm250固定设8种子，但不一定种子全轮空
-        else if (match.level == 4 && match.byeDraws < 8) {
-            seeds = 8
-        }
-        var seedRecords = rankRecords.take(seeds)
-        var unSeedRecords = rankRecords.takeLast(rankRecords.size - seeds)
-        // 非种子直接shuffle
-        unSeedRecords = unSeedRecords.shuffled()
+        plan.arrangeDraw(draws)
     }
 
     private fun createMasterFinalDraw(match: Match, rankRecords: List<RankRecord>) {

@@ -14,3 +14,7 @@ data class DrawItem (
     var matchRecord2: MatchRecordWrap? = null,
     var winner: MatchRecordWrap? = null
 )
+data class DrawCell<T> (
+    var data: T,
+    var type: Int // 0:MatchRecord, 1:bye
+)

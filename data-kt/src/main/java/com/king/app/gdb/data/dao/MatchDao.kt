@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import com.king.app.gdb.data.entity.match.*
+import com.king.app.gdb.data.relation.MatchPeriodWrap
 
 /**
  * @description:
@@ -10,6 +11,10 @@ import com.king.app.gdb.data.entity.match.*
  */
 @Dao
 interface MatchDao {
+
+    @Query("select * from `match` where id=:matchId")
+    fun getMatch(matchId: Long): Match
+
     @Query("select * from `match`")
     fun getAllMatches(): List<Match>
 
@@ -18,6 +23,9 @@ interface MatchDao {
 
     @Query("select * from match_period")
     fun getAllMatchPeriods(): List<MatchPeriod>
+
+    @Query("select * from match_period order by period desc, orderInPeriod desc")
+    fun getAllMatchPeriodsOrdered(): List<MatchPeriodWrap>
 
     @Query("select * from match_item")
     fun getAllMatchItems(): List<MatchItem>
@@ -67,6 +75,9 @@ interface MatchDao {
     @Query("delete from `match`")
     fun deleteMatches()
 
+    @Delete
+    fun deleteMatchPeriod(match: MatchPeriod)
+
     @Query("delete from match_period")
     fun deleteMatchPeriods()
 
@@ -90,5 +101,8 @@ interface MatchDao {
 
     @Update
     fun updateMatch(match: Match)
+
+    @Update
+    fun updateMatchPeriod(match: MatchPeriod)
 
 }

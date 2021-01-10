@@ -145,6 +145,12 @@ class ImageViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
+    fun setMatchCover(matchId: Long) {
+        val match = getDatabase().getMatchDao().getMatch(matchId)
+        match.imgUrl = mUrlToSetCover!!
+        getDatabase().getMatchDao().updateMatch(match)
+    }
+
     init {
         val margin = ScreenUtils.dp2px(1f)
         val column = 2

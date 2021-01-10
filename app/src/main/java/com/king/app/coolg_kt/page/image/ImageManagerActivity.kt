@@ -11,6 +11,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityImageManagerBinding
 import com.king.app.coolg_kt.model.bean.ImageBean
+import com.king.app.coolg_kt.page.match.list.MatchListActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 
@@ -30,6 +31,7 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
     }
     
     private val REQUEST_SET_VIDEO_COVER = 101
+    private val REQUEST_SET_MATCH_COVER = 102
     private var staggerAdapter: StaggerAdapter = StaggerAdapter()
     
     override fun getContentView(): Int = R.layout.activity_image_manager
@@ -105,23 +107,21 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
     }
 
     private fun onApplyImage(path: String?) {
-        val options = arrayOf("Order", "Play Order")
+        val options = arrayOf("Play Order", "Match")
         AlertDialogFragment()
             .setItems(options) { dialogInterface, i ->
                 if (i === 0) {
-                    onSetCoverForOrder(path)
-                } else if (i === 1) {
                     onSetCoverForPlayOrder(path)
+                } else if (i === 1) {
+                    onSetCoverForMatch(path)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")
     }
 
-    private fun onSetCoverForOrder(path: String?) {
-//        Router.build("OrderPhone")
-//            .with(OrderPhoneActivity.EXTRA_SET_COVER, path)
-//            .go(this)
-        TODO()
+    private fun onSetCoverForMatch(path: String?) {
+        mModel.setUrlToSetCover(path)
+        MatchListActivity.startPageToSelect(this, REQUEST_SET_MATCH_COVER)
     }
 
     private fun onSetCoverForPlayOrder(path: String?) {
@@ -139,6 +139,12 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
             if (resultCode == Activity.RESULT_OK) {
                 val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
                 mModel.setPlayOrderCover(list)
+            }
+        }
+        else if (requestCode == REQUEST_SET_MATCH_COVER) {
+            if (resultCode == Activity.RESULT_OK) {
+                val matchId = data?.getLongExtra(MatchListActivity.RESP_MATCH_ID, -1)!!
+                mModel.setMatchCover(matchId)
             }
         }
     }

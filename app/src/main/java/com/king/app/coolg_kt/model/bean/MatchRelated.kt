@@ -10,3 +10,8 @@ data class StandardMatchDraw (
     var byeDraw: Int,
     var qualifyDraw: Int
 )
+data class MatchPeriodTitle (
+    var period: Int,
+    var startDate: String = "",
+    var endDate: String = ""
+)

@@ -1,15 +1,18 @@
 package com.king.app.coolg_kt.page.match.list
 
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchListBinding
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
@@ -23,9 +26,21 @@ import com.king.app.gdb.data.entity.match.Match
 class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewModel>() {
 
     companion object {
+        val EXTRA_SELECT_MODE = "select_mode"
+        val RESP_MATCH_ID = "resp_match_id"
         fun startPage(context: Context) {
             var intent = Intent(context, MatchListActivity::class.java)
             context.startActivity(intent)
+        }
+        fun startPageToSelect(activity: Activity, requestCode: Int) {
+            var intent = Intent(activity, MatchListActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            activity.startActivityForResult(intent, requestCode)
+        }
+        fun startPageToSelect(fragment: Fragment, requestCode: Int) {
+            var intent = Intent(fragment.context, MatchListActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            fragment.startActivityForResult(intent, requestCode)
         }
     }
 
@@ -70,6 +85,16 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
             }
         })
 
+        adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<Match> {
+            override fun onClickItem(view: View, position: Int, data: Match) {
+                if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+                    val intent = Intent()
+                    intent.putExtra(RESP_MATCH_ID, data.id)
+                    setResult(Activity.RESULT_OK, intent)
+                    finish()
+                }
+            }
+        })
         adapter.onMatchItemListener = object : MatchAdapter.OnMatchItemListener {
             override fun onEdit(position: Int, bean: Match) {
                 editMatch(bean, position)

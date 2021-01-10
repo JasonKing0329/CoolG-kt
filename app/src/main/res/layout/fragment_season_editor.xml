@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_select_match"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Select Match"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_date"
+            app:layout_constraintStart_toStartOf="@+id/tv_select_match"
+            app:layout_constraintTop_toTopOf="@+id/btn_date" />
+
+        <Button
+            android:id="@+id/btn_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Date"
+            app:layout_constraintStart_toEndOf="@+id/tv_date"
+            app:layout_constraintTop_toBottomOf="@+id/tv_select_match" />
+
+        <TextView
+            android:id="@+id/tv_period"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Period"
+            app:layout_constraintBottom_toBottomOf="@+id/et_period"
+            app:layout_constraintStart_toStartOf="@+id/tv_select_match"
+            app:layout_constraintTop_toTopOf="@+id/et_period" />
+
+        <EditText
+            android:id="@+id/et_period"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            app:layout_constraintStart_toEndOf="@+id/tv_period"
+            app:layout_constraintTop_toBottomOf="@+id/btn_date" />
+
+        <TextView
+            android:id="@+id/tv_order_in_period"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_period"
+            app:layout_constraintStart_toEndOf="@+id/et_period"
+            app:layout_constraintTop_toTopOf="@+id/et_period"
+            tools:text="W12"/>
+
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TvDialogConfirmBase"
+            android:layout_width="match_parent"
+            android:layout_marginTop="30dp"
+            android:text="@string/ok"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_period" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

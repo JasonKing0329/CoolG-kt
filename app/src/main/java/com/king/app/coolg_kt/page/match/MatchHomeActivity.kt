@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.EmptyViewModel
 import com.king.app.coolg_kt.databinding.ActivityMatchHomeBinding
 import com.king.app.coolg_kt.page.match.list.MatchListActivity
+import com.king.app.coolg_kt.page.match.season.SeasonActivity
 
 /**
  * @description:
@@ -29,6 +30,9 @@ class MatchHomeActivity: BaseActivity<ActivityMatchHomeBinding, EmptyViewModel>(
     override fun initView() {
         mBinding.tvMatch.setOnClickListener {
             MatchListActivity.startPage(this@MatchHomeActivity)
+        }
+        mBinding.tvSeason.setOnClickListener {
+            SeasonActivity.startPage(this@MatchHomeActivity)
         }
     }
 

@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.bean.RecordScene
 import com.king.app.gdb.data.entity.CountRecord
 import com.king.app.gdb.data.entity.Record
@@ -21,6 +22,9 @@ interface RecordDao {
 
     @Query("select * from record")
     fun getAllRecords(): List<RecordWrap>
+
+    @Query("select r._id as recordId, cr.RANK as rank from record r join count_record cr on r._id = cr.RANK order by cr.RANK")
+    fun getRankRecords(): List<RankRecord>
 
     @Query("select * from record")
     fun getAllBasicRecords(): List<Record>

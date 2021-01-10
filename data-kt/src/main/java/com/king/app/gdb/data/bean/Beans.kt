@@ -9,3 +9,7 @@ data class RecordScene(
     var name: String?,
     var number: Int
 )
+data class RankRecord (
+    var recordId: Long,
+    var rank: Int
+)

@@ -79,6 +79,7 @@
         <activity android:name=".page.match.MatchHomeActivity"/>
         <activity android:name=".page.match.list.MatchListActivity"/>
         <activity android:name=".page.match.season.SeasonActivity"/>
+        <activity android:name=".page.match.draw.DrawActivity"/>
 
         <activity android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.draw.DrawViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.king.app.jactionbar.JActionbar
+            android:id="@+id/actionbar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/actionbar_height"
+            android:background="@color/actionbar_bg"
+            android:theme="@style/EtActionSearch"
+            app:actionTextColor="@color/actionbar_element"
+            app:iconColor="@color/actionbar_element"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxShowIcon="5"
+            app:menu="@menu/match_draw"
+            app:showIconBack="true"
+            app:supportSearch="false"
+            app:iconSize="@dimen/actionbar_icon_width"
+            app:iconPadding="@dimen/actionbar_icon_padding"
+            app:titleSize="@dimen/actionbar_title_text_size"
+            app:title="Draws"
+            app:titleColor="@color/actionbar_element" />
+
+        <TextView
+            android:id="@+id/tv_qualify"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:background="@drawable/selector_draw_bg"
+            android:text="Qualify"
+            android:textColor="@drawable/selector_studio_tag_text"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            android:visibility="@{model.qualifyVisibility}"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_main"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:background="@drawable/selector_draw_bg"
+            android:text="Main"
+            android:textColor="@drawable/selector_studio_tag_text"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+            app:layout_constraintStart_toEndOf="@+id/tv_qualify"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_chevron_left_black_36dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:onClick="@{()->model.onClickPrevious()}"
+            android:visibility="@{model.previousVisibility}"
+            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
+            app:layout_constraintEnd_toStartOf="@+id/sp_round"/>
+
+        <Spinner
+            android:id="@+id/sp_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
+            app:layout_constraintEnd_toStartOf="@+id/iv_next"/>
+
+        <ImageView
+            android:id="@+id/iv_next"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="10dp"
+            android:onClick="@{()->model.onClickNext()}"
+            android:visibility="@{model.nextVisibility}"
+            android:src="@drawable/ic_keyboard_arrow_right_grey_700_24dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_qualify"
+            tools:listitem="@layout/adapter_match_record"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

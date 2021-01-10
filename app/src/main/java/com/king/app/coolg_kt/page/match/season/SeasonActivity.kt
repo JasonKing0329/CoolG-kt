@@ -13,6 +13,7 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivitySeasonBinding
+import com.king.app.coolg_kt.page.match.draw.DrawActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.MatchPeriod
@@ -98,8 +99,7 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
             }
             adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<MatchPeriodWrap> {
                 override fun onClickItem(view: View, position: Int, match: MatchPeriodWrap) {
-                    var bundle = Bundle()
-                    TODO()
+                    DrawActivity.startPage(this@SeasonActivity, match.bean.id)
                 }
             }
             mBinding.rvList.adapter = adapter

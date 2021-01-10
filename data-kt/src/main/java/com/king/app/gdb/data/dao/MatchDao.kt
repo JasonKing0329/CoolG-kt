@@ -3,6 +3,7 @@ package com.king.app.gdb.data.dao
 import androidx.room.*
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchPeriodWrap
+import com.king.app.gdb.data.relation.MatchRecordWrap
 
 /**
  * @description:
@@ -21,6 +22,9 @@ interface MatchDao {
     @Query("select * from `match` order by orderInPeriod")
     fun getAllMatchesByOrder(): List<Match>
 
+    @Query("select * from `match_period` where id=:id")
+    fun getMatchPeriod(id: Long): MatchPeriodWrap
+
     @Query("select * from match_period")
     fun getAllMatchPeriods(): List<MatchPeriod>
 
@@ -30,8 +34,17 @@ interface MatchDao {
     @Query("select * from match_item")
     fun getAllMatchItems(): List<MatchItem>
 
+    @Query("select * from match_item where matchId=:matchPeriodId and round=:round")
+    fun getRoundMatchItems(matchPeriodId: Long, round: Int): List<MatchItem>
+
     @Query("select * from match_record")
     fun getAllMatchRecords(): List<MatchRecord>
+
+    @Query("select * from match_record where matchItemId=:matchItemId and recordId=:recordId")
+    fun getMatchRecord(matchItemId: Long, recordId:Long): MatchRecordWrap?
+
+    @Query("select * from match_record where matchItemId=:matchItemId order by `order`")
+    fun getMatchRecords(matchItemId: Long): List<MatchRecordWrap>
 
     @Query("select * from match_rank_record")
     fun getAllMatchRankRecords(): List<MatchRankRecord>

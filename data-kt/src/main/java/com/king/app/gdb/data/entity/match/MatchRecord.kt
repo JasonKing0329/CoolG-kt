@@ -1,6 +1,5 @@
 package com.king.app.gdb.data.entity.match
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

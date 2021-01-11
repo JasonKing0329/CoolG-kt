@@ -9,6 +9,7 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.repository.DrawRepository
+import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -32,36 +33,25 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var roundList = MutableLiveData<List<RoundPack>>()
     var itemsObserver = MutableLiveData<List<DrawItem>>()
 
-    var drawType = 1 // 0:qualify, 1:main
+    var drawType = MatchConstants.DRAW_MAIN
 
     var drawRepository = DrawRepository()
 
+    var createdDrawData: DrawData? = null
+
     fun loadMatch(matchPeriodId: Long) {
         matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
-        getRoundByLevel(matchPeriod.match)
+        getMatchRound(matchPeriod.match)
     }
 
     fun onDrawTypeChanged() {
-        getRoundByLevel(matchPeriod.match)
+        getMatchRound(matchPeriod.match)
     }
 
-    private fun getRoundByLevel(match: Match) {
-        // master final
-        val rounds = if (match.level == 1) {
+    private fun getMatchRound(match: Match) {
+        val rounds = drawRepository.getMatchRound(match, drawType)
+        if (match.level == 1) {
             qualifyVisibility.set(View.GONE)
-            MatchConstants.ROUND_ROBIN
-        }
-        else {
-            if (drawType == 1) {
-                when(match.draws) {
-                    128 -> MatchConstants.ROUND_MAIN_DRAW128
-                    64 -> MatchConstants.ROUND_MAIN_DRAW64
-                    else -> MatchConstants.ROUND_MAIN_DRAW32
-                }
-            }
-            else {
-                MatchConstants.ROUND_QUALIFY
-            }
         }
         roundList.value = rounds
     }
@@ -121,6 +111,30 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun loadRound(roundPack: RoundPack) {
+        if (createdDrawData == null) {
+            loadRoundFromTable(roundPack)
+        }
+        else {
+            loadRoundFromCreate(roundPack)
+        }
+    }
+
+    private fun loadRoundFromCreate(roundPack: RoundPack) {
+        (roundList.value?.get(0)?.id == roundPack.id)?.let { isFirstRound ->
+            createdDrawData?.let {
+                if (isFirstRound) {
+                    if (drawType == MatchConstants.DRAW_MAIN) {
+                        itemsObserver.value = it.mainItems
+                    }
+                    else {
+                        itemsObserver.value = it.qualifyItems
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadRoundFromTable(roundPack: RoundPack) {
         loadingObserver.value = true
         drawRepository.getDrawItems(matchPeriod.bean.id, matchPeriod.bean.matchId, roundPack.id)
             .compose(applySchedulers())
@@ -140,7 +154,19 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createDraw() {
+        drawRepository.createDraw(matchPeriod)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
+                override fun onNext(t: DrawData) {
+                    createdDrawData = t
+                    itemsObserver.value = t.mainItems
+                }
 
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
     }
 
 }

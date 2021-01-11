@@ -43,8 +43,8 @@ interface MatchDao {
     @Query("select * from match_record where matchItemId=:matchItemId and recordId=:recordId")
     fun getMatchRecord(matchItemId: Long, recordId:Long): MatchRecordWrap?
 
-    @Query("select * from match_record where matchItemId=:matchItemId order by `order`")
-    fun getMatchRecords(matchItemId: Long): List<MatchRecordWrap>
+    @Query("select * from match_record where matchItemId=:matchItemId and `order`=:order")
+    fun getMatchRecord(matchItemId: Long, order: Int): MatchRecordWrap?
 
     @Query("select * from match_rank_record")
     fun getAllMatchRankRecords(): List<MatchRankRecord>

@@ -12,4 +12,6 @@ data class RecordScene(
 data class RankRecord (
     var recordId: Long,
     var rank: Int
-)
+) {
+    var seed: Int = 0
+}

@@ -291,5 +291,6 @@
     <dimen name="video_item_action_size">30dp</dimen>
     <dimen name="video_item_action_padding">3dp</dimen>
     <dimen name="text_8">8dp</dimen>
+    <dimen name="draw_index_width">30dp</dimen>
 
 </resources>

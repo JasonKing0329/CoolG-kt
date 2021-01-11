@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterMatchItemBinding
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.gdb.data.entity.match.Match
 
 /**
@@ -18,6 +19,8 @@ class MatchAdapter: BaseBindingAdapter<AdapterMatchItemBinding, Match>() {
     var isDeleteMode = false
 
     var onMatchItemListener: OnMatchItemListener? = null
+
+    var isDemoImage = SettingProperty.isDemoImageMode()
 
     override fun onCreateBind(
         inflater: LayoutInflater,

@@ -9,6 +9,18 @@ import com.king.app.coolg_kt.model.bean.StandardMatchDraw
  */
 object MatchConstants {
 
+    val DRAW_QUALIFY = 0
+    val DRAW_MAIN = 1
+
+    /**
+     * index与MATCH_LEVEL一一对应
+     */
+    val MATCH_LEVEL_GS = 0
+    val MATCH_LEVEL_FINAL = 1
+    val MATCH_LEVEL_GM1000 = 2
+    val MATCH_LEVEL_GM500 = 3
+    val MATCH_LEVEL_GM250 = 4
+
     val MATCH_LEVEL = arrayOf(
         "Grand Slam",
         "Master Final",

@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.utils.DebugLog
@@ -48,7 +49,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                     mBinding.actionbar.showConfirmStatus(it)
                 }
                 R.id.menu_create_draw -> {
-
+                    mModel.createDraw()
                 }
                 R.id.menu_create_score -> {
 
@@ -72,13 +73,13 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
         mBinding.tvMain.isSelected = true
         mBinding.tvMain.setOnClickListener {
-            mModel.drawType = 1
+            mModel.drawType = MatchConstants.DRAW_MAIN
             mModel.onDrawTypeChanged()
             mBinding.tvMain.isSelected = true
             mBinding.tvQualify.isSelected = false
         }
         mBinding.tvQualify.setOnClickListener {
-            mModel.drawType = 0
+            mModel.drawType = MatchConstants.DRAW_QUALIFY
             mModel.onDrawTypeChanged()
             mBinding.tvMain.isSelected = false
             mBinding.tvQualify.isSelected = true

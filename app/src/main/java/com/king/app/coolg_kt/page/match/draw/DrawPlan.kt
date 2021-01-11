@@ -1,9 +1,10 @@
 package com.king.app.coolg_kt.page.match.draw
 
 import com.king.app.coolg_kt.CoolApplication
+import com.king.app.coolg_kt.page.match.DrawCell
 import com.king.app.gdb.data.bean.RankRecord
-import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchRecord
+import com.king.app.gdb.data.relation.MatchPeriodWrap
 import java.util.*
 import kotlin.math.abs
 
@@ -15,7 +16,7 @@ import kotlin.math.abs
  * @author：Jing
  * @date: 2021/1/10 17:33
  */
-abstract class DrawPlan(var list: List<RankRecord>, var match: Match) {
+abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) {
 
     val database = CoolApplication.instance.database!!
 
@@ -26,8 +27,9 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: Match) {
     var qualify: Int = 0
     var qualifyList = listOf<RankRecord>()
 
-    fun execute() {
+    fun prepare() {
         calcSeed()
+        setSeed()
         calcDirectInUnSeed()
         calcQualify()
     }
@@ -38,42 +40,74 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: Match) {
 
     abstract fun calcQualify()
 
-    abstract fun arrangeDraw(draws: MutableList<MatchRecord?>)
-
-    open fun fillSeed(draws: MutableList<MatchRecord?>, index: Int, rankRecord: RankRecord) {
-        draws[index] = MatchRecord(0, match.id, 0, rankRecord.recordId, rankRecord.rank, rankRecord.rank, index % 2)
+    open fun setSeed() {
+        // rank可能不连续，需要设置seed
+        seedList.forEachIndexed { index, rankRecord -> rankRecord.seed = index + 1 }
     }
 
-    open fun arrangeUnSeeds(draws: MutableList<MatchRecord?>) {
-
-    }
-}
-class GrandSlamPlan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
-
-    override fun calcSeed() {
-        seed = 32
-        seedList = list.take(seed)
+    fun arrangeMainDraw(): MutableList<DrawCell> {
+        val draws = mutableListOf<DrawCell>()
+        for (i in 0 until match.match.draws) {
+            draws.add(DrawCell(null, 0))
+        }
+        createMainDraw(draws)
+        return draws
     }
 
-    override fun calcDirectInUnSeed() {
-        // gs没有bye
-        directInUnSeed = match.draws - seed - match.qualifyDraws
-        directInUnSeedList = list.subList(seed, seed + directInUnSeed)
+    abstract fun createMainDraw(draws: MutableList<DrawCell>)
+
+    fun arrangeQualifyDraw(): MutableList<DrawCell> {
+        val draws = mutableListOf<DrawCell>()
+        for (i in 0 until qualify) {
+            draws.add(DrawCell(null, 0))
+        }
+        createQualifyDraw(draws)
+        return draws
+    }
+
+    open fun fillSeed(draws: MutableList<DrawCell>, index: Int, rankRecord: RankRecord) {
+        draws[index].matchRecord = MatchRecord(0, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, rankRecord.seed, 0)
+        draws[index].type = 0
+    }
+
+    open fun fillNormal(draws: MutableList<DrawCell>, index: Int, rankRecord: RankRecord) {
+        draws[index].matchRecord = MatchRecord(0, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, 0, 0)
+        draws[index].type = 0
+    }
+
+    open fun fillBye(draws: MutableList<DrawCell>, index: Int) {
+        draws[index].type = 1
     }
 
     /**
-     * 32 q, 3 rounds, 32*2*2*2 = 256
+     * arrange unseed and wildcard, qualify in main draw
+     * call arrange seed and bye before this
      */
-    override fun calcQualify() {
-        qualify = 256
-        qualifyList = list.subList(seed + directInUnSeed, seed + directInUnSeed + qualify)
+    open fun arrangeUnSeeds(draws: MutableList<DrawCell>) {
+        val unArranged = mutableListOf<Int>()
+        for (i in draws.indices) {
+            if (draws[i].matchRecord == null && draws[i].type == 0) {
+                unArranged.add(i)
+            }
+        }
+        unArranged.shuffle()
+        // arrange wildcard
+        for (i in 0 until match.match.wildcardDraws) {
+            draws[unArranged[i]].type = 2
+        }
+        // arrange qualify
+        for (i in match.match.wildcardDraws until match.match.wildcardDraws + match.match.qualifyDraws) {
+            draws[unArranged[i]].type = 3
+        }
+        // arrange direct in
+        var directInIndex = 0
+        for (i in match.match.wildcardDraws + match.match.qualifyDraws until unArranged.size) {
+            fillNormal(draws, unArranged[i], directInUnSeedList[directInIndex])
+            directInIndex ++
+        }
     }
 
-    override fun arrangeDraw(draws: MutableList<MatchRecord?>) {
-        arrangeDraw128Seed32(draws)
-    }
-
-    open fun arrangeDraw128Seed32(draws: MutableList<MatchRecord?>) {
+    open fun arrangeDraw128Seed32(draws: MutableList<DrawCell>) {
         fillSeed(draws, 0, seedList[0])
         fillSeed(draws, 127, seedList[1])
         val seed34 = seedList.subList(2, 4).shuffled()
@@ -114,18 +148,75 @@ class GrandSlamPlan(list: List<RankRecord>, match: Match): DrawPlan(list, match)
         fillSeed(draws, 56, seed29to32[1])
         fillSeed(draws, 71, seed29to32[2])
         fillSeed(draws, 120, seed29to32[3])
+
+        // arrange bye
+        if (match.match.byeDraws == 32) {
+            // 每八个签位，第一个和第八个是种子位，第2个、第7个为轮空位
+            for (i in 0 until 127) {
+                var index = i % 8
+                if (index == 1 || index == 6) {
+                    fillBye(draws, i)
+                }
+            }
+        }
+    }
+
+    /**
+     * qualify设置qualifyDraws个种子，每8个(3轮，2的3次方)签位占第一个
+     */
+    private fun createQualifyDraw(draws: MutableList<DrawCell>) {
+        val seedQualify = qualifyList.take(match.match.qualifyDraws)
+        val unSeedQualify = qualifyList.subList(match.match.qualifyDraws, qualifyList.size).shuffled()
+        var unSeedIndex = 0
+        draws.forEachIndexed { index, drawCell ->
+            if (index % 8 == 0) {// 3轮，所以是每8个签位一个种子
+                val seedIndex = index / 8
+                seedQualify[seedIndex].seed = seedIndex + 1
+                fillSeed(draws, index, seedQualify[seedIndex])
+            }
+            else {
+                fillNormal(draws, index, unSeedQualify[unSeedIndex])
+                unSeedIndex ++
+            }
+        }
+    }
+}
+class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+
+    override fun calcSeed() {
+        seed = 32
+        seedList = list.take(seed)
+    }
+
+    override fun calcDirectInUnSeed() {
+        // gs没有bye,wildcard
+        directInUnSeed = match.match.draws - seed - match.match.qualifyDraws
+        directInUnSeedList = list.subList(seed, seed + directInUnSeed)
+    }
+
+    /**
+     * 32 q, 3 rounds, 32*2*2*2 = 256
+     */
+    override fun calcQualify() {
+        qualify = 256
+        qualifyList = list.subList(seed + directInUnSeed, seed + directInUnSeed + qualify)
+    }
+
+    override fun createMainDraw(draws: MutableList<DrawCell>) {
+        arrangeDraw128Seed32(draws)
+        arrangeUnSeeds(draws)
     }
 }
 
 /**
  * GM1000，Top30 4站128签强制，其他6站选4站强制
  */
-class GM1000Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
+class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     override fun calcSeed() {
-        seed = if (match.byeDraws < 16) 16 else match.byeDraws
+        seed = if (match.match.byeDraws < 16) 16 else match.match.byeDraws
         // 强制
-        if (match.draws == 128) {
+        if (match.match.draws == 128) {
             seedList = list.take(seed)
         }
         else {
@@ -135,7 +226,7 @@ class GM1000Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.draws - seed - match.byeDraws - match.qualifyDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
         directInUnSeedList = list.subList(seed, seed + directInUnSeed)
     }
 
@@ -143,7 +234,7 @@ class GM1000Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
      * qualify拓展1倍，后50个名额扩展3倍进行shuffle
      */
     override fun calcQualify() {
-        qualify = match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8
         val forsure = qualify - 50
         val tempList = mutableListOf<RankRecord>()
         val directIn = seed + directInUnSeed
@@ -154,7 +245,7 @@ class GM1000Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
         qualifyList = tempList
     }
 
-    override fun arrangeDraw(draws: MutableList<MatchRecord?>) {
+    override fun createMainDraw(draws: MutableList<DrawCell>) {
         TODO("Not yet implemented")
     }
 }
@@ -162,12 +253,12 @@ class GM1000Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
 /**
  * GM500，500以内有条件随机
  */
-class GM500Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
+class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     val random = Random()
 
     override fun calcSeed() {
-        seed = if (match.byeDraws < 8) 8 else match.byeDraws
+        seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in list.indices) {
             // top10只有五分之一几率参加
@@ -193,7 +284,7 @@ class GM500Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.draws - seed - match.byeDraws - match.qualifyDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
         val seedEnd = seedList.last().rank
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in seedEnd until list.size) {
@@ -223,13 +314,13 @@ class GM500Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
      * qualify排名500以内
      */
     override fun calcQualify() {
-        qualify = match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.subList(directInEnd, 500)
         qualifyList = limitList.shuffled().take(qualify)
     }
 
-    override fun arrangeDraw(draws: MutableList<MatchRecord?>) {
+    override fun createMainDraw(draws: MutableList<DrawCell>) {
         TODO("Not yet implemented")
     }
 }
@@ -238,10 +329,10 @@ class GM500Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
 /**
  * GM250范围为500以后1500以内条件随机
  */
-class GM250Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
+class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     val random = Random()
-    val total = match.draws - match.byeDraws - match.qualifyDraws - match.wildcardDraws + match.qualifyDraws * 8
+    val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws + match.match.qualifyDraws * 8
     val rangeList = list.subList(500, 1500).shuffled().take(total).sortedBy { it.rank }
 
     override fun calcSeed() {
@@ -250,7 +341,7 @@ class GM250Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.draws - seed - match.byeDraws - match.qualifyDraws - match.wildcardDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws
         directInUnSeedList = rangeList.subList(seed, seed + directInUnSeed)
     }
 
@@ -258,11 +349,11 @@ class GM250Plan(list: List<RankRecord>, match: Match): DrawPlan(list, match) {
      * qualify排名放宽到500
      */
     override fun calcQualify() {
-        qualify = match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8
         qualifyList = rangeList.takeLast(qualify)
     }
 
-    override fun arrangeDraw(draws: MutableList<MatchRecord?>) {
+    override fun createMainDraw(draws: MutableList<DrawCell>) {
         TODO("Not yet implemented")
     }
 }

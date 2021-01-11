@@ -7,31 +7,63 @@
         android:layout_height="wrap_content">
         <TextView
             android:id="@+id/tv_index1"
-            android:layout_width="30dp"
+            android:layout_width="@dimen/draw_index_width"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:textSize="8dp"
+            android:textColor="@color/text_sub"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="1\n[32]"/>
+            tools:text="127"/>
+        <TextView
+            android:id="@+id/tv_seed1"
+            style="@style/TvDrawSeed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_index1"
+            tools:text="[32]" />
+        <TextView
+            android:id="@+id/tv_rank1"
+            style="@style/TvDrawRank"
+            app:layout_constraintStart_toStartOf="@+id/tv_seed1"
+            app:layout_constraintEnd_toEndOf="@+id/tv_seed1"
+            app:layout_constraintTop_toBottomOf="@+id/tv_seed1"
+            tools:text="R 254" />
         <ImageView
             android:id="@+id/iv_player1"
             android:layout_width="140dp"
             android:layout_height="80dp"
+            android:scaleType="fitXY"
             app:layout_constraintStart_toEndOf="@+id/tv_index1"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/def_small"/>
         <TextView
             android:id="@+id/tv_index2"
-            android:layout_width="30dp"
+            android:layout_width="@dimen/draw_index_width"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:textSize="8dp"
+            android:textColor="@color/text_sub"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_player2"
-            tools:text="2"/>
+            tools:text="128"/>
+        <TextView
+            android:id="@+id/tv_seed2"
+            style="@style/TvDrawSeed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_index2"
+            tools:text="[32]"/>
+        <TextView
+            android:id="@+id/tv_rank2"
+            style="@style/TvDrawRank"
+            app:layout_constraintStart_toStartOf="@+id/tv_seed2"
+            app:layout_constraintEnd_toEndOf="@+id/tv_seed2"
+            app:layout_constraintTop_toBottomOf="@+id/tv_seed2"
+            tools:text="R 254" />
         <ImageView
             android:id="@+id/iv_player2"
             android:layout_width="140dp"
             android:layout_height="80dp"
+            android:scaleType="fitXY"
             app:layout_constraintStart_toEndOf="@+id/tv_index2"
             app:layout_constraintTop_toBottomOf="@+id/iv_player1"
             tools:src="@drawable/def_small"/>
@@ -39,11 +71,24 @@
             android:id="@+id/iv_winner"
             android:layout_width="140dp"
             android:layout_height="80dp"
-            android:layout_marginEnd="30dp"
+            android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="@+id/iv_player1"
             app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_seed_winner"
             tools:src="@drawable/def_small"/>
+        <TextView
+            android:id="@+id/tv_seed_winner"
+            style="@style/TvDrawSeed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/iv_winner"
+            tools:text="[32]"/>
+        <TextView
+            android:id="@+id/tv_rank_winner"
+            style="@style/TvDrawRank"
+            app:layout_constraintStart_toStartOf="@+id/tv_seed_winner"
+            app:layout_constraintEnd_toEndOf="@+id/tv_seed_winner"
+            app:layout_constraintTop_toBottomOf="@+id/tv_seed_winner"
+            tools:text="R 254" />
         <ImageView
             android:id="@+id/iv_path"
             android:layout_width="0dp"

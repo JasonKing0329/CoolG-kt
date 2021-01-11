@@ -1,16 +1,20 @@
 package com.king.app.coolg_kt.model.repository
 
+import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.page.match.DrawCell
+import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.draw.GM1000Plan
 import com.king.app.coolg_kt.page.match.draw.GM250Plan
 import com.king.app.coolg_kt.page.match.draw.GM500Plan
 import com.king.app.coolg_kt.page.match.draw.GrandSlamPlan
 import com.king.app.gdb.data.bean.RankRecord
-import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchRecord
+import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.relation.MatchPeriodWrap
+import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -20,8 +24,31 @@ import io.reactivex.rxjava3.core.Observable
  */
 class DrawRepository: BaseRepository() {
 
-    fun createDraw(bean: MatchPeriodWrap):Observable<List<DrawItem>> {
+    /**
+     * @drayType 0:Main draw, 1:qualify draw
+     */
+    fun getMatchRound(match: Match, drawType: Int): List<RoundPack> {
+        // master final
+        return if (match.level == MatchConstants.MATCH_LEVEL_FINAL) {
+            MatchConstants.ROUND_ROBIN
+        }
+        else {
+            if (drawType == MatchConstants.DRAW_MAIN) {
+                when(match.draws) {
+                    128 -> MatchConstants.ROUND_MAIN_DRAW128
+                    64 -> MatchConstants.ROUND_MAIN_DRAW64
+                    else -> MatchConstants.ROUND_MAIN_DRAW32
+                }
+            }
+            else {
+                MatchConstants.ROUND_QUALIFY
+            }
+        }
+    }
+
+    fun createDraw(bean: MatchPeriodWrap):Observable<DrawData> {
         return Observable.create {
+            var drawData = DrawData()
             // 第一个赛季，种子排位参考CountRecord
             var rankRecords = if (bean.bean.period == 1) {
                 createRankByRecord()
@@ -30,7 +57,9 @@ class DrawRepository: BaseRepository() {
             else {
                 createRankSystem()
             }
-            createMainDrawByMatch(bean.match, rankRecords)
+            createMainDrawByMatch(bean, rankRecords, drawData)
+            it.onNext(drawData)
+            it.onComplete()
         }
     }
 
@@ -44,32 +73,68 @@ class DrawRepository: BaseRepository() {
         return list
     }
 
-    private fun createMainDrawByMatch(match: Match, rankRecords: List<RankRecord>) {
+    private fun createMainDrawByMatch(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {
         // master final
-        if (match.level == 1) {
-            createMasterFinalDraw(match, rankRecords)
+        if (match.match.level == 1) {
+            createMasterFinalDraw(match, rankRecords, drawData)
         }
         else {
-            createNormalMainDraw(match, rankRecords)
+            createNormalMainDraw(match, rankRecords, drawData)
         }
     }
 
-    private fun createNormalMainDraw(match: Match, rankRecords: List<RankRecord>) {
-        var plan = when(match.level) {
+    private fun createNormalMainDraw(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {
+        var plan = when(match.match.level) {
             0 -> GrandSlamPlan(rankRecords, match)
             2 -> GM1000Plan(rankRecords, match)
             3 -> GM500Plan(rankRecords, match)
             else -> GM250Plan(rankRecords, match)
         }
-        val draws = mutableListOf<MatchRecord?>()
-        for (i in 0 until match.draws) {
-            draws.add(null)
-        }
-        plan.arrangeDraw(draws)
+        plan.prepare()
+        val mainCells = plan.arrangeMainDraw()
+        var roundId = getMatchRound(match.match, 0)[0].id
+        drawData.mainItems = convertDraws(mainCells, match, roundId, false)
+
+        val qualifyCells = plan.arrangeQualifyDraw()
+        roundId = getMatchRound(match.match, 1)[0].id
+        drawData.qualifyItems = convertDraws(qualifyCells, match, roundId, true)
     }
 
-    private fun createMasterFinalDraw(match: Match, rankRecords: List<RankRecord>) {
+    private fun createMasterFinalDraw(
+        match: MatchPeriodWrap,
+        rankRecords: List<RankRecord>,
+        drawData: DrawData
+    ) {
 
+    }
+
+    private fun convertDraws(draws: List<DrawCell>, match: MatchPeriodWrap, roundId: Int, isQualify: Boolean): MutableList<DrawItem> {
+        val list = mutableListOf<DrawItem>()
+        // 连续两个cell为一个item
+        for (i in draws.indices step 2) {
+            val cell1 = draws[i]
+            val cell2 = draws[i + 1]
+            var matchItem = MatchItem(0, match.match.id, roundId, null, isQualify,
+                isBye = false, order = i / 2, groupFlag = null)
+            if (cell1.type == 1 || cell2.type == 1) {
+                matchItem.isBye = true
+            }
+            var drawItem = DrawItem(matchItem)
+            cell1.matchRecord?.let {
+                it.order = 1
+                val record = getDatabase().getRecordDao().getRecordBasic(it.recordId)
+                drawItem.matchRecord1 = MatchRecordWrap(it, record)
+                drawItem.matchRecord1?.imageUrl = ImageProvider.getRecordRandomPath(record.name, null)
+            }
+            cell2.matchRecord?.let {
+                it.order = 2
+                val record = getDatabase().getRecordDao().getRecordBasic(it.recordId)
+                drawItem.matchRecord2 = MatchRecordWrap(it, record)
+                drawItem.matchRecord2?.imageUrl = ImageProvider.getRecordRandomPath(record.name, null)
+            }
+            list.add(drawItem)
+        }
+        return list
     }
 
     fun getDrawItems(matchPeriodId: Long, matchId: Long, round: Int): Observable<List<DrawItem>> {
@@ -84,13 +149,8 @@ class DrawRepository: BaseRepository() {
                         winner.imageUrl = ImageProvider.getRecordRandomPath(winner.record.name, null)
                     }
                 }
-                var players = getDatabase().getMatchDao().getMatchRecords(item.id)
-                if (players.isNotEmpty()) {
-                    drawItem.matchRecord1 = players[0]
-                }
-                else if (players.size > 1) {
-                    drawItem.matchRecord2 = players[1]
-                }
+                drawItem.matchRecord1 = getDatabase().getMatchDao().getMatchRecord(item.id, 1)
+                drawItem.matchRecord2 = getDatabase().getMatchDao().getMatchRecord(item.id, 2)
                 result.add(drawItem)
             }
             it.onNext(result)

@@ -95,7 +95,7 @@ object DataMigration {
                 "CREATE TABLE `match_rank_star` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `starId` INTEGER NOT NULL, `rank` INTEGER NOT NULL)"
             )
             database.execSQL(
-                "CREATE TABLE `match_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `matchItemId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `recordRank` INTEGER, `recordSeed` INTEGER, `order` INTEGER)"
+                "CREATE TABLE `match_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` INTEGER NOT NULL, `matchId` INTEGER NOT NULL, `matchItemId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `recordRank` INTEGER, `recordSeed` INTEGER, `order` INTEGER)"
             )
             database.execSQL(
                 "CREATE TABLE `match_score_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `matchId` INTEGER NOT NULL, `matchItemId` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `score` INTEGER NOT NULL)"

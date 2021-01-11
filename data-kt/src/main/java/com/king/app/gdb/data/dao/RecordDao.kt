@@ -18,7 +18,7 @@ import com.king.app.gdb.data.relation.RecordWrap
 interface RecordDao {
 
     @Query("select * from record where _id=:id")
-    fun getRecordBasic(id: Long): Record
+    fun getRecordBasic(id: Long): Record?
 
     @Query("select * from record where _id=:id")
     fun getRecord(id: Long): RecordWrap?

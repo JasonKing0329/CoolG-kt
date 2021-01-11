@@ -4,7 +4,6 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
 
@@ -30,7 +29,7 @@ data class MatchRecordWrap (
 
     @Relation(parentColumn = "recordId",
         entityColumn = "_id")
-    var record: Record
+    var record: Record?
 
 ) {
     var imageUrl: String? = null

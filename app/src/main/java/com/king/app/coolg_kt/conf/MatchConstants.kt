@@ -12,6 +12,11 @@ object MatchConstants {
     val DRAW_QUALIFY = 0
     val DRAW_MAIN = 1
 
+    val MATCH_RECORD_NORMAL = 0
+    val MATCH_RECORD_BYE = 1
+    val MATCH_RECORD_WILDCARD = 2
+    val MATCH_RECORD_QUALIFY = 3
+
     /**
      * index与MATCH_LEVEL一一对应
      */

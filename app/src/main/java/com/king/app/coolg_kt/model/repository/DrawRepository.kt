@@ -116,7 +116,7 @@ class DrawRepository: BaseRepository() {
             val cell2 = draws[i + 1]
             var matchItem = MatchItem(0, match.match.id, roundId, null, isQualify,
                 isBye = false, order = i / 2, groupFlag = null)
-            if (cell1.type == 1 || cell2.type == 1) {
+            if (cell1.matchRecord!!.type == MatchConstants.MATCH_RECORD_BYE || cell2.matchRecord!!.type == MatchConstants.MATCH_RECORD_BYE) {
                 matchItem.isBye = true
             }
             var drawItem = DrawItem(matchItem)
@@ -124,13 +124,13 @@ class DrawRepository: BaseRepository() {
                 it.order = 1
                 val record = getDatabase().getRecordDao().getRecordBasic(it.recordId)
                 drawItem.matchRecord1 = MatchRecordWrap(it, record)
-                drawItem.matchRecord1?.imageUrl = ImageProvider.getRecordRandomPath(record.name, null)
+                drawItem.matchRecord1?.imageUrl = ImageProvider.getRecordRandomPath(record?.name, null)
             }
             cell2.matchRecord?.let {
                 it.order = 2
                 val record = getDatabase().getRecordDao().getRecordBasic(it.recordId)
                 drawItem.matchRecord2 = MatchRecordWrap(it, record)
-                drawItem.matchRecord2?.imageUrl = ImageProvider.getRecordRandomPath(record.name, null)
+                drawItem.matchRecord2?.imageUrl = ImageProvider.getRecordRandomPath(record?.name, null)
             }
             list.add(drawItem)
         }
@@ -146,7 +146,7 @@ class DrawRepository: BaseRepository() {
                 item.winnerId?.let { winnerId->
                     drawItem.winner = getDatabase().getMatchDao().getMatchRecord(item.id, winnerId)
                     drawItem.winner?.let { winner ->
-                        winner.imageUrl = ImageProvider.getRecordRandomPath(winner.record.name, null)
+                        winner.imageUrl = ImageProvider.getRecordRandomPath(winner.record?.name, null)
                     }
                 }
                 drawItem.matchRecord1 = getDatabase().getMatchDao().getMatchRecord(item.id, 1)
@@ -157,4 +157,13 @@ class DrawRepository: BaseRepository() {
             it.onComplete()
         }
     }
+
+    fun saveDraw(data: DrawData):Observable<DrawData> {
+        return Observable.create {
+
+            it.onNext(data)
+            it.onComplete()
+        }
+    }
+
 }

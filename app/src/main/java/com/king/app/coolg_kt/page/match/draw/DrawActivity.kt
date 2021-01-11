@@ -24,6 +24,8 @@ import com.king.app.coolg_kt.utils.DebugLog
  */
 class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
+    val ACTION_SAVE_DRAW = 1111111111
+
     companion object {
         val EXTRA_MATCH_PERIOD_ID = "match_period_id"
         fun startPage(context: Context, id: Long) {
@@ -55,6 +57,18 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
                 }
             }
+        }
+        mBinding.actionbar.setOnConfirmListener {
+            if (it == ACTION_SAVE_DRAW) {
+                mModel.saveDraw()
+            }
+            false
+        }
+        mBinding.actionbar.setOnCancelListener {
+            if (it == ACTION_SAVE_DRAW) {
+
+            }
+            false
         }
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.adapter = adapter
@@ -91,6 +105,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         mModel.setRoundPosition.observe(this, Observer { mBinding.spRound.setSelection(it) })
         mModel.roundList.observe(this, Observer {
             mBinding.spRound.adapter = RoundAdapter(it)
+        })
+        mModel.newDrawCreated.observe(this, Observer {
+            mBinding.actionbar.showConfirmStatus(ACTION_SAVE_DRAW)
         })
         mModel.itemsObserver.observe(this, Observer {
             adapter.list = it

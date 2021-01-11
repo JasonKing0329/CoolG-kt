@@ -32,6 +32,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var setRoundPosition = MutableLiveData<Int>()
     var roundList = MutableLiveData<List<RoundPack>>()
     var itemsObserver = MutableLiveData<List<DrawItem>>()
+    var newDrawCreated = MutableLiveData<Boolean>()
 
     var drawType = MatchConstants.DRAW_MAIN
 
@@ -159,6 +160,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
             .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
                 override fun onNext(t: DrawData) {
                     createdDrawData = t
+                    newDrawCreated.value = true
                     itemsObserver.value = t.mainItems
                 }
 
@@ -167,6 +169,10 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                     messageObserver.value = e?.message
                 }
             })
+    }
+
+    fun saveDraw() {
+
     }
 
 }

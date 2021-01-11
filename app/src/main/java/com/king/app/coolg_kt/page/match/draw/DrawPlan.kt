@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match.draw
 
 import com.king.app.coolg_kt.CoolApplication
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.DrawCell
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.MatchRecord
@@ -48,7 +49,7 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     fun arrangeMainDraw(): MutableList<DrawCell> {
         val draws = mutableListOf<DrawCell>()
         for (i in 0 until match.match.draws) {
-            draws.add(DrawCell(null, 0))
+            draws.add(DrawCell(null))
         }
         createMainDraw(draws)
         return draws
@@ -59,24 +60,30 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     fun arrangeQualifyDraw(): MutableList<DrawCell> {
         val draws = mutableListOf<DrawCell>()
         for (i in 0 until qualify) {
-            draws.add(DrawCell(null, 0))
+            draws.add(DrawCell(null))
         }
         createQualifyDraw(draws)
         return draws
     }
 
     open fun fillSeed(draws: MutableList<DrawCell>, index: Int, rankRecord: RankRecord) {
-        draws[index].matchRecord = MatchRecord(0, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, rankRecord.seed, 0)
-        draws[index].type = 0
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, rankRecord.seed, 0)
     }
 
     open fun fillNormal(draws: MutableList<DrawCell>, index: Int, rankRecord: RankRecord) {
-        draws[index].matchRecord = MatchRecord(0, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, 0, 0)
-        draws[index].type = 0
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, 0, 0)
     }
 
     open fun fillBye(draws: MutableList<DrawCell>, index: Int) {
-        draws[index].type = 1
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_BYE, match.bean.matchId, 0, 0, 0, 0, 0)
+    }
+
+    open fun fillWildCard(draws: MutableList<DrawCell>, index: Int) {
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_WILDCARD, match.bean.matchId, 0, 0, 0, 0, 0)
+    }
+
+    open fun fillQualify(draws: MutableList<DrawCell>, index: Int) {
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_QUALIFY, match.bean.matchId, 0, 0, 0, 0, 0)
     }
 
     /**
@@ -86,18 +93,18 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     open fun arrangeUnSeeds(draws: MutableList<DrawCell>) {
         val unArranged = mutableListOf<Int>()
         for (i in draws.indices) {
-            if (draws[i].matchRecord == null && draws[i].type == 0) {
+            if (draws[i].matchRecord == null) {
                 unArranged.add(i)
             }
         }
         unArranged.shuffle()
         // arrange wildcard
         for (i in 0 until match.match.wildcardDraws) {
-            draws[unArranged[i]].type = 2
+            fillWildCard(draws, unArranged[i])
         }
         // arrange qualify
         for (i in match.match.wildcardDraws until match.match.wildcardDraws + match.match.qualifyDraws) {
-            draws[unArranged[i]].type = 3
+            fillQualify(draws, unArranged[i])
         }
         // arrange direct in
         var directInIndex = 0

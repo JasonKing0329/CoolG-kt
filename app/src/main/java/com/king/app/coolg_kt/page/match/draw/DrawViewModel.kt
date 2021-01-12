@@ -8,11 +8,16 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.gdb.data.entity.match.Match
+import com.king.app.gdb.data.entity.match.MatchItem
+import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchPeriodWrap
+import com.king.app.gdb.data.relation.MatchRecordWrap
+import io.reactivex.rxjava3.core.Observable
 
 /**
  * @description:
@@ -34,12 +39,17 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var itemsObserver = MutableLiveData<List<DrawItem>>()
     var newDrawCreated = MutableLiveData<Boolean>()
     var cancelConfirmCancelStatus = MutableLiveData<Boolean>()
+    var saveEditSuccess = MutableLiveData<Boolean>()
 
     var drawType = MatchConstants.DRAW_MAIN
 
     var drawRepository = DrawRepository()
 
     var createdDrawData: DrawData? = null
+
+    var mToSetWildCard: DrawItem? = null
+    var mToSetWildCardRecord: MatchRecordWrap? = null
+    var mToSetWildCardPosition: Int? = null
 
     fun loadMatch(matchPeriodId: Long) {
         matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
@@ -204,4 +214,123 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         reloadRound()
     }
 
+    fun setWildCard(recordId: Long) {
+        val wrap = getDatabase().getRecordDao().getRecord(recordId)
+        mToSetWildCardRecord?.bean?.recordId = recordId
+        mToSetWildCardRecord?.bean?.recordRank = wrap?.countRecord?.rank?:0
+        mToSetWildCardRecord?.imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
+        mToSetWildCard?.isChanged = true
+    }
+
+    fun isModified(): Boolean {
+        var modifiedItem = itemsObserver.value?.filter { it.isChanged }?.size?:0
+        return modifiedItem > 0
+    }
+
+    fun saveEdit() {
+        saveEditRx()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    messageObserver.value = "success"
+                    saveEditSuccess.value = true
+                    reloadRound()
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
+    }
+
+    fun cancelEdit() {
+
+        reloadRound()
+    }
+
+    private fun saveEditRx(): Observable<Boolean> {
+        return Observable.create {
+            val updateMatchRecords = mutableListOf<MatchRecord>()
+            val updateMatchItems = mutableListOf<MatchItem>()
+            itemsObserver.value?.filter { it.isChanged }?.forEach { drawItem ->
+                drawItem.winner?.let {  winner ->
+                    drawItem.matchItem.winnerId = winner.bean.recordId
+                    updateMatchItems.add(drawItem.matchItem)
+
+                    // 一对签位，在第二个item检查下一轮
+                    if (drawItem.matchItem.order % 2 == 1) {
+                        var winner1Item = itemsObserver.value!![drawItem.matchItem.order - 1].matchItem
+                        var winner1Record = itemsObserver.value!![drawItem.matchItem.order - 1].winner
+                        var winner2Item = drawItem.matchItem
+                        var winner2Record = winner.bean
+                        winner1Record?.bean?.let {
+                            checkNextRound(winner1Item, it, winner1Item, winner2Record)
+                        }
+                    }
+                }
+                drawItem.matchRecord1?.let { updateMatchRecords.add(it.bean) }
+                drawItem.matchRecord2?.let { updateMatchRecords.add(it.bean) }
+            }
+            getDatabase().getMatchDao().updateMatchItems(updateMatchItems)
+            getDatabase().getMatchDao().updateMatchRecords(updateMatchRecords)
+
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
+
+    /**
+     * 一对签位都产生了胜者，才更新下一轮matchItem
+     */
+    private fun checkNextRound(winner1Item: MatchItem, winner1Record: MatchRecord, winner2Item: MatchItem, winner2Record: MatchRecord) {
+        if (winner1Record == null || winner2Record == null) {
+            return
+        }
+        var nextRoundOrder = winner1Item.order / 2
+        when(winner1Item.round) {
+            MatchConstants.ROUND_ID_Q1, MatchConstants.ROUND_ID_Q2,
+            MatchConstants.ROUND_ID_128, MatchConstants.ROUND_ID_64, MatchConstants.ROUND_ID_32,
+            MatchConstants.ROUND_ID_16, MatchConstants.ROUND_ID_QF, MatchConstants.ROUND_ID_SF -> {
+                var nextMatchItem = getDatabase().getMatchDao().getMatchItem(winner1Item.matchId, winner1Item.round + 1, nextRoundOrder)
+                if (nextMatchItem == null) {
+                    nextMatchItem = MatchItem(0, winner1Item.matchId, winner1Item.round + 1, null, winner1Item.isQualify, false, nextRoundOrder, null)
+                    var id = getDatabase().getMatchDao().insertMatchItem(nextMatchItem)
+
+                    var list = mutableListOf<MatchRecord>()
+                    var record1 = winner1Record.copy()
+                    record1.id = 0
+                    record1.matchItemId = id
+                    record1.order = 1
+                    list.add(record1)
+                    var record2 = winner2Record.copy()
+                    record2.id = 0
+                    record2.matchItemId = id
+                    record2.order = 2
+                    list.add(record2)
+                    getDatabase().getMatchDao().insertMatchRecords(list)
+                }
+                else {
+                    var list = mutableListOf<MatchRecord>()
+                    var record1 = getDatabase().getMatchDao().getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
+                    record1?.let {
+                        it.bean.recordId = winner1Record.recordId
+                        it.bean.recordRank = winner1Record.recordRank
+                        it.bean.recordSeed = winner1Record.recordSeed
+                        it.bean.order = 1
+                        list.add(it.bean)
+                    }
+                    var record2 = getDatabase().getMatchDao().getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
+                    record2?.let {
+                        it.bean.recordId = winner2Record.recordId
+                        it.bean.recordRank = winner2Record.recordRank
+                        it.bean.recordSeed = winner2Record.recordSeed
+                        it.bean.order = 2
+                        list.add(it.bean)
+                    }
+                    getDatabase().getMatchDao().updateMatchRecords(list)
+                }
+            }
+        }
+    }
 }

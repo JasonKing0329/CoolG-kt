@@ -17,6 +17,7 @@ import com.king.app.coolg_kt.page.record.RecordTag
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.gdb.data.entity.Record
+import com.king.app.gdb.data.relation.RecordWrap
 
 /**
  * Desc:
@@ -27,9 +28,16 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
 
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
+        val EXTRA_SELECT_MODE = "select_mode"
+        val RESP_RECORD_ID = "select_mode"
         fun startPage(context: Context) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             context.startActivity(intent)
+        }
+        fun startPageToSelect(context: Activity, requestCode: Int) {
+            var intent = Intent(context, PhoneRecordListActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            context.startActivityForResult(intent, requestCode)
         }
         fun startStudioPage(context: Context, studioId: Long) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
@@ -84,6 +92,17 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
         initActionBar(mBinding.actionbar)
     }
 
+    override fun onClickRecord(view: View, position: Int, data: RecordWrap) {
+        if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+            val intent = Intent()
+            intent.putExtra(RESP_RECORD_ID, data.bean.id)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+        else {
+            super.onClickRecord(view, position, data)
+        }
+    }
     /**
      * studio records page, hide tag bar and related menu
      */

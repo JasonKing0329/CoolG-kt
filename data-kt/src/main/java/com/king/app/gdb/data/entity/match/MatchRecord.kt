@@ -26,5 +26,5 @@ data class MatchRecord (
 
     var recordSeed: Int?,
 
-    var order: Int?
+    var order: Int?// MatchConstants.MATCH_RECORD_ORDER1..
 )

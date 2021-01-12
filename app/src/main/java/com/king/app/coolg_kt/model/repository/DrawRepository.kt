@@ -120,13 +120,13 @@ class DrawRepository: BaseRepository() {
             }
             var drawItem = DrawItem(matchItem)
             cell1.matchRecord?.let {
-                it.order = 1
+                it.order = MatchConstants.MATCH_RECORD_ORDER1
                 val record = getDatabase().getRecordDao().getRecordBasic(it.recordId)
                 drawItem.matchRecord1 = MatchRecordWrap(it, record)
                 drawItem.matchRecord1?.imageUrl = ImageProvider.getRecordRandomPath(record?.name, null)
             }
             cell2.matchRecord?.let {
-                it.order = 2
+                it.order = MatchConstants.MATCH_RECORD_ORDER2
                 val record = getDatabase().getRecordDao().getRecordBasic(it.recordId)
                 drawItem.matchRecord2 = MatchRecordWrap(it, record)
                 drawItem.matchRecord2?.imageUrl = ImageProvider.getRecordRandomPath(record?.name, null)

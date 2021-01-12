@@ -8,6 +8,8 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterMatchRecordBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.gdb.data.entity.match.MatchItem
+import com.king.app.gdb.data.relation.MatchRecordWrap
 
 /**
  * @description:
@@ -15,6 +17,8 @@ import com.king.app.coolg_kt.page.match.DrawItem
  * @date: 2021/1/10 14:38
  */
 class DrawAdapter: BaseBindingAdapter<AdapterMatchRecordBinding, DrawItem>() {
+
+    var onDrawListener: OnDrawListener? = null
 
     override fun onCreateBind(
         inflater: LayoutInflater,
@@ -81,5 +85,21 @@ class DrawAdapter: BaseBindingAdapter<AdapterMatchRecordBinding, DrawItem>() {
         ImageBindingAdapter.setRecordUrl(binding.ivPlayer1, bean.matchRecord1?.imageUrl)
         ImageBindingAdapter.setRecordUrl(binding.ivPlayer2, bean.matchRecord2?.imageUrl)
         ImageBindingAdapter.setRecordUrl(binding.ivWinner, bean.winner?.imageUrl)
+
+        binding.ivPlayer1.setOnClickListener { onDrawListener?.onClickPlayer(position, bean, bean.matchRecord1) }
+        binding.ivPlayer2.setOnClickListener { onDrawListener?.onClickPlayer(position, bean, bean.matchRecord2) }
+        binding.ivPlayer1.setOnLongClickListener {
+            onDrawListener?.onPlayerWin(position, bean, bean.matchRecord1)
+            true
+        }
+        binding.ivPlayer2.setOnLongClickListener {
+            onDrawListener?.onPlayerWin(position, bean, bean.matchRecord2)
+            true
+        }
+    }
+
+    interface OnDrawListener {
+        fun onClickPlayer(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?)
+        fun onPlayerWin(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?)
     }
 }

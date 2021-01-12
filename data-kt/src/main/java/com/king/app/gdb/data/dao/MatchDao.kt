@@ -68,6 +68,9 @@ interface MatchDao {
     fun insertMatchItems(list: List<MatchItem>): List<Long>
 
     @Insert
+    fun insertMatchItem(bean: MatchItem): Long
+
+    @Insert
     fun insertMatchRecords(list: List<MatchRecord>)
 
     @Insert
@@ -81,6 +84,12 @@ interface MatchDao {
 
     @Insert
     fun insertMatchScoreRecords(list: List<MatchScoreRecord>)
+
+    @Update
+    fun updateMatchItems(list: List<MatchItem>)
+
+    @Update
+    fun updateMatchRecords(list: List<MatchRecord>)
 
     @Delete
     fun deleteMatch(match: Match)
@@ -126,5 +135,8 @@ interface MatchDao {
 
     @Query("select count(*) from match_item where matchId=:matchPeriodId")
     fun countMatchItemsByMatchPeriod(matchPeriodId: Long): Int
+
+    @Query("select * from match_item where matchId=:matchId and round=:round and `order`=:order")
+    fun getMatchItem(matchId: Long, round: Int, order: Int): MatchItem?
 
 }

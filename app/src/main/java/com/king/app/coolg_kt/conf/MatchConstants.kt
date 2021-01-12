@@ -17,6 +17,9 @@ object MatchConstants {
     val MATCH_RECORD_WILDCARD = 2
     val MATCH_RECORD_QUALIFY = 3
 
+    val MATCH_RECORD_ORDER1 = 1
+    val MATCH_RECORD_ORDER2 = 2
+
     /**
      * index与MATCH_LEVEL一一对应
      */

@@ -19,7 +19,8 @@ data class DrawItem (
     var matchItem: MatchItem,
     var matchRecord1: MatchRecordWrap? = null,
     var matchRecord2: MatchRecordWrap? = null,
-    var winner: MatchRecordWrap? = null
+    var winner: MatchRecordWrap? = null,
+    var isChanged: Boolean = false
 )
 data class DrawCell (
     var matchRecord: MatchRecord?

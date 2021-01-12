@@ -38,7 +38,7 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
         }
         recordAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordWrap> {
             override fun onClickItem(view: View, position: Int, data: RecordWrap) {
-                goToRecordPage(data.bean)
+                onClickRecord(view, position, data)
             }
         })
         getRecordRecyclerView().adapter = recordAdapter
@@ -69,6 +69,10 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
             actionbar.updateMenuItemVisible(R.id.menu_tag_sort_mode, false)
             actionbar.updateMenuItemVisible(R.id.menu_tag_type, false)
         }
+    }
+
+    open fun onClickRecord(view: View, position: Int, data: RecordWrap) {
+        goToRecordPage(data.bean)
     }
 
     protected abstract fun isHideTagBar(): Boolean

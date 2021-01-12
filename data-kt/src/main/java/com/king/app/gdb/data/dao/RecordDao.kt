@@ -26,7 +26,7 @@ interface RecordDao {
     @Query("select * from record")
     fun getAllRecords(): List<RecordWrap>
 
-    @Query("select r._id as recordId, cr.RANK as rank, 0 as seed from record r join count_record cr on r._id = cr.RANK order by cr.RANK")
+    @Query("select r._id as recordId, cr.RANK as rank, 0 as seed from record r join count_record cr on r._id = cr._id order by cr.RANK")
     fun getRankRecords(): List<RankRecord>
 
     @Query("select * from record")

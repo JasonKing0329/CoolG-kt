@@ -258,14 +258,27 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                     drawItem.matchItem.winnerId = winner.bean.recordId
                     updateMatchItems.add(drawItem.matchItem)
 
-                    // 一对签位，在第二个item检查下一轮
-                    if (drawItem.matchItem.order % 2 == 1) {
-                        var winner1Item = itemsObserver.value!![drawItem.matchItem.order - 1].matchItem
-                        var winner1Record = itemsObserver.value!![drawItem.matchItem.order - 1].winner
-                        var winner2Item = drawItem.matchItem
-                        var winner2Record = winner.bean
-                        winner1Record?.bean?.let {
-                            checkNextRound(winner1Item, it, winner1Item, winner2Record)
+                    when(drawItem.matchItem.round) {
+                        // Q3，胜者填补正赛签位
+                        MatchConstants.ROUND_ID_Q3 -> {
+                            setQualifyToMainDraw(winner.bean)
+                        }
+                        // Final，决定冠军
+                        MatchConstants.ROUND_ID_F -> {
+
+                        }
+                        // 其他，判断进入到下一轮
+                        else -> {
+                            // 一对签位，在第二个item检查下一轮
+                            if (drawItem.matchItem.order % 2 == 1) {
+                                var winner1Item = itemsObserver.value!![drawItem.matchItem.order - 1].matchItem
+                                var winner1Record = itemsObserver.value!![drawItem.matchItem.order - 1].winner
+                                var winner2Item = drawItem.matchItem
+                                var winner2Record = winner.bean
+                                winner1Record?.bean?.let {
+                                    checkNextRound(winner1Item, it, winner1Item, winner2Record)
+                                }
+                            }
                         }
                     }
                 }
@@ -278,6 +291,14 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
             it.onNext(true)
             it.onComplete()
         }
+    }
+
+    private fun setQualifyToMainDraw(bean: MatchRecord) {
+        var qualify = getDatabase().getMatchDao().getUndefinedQualifies(bean.matchId).shuffled().first()
+        qualify.recordId = bean.recordId
+        qualify.recordRank = bean.recordRank
+        qualify.recordSeed = 0
+        getDatabase().getMatchDao().updateMatchRecords(listOf(qualify))
     }
 
     /**

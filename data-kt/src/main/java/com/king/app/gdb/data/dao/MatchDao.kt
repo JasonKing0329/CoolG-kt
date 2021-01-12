@@ -139,4 +139,7 @@ interface MatchDao {
     @Query("select * from match_item where matchId=:matchId and round=:round and `order`=:order")
     fun getMatchItem(matchId: Long, round: Int, order: Int): MatchItem?
 
+    @Query("select * from match_record where matchId=:matchPeriodId and type=3 and recordId=0")
+    fun getUndefinedQualifies(matchPeriodId: Long): List<MatchRecord>
+
 }

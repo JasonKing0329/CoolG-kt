@@ -67,23 +67,23 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     }
 
     open fun fillSeed(draws: MutableList<DrawCell>, index: Int, rankRecord: RankRecord) {
-        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, rankRecord.seed, 0)
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.id, 0, rankRecord.recordId, rankRecord.rank, rankRecord.seed, 0)
     }
 
     open fun fillNormal(draws: MutableList<DrawCell>, index: Int, rankRecord: RankRecord) {
-        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.matchId, 0, rankRecord.recordId, rankRecord.rank, 0, 0)
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.id, 0, rankRecord.recordId, rankRecord.rank, 0, 0)
     }
 
     open fun fillBye(draws: MutableList<DrawCell>, index: Int) {
-        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_BYE, match.bean.matchId, 0, 0, 0, 0, 0)
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_BYE, match.bean.id, 0, 0, 0, 0, 0)
     }
 
     open fun fillWildCard(draws: MutableList<DrawCell>, index: Int) {
-        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_WILDCARD, match.bean.matchId, 0, 0, 0, 0, 0)
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_WILDCARD, match.bean.id, 0, 0, 0, 0, 0)
     }
 
     open fun fillQualify(draws: MutableList<DrawCell>, index: Int) {
-        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_QUALIFY, match.bean.matchId, 0, 0, 0, 0, 0)
+        draws[index].matchRecord = MatchRecord(0, MatchConstants.MATCH_RECORD_QUALIFY, match.bean.id, 0, 0, 0, 0, 0)
     }
 
     /**

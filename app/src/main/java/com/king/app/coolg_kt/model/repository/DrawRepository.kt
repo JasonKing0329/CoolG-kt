@@ -13,6 +13,7 @@ import com.king.app.coolg_kt.page.match.draw.GrandSlamPlan
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchItem
+import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -48,7 +49,7 @@ class DrawRepository: BaseRepository() {
 
     fun createDraw(bean: MatchPeriodWrap):Observable<DrawData> {
         return Observable.create {
-            var drawData = DrawData()
+            var drawData = DrawData(bean.bean)
             // 第一个赛季，种子排位参考CountRecord
             var rankRecords = if (bean.bean.period == 1) {
                 createRankByRecord()
@@ -92,11 +93,11 @@ class DrawRepository: BaseRepository() {
         }
         plan.prepare()
         val mainCells = plan.arrangeMainDraw()
-        var roundId = getMatchRound(match.match, 0)[0].id
+        var roundId = getMatchRound(match.match, MatchConstants.DRAW_MAIN)[0].id
         drawData.mainItems = convertDraws(mainCells, match, roundId, false)
 
         val qualifyCells = plan.arrangeQualifyDraw()
-        roundId = getMatchRound(match.match, 1)[0].id
+        roundId = getMatchRound(match.match, MatchConstants.DRAW_QUALIFY)[0].id
         drawData.qualifyItems = convertDraws(qualifyCells, match, roundId, true)
     }
 
@@ -114,7 +115,7 @@ class DrawRepository: BaseRepository() {
         for (i in draws.indices step 2) {
             val cell1 = draws[i]
             val cell2 = draws[i + 1]
-            var matchItem = MatchItem(0, match.match.id, roundId, null, isQualify,
+            var matchItem = MatchItem(0, match.bean.id, roundId, null, isQualify,
                 isBye = false, order = i / 2, groupFlag = null)
             if (cell1.matchRecord!!.type == MatchConstants.MATCH_RECORD_BYE || cell2.matchRecord!!.type == MatchConstants.MATCH_RECORD_BYE) {
                 matchItem.isBye = true
@@ -150,7 +151,13 @@ class DrawRepository: BaseRepository() {
                     }
                 }
                 drawItem.matchRecord1 = getDatabase().getMatchDao().getMatchRecord(item.id, 1)
+                drawItem.matchRecord1?.let { bean ->
+                    bean.imageUrl = ImageProvider.getRecordRandomPath(bean.record?.name, null)
+                }
                 drawItem.matchRecord2 = getDatabase().getMatchDao().getMatchRecord(item.id, 2)
+                drawItem.matchRecord2?.let { bean ->
+                    bean.imageUrl = ImageProvider.getRecordRandomPath(bean.record?.name, null)
+                }
                 result.add(drawItem)
             }
             it.onNext(result)
@@ -158,9 +165,52 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    fun isDrawExist(matchPeriodId: Long): Boolean {
+        return getDatabase().getMatchDao().countMatchItemsByMatchPeriod(matchPeriodId) > 0
+    }
+
     fun saveDraw(data: DrawData):Observable<DrawData> {
         return Observable.create {
+            // 先清除matchPeriodId相关
+            getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
+            getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
 
+            // 先插入MatchItem获取id
+            val insertMatchItemList = mutableListOf<MatchItem>()
+            data.qualifyItems.forEach { drawItem ->
+                insertMatchItemList.add(drawItem.matchItem)
+            }
+            data.mainItems.forEach { drawItem ->
+                insertMatchItemList.add(drawItem.matchItem)
+            }
+            val ids = getDatabase().getMatchDao().insertMatchItems(insertMatchItemList)
+            insertMatchItemList.forEachIndexed { index, matchItem ->
+                matchItem.id = ids[index]
+            }
+
+            // 再插入MatchRecord
+            val insertMatchRecordList = mutableListOf<MatchRecord>()
+            data.qualifyItems.forEach { drawItem ->
+                drawItem.matchRecord1?.bean?.let { matchRecord ->
+                    matchRecord.matchItemId = drawItem.matchItem.id
+                    insertMatchRecordList.add(matchRecord)
+                }
+                drawItem.matchRecord2?.bean?.let { matchRecord ->
+                    matchRecord.matchItemId = drawItem.matchItem.id
+                    insertMatchRecordList.add(matchRecord)
+                }
+            }
+            data.mainItems.forEach { drawItem ->
+                drawItem.matchRecord1?.bean?.let { matchRecord ->
+                    matchRecord.matchItemId = drawItem.matchItem.id
+                    insertMatchRecordList.add(matchRecord)
+                }
+                drawItem.matchRecord2?.bean?.let { matchRecord ->
+                    matchRecord.matchItemId = drawItem.matchItem.id
+                    insertMatchRecordList.add(matchRecord)
+                }
+            }
+            getDatabase().getMatchDao().insertMatchRecords(insertMatchRecordList)
             it.onNext(data)
             it.onComplete()
         }

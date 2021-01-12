@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match
 
 import com.king.app.gdb.data.entity.match.MatchItem
+import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -10,6 +11,7 @@ import com.king.app.gdb.data.relation.MatchRecordWrap
  * @date: 2021/1/10 11:30
  */
 data class DrawData (
+    var matchPeriod: MatchPeriod,
     var mainItems: List<DrawItem> = listOf(),
     var qualifyItems: List<DrawItem> = listOf()
 )

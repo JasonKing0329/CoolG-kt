@@ -16,7 +16,7 @@ data class MatchRecord (
 
     var type: Int,
 
-    var matchId: Long,
+    var matchId: Long,// matchPeriodId
 
     var matchItemId: Long,
 

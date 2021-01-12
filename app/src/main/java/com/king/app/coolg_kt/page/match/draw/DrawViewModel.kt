@@ -33,6 +33,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var roundList = MutableLiveData<List<RoundPack>>()
     var itemsObserver = MutableLiveData<List<DrawItem>>()
     var newDrawCreated = MutableLiveData<Boolean>()
+    var cancelConfirmCancelStatus = MutableLiveData<Boolean>()
 
     var drawType = MatchConstants.DRAW_MAIN
 
@@ -106,6 +107,10 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     fun onRoundPositionChanged(position: Int) {
         roundPosition = position
         checkNextLast()
+        reloadRound()
+    }
+
+    private fun reloadRound() {
         roundList.value?.let {
             loadRound(it[roundPosition])
         }
@@ -154,6 +159,10 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    fun isDrawExist(): Boolean {
+        return drawRepository.isDrawExist(matchPeriod.bean.id)
+    }
+
     fun createDraw() {
         drawRepository.createDraw(matchPeriod)
             .compose(applySchedulers())
@@ -172,7 +181,27 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun saveDraw() {
+        createdDrawData?.let {
+            drawRepository.saveDraw(it)
+                .compose(applySchedulers())
+                .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
+                    override fun onNext(t: DrawData?) {
+                        createdDrawData = null
+                        cancelConfirmCancelStatus.value = true
+                        reloadRound()
+                    }
 
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                    }
+                })
+        }
+    }
+
+    fun cancelSaveDraw() {
+        cancelConfirmCancelStatus.value = true
+        createdDrawData = null
+        reloadRound()
     }
 
 }

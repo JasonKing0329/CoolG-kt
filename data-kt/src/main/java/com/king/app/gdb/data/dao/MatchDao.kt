@@ -65,7 +65,7 @@ interface MatchDao {
     fun insertMatchPeriods(list: List<MatchPeriod>)
 
     @Insert
-    fun insertMatchItems(list: List<MatchItem>)
+    fun insertMatchItems(list: List<MatchItem>): List<Long>
 
     @Insert
     fun insertMatchRecords(list: List<MatchRecord>)
@@ -97,8 +97,14 @@ interface MatchDao {
     @Query("delete from match_item")
     fun deleteMatchItems()
 
+    @Query("delete from match_item where matchId =:matchPeriodId")
+    fun deleteMatchItemsByMatchPeriod(matchPeriodId: Long)
+
     @Query("delete from match_record")
     fun deleteMatchRecords()
+
+    @Query("delete from match_record where matchId =:matchPeriodId")
+    fun deleteMatchRecordsByMatchPeriod(matchPeriodId: Long)
 
     @Query("delete from match_rank_star")
     fun deleteMatchRankStars()
@@ -117,5 +123,8 @@ interface MatchDao {
 
     @Update
     fun updateMatchPeriod(match: MatchPeriod)
+
+    @Query("select count(*) from match_item where matchId=:matchPeriodId")
+    fun countMatchItemsByMatchPeriod(matchPeriodId: Long): Int
 
 }

@@ -5,42 +5,38 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/tv_index1"
+        <LinearLayout
+            android:id="@+id/group_index1"
             android:layout_width="@dimen/draw_index_width"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:gravity="center"
-            android:textSize="8dp"
-            android:textColor="@color/text_sub"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="127"/>
-        <TextView
-            android:id="@+id/tv_seed1"
-            style="@style/TvDrawSeed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_index1"
-            tools:text="[32]" />
-        <TextView
-            android:id="@+id/tv_q1"
-            style="@style/TvDrawQ"
-            app:layout_constraintStart_toStartOf="@+id/tv_seed1"
-            app:layout_constraintEnd_toEndOf="@+id/tv_seed1"
-            app:layout_constraintTop_toBottomOf="@+id/tv_seed1"
-            tools:text="[Q]" />
-        <TextView
-            android:id="@+id/tv_rank1"
-            style="@style/TvDrawRank"
-            app:layout_constraintStart_toStartOf="@+id/tv_seed1"
-            app:layout_constraintEnd_toEndOf="@+id/tv_seed1"
-            app:layout_constraintTop_toBottomOf="@+id/tv_q1"
-            tools:text="R 254" />
+            app:layout_constraintTop_toTopOf="@+id/iv_player1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player1">
+            <TextView
+                android:id="@+id/tv_index1"
+                style="@style/TvDrawIndex"
+                tools:text="127"/>
+            <TextView
+                android:id="@+id/tv_seed1"
+                style="@style/TvDrawSeed"
+                tools:text="[32]" />
+            <TextView
+                android:id="@+id/tv_q1"
+                style="@style/TvDrawQ"
+                tools:text="[Q]" />
+            <TextView
+                android:id="@+id/tv_rank1"
+                style="@style/TvDrawRank"
+                tools:text="R 254" />
+        </LinearLayout>
         <ImageView
             android:id="@+id/iv_player1"
             android:layout_width="140dp"
             android:layout_height="80dp"
             android:scaleType="fitXY"
-            app:layout_constraintStart_toEndOf="@+id/tv_index1"
+            app:layout_constraintStart_toEndOf="@+id/group_index1"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/def_small"/>
         <TextView
@@ -55,42 +51,38 @@
             app:layout_constraintEnd_toEndOf="@+id/iv_player1"
             app:layout_constraintTop_toTopOf="@+id/iv_player1"
             app:layout_constraintBottom_toBottomOf="@+id/iv_player1"/>
-        <TextView
-            android:id="@+id/tv_index2"
+        <LinearLayout
+            android:id="@+id/group_index2"
             android:layout_width="@dimen/draw_index_width"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:gravity="center"
-            android:textSize="8dp"
-            android:textColor="@color/text_sub"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_player2"
-            tools:text="128"/>
-        <TextView
-            android:id="@+id/tv_seed2"
-            style="@style/TvDrawSeed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_index2"
-            tools:text="[32]"/>
-        <TextView
-            android:id="@+id/tv_q2"
-            style="@style/TvDrawQ"
-            app:layout_constraintStart_toStartOf="@+id/tv_seed2"
-            app:layout_constraintEnd_toEndOf="@+id/tv_seed2"
-            app:layout_constraintTop_toBottomOf="@+id/tv_seed2"
-            tools:text="[Q]" />
-        <TextView
-            android:id="@+id/tv_rank2"
-            style="@style/TvDrawRank"
-            app:layout_constraintStart_toStartOf="@+id/tv_seed2"
-            app:layout_constraintEnd_toEndOf="@+id/tv_seed2"
-            app:layout_constraintTop_toBottomOf="@+id/tv_q2"
-            tools:text="R 254" />
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player2">
+            <TextView
+                android:id="@+id/tv_index2"
+                style="@style/TvDrawIndex"
+                tools:text="127"/>
+            <TextView
+                android:id="@+id/tv_seed2"
+                style="@style/TvDrawSeed"
+                tools:text="[32]" />
+            <TextView
+                android:id="@+id/tv_q2"
+                style="@style/TvDrawQ"
+                tools:text="[Q]" />
+            <TextView
+                android:id="@+id/tv_rank2"
+                style="@style/TvDrawRank"
+                tools:text="R 254" />
+        </LinearLayout>
         <ImageView
             android:id="@+id/iv_player2"
             android:layout_width="140dp"
             android:layout_height="80dp"
             android:scaleType="fitXY"
-            app:layout_constraintStart_toEndOf="@+id/tv_index2"
+            app:layout_constraintStart_toEndOf="@+id/group_index2"
             app:layout_constraintTop_toBottomOf="@+id/iv_player1"
             tools:src="@drawable/def_small"/>
         <TextView
@@ -112,29 +104,40 @@
             android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="@+id/iv_player1"
             app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
-            app:layout_constraintEnd_toStartOf="@+id/tv_seed_winner"
+            app:layout_constraintEnd_toStartOf="@+id/group_index_winner"
             tools:src="@drawable/def_small"/>
-        <TextView
-            android:id="@+id/tv_seed_winner"
-            style="@style/TvDrawSeed"
+
+        <LinearLayout
+            android:id="@+id/group_index_winner"
+            android:layout_width="@dimen/draw_index_width"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/iv_winner"
-            tools:text="[32]"/>
-        <TextView
-            android:id="@+id/tv_rank_winner"
-            style="@style/TvDrawRank"
-            app:layout_constraintStart_toStartOf="@+id/tv_seed_winner"
-            app:layout_constraintEnd_toEndOf="@+id/tv_seed_winner"
-            app:layout_constraintTop_toBottomOf="@+id/tv_seed_winner"
-            tools:text="R 254" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <TextView
+                android:id="@+id/tv_seed_winner"
+                style="@style/TvDrawSeed"
+                tools:text="[32]" />
+            <TextView
+                android:id="@+id/tv_q_winner"
+                style="@style/TvDrawQ"
+                tools:text="[Q]" />
+            <TextView
+                android:id="@+id/tv_rank_winner"
+                style="@style/TvDrawRank"
+                tools:text="R 254" />
+        </LinearLayout>
         <ImageView
             android:id="@+id/iv_path"
             android:layout_width="0dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_up_path"
+            android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="@+id/iv_player1"
             app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
             app:layout_constraintEnd_toStartOf="@+id/iv_winner"
-            app:layout_constraintStart_toEndOf="@+id/iv_player1"
-            tools:src="@drawable/ic_up_path"/>
+            app:layout_constraintStart_toEndOf="@+id/iv_player1"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

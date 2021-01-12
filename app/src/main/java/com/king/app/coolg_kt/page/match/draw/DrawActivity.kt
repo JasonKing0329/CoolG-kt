@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match.draw
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -51,7 +52,14 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                     mBinding.actionbar.showConfirmStatus(it)
                 }
                 R.id.menu_create_draw -> {
-                    mModel.createDraw()
+                    if (mModel.isDrawExist()) {
+                        showConfirmCancelMessage("Current match draw is already exist, do you want clear it?",
+                            DialogInterface.OnClickListener { dialog, which -> mModel.createDraw() },
+                            null)
+                    }
+                    else {
+                        mModel.createDraw()
+                    }
                 }
                 R.id.menu_create_score -> {
 
@@ -66,7 +74,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         }
         mBinding.actionbar.setOnCancelListener {
             if (it == ACTION_SAVE_DRAW) {
-
+                showConfirmCancelMessage("Are you sure to drop this draw?",
+                        DialogInterface.OnClickListener { dialog, which -> mModel.cancelSaveDraw() },
+                null)
             }
             false
         }

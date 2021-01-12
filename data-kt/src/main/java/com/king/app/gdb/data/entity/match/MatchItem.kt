@@ -1,6 +1,5 @@
 package com.king.app.gdb.data.entity.match
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -15,7 +14,7 @@ data class MatchItem (
     @PrimaryKey(autoGenerate = true)
     var id: Long,
 
-    var matchId: Long,
+    var matchId: Long,// matchPeriodId
 
     var round: Int,
 

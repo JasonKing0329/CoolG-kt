@@ -25,13 +25,15 @@ object MatchConstants {
     val MATCH_LEVEL_GM1000 = 2
     val MATCH_LEVEL_GM500 = 3
     val MATCH_LEVEL_GM250 = 4
+    val MATCH_LEVEL_LOW = 5
 
     val MATCH_LEVEL = arrayOf(
         "Grand Slam",
         "Master Final",
         "GM1000",
         "GM500",
-        "GM250"
+        "GM250",
+        "LOW"
     )
 
     val MATCH_LEVEL_DRAW_STD = arrayOf(

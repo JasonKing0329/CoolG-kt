@@ -6,10 +6,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.match.DrawCell
 import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
-import com.king.app.coolg_kt.page.match.draw.GM1000Plan
-import com.king.app.coolg_kt.page.match.draw.GM250Plan
-import com.king.app.coolg_kt.page.match.draw.GM500Plan
-import com.king.app.coolg_kt.page.match.draw.GrandSlamPlan
+import com.king.app.coolg_kt.page.match.draw.*
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchItem
@@ -86,10 +83,11 @@ class DrawRepository: BaseRepository() {
 
     private fun createNormalMainDraw(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {
         var plan = when(match.match.level) {
-            0 -> GrandSlamPlan(rankRecords, match)
-            2 -> GM1000Plan(rankRecords, match)
-            3 -> GM500Plan(rankRecords, match)
-            else -> GM250Plan(rankRecords, match)
+            MatchConstants.MATCH_LEVEL_GS -> GrandSlamPlan(rankRecords, match)
+            MatchConstants.MATCH_LEVEL_GM1000 -> GM1000Plan(rankRecords, match)
+            MatchConstants.MATCH_LEVEL_GM500 -> GM500Plan(rankRecords, match)
+            MatchConstants.MATCH_LEVEL_GM250 -> GM250Plan(rankRecords, match)
+            else -> LowPlan(rankRecords, match)
         }
         plan.prepare()
         val mainCells = plan.arrangeMainDraw()

@@ -22,11 +22,11 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     val database = CoolApplication.instance.database!!
 
     var seed: Int = 0
-    var seedList = listOf<RankRecord>()
+    var seedList = listOf<RankRecord>()// 需要按升序排列
     var directInUnSeed: Int = 0
-    var directInUnSeedList = listOf<RankRecord>()
+    var directInUnSeedList = listOf<RankRecord>()// 需要按升序排列
     var qualify: Int = 0
-    var qualifyList = listOf<RankRecord>()
+    var qualifyList = listOf<RankRecord>()// 需要按升序排列
 
     fun prepare() {
         calcSeed()
@@ -169,6 +169,87 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     }
 
     /**
+     * @param seed 16或8
+     */
+    open fun arrangeDraw64(draws: MutableList<DrawCell>, seed: Int) {
+        fillSeed(draws, 0, seedList[0])
+        fillSeed(draws, 63, seedList[1])
+        val seed34 = seedList.subList(2, 4).shuffled()
+        fillSeed(draws, 31, seed34[0])
+        fillSeed(draws, 32, seed34[1])
+        val seed5to8 = seedList.subList(4, 8).shuffled()
+        fillSeed(draws, 15, seed5to8[0])
+        fillSeed(draws, 16, seed5to8[1])
+        fillSeed(draws, 47, seed5to8[2])
+        fillSeed(draws, 48, seed5to8[3])
+        if (seed == 16) {
+            val seed9to12 = seedList.subList(8, 12).shuffled()
+            fillSeed(draws, 8, seed9to12[0])
+            fillSeed(draws, 23, seed9to12[1])
+            fillSeed(draws, 40, seed9to12[2])
+            fillSeed(draws, 55, seed9to12[3])
+            val seed13to16 = seedList.subList(12, 16).shuffled()
+            fillSeed(draws, 7, seed13to16[0])
+            fillSeed(draws, 24, seed13to16[1])
+            fillSeed(draws, 39, seed13to16[2])
+            fillSeed(draws, 56, seed13to16[3])
+        }
+
+        // arrange bye
+        if (match.match.byeDraws == 16) {
+            // 每八个签位，第一个和第八个是种子位，第2个、第7个为轮空位
+            for (i in 0 until 63) {
+                var index = i % 8
+                if (index == 1 || index == 6) {
+                    fillBye(draws, i)
+                }
+            }
+        }
+        // 每16个签位，第一个和第16个是种子位，第2个、第15个为轮空位
+        else if (match.match.byeDraws == 8) {
+            for (i in 0 until 63) {
+                var index = i % 16
+                if (index == 1 || index == 14) {
+                    fillBye(draws, i)
+                }
+            }
+        }
+    }
+
+    open fun arrangeDraw32Seed8(draws: MutableList<DrawCell>) {
+        fillSeed(draws, 0, seedList[0])
+        fillSeed(draws, 31, seedList[1])
+        val seed34 = seedList.subList(2, 4).shuffled()
+        fillSeed(draws, 15, seed34[0])
+        fillSeed(draws, 16, seed34[1])
+        val seed5to8 = seedList.subList(4, 8).shuffled()
+        fillSeed(draws, 7, seed5to8[0])
+        fillSeed(draws, 8, seed5to8[1])
+        fillSeed(draws, 23, seed5to8[2])
+        fillSeed(draws, 24, seed5to8[3])
+
+        // arrange bye
+        if (match.match.byeDraws == 8) {
+            // 每八个签位，第一个和第八个是种子位，第2个、第7个为轮空位
+            for (i in 0 until 31) {
+                var index = i % 8
+                if (index == 1 || index == 6) {
+                    fillBye(draws, i)
+                }
+            }
+        }
+        // 8个种子只轮空4个，每16个签位，第一个和第16个是种子位，第2个、第15个为轮空位
+        else if (match.match.byeDraws == 4) {
+            for (i in 0 until 31) {
+                var index = i % 16
+                if (index == 1 || index == 14) {
+                    fillBye(draws, i)
+                }
+            }
+        }
+    }
+
+    /**
      * qualify设置qualifyDraws个种子，每8个(3轮，2的3次方)签位占第一个
      */
     private fun createQualifyDraw(draws: MutableList<DrawCell>) {
@@ -253,12 +334,18 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list,
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
-        TODO("Not yet implemented")
+        if (match.match.draws == 128) {
+            arrangeDraw128Seed32(draws)
+        }
+        else {
+            arrangeDraw64(draws, 16)
+        }
+        arrangeUnSeeds(draws)
     }
 }
 
 /**
- * GM500，500以内有条件随机
+ * GM500，排名300以内有条件随机
  */
 class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
@@ -268,20 +355,26 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
         seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in list.indices) {
-            // top10只有五分之一几率参加
-            if (i < 10 && abs(random.nextInt()) % 5 == 1) {
-                resultSeeds.add(list[i])
-            }
-            // top11-20只有3分之一几率参加
-            else if (i < 20 && abs(random.nextInt()) % 3 == 1) {
-                resultSeeds.add(list[i])
-            }
-            // top21-50只有2分之一几率参加
-            else if (i < 50 && abs(random.nextInt()) % 2 == 1) {
-                resultSeeds.add(list[i])
-            }
-            else {
-                resultSeeds.add(list[i])
+            when {
+                // top10只有5分之一几率参加
+                i < 10 -> {
+                    if (abs(random.nextInt()) % 5 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top11-20只有3分之一几率参加
+                i < 20 -> {
+                    if (abs(random.nextInt()) % 3 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top21-100只有2分之一几率参加
+                i < 100 -> {
+                    if (abs(random.nextInt()) % 2 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                else -> resultSeeds.add(list[i])
             }
             if (resultSeeds.size == seed) {
                 break
@@ -295,20 +388,133 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
         val seedEnd = seedList.last().rank
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in seedEnd until list.size) {
-            // top10只有五分之一几率参加
-            if (i < 10 && abs(random.nextInt()) % 5 == 1) {
-                resultSeeds.add(list[i])
+            when {
+                // top10只有5分之一几率参加
+                i < 10 -> {
+                    if (abs(random.nextInt()) % 5 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top11-20只有3分之一几率参加
+                i < 20 -> {
+                    if (abs(random.nextInt()) % 3 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top21-100只有2分之一几率参加
+                i < 100 -> {
+                    if (abs(random.nextInt()) % 2 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                else -> resultSeeds.add(list[i])
             }
-            // top11-20只有3分之一几率参加
-            else if (i < 20 && abs(random.nextInt()) % 3 == 1) {
-                resultSeeds.add(list[i])
+            if (resultSeeds.size == directInUnSeed) {
+                break
             }
-            // top20以后都只有2分之一几率参加
-            else if (abs(random.nextInt()) % 2 == 1) {
-                resultSeeds.add(list[i])
+        }
+        directInUnSeedList = resultSeeds
+    }
+
+    /**
+     * qualify排名300以内
+     */
+    override fun calcQualify() {
+        qualify = match.match.qualifyDraws * 8
+        val directInEnd = directInUnSeedList.last().rank
+        val limitList = list.filter { it.rank in (directInEnd + 1)..300 }
+        qualifyList = limitList.shuffled().take(qualify).sortedBy { it.rank }
+    }
+
+    override fun createMainDraw(draws: MutableList<DrawCell>) {
+        if (match.match.draws == 64) {
+            arrangeDraw64(draws, match.match.byeDraws)
+        }
+        else {
+            arrangeDraw32Seed8(draws)
+        }
+        arrangeUnSeeds(draws)
+    }
+}
+
+/**
+ * GM250，排名500内有条件随机
+ */
+class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+
+    val random = Random()
+
+    override fun calcSeed() {
+        seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
+        val resultSeeds = mutableListOf<RankRecord>()
+        for (i in list.indices) {
+            // top11-20只有5分之一几率参加
+            when {
+                // top10只有,10分之一几率参加
+                i < 10 -> {
+                    if (abs(random.nextInt()) % 10 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top11-20只有5分之一几率参加
+                i < 20 -> {
+                    if (abs(random.nextInt()) % 5 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top21-50只有3分之一几率参加
+                i < 50 -> {
+                    if (abs(random.nextInt()) % 3 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top50-100有2分之一几率参加
+                i < 100 -> {
+                    if (abs(random.nextInt()) % 2 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                else -> resultSeeds.add(list[i])
             }
-            else {
-                resultSeeds.add(list[i])
+            if (resultSeeds.size == seed) {
+                break
+            }
+        }
+        seedList = resultSeeds
+    }
+
+    override fun calcDirectInUnSeed() {
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
+        val seedEnd = seedList.last().rank
+        val resultSeeds = mutableListOf<RankRecord>()
+        for (i in seedEnd until list.size) {
+            // top11-20只有5分之一几率参加
+            when {
+                // top10只有,10分之一几率参加
+                i < 10 -> {
+                    if (abs(random.nextInt()) % 10 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top11-20只有5分之一几率参加
+                i < 20 -> {
+                    if (abs(random.nextInt()) % 5 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top21-50只有3分之一几率参加
+                i < 50 -> {
+                    if (abs(random.nextInt()) % 3 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                // top50-100有2分之一几率参加
+                i < 100 -> {
+                    if (abs(random.nextInt()) % 2 == 1) {
+                        resultSeeds.add(list[i])
+                    }
+                }
+                else -> resultSeeds.add(list[i])
             }
             if (resultSeeds.size == directInUnSeed) {
                 break
@@ -323,28 +529,33 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     override fun calcQualify() {
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
-        val limitList = list.subList(directInEnd, 500)
-        qualifyList = limitList.shuffled().take(qualify)
+        val limitList = list.filter { it.rank in (directInEnd + 1)..500 }
+        qualifyList = limitList.shuffled().take(qualify).sortedBy { it.rank }
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
-        TODO("Not yet implemented")
+        arrangeDraw32Seed8(draws)
+        arrangeUnSeeds(draws)
     }
 }
 
-
 /**
- * GM250范围为500以后1500以内条件随机
+ * Low范围为300以后1200以内条件随机
  */
-class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     val random = Random()
-    val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws + match.match.qualifyDraws * 8
-    val rangeList = list.subList(500, 1500).shuffled().take(total).sortedBy { it.rank }
+    private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws + match.match.qualifyDraws * 8
+    private val rangeList = list.filter { it.rank in 301..1200 }.shuffled().take(total).sortedBy { it.rank }
 
     override fun calcSeed() {
-        seed = 8
-        rangeList.take(seed)
+        // 如果是64签，固定设16种子，32签固定设8种子。均无轮空
+        seed = if (match.match.draws == 64) {
+            16
+        } else {
+            8
+        }
+        seedList = rangeList.take(seed)
     }
 
     override fun calcDirectInUnSeed() {
@@ -352,15 +563,18 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
         directInUnSeedList = rangeList.subList(seed, seed + directInUnSeed)
     }
 
-    /**
-     * qualify排名放宽到500
-     */
     override fun calcQualify() {
         qualify = match.match.qualifyDraws * 8
         qualifyList = rangeList.takeLast(qualify)
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
-        TODO("Not yet implemented")
+        if (match.match.draws == 64) {
+            arrangeDraw64(draws, 16)
+        }
+        else {
+            arrangeDraw32Seed8(draws)
+        }
+        arrangeUnSeeds(draws)
     }
 }

@@ -39,6 +39,7 @@
         <item>GM1000</item>
         <item>GM500</item>
         <item>GM250</item>
+        <item>LOW</item>
     </string-array>
 
 </resources>

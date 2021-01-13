@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.databinding.ActivityHomeBinding
 import com.king.app.coolg_kt.page.home.HomeRecord
 import com.king.app.coolg_kt.page.home.HomeStar
 import com.king.app.coolg_kt.page.home.HomeViewModel
+import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
@@ -95,6 +96,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuStar.visibility = View.GONE
         mBinding.groupMenuVideo.visibility = View.GONE
         mBinding.groupMenuStudio.visibility = View.GONE
+        mBinding.tvMatch.visibility = View.GONE
         mBinding.btnMenu.setOnClickListener {
             if (!isAnimating) {
                 if (mBinding.blurView.visibility != View.VISIBLE) {
@@ -110,6 +112,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
         mBinding.groupMenuVideo.setOnClickListener { VideoHomePhoneActivity.startPage(this) }
         mBinding.groupMenuStudio.setOnClickListener { StudioActivity.startPage(this) }
+        mBinding.tvMatch.setOnClickListener { MatchHomeActivity.startPage(this) }
     }
 
     /**
@@ -171,10 +174,12 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuRecord.visibility = View.VISIBLE
         mBinding.groupMenuVideo.visibility = View.VISIBLE
         mBinding.groupMenuStudio.visibility = View.VISIBLE
+        mBinding.tvMatch.visibility = View.VISIBLE
         mBinding.groupMenuStar.startAnimation(trans)
         mBinding.groupMenuRecord.startAnimation(trans)
         mBinding.groupMenuVideo.startAnimation(trans)
         mBinding.groupMenuStudio.startAnimation(trans)
+        mBinding.tvMatch.startAnimation(trans)
     }
 
     private fun disappearMenu() {
@@ -201,6 +206,7 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         mBinding.groupMenuRecord.visibility = View.GONE
         mBinding.groupMenuVideo.visibility = View.GONE
         mBinding.groupMenuStudio.visibility = View.GONE
+        mBinding.tvMatch.visibility = View.GONE
     }
 
     private fun setupBlurView() {

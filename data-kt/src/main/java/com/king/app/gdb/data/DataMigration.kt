@@ -106,6 +106,24 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_12_13")
+            database.execSQL(
+                "ALTER TABLE 'match_rank_star' ADD COLUMN `score` INTEGER NOT NULL DEFAULT 0"
+            )
+            database.execSQL(
+                "ALTER TABLE 'match_rank_star' ADD COLUMN `matchCount` INTEGER NOT NULL DEFAULT 0"
+            )
+            database.execSQL(
+                "ALTER TABLE 'match_rank_record' ADD COLUMN `score` INTEGER NOT NULL DEFAULT 0"
+            )
+            database.execSQL(
+                "ALTER TABLE 'match_rank_record' ADD COLUMN `matchCount` INTEGER NOT NULL DEFAULT 0"
+            )
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

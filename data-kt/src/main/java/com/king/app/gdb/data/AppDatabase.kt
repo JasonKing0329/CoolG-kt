@@ -23,7 +23,7 @@ import com.king.app.gdb.data.entity.match.*
         , PlayDuration::class, PlayItem::class, PlayOrder::class, VideoCoverPlayOrder::class, VideoCoverStar::class
         , Tag::class, TagRecord::class, TagStar::class
         , Match::class, MatchPeriod::class, MatchItem::class, MatchRecord::class, MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -67,6 +67,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .allowMainThreadQueries() //允许主线程查询
                 .addMigrations(DataMigration.MIGRATION_1_11)
                 .addMigrations(DataMigration.MIGRATION_11_12)
+                .addMigrations(DataMigration.MIGRATION_12_13)
                 .build()
         }
     }

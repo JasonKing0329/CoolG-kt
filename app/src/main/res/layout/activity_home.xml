@@ -204,5 +204,21 @@
                 app:layout_constraintStart_toEndOf="@+id/iv_menu_video"
                 app:layout_constraintEnd_toEndOf="parent" />
         </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_match"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Match"
+            android:textSize="30dp"
+            android:shadowColor="#000000"
+            android:shadowRadius="20"
+            android:padding="10dp"
+            android:textStyle="bold|italic"
+            android:layout_marginStart="40dp"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

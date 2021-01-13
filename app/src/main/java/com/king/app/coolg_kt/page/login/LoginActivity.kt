@@ -14,7 +14,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
-import com.king.app.coolg_kt.page.match.MatchHomeActivity
+import com.king.app.coolg_kt.page.home.phone.PhoneHomeActivity
 import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
 import com.king.app.coolg_kt.utils.AppUtil
@@ -96,8 +96,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun goToHome() {
-//        startActivity(Intent().setClass(this, PhoneHomeActivity::class.java))
-        MatchHomeActivity.startPage(this)
+        startActivity(Intent().setClass(this, PhoneHomeActivity::class.java))
     }
 
     private fun goToManage() {

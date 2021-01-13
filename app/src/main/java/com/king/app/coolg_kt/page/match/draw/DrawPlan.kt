@@ -313,6 +313,11 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(li
  */
 class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
+    companion object {
+        val SCORES_128 = arrayOf(0, 5, 10, 25, 10, 45, 90, 180, 360, 720, 1200, 2000)
+        val SCORES_64 = arrayOf(0, 5, 10, 25, 10, 45, 90, 180, 360, 720, 1200, 2000)
+    }
+
     override fun calcSeed() {
         seed = if (match.match.byeDraws < 16) 16 else match.match.byeDraws
         // 强制

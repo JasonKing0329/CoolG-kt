@@ -73,7 +73,14 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                     }
                 }
                 R.id.menu_create_score -> {
-
+                    if (mModel.isDrawExist()) {
+                        showConfirmCancelMessage("This action will clear all existed score data, continue?",
+                            DialogInterface.OnClickListener { dialog, which -> mModel.createScore() },
+                            null)
+                    }
+                    else {
+                        mModel.createScore()
+                    }
                 }
             }
         }

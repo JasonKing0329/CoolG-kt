@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import com.king.app.gdb.data.entity.match.*
+import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -36,6 +37,9 @@ interface MatchDao {
 
     @Query("select * from match_item where matchId=:matchPeriodId and round=:round")
     fun getRoundMatchItems(matchPeriodId: Long, round: Int): List<MatchItem>
+
+    @Query("select * from match_item where matchId=:matchPeriodId")
+    fun getMatchItems(matchPeriodId: Long): List<MatchItemWrap>
 
     @Query("select * from match_record")
     fun getAllMatchRecords(): List<MatchRecord>
@@ -81,6 +85,9 @@ interface MatchDao {
 
     @Insert
     fun insertMatchScoreStars(list: List<MatchScoreStar>)
+
+    @Update
+    fun updateMatchScoreStars(list: List<MatchScoreStar>)
 
     @Insert
     fun insertMatchScoreRecords(list: List<MatchScoreRecord>)

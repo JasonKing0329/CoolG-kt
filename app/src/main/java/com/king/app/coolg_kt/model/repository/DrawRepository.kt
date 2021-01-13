@@ -8,9 +8,7 @@ import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.draw.*
 import com.king.app.gdb.data.bean.RankRecord
-import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchItem
-import com.king.app.gdb.data.entity.match.MatchRecord
+import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -214,4 +212,125 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    /**
+     * 一对签位都产生了胜者，才更新下一轮matchItem
+     */
+    fun checkNextRound(winner1Item: MatchItem, winner1Record: MatchRecord, winner2Item: MatchItem, winner2Record: MatchRecord) {
+        if (winner1Record == null || winner2Record == null) {
+            return
+        }
+        var nextRoundOrder = winner1Item.order / 2
+        when(winner1Item.round) {
+            MatchConstants.ROUND_ID_Q1, MatchConstants.ROUND_ID_Q2,
+            MatchConstants.ROUND_ID_128, MatchConstants.ROUND_ID_64, MatchConstants.ROUND_ID_32,
+            MatchConstants.ROUND_ID_16, MatchConstants.ROUND_ID_QF, MatchConstants.ROUND_ID_SF -> {
+                var nextMatchItem = getDatabase().getMatchDao().getMatchItem(winner1Item.matchId, winner1Item.round + 1, nextRoundOrder)
+                if (nextMatchItem == null) {
+                    nextMatchItem = MatchItem(0, winner1Item.matchId, winner1Item.round + 1, null, winner1Item.isQualify, false, nextRoundOrder, null)
+                    var id = getDatabase().getMatchDao().insertMatchItem(nextMatchItem)
+
+                    var list = mutableListOf<MatchRecord>()
+                    var record1 = winner1Record.copy()
+                    record1.id = 0
+                    record1.matchItemId = id
+                    record1.order = 1
+                    list.add(record1)
+                    var record2 = winner2Record.copy()
+                    record2.id = 0
+                    record2.matchItemId = id
+                    record2.order = 2
+                    list.add(record2)
+                    getDatabase().getMatchDao().insertMatchRecords(list)
+                }
+                else {
+                    var list = mutableListOf<MatchRecord>()
+                    var record1 = getDatabase().getMatchDao().getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
+                    record1?.let {
+                        it.bean.recordId = winner1Record.recordId
+                        it.bean.recordRank = winner1Record.recordRank
+                        it.bean.recordSeed = winner1Record.recordSeed
+                        it.bean.order = 1
+                        list.add(it.bean)
+                    }
+                    var record2 = getDatabase().getMatchDao().getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
+                    record2?.let {
+                        it.bean.recordId = winner2Record.recordId
+                        it.bean.recordRank = winner2Record.recordRank
+                        it.bean.recordSeed = winner2Record.recordSeed
+                        it.bean.order = 2
+                        list.add(it.bean)
+                    }
+                    getDatabase().getMatchDao().updateMatchRecords(list)
+                }
+            }
+        }
+    }
+
+    fun createScore(match: MatchPeriodWrap): Observable<Boolean> {
+        return Observable.create {
+            var plan = when(match.match.level) {
+                MatchConstants.MATCH_LEVEL_GS -> GrandSlamScorePlan(match)
+                MatchConstants.MATCH_LEVEL_FINAL -> FinalScorePlan(match)
+                MatchConstants.MATCH_LEVEL_GM1000 -> GM1000ScorePlan(match)
+                MatchConstants.MATCH_LEVEL_GM500 -> GM500ScorePlan(match)
+                MatchConstants.MATCH_LEVEL_GM250 -> GM250ScorePlan(match)
+                else -> LowScorePlan(match)
+            }
+
+            val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
+            val recordScores = mutableListOf<MatchScoreRecord>()
+            val starScores = mutableListOf<MatchScoreStar>()
+            val starScoreMap = mutableMapOf<Long, MatchScoreStar?>()
+            items.forEach { item ->
+                item.recordList.forEach { matchRecord ->
+
+                    var singleScore: Int? = null
+
+                    // win，只有F和RR计分
+                    if (matchRecord.recordId == item.bean.winnerId) {
+                        if (item.bean.round == MatchConstants.ROUND_ID_F) {
+                            singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
+                        }
+                        else if (item.bean.round == MatchConstants.ROUND_ID_GROUP) {
+                            // TODO 待设计
+                        }
+                    }
+                    // lose，其他所有轮次都计分
+                    else {
+                        singleScore = plan.getRoundScore(
+                            item.bean.round,
+                            isWinner = false,
+                            isQualify = matchRecord.type == MatchConstants.MATCH_RECORD_QUALIFY
+                        )
+                    }
+
+                    singleScore?.let { score ->
+                        val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
+                        recordScores.add(matchScoreRecord)
+                        val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
+                        stars.forEach { star ->
+                            // star可能在一站中有多个record，取最高分
+                            var matchScoreStar = starScoreMap[star.bean.starId]
+                            if (matchScoreStar == null) {
+                                matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
+                                starScoreMap[star.bean.starId] = matchScoreStar
+                                starScores.add(matchScoreStar)
+                            }
+                            else {
+                                if (score > matchScoreStar.score) {
+                                    matchScoreStar.matchItemId = item.bean.id
+                                    matchScoreStar.recordId = matchRecord.recordId
+                                    matchScoreStar.score = score
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            getDatabase().getMatchDao().insertMatchScoreRecords(recordScores)
+            getDatabase().getMatchDao().insertMatchScoreStars(starScores)
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
 }

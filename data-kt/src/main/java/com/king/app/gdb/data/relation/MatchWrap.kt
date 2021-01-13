@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.Match
+import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
 
@@ -34,3 +35,13 @@ data class MatchRecordWrap (
 ) {
     var imageUrl: String? = null
 }
+data class MatchItemWrap (
+
+    @Embedded
+    var bean: MatchItem,
+
+    @Relation(parentColumn = "id",
+        entityColumn = "matchItemId")
+    var recordList: List<MatchRecord>
+
+)

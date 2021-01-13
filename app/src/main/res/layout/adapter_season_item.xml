@@ -28,12 +28,24 @@
             tools:text="W12"/>
 
         <TextView
-            android:id="@+id/tv_date"
+            android:id="@+id/tv_level"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18dp"
+            android:textColor="@color/red_f1303d"
             app:layout_constraintStart_toEndOf="@id/tv_index"
             app:layout_constraintTop_toTopOf="@id/tv_index"
+            tools:text="Grand Slam" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toEndOf="@id/tv_level"
+            app:layout_constraintBottom_toBottomOf="@id/tv_level"
             tools:text="2020-01-09" />
 
         <TextView
@@ -42,8 +54,8 @@
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:text="@{bean.match.name}"
-            app:layout_constraintStart_toStartOf="@id/tv_date"
-            app:layout_constraintTop_toBottomOf="@id/tv_date"
+            app:layout_constraintStart_toStartOf="@id/tv_level"
+            app:layout_constraintTop_toBottomOf="@id/tv_level"
             tools:text="Match Name" />
 
         <ImageView
@@ -80,7 +92,7 @@
             android:textSize="14dp"
             android:visibility="@{bean.bean.scoreCreated ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tv_date"
+            app:layout_constraintStart_toStartOf="@+id/tv_level"
             app:layout_constraintTop_toBottomOf="@+id/tv_match" />
 
         <TextView

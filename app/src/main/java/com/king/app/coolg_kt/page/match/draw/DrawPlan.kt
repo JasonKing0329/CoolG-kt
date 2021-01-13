@@ -28,7 +28,14 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     var qualify: Int = 0
     var qualifyList = listOf<RankRecord>()// 需要按升序排列
 
+    /**
+     * GS, GM1000同期无其他match，不需要考虑重复参赛问题
+     */
+    var samePeriodMap = listOf<Long>()
+
     fun prepare() {
+        prepareSamePeriodMap()
+
         calcSeed()
         setSeed()
         calcDirectInUnSeed()
@@ -40,6 +47,10 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     abstract fun calcDirectInUnSeed()
 
     abstract fun calcQualify()
+
+    open fun prepareSamePeriodMap() {
+        samePeriodMap = database.getMatchDao().getSamePeriodRecordIds(match.bean.period, match.bean.orderInPeriod)
+    }
 
     open fun setSeed() {
         // rank可能不连续，需要设置seed
@@ -269,6 +280,7 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
         }
     }
 }
+
 class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     override fun calcSeed() {
@@ -351,31 +363,39 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 
     val random = Random()
 
+    private fun addToResult(rankRecord: RankRecord, resultSeeds: MutableList<RankRecord>) {
+        when {
+            // top10只有5分之一几率参加
+            rankRecord.rank < 10 -> {
+                if (abs(random.nextInt()) % 5 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            // top11-20只有3分之一几率参加
+            rankRecord.rank < 20 -> {
+                if (abs(random.nextInt()) % 3 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            // top21-100只有2分之一几率参加
+            rankRecord.rank < 100 -> {
+                if (abs(random.nextInt()) % 2 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            else -> {
+                if (!samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+        }
+    }
+
     override fun calcSeed() {
         seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in list.indices) {
-            when {
-                // top10只有5分之一几率参加
-                i < 10 -> {
-                    if (abs(random.nextInt()) % 5 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top11-20只有3分之一几率参加
-                i < 20 -> {
-                    if (abs(random.nextInt()) % 3 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top21-100只有2分之一几率参加
-                i < 100 -> {
-                    if (abs(random.nextInt()) % 2 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                else -> resultSeeds.add(list[i])
-            }
+            addToResult(list[i], resultSeeds)
             if (resultSeeds.size == seed) {
                 break
             }
@@ -386,29 +406,10 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     override fun calcDirectInUnSeed() {
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
         val seedEnd = seedList.last().rank
+        var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
         val resultSeeds = mutableListOf<RankRecord>()
-        for (i in seedEnd until list.size) {
-            when {
-                // top10只有5分之一几率参加
-                i < 10 -> {
-                    if (abs(random.nextInt()) % 5 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top11-20只有3分之一几率参加
-                i < 20 -> {
-                    if (abs(random.nextInt()) % 3 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top21-100只有2分之一几率参加
-                i < 100 -> {
-                    if (abs(random.nextInt()) % 2 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                else -> resultSeeds.add(list[i])
-            }
+        for (i in indexStart until list.size) {
+            addToResult(list[i], resultSeeds)
             if (resultSeeds.size == directInUnSeed) {
                 break
             }
@@ -423,7 +424,18 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.filter { it.rank in (directInEnd + 1)..300 }
-        qualifyList = limitList.shuffled().take(qualify).sortedBy { it.rank }
+        val result = mutableListOf<RankRecord>()
+        run outside@{
+            limitList.shuffled().forEach {
+                if (!samePeriodMap.contains(it.recordId)) {
+                    result.add(it)
+                }
+                if (result.size == qualify) {
+                    return@outside
+                }
+            }
+        }
+        qualifyList = result.sortedBy { it.rank }
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
@@ -444,38 +456,45 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 
     val random = Random()
 
+    private fun addToResult(rankRecord: RankRecord, resultSeeds: MutableList<RankRecord>) {
+        when {
+            // top10只有,10分之一几率参加
+            rankRecord.rank < 10 -> {
+                if (abs(random.nextInt()) % 10 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            // top11-20只有5分之一几率参加
+            rankRecord.rank < 20 -> {
+                if (abs(random.nextInt()) % 5 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            // top21-50只有3分之一几率参加
+            rankRecord.rank < 50 -> {
+                if (abs(random.nextInt()) % 3 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            // top51-100只有2分之一几率参加
+            rankRecord.rank < 50 -> {
+                if (abs(random.nextInt()) % 2 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+            else -> {
+                if (!samePeriodMap.contains(rankRecord.recordId)) {
+                    resultSeeds.add(rankRecord)
+                }
+            }
+        }
+    }
+
     override fun calcSeed() {
         seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in list.indices) {
-            // top11-20只有5分之一几率参加
-            when {
-                // top10只有,10分之一几率参加
-                i < 10 -> {
-                    if (abs(random.nextInt()) % 10 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top11-20只有5分之一几率参加
-                i < 20 -> {
-                    if (abs(random.nextInt()) % 5 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top21-50只有3分之一几率参加
-                i < 50 -> {
-                    if (abs(random.nextInt()) % 3 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top50-100有2分之一几率参加
-                i < 100 -> {
-                    if (abs(random.nextInt()) % 2 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                else -> resultSeeds.add(list[i])
-            }
+            addToResult(list[i], resultSeeds)
             if (resultSeeds.size == seed) {
                 break
             }
@@ -486,36 +505,10 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     override fun calcDirectInUnSeed() {
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
         val seedEnd = seedList.last().rank
+        var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
         val resultSeeds = mutableListOf<RankRecord>()
-        for (i in seedEnd until list.size) {
-            // top11-20只有5分之一几率参加
-            when {
-                // top10只有,10分之一几率参加
-                i < 10 -> {
-                    if (abs(random.nextInt()) % 10 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top11-20只有5分之一几率参加
-                i < 20 -> {
-                    if (abs(random.nextInt()) % 5 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top21-50只有3分之一几率参加
-                i < 50 -> {
-                    if (abs(random.nextInt()) % 3 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                // top50-100有2分之一几率参加
-                i < 100 -> {
-                    if (abs(random.nextInt()) % 2 == 1) {
-                        resultSeeds.add(list[i])
-                    }
-                }
-                else -> resultSeeds.add(list[i])
-            }
+        for (i in indexStart until list.size) {
+            addToResult(list[i], resultSeeds)
             if (resultSeeds.size == directInUnSeed) {
                 break
             }
@@ -530,7 +523,18 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.filter { it.rank in (directInEnd + 1)..500 }
-        qualifyList = limitList.shuffled().take(qualify).sortedBy { it.rank }
+        val result = mutableListOf<RankRecord>()
+        run outside@{
+            limitList.shuffled().forEach {
+                if (!samePeriodMap.contains(it.recordId)) {
+                    result.add(it)
+                }
+                if (result.size == qualify) {
+                    return@outside
+                }
+            }
+        }
+        qualifyList = result.sortedBy { it.rank }
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
@@ -546,7 +550,15 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
 
     val random = Random()
     private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws + match.match.qualifyDraws * 8
-    private val rangeList = list.filter { it.rank in 301..1200 }.shuffled().take(total).sortedBy { it.rank }
+    private lateinit var rangeList: List<RankRecord>
+
+    override fun prepareSamePeriodMap() {
+        super.prepareSamePeriodMap()
+        rangeList = list.filter { it.rank in 301..1200 && !samePeriodMap.contains(it.recordId) }
+            .shuffled()
+            .take(total)
+            .sortedBy { it.rank }
+    }
 
     override fun calcSeed() {
         // 如果是64签，固定设16种子，32签固定设8种子。均无轮空

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterSeasonItemBinding
 import com.king.app.coolg_kt.databinding.AdapterSeasonPeriodBinding
 import com.king.app.coolg_kt.model.bean.MatchPeriodTitle
@@ -46,6 +47,7 @@ class SeasonAdapter: HeadChildBindingAdapter<AdapterSeasonPeriodBinding, Adapter
         binding.ivEdit.setOnClickListener { onActionListener?.onEditItem(position, bean) }
         binding.tvIndex.text = "W${bean.bean.orderInPeriod}"
         binding.tvDate.text = FormatUtil.formatDate(bean.bean.date)
+        binding.tvLevel.text = MatchConstants.MATCH_LEVEL[bean.match.level]
     }
 
     interface OnActionListener {

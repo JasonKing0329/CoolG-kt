@@ -8,7 +8,6 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterMatchRecordBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.page.match.DrawItem
-import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
 /**
@@ -79,8 +78,19 @@ class DrawAdapter: BaseBindingAdapter<AdapterMatchRecordBinding, DrawItem>() {
                 else -> View.GONE
             }
         }
+
+        var typeWinner = bean.winner?.bean?.type
         binding.tvSeedWinner.text = if (seedWinner > 0) { "[$seedWinner]" } else { "" }
         binding.tvRankWinner.text = "R ${bean.winner?.bean?.recordRank}"
+        binding.tvQWinner.text = when(typeWinner) {
+            MatchConstants.MATCH_RECORD_QUALIFY -> "[Q]"
+            MatchConstants.MATCH_RECORD_WILDCARD -> "[WC]"
+            else -> ""
+        }
+        binding.tvQWinner.visibility = when(typeWinner) {
+            MatchConstants.MATCH_RECORD_QUALIFY, MatchConstants.MATCH_RECORD_WILDCARD -> View.VISIBLE
+            else -> View.GONE
+        }
 
         ImageBindingAdapter.setRecordUrl(binding.ivPlayer1, bean.matchRecord1?.imageUrl)
         ImageBindingAdapter.setRecordUrl(binding.ivPlayer2, bean.matchRecord2?.imageUrl)

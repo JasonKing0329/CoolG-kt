@@ -142,4 +142,7 @@ interface MatchDao {
     @Query("select * from match_record where matchId=:matchPeriodId and type=3 and recordId=0")
     fun getUndefinedQualifies(matchPeriodId: Long): List<MatchRecord>
 
+    @Query("select r._id from record r join match_record mr on r._id=mr.recordId join match_period mp on mr.matchId=mp.id where mp.period=:period and mp.orderInPeriod=:matchOrderInPeriod group by r._id")
+    fun getSamePeriodRecordIds(period: Int, matchOrderInPeriod: Int): List<Long>
+
 }

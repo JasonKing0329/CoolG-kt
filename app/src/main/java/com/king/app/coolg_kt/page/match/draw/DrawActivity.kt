@@ -203,6 +203,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     override fun initData() {
 
+        mModel.cancelConfirmCancelStatus.observe(this, Observer { mBinding.actionbar.cancelConfirmStatus() })
         mModel.setRoundPosition.observe(this, Observer { mBinding.spRound.setSelection(it) })
         mModel.roundList.observe(this, Observer {
             mBinding.spRound.adapter = RoundAdapter(it)

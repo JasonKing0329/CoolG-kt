@@ -23,11 +23,11 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
         if (bean.bean is Star) {
             binding.ivHead.visibility = View.GONE
             binding.tvName.visibility = View.VISIBLE
-            ImageBindingAdapter.setStarUrl(binding.ivHead, bean.imageUrl)
+//            ImageBindingAdapter.setStarUrl(binding.ivHead, bean.imageUrl)
         }
         else {
             binding.ivHead.visibility = View.VISIBLE
-            binding.tvName.visibility = View.INVISIBLE
+            binding.tvName.visibility = View.GONE
             ImageBindingAdapter.setRecordUrl(binding.ivHead, bean.imageUrl)
         }
         binding.tvChange.visibility = if (bean.change.isEmpty()) View.GONE else View.VISIBLE

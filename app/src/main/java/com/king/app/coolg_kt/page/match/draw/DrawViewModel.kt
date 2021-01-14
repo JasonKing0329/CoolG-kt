@@ -196,8 +196,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                 .compose(applySchedulers())
                 .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
                     override fun onNext(t: DrawData?) {
-                        createdDrawData = null
                         cancelConfirmCancelStatus.value = true
+                        createdDrawData = null
                         reloadRound()
                     }
 

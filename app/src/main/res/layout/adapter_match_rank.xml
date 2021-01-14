@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.RankItem" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:minHeight="36dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@{bean.rank}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="2289"/>
+
+        <TextView
+            android:id="@+id/tv_change"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="@{bean.change}"
+            app:layout_constraintStart_toEndOf="@+id/tv_rank"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="+1886"/>
+
+        <ImageView
+            android:id="@+id/iv_head"
+            android:layout_width="110dp"
+            android:layout_height="64dp"
+            android:src="@drawable/def_small"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_change"/>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:text="@{bean.name}"
+            app:layout_constraintStart_toEndOf="@+id/tv_change"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Topher Dimaggio"/>
+
+        <TextView
+            android:id="@+id/tv_score"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{bean.score}"
+            app:layout_constraintStart_toEndOf="@+id/tv_name"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="13850"/>
+
+        <TextView
+            android:id="@+id/tv_match_count"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{bean.matchCount}"
+            app:layout_constraintStart_toEndOf="@+id/tv_score"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="24"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -25,3 +25,21 @@ data class DrawItem (
 data class DrawCell (
     var matchRecord: MatchRecord?
 )
+data class RankItem<T> (
+    var bean: T,
+    var id: Long,
+    var rank: String,
+    var change: String,
+    var imageUrl: String?,
+    var name: String?,
+    var score: String,
+    var matchCount: String
+)
+
+data class PeriodPack (
+    var matchPeriod: MatchPeriod? = null,
+    var startPeriod: Int = 0,
+    var startPIO: Int = 0,
+    var endPeriod: Int = 0,
+    var endPIO: Int = 0
+)

@@ -1,6 +1,7 @@
 package com.king.app.gdb.data.dao
 
 import androidx.room.*
+import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -53,8 +54,14 @@ interface MatchDao {
     @Query("select * from match_rank_record")
     fun getAllMatchRankRecords(): List<MatchRankRecord>
 
+//    @Query("select * from match_rank_record where matchId=:matchPeriodId")
+//    fun getMatchRankRecordsBy(matchPeriodId: Long): List<MatchRankRecordWrap>
+
     @Query("select * from match_rank_star")
     fun getAllMatchRankStars(): List<MatchRankStar>
+
+//    @Query("select * from match_rank_star where matchId=:matchPeriodId")
+//    fun getMatchRankStarsBy(matchPeriodId: Long): List<MatchRankStarWrap>
 
     @Query("select * from match_score_star")
     fun getAllMatchScoreStars(): List<MatchScoreStar>
@@ -151,5 +158,26 @@ interface MatchDao {
 
     @Query("select r._id from record r join match_record mr on r._id=mr.recordId join match_period mp on mr.matchId=mp.id where mp.period=:period and mp.orderInPeriod=:matchOrderInPeriod group by r._id")
     fun getSamePeriodRecordIds(period: Int, matchOrderInPeriod: Int): List<Long>
+
+    @Query("select * from match_period order by period desc, orderInPeriod desc limit 1")
+    fun getLastMatchPeriod(): MatchPeriod?
+
+    @Query("select msr.recordId as id, sum(msr.score) as score, count(msr.recordId) as matchCount from match_score_record msr join match_period mp on msr.matchId=mp.id where mp.period=:period and mp.orderInPeriod>=:start and mp.orderInPeriod<=:end and msr.recordId!=0 group by msr.recordId order by score desc, matchCount asc")
+    fun countRecordScoreInPeriod(period: Int, start: Int, end: Int): List<ScoreCount>
+
+    @Query("select msr.recordId as id, sum(msr.score) as score, count(msr.recordId) as matchCount from match_score_record msr join match_period mp on msr.matchId=mp.id where (mp.period=:startPeriod and mp.orderInPeriod>=:startPIO or mp.period=:endPeriod and mp.orderInPeriod<=:endPIO) and msr.recordId!=0 group by msr.recordId order by score desc, matchCount asc")
+    fun countRecordScoreInPeriod(startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<ScoreCount>
+
+    @Query("select msr.starId as id, sum(msr.score) as score, count(msr.starId) as matchCount from match_score_star msr join match_period mp on msr.matchId=mp.id where mp.period=:period and mp.orderInPeriod>=:start and mp.orderInPeriod<=:end group by msr.starId order by score desc, matchCount asc")
+    fun countStarScoreInPeriod(period: Int, start: Int, end: Int): List<ScoreCount>
+
+    @Query("select msr.starId as id, sum(msr.score) as score, count(msr.starId) as matchCount from match_score_star msr join match_period mp on msr.matchId=mp.id where (mp.period=:startPeriod and mp.orderInPeriod>=:startPIO or mp.period=:endPeriod and mp.orderInPeriod<=:endPIO) group by msr.starId order by score desc, matchCount asc")
+    fun countStarScoreInPeriod(startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<ScoreCount>
+
+    @Query("select count(*) from match_rank_record where matchId=:matchPeriodId")
+    fun countRecordRankItems(matchPeriodId: Long): Int
+
+    @Query("select count(*) from match_rank_star where matchId=:matchPeriodId")
+    fun countStarRankItems(matchPeriodId: Long): Int
 
 }

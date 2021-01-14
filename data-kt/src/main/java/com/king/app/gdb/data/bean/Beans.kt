@@ -15,3 +15,8 @@ data class RankRecord (
 ) {
     var seed: Int = 0
 }
+data class ScoreCount(
+    var id: Long,
+    var score: Int,
+    var matchCount: Int
+)

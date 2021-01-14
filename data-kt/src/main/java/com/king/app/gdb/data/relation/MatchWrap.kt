@@ -45,3 +45,23 @@ data class MatchItemWrap (
     var recordList: List<MatchRecord>
 
 )
+//data class MatchRankRecordWrap (
+//
+//    @Embedded
+//    var bean: MatchRankRecord,
+//
+//    @Relation(parentColumn = "recordId",
+//        entityColumn = "_id")
+//    var star: Record
+//
+//)
+//data class MatchRankStarWrap (
+//
+//    @Embedded
+//    var bean: MatchRankStar,
+//
+//    @Relation(parentColumn = "starId",
+//        entityColumn = "_id")
+//    var star: Star
+//
+//)

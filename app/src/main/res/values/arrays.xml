@@ -42,4 +42,11 @@
         <item>LOW</item>
     </string-array>
 
+    <string-array name="rank_type" translatable="false">
+        <item>Record-Period</item>
+        <item>Record-RTF</item>
+        <item>Star-Period</item>
+        <item>Star-RTF</item>
+    </string-array>
+
 </resources>

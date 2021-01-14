@@ -283,44 +283,45 @@ class DrawRepository: BaseRepository() {
             val starScoreMap = mutableMapOf<Long, MatchScoreStar?>()
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
+                    if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
+                        var singleScore: Int? = null
 
-                    var singleScore: Int? = null
-
-                    // win，只有F和RR计分
-                    if (matchRecord.recordId == item.bean.winnerId) {
-                        if (item.bean.round == MatchConstants.ROUND_ID_F) {
-                            singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
-                        }
-                        else if (item.bean.round == MatchConstants.ROUND_ID_GROUP) {
-                            // TODO 待设计
-                        }
-                    }
-                    // lose，其他所有轮次都计分
-                    else {
-                        singleScore = plan.getRoundScore(
-                            item.bean.round,
-                            isWinner = false,
-                            isQualify = matchRecord.type == MatchConstants.MATCH_RECORD_QUALIFY
-                        )
-                    }
-
-                    singleScore?.let { score ->
-                        val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
-                        recordScores.add(matchScoreRecord)
-                        val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
-                        stars.forEach { star ->
-                            // star可能在一站中有多个record，取最高分
-                            var matchScoreStar = starScoreMap[star.bean.starId]
-                            if (matchScoreStar == null) {
-                                matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
-                                starScoreMap[star.bean.starId] = matchScoreStar
-                                starScores.add(matchScoreStar)
+                        // win，只有F和RR计分
+                        if (matchRecord.recordId == item.bean.winnerId) {
+                            if (item.bean.round == MatchConstants.ROUND_ID_F) {
+                                singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
                             }
-                            else {
-                                if (score > matchScoreStar.score) {
-                                    matchScoreStar.matchItemId = item.bean.id
-                                    matchScoreStar.recordId = matchRecord.recordId
-                                    matchScoreStar.score = score
+                            else if (item.bean.round == MatchConstants.ROUND_ID_GROUP) {
+                                // TODO 待设计
+                            }
+                        }
+                        // lose，其他所有轮次都计分
+                        else {
+                            singleScore = plan.getRoundScore(
+                                item.bean.round,
+                                isWinner = false,
+                                isQualify = matchRecord.type == MatchConstants.MATCH_RECORD_QUALIFY
+                            )
+                        }
+
+                        singleScore?.let { score ->
+                            val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
+                            recordScores.add(matchScoreRecord)
+                            val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
+                            stars.forEach { star ->
+                                // star可能在一站中有多个record，取最高分
+                                var matchScoreStar = starScoreMap[star.bean.starId]
+                                if (matchScoreStar == null) {
+                                    matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
+                                    starScoreMap[star.bean.starId] = matchScoreStar
+                                    starScores.add(matchScoreStar)
+                                }
+                                else {
+                                    if (score > matchScoreStar.score) {
+                                        matchScoreStar.matchItemId = item.bean.id
+                                        matchScoreStar.recordId = matchRecord.recordId
+                                        matchScoreStar.score = score
+                                    }
                                 }
                             }
                         }

@@ -14,7 +14,7 @@ data class MatchRecord (
     @PrimaryKey(autoGenerate = true)
     var id: Long,
 
-    var type: Int,
+    var type: Int,// MATCH_RECORD_NORMAL...
 
     var matchId: Long,// matchPeriodId
 

@@ -266,8 +266,18 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    private fun getSamePeriodMatches(period: Int, orderInPeriod: Int): List<MatchPeriod> {
+        return getDatabase().getMatchDao().getMatchPeriods(period, orderInPeriod);
+    }
+
     fun createScore(match: MatchPeriodWrap): Observable<Boolean> {
         return Observable.create {
+            var samePeriodMatches = getSamePeriodMatches(match.bean.period, match.bean.orderInPeriod)
+            samePeriodMatches.forEach { match ->
+                getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.id)
+                getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.id)
+            }
+
             var plan = when(match.match.level) {
                 MatchConstants.MATCH_LEVEL_GS -> GrandSlamScorePlan(match)
                 MatchConstants.MATCH_LEVEL_FINAL -> FinalScorePlan(match)
@@ -281,6 +291,7 @@ class DrawRepository: BaseRepository() {
             val recordScores = mutableListOf<MatchScoreRecord>()
             val starScores = mutableListOf<MatchScoreStar>()
             val starScoreMap = mutableMapOf<Long, MatchScoreStar?>()
+            val updateStarScores = mutableListOf<MatchScoreStar>()
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
                     if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
@@ -309,12 +320,27 @@ class DrawRepository: BaseRepository() {
                             recordScores.add(matchScoreRecord)
                             val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
                             stars.forEach { star ->
-                                // star可能在一站中有多个record，取最高分
+                                // star可能在一站中有多个record，取最高分。还可能在同期赛事中有其他record，还要从数据库里查
                                 var matchScoreStar = starScoreMap[star.bean.starId]
                                 if (matchScoreStar == null) {
-                                    matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
-                                    starScoreMap[star.bean.starId] = matchScoreStar
-                                    starScores.add(matchScoreStar)
+                                    // 先从数据库里查是否已有记录
+                                    matchScoreStar = getDatabase().getMatchDao().getMatchScoreStarBy(match.bean.period, match.bean.orderInPeriod, star.bean.starId)
+                                    // 没有则创建新纪录
+                                    if (matchScoreStar == null) {
+                                        matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
+                                        starScoreMap[star.bean.starId] = matchScoreStar
+                                        starScores.add(matchScoreStar)
+                                    }
+                                    // 有则判断是否修改记录
+                                    else {
+                                        starScoreMap[star.bean.starId] = matchScoreStar
+                                        updateStarScores.add(matchScoreStar)
+                                        if (score > matchScoreStar.score) {
+                                            matchScoreStar.matchItemId = item.bean.id
+                                            matchScoreStar.recordId = matchRecord.recordId
+                                            matchScoreStar.score = score
+                                        }
+                                    }
                                 }
                                 else {
                                     if (score > matchScoreStar.score) {
@@ -330,6 +356,7 @@ class DrawRepository: BaseRepository() {
             }
             getDatabase().getMatchDao().insertMatchScoreRecords(recordScores)
             getDatabase().getMatchDao().insertMatchScoreStars(starScores)
+            getDatabase().getMatchDao().updateMatchScoreStars(starScores)
             it.onNext(true)
             it.onComplete()
         }

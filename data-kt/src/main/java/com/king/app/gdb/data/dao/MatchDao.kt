@@ -27,6 +27,9 @@ interface MatchDao {
     @Query("select * from `match_period` where id=:id")
     fun getMatchPeriod(id: Long): MatchPeriodWrap
 
+    @Query("select * from `match_period` where period=:period and orderInPeriod=:orderInPeriod")
+    fun getMatchPeriods(period: Int, orderInPeriod: Int): List<MatchPeriod>
+
     @Query("select * from match_period")
     fun getAllMatchPeriods(): List<MatchPeriod>
 
@@ -65,6 +68,9 @@ interface MatchDao {
 
     @Query("select * from match_score_star")
     fun getAllMatchScoreStars(): List<MatchScoreStar>
+
+    @Query("select mss.* from match_score_star mss join match_period mp on mss.matchId=mp.id where mp.period=:period and mp.orderInPeriod=:orderInPeriod and mss.starId=:starId")
+    fun getMatchScoreStarBy(period: Int, orderInPeriod: Int, starId: Long): MatchScoreStar?
 
     @Query("select * from match_score_record")
     fun getAllMatchScoreRecords(): List<MatchScoreRecord>
@@ -138,8 +144,14 @@ interface MatchDao {
     @Query("delete from match_score_star")
     fun deleteMatchScoreStars()
 
+    @Query("delete from match_score_star where matchId=:matchPeriodId")
+    fun deleteMatchScoreStarsByMatch(matchPeriodId: Long)
+
     @Query("delete from match_score_record")
     fun deleteMatchScoreRecords()
+
+    @Query("delete from match_score_record where matchId=:matchPeriodId")
+    fun deleteMatchScoreRecordsByMatch(matchPeriodId: Long)
 
     @Update
     fun updateMatch(match: Match)

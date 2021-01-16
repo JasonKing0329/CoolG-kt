@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_record"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/def_small" />
+
+        <TextView
+            android:id="@+id/tv_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:layout_marginStart="4dp"
+            app:layout_constraintStart_toStartOf="@+id/iv_record"
+            app:layout_constraintTop_toBottomOf="@+id/iv_record"
+            tools:text="R128" />
+
+        <TextView
+            android:id="@+id/tv_seed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:textStyle="bold"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintEnd_toStartOf="@+id/tv_rank"
+            app:layout_constraintTop_toBottomOf="@+id/iv_record"
+            tools:text="[32]" />
+
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record"
+            app:layout_constraintTop_toBottomOf="@+id/iv_record"
+            tools:text="1047" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -18,6 +18,7 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.utils.DebugLog
@@ -197,7 +198,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     private fun recordPage(record: Record?) {
         record?.let {
-            RecordActivity.startPage(this, it.id!!)
+            ScoreActivity.startRecordPage(this, it.id!!)
         }
     }
 

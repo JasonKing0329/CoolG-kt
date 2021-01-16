@@ -58,3 +58,10 @@ data class ScoreTitle (
     var name: String,
     var color: Int
 )
+
+data class RoadBean (
+    var round: String,
+    var rank: String,
+    var imageUrl: String? = null,
+    var seed: String? = null
+)

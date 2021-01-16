@@ -7,7 +7,12 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchScoreBinding
+import com.king.app.coolg_kt.page.match.ScoreBean
+import com.king.app.coolg_kt.page.record.phone.RecordActivity
+import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 
 /**
  * @description:
@@ -37,7 +42,13 @@ class ScoreActivity: BaseActivity<ActivityMatchScoreBinding, ScoreViewModel>() {
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.adapter = adapter
+        adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<ScoreBean> {
+            override fun onClickItem(view: View, position: Int, data: ScoreBean) {
+                showRoadDialog(data)
+            }
+        }
 
+        mBinding.ivHead.setOnClickListener { RecordActivity.startPage(this, getRecordId()) }
         mBinding.tvWeek.setOnClickListener {
             mBinding.tvWeek.isSelected = true
             mBinding.tvYear.isSelected = false
@@ -52,6 +63,17 @@ class ScoreActivity: BaseActivity<ActivityMatchScoreBinding, ScoreViewModel>() {
             mBinding.dividerYear.visibility = View.VISIBLE
             mModel.loadRaceToFinal(getRecordId())
         }
+    }
+
+    private fun showRoadDialog(data: ScoreBean) {
+        var content = RoadDialog()
+        content.matchPeriodId = data.matchItem.matchId
+        content.recordId = getRecordId()
+        var dialog = DraggableDialogFragment()
+        dialog.setTitle("Upgrade Road")
+        dialog.contentFragment = content
+        dialog.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
+        dialog.show(supportFragmentManager, "RoadDialog")
     }
 
     override fun initData() {

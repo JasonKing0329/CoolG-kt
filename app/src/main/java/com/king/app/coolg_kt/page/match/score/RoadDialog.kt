@@ -49,8 +49,10 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
             data.add(bean)
 
             if (index == list.size - 1) {
+                val roadRecord = it.recordList.first { item -> item.recordId == recordId }
                 val result = MatchConstants.roundResultShort(it.bean.round, it.bean.winnerId == recordId)
-                mBinding.tvResult.text = result
+                var seed = if (roadRecord.recordSeed?:0 > 0) " Seed [${roadRecord.recordSeed}]" else ""
+                mBinding.tvResult.text = "Rank ${roadRecord.recordRank}$seed   Result: $result"
             }
         }
         data.reverse()

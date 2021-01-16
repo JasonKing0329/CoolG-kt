@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.match
 
+import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
@@ -42,4 +43,18 @@ data class PeriodPack (
     var startPIO: Int = 0,
     var endPeriod: Int = 0,
     var endPIO: Int = 0
+)
+data class ScoreBean (
+    var score: Int,
+    var name: String,
+    var round: String,
+    var isCompleted: Boolean,
+    var isChampion: Boolean,
+    var period: Int,
+    var matchItem: MatchItem,
+    var match: Match
+)
+data class ScoreTitle (
+    var name: String,
+    var color: Int
 )

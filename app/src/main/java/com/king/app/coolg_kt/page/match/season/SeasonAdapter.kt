@@ -46,8 +46,16 @@ class SeasonAdapter: HeadChildBindingAdapter<AdapterSeasonPeriodBinding, Adapter
         binding.ivDelete.setOnClickListener { onActionListener?.onDeleteItem(position, bean) }
         binding.ivEdit.setOnClickListener { onActionListener?.onEditItem(position, bean) }
         binding.tvIndex.text = "W${bean.bean.orderInPeriod}"
-        binding.tvDate.text = FormatUtil.formatDate(bean.bean.date)
-        binding.tvLevel.text = MatchConstants.MATCH_LEVEL[bean.match.level]
+        binding.tvLevel.text = "${MatchConstants.MATCH_LEVEL[bean.match.level]} "
+        val color = when(bean.match.level) {
+            MatchConstants.MATCH_LEVEL_GS -> binding.tvLevel.resources.getColor(R.color.match_level_gs)
+            MatchConstants.MATCH_LEVEL_FINAL -> binding.tvLevel.resources.getColor(R.color.match_level_final)
+            MatchConstants.MATCH_LEVEL_GM1000 -> binding.tvLevel.resources.getColor(R.color.match_level_gm1000)
+            MatchConstants.MATCH_LEVEL_GM500 -> binding.tvLevel.resources.getColor(R.color.match_level_gm500)
+            MatchConstants.MATCH_LEVEL_GM250 -> binding.tvLevel.resources.getColor(R.color.match_level_gm250)
+            else -> binding.tvLevel.resources.getColor(R.color.match_level_low)
+        }
+        binding.tvLevel.setTextColor(color)
     }
 
     interface OnActionListener {

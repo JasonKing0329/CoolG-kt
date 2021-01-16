@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchRankBinding
+import com.king.app.coolg_kt.page.match.RankItem
+import com.king.app.coolg_kt.page.match.score.ScoreActivity
+import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
 
@@ -66,6 +69,19 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     override fun initData() {
         mModel.recordRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Record?>()
+            adapter.onItemListener = object : RankAdapter.OnItemListener<Record?> {
+                override fun onClickScore(bean: RankItem<Record?>) {
+                    bean.bean?.let { record ->
+                        ScoreActivity.startRecordPage(this@RankActivity, record.id!!)
+                    }
+                }
+
+                override fun onClickId(bean: RankItem<Record?>) {
+                    bean.bean?.let { record ->
+                        RecordActivity.startPage(this@RankActivity, record.id!!)
+                    }
+                }
+            }
             adapter.list = it
             mBinding.rvList.adapter = adapter
         })

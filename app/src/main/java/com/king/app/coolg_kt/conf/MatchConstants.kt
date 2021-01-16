@@ -1,13 +1,13 @@
 package com.king.app.coolg_kt.conf
 
-import com.king.app.coolg_kt.model.bean.StandardMatchDraw
-
 /**
  * @description:
  * @author：Jing
  * @date: 2021/1/9 14:19
  */
 object MatchConstants {
+    
+    val MAX_ORDER_IN_PERIOD = 46
 
     val DRAW_QUALIFY = 0
     val DRAW_MAIN = 1
@@ -37,14 +37,6 @@ object MatchConstants {
         "GM500",
         "GM250",
         "LOW"
-    )
-
-    val MATCH_LEVEL_DRAW_STD = arrayOf(
-        StandardMatchDraw(128, 0, 32),
-        StandardMatchDraw(8, 0, 0),
-        StandardMatchDraw(64, 8, 8),
-        StandardMatchDraw(32, 4, 8),
-        StandardMatchDraw(32, 4, 8)
     )
 
     val ROUND_ID_128 = 1
@@ -97,6 +89,23 @@ object MatchConstants {
         RoundPack(ROUND_ID_Q2, "Q2", "Q2"),
         RoundPack(ROUND_ID_Q3, "Q3", "Q3")
     )
+
+    fun roundResultShort(id: Int, isWinner: Boolean): String {
+        return when(id) {
+            ROUND_ID_128 -> "R128"
+            ROUND_ID_64 -> "R64"
+            ROUND_ID_32 -> "R32"
+            ROUND_ID_16 -> "R16"
+            ROUND_ID_QF -> "QF"
+            ROUND_ID_SF -> "SF"
+            ROUND_ID_F -> if (isWinner) "Win" else "F"
+            ROUND_ID_GROUP -> "RR"
+            ROUND_ID_Q1 -> "Q1"
+            ROUND_ID_Q2 -> "Q2"
+            ROUND_ID_Q3 -> "Q3"
+            else -> ""
+        }
+    }
 
 }
 

@@ -272,11 +272,8 @@ class DrawRepository: BaseRepository() {
 
     fun createScore(match: MatchPeriodWrap): Observable<Boolean> {
         return Observable.create {
-            var samePeriodMatches = getSamePeriodMatches(match.bean.period, match.bean.orderInPeriod)
-            samePeriodMatches.forEach { match ->
-                getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.id)
-                getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.id)
-            }
+            getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
+            getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
 
             var plan = when(match.match.level) {
                 MatchConstants.MATCH_LEVEL_GS -> GrandSlamScorePlan(match)
@@ -357,6 +354,11 @@ class DrawRepository: BaseRepository() {
             getDatabase().getMatchDao().insertMatchScoreRecords(recordScores)
             getDatabase().getMatchDao().insertMatchScoreStars(starScores)
             getDatabase().getMatchDao().updateMatchScoreStars(starScores)
+
+            // 更新match_period表
+            match.bean.isScoreCreated = true
+            getDatabase().getMatchDao().updateMatchPeriod(match.bean)
+
             it.onNext(true)
             it.onComplete()
         }

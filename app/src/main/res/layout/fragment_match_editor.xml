@@ -53,6 +53,7 @@
                 android:text="Draws"/>
             <EditText
                 android:id="@+id/et_draw"
+                android:inputType="number"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"/>
             <TextView
@@ -62,6 +63,7 @@
                 android:layout_marginLeft="8dp"/>
             <EditText
                 android:id="@+id/et_bye_draw"
+                android:inputType="number"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"/>
             <TextView
@@ -87,6 +89,7 @@
                 android:id="@+id/et_wildcard"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:inputType="number"
                 android:text="0"/>
         </LinearLayout>
 

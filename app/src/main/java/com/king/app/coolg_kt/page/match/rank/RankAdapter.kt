@@ -16,6 +16,8 @@ import com.king.app.gdb.data.entity.Star
  */
 class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>() {
 
+    var onItemListener: OnItemListener<T>? = null
+
     override fun onCreateBind(inflater: LayoutInflater, parent: ViewGroup): AdapterMatchRankBinding = AdapterMatchRankBinding.inflate(inflater, parent, false)
 
     override fun onBindItem(binding: AdapterMatchRankBinding, position: Int, bean: RankItem<T>) {
@@ -31,5 +33,14 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
             ImageBindingAdapter.setRecordUrl(binding.ivHead, bean.imageUrl)
         }
         binding.tvChange.visibility = if (bean.change.isEmpty()) View.GONE else View.VISIBLE
+
+        binding.tvName.setOnClickListener { onItemListener?.onClickId(bean) }
+        binding.tvScore.setOnClickListener { onItemListener?.onClickScore(bean) }
+        binding.tvMatchCount.setOnClickListener { onItemListener?.onClickScore(bean) }
+    }
+
+    interface OnItemListener<T> {
+        fun onClickScore(bean: RankItem<T>)
+        fun onClickId(bean: RankItem<T>)
     }
 }

@@ -1,12 +1,11 @@
 package com.king.app.gdb.data.relation
 
 import androidx.room.Embedded
+import androidx.room.Junction
 import androidx.room.Relation
+import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchItem
-import com.king.app.gdb.data.entity.match.MatchPeriod
-import com.king.app.gdb.data.entity.match.MatchRecord
+import com.king.app.gdb.data.entity.match.*
 
 /**
  * @description:
@@ -45,16 +44,17 @@ data class MatchItemWrap (
     var recordList: List<MatchRecord>
 
 )
-//data class MatchRankRecordWrap (
-//
-//    @Embedded
-//    var bean: MatchRankRecord,
-//
-//    @Relation(parentColumn = "recordId",
-//        entityColumn = "_id")
-//    var star: Record
-//
-//)
+data class MatchScoreRecordWrap (
+
+    @Embedded
+    var bean: MatchScoreRecord,
+
+    var matchRealId: Long,
+
+    @Relation(parentColumn = "matchItemId",
+        entityColumn = "id")
+    var matchItem: MatchItem
+)
 //data class MatchRankStarWrap (
 //
 //    @Embedded

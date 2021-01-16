@@ -6,6 +6,7 @@ import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
+import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 
 /**
  * @description:
@@ -191,5 +192,11 @@ interface MatchDao {
 
     @Query("select count(*) from match_rank_star where matchId=:matchPeriodId")
     fun countStarRankItems(matchPeriodId: Long): Int
+
+    @Query("select msr.*, m.id as matchRealId from match_score_record msr join match_period mp on msr.matchId=mp.id join 'match' m on mp.matchId=m.id where ((mp.period=:startPeriod and mp.orderInPeriod>=:startPIO) or (mp.period=:endPeriod and mp.orderInPeriod<=:endPIO)) and msr.recordId=:recordId order by m.level")
+    fun getRecordScoresInPeriod(recordId: Long, startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<MatchScoreRecordWrap>
+
+    @Query("select mrr.* from match_rank_record mrr join match_period mp on mrr.matchId=mp.id where mrr.recordId=:recordId and mp.period=:period and mp.orderInPeriod=:orderInPeriod")
+    fun getRecordRank(recordId: Long, period: Int, orderInPeriod: Int): MatchRankRecord?
 
 }

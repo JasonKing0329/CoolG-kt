@@ -1,8 +1,10 @@
 package com.king.app.coolg_kt.model.repository
 
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.MatchRankRecord
+import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -63,7 +65,7 @@ class RankRepository: BaseRepository() {
     /**
      * 确认当前排名的积分周期
      */
-    private fun getRankPeriodPack(): PeriodPack {
+    fun getRankPeriodPack(): PeriodPack {
         var bean = PeriodPack()
         var last = getDatabase().getMatchDao().getLastMatchPeriod()
         last?.let { period ->
@@ -89,7 +91,7 @@ class RankRepository: BaseRepository() {
     /**
      * 确认RaceToFinal的积分周期
      */
-    private fun getRTFPeriodPack(): PeriodPack {
+    fun getRTFPeriodPack(): PeriodPack {
         var bean = PeriodPack()
         var last = getDatabase().getMatchDao().getLastMatchPeriod()
         last?.let { period ->
@@ -132,4 +134,14 @@ class RankRepository: BaseRepository() {
             getDatabase().getMatchDao().insertMatchRankRecords(rankList)
         }
     }
+
+    fun getRecordRankPeriodScores(recordId: Long): List<MatchScoreRecordWrap> {
+        var pack = getRankPeriodPack()
+        return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
+    }
+
+    fun getRecordPeriodScores(recordId: Long, period: Int): List<MatchScoreRecordWrap> {
+        return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, period, 0, period, MatchConstants.MAX_ORDER_IN_PERIOD)
+    }
+
 }

@@ -292,5 +292,6 @@
     <dimen name="video_item_action_padding">3dp</dimen>
     <dimen name="text_8">8dp</dimen>
     <dimen name="draw_index_width">30dp</dimen>
+    <dimen name="h2h_item_text">12dp</dimen>
 
 </resources>

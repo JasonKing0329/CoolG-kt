@@ -106,10 +106,12 @@ class DrawAdapter: BaseBindingAdapter<AdapterMatchRecordBinding, DrawItem>() {
             onDrawListener?.onPlayerWin(position, bean, bean.matchRecord2)
             true
         }
+        binding.tvH2h.setOnClickListener { onDrawListener?.onClickH2H(position, bean) }
     }
 
     interface OnDrawListener {
         fun onClickPlayer(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?)
         fun onPlayerWin(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?)
+        fun onClickH2H(position: Int, drawItem: DrawItem)
     }
 }

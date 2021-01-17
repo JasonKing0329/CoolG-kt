@@ -4,6 +4,7 @@ import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
+import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
 /**
@@ -64,4 +65,13 @@ data class RoadBean (
     var rank: String,
     var imageUrl: String? = null,
     var seed: String? = null
+)
+data class H2hItem (
+    var bgColor: Int,
+    var matchItem: MatchItemWrap,
+    var index: String,
+    var level: String,
+    var matchName: String,
+    var round: String,
+    var winner: String
 )

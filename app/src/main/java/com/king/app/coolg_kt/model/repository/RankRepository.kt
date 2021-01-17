@@ -144,4 +144,13 @@ class RankRepository: BaseRepository() {
         return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, period, 0, period, MatchConstants.MAX_ORDER_IN_PERIOD)
     }
 
+    fun getRecordCurrentRank(recordId: Long): Int {
+        var pack = getRankPeriodPack()
+        pack.matchPeriod?.let {
+            val rankItem = getDatabase().getMatchDao().getRecordRank(recordId, it.period, it.orderInPeriod)
+            rankItem?.let { item -> return item.rank }
+        }
+        return -1
+    }
+
 }

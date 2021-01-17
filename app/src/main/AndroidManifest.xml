@@ -82,6 +82,7 @@
         <activity android:name=".page.match.draw.DrawActivity"/>
         <activity android:name=".page.match.rank.RankActivity"/>
         <activity android:name=".page.match.score.ScoreActivity"/>
+        <activity android:name=".page.match.h2h.H2hActivity"/>
 
         <activity android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

@@ -18,6 +18,7 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.h2h.H2hActivity
 import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
@@ -146,6 +147,12 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                     drawItem.winner = bean
                     drawItem.isChanged = true
                     adapter.notifyItemChanged(position)
+                }
+            }
+
+            override fun onClickH2H(position: Int, drawItem: DrawItem) {
+                kotlin.runCatching {
+                    H2hActivity.startH2hPage(this@DrawActivity, drawItem.matchRecord1!!.bean.recordId, drawItem.matchRecord2!!.bean.recordId)
                 }
             }
         }

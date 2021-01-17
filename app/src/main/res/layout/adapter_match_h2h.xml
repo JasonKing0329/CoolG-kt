@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.H2hItem" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="@color/h2h_bg_more">
+
+        <TextView
+            android:id="@+id/tv_index"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/white"
+            android:text="@{bean.index}"
+            android:textSize="@dimen/h2h_item_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="P1-W45" />
+
+        <TextView
+            android:id="@+id/tv_level"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@{bean.level}"
+            android:textSize="@dimen/h2h_item_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_index"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Grand Slam" />
+
+        <TextView
+            android:id="@+id/tv_match"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@{bean.matchName}"
+            android:textSize="@dimen/h2h_item_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_level"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Lucas Entertainment" />
+
+        <TextView
+            android:id="@+id/tv_round"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@{bean.round}"
+            android:textSize="@dimen/h2h_item_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_match"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="R128" />
+
+        <TextView
+            android:id="@+id/tv_winner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            android:text="@{bean.winner}"
+            android:textSize="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_round"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Winner" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

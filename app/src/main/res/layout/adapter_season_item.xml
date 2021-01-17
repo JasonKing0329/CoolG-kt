@@ -75,15 +75,14 @@
             android:id="@+id/tv_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:text="Score √"
             android:textColor="@color/red_f1303d"
-            android:textSize="14dp"
+            android:textSize="10dp"
             android:visibility="@{bean.bean.scoreCreated ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tv_level"
-            app:layout_constraintTop_toBottomOf="@+id/tv_match" />
+            android:layout_marginBottom="3dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_level"
+            app:layout_constraintStart_toEndOf="@+id/tv_level" />
 
         <TextView
             android:id="@+id/tv_rank"
@@ -92,7 +91,7 @@
             android:layout_marginStart="16dp"
             android:text="Rank √"
             android:textColor="@color/red_f1303d"
-            android:textSize="14dp"
+            android:textSize="10dp"
             android:visibility="@{bean.bean.rankCreated ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toEndOf="@+id/tv_score"
             app:layout_constraintTop_toTopOf="@+id/tv_score" />

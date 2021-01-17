@@ -139,6 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="@{model.player1Rank}"
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="@+id/iv_record1"
             app:layout_constraintStart_toEndOf="@+id/iv_record1"
             tools:text="r1084" />
@@ -149,6 +150,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="@{model.player2Rank}"
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="@+id/iv_record2"
             app:layout_constraintEnd_toStartOf="@+id/iv_record2"
             tools:text="r1558" />

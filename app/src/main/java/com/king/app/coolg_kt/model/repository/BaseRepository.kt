@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.model.repository
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.PeriodPack
+import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.gdb.data.AppDatabase
 import com.king.app.gdb.data.entity.match.MatchPeriod
 
@@ -78,4 +79,23 @@ abstract class BaseRepository {
         return bean
     }
 
+    fun getNextPeriod(showPeriod: ShowPeriod): ShowPeriod {
+        var period = showPeriod.period
+        var orderInPeriod = showPeriod.orderInPeriod + 1
+        if (orderInPeriod > MatchConstants.MAX_ORDER_IN_PERIOD) {
+            period += 1
+            orderInPeriod = 1
+        }
+        return ShowPeriod(period, orderInPeriod)
+    }
+
+    fun getLastPeriod(showPeriod: ShowPeriod): ShowPeriod {
+        var period = showPeriod.period
+        var orderInPeriod = showPeriod.orderInPeriod - 1
+        if (orderInPeriod == 0) {
+            period -= 1
+            orderInPeriod = MatchConstants.MAX_ORDER_IN_PERIOD
+        }
+        return ShowPeriod(period, orderInPeriod)
+    }
 }

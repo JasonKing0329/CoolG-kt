@@ -37,24 +37,12 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     override fun createViewModel(): RankViewModel = generateViewModel(RankViewModel::class.java)
 
     override fun initView() {
+        mBinding.model = mModel
+
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
                 R.id.menu_create_rank -> createRank()
-            }
-        }
-        mBinding.spType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                when(position) {
-                    0 -> mModel.loadRecordRankPeriod()
-                    1 -> mModel.loadRecordRaceToFinal()
-                    2 -> mModel.loadStarRankPeriod()
-                    3 -> mModel.loadStarRaceToFinal()
-                }
             }
         }
 
@@ -70,6 +58,19 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                 outRect.bottom = 0
             }
         })
+
+        mBinding.tvPeriod.setOnClickListener {
+            mBinding.tvPeriod.isSelected = true
+            mBinding.tvRtf.isSelected = false
+            mModel.onPeriodOrRtfChanged(0)
+        }
+        mBinding.tvRtf.setOnClickListener {
+            mBinding.tvPeriod.isSelected = false
+            mBinding.tvRtf.isSelected = true
+            mModel.onPeriodOrRtfChanged(1)
+        }
+        mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
+        mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
     }
 
     /**
@@ -80,8 +81,8 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     <item>Star-RTF</item>
      */
     private fun createRank() {
-        when(mBinding.spType.selectedItemPosition) {
-            0 -> {
+        when {
+            mModel.periodOrRtf == 0 && mModel.recordOrStar == 0 -> {
                 if (mModel.isLastRecordRankCreated()) {
                     showConfirmCancelMessage("Record ranks of last week have been already created, do you want to override it?",
                         DialogInterface.OnClickListener { dialog, which -> mModel.createRankRecord() },
@@ -91,8 +92,8 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                     mModel.createRankRecord()
                 }
             }
-            1 -> showMessageShort("Create record ranks can only be executed in Record-Period!")
-            2 -> {
+            mModel.periodOrRtf == 1 && mModel.recordOrStar == 0 -> showMessageShort("Create record ranks can only be executed in Record-Period!")
+            mModel.periodOrRtf == 0 && mModel.recordOrStar == 1 -> {
                 if (mModel.isLastStarRankCreated()) {
                     showConfirmCancelMessage("Star Ranks of last week have been already created, do you want to override it?",
                         DialogInterface.OnClickListener { dialog, which -> mModel.createRankStar() },
@@ -102,7 +103,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                     mModel.createRankStar()
                 }
             }
-            3 -> showMessageShort("Create star ranks can only be executed in Star-Period!")
+            mModel.periodOrRtf == 1 && mModel.recordOrStar == 0 -> showMessageShort("Create star ranks can only be executed in Star-Period!")
         }
     }
 
@@ -130,5 +131,17 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             adapter.list = it
             mBinding.rvList.adapter = adapter
         })
+
+        mBinding.tvPeriod.isSelected = true
+        // spinner会自动触发onItemSelected 0
+        mBinding.spType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                mModel.onRecordOrStarChanged(position)
+            }
+        }
     }
 }

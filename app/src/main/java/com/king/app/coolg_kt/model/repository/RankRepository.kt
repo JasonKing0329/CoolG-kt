@@ -63,6 +63,28 @@ class RankRepository: BaseRepository() {
     /**
      * 从match_rank_record表中获取排名、积分、数量
      */
+    fun getSpecificPeriodRecordRanks(period: Int, orderInPeriod: Int): Observable<List<MatchRankRecordWrap>> {
+        return Observable.create {
+            var result = getDatabase().getMatchDao().getMatchRankRecordsBy(period, orderInPeriod)
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    /**
+     * 从match_rank_star表中获取排名、积分、数量
+     */
+    fun getSpecificPeriodStarRanks(period: Int, orderInPeriod: Int): Observable<List<MatchRankStarWrap>> {
+        return Observable.create {
+            var result = getDatabase().getMatchDao().getMatchRankStarsBy(period, orderInPeriod)
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    /**
+     * 从match_rank_record表中获取排名、积分、数量
+     */
     fun getRankPeriodRecordRanks(): Observable<List<MatchRankRecordWrap>> {
         return Observable.create {
             val pack = getRankPeriodPack()

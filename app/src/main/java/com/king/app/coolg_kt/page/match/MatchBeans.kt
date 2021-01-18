@@ -75,3 +75,8 @@ data class H2hItem (
     var round: String,
     var winner: String
 )
+
+data class ShowPeriod(
+    var period: Int,
+    var orderInPeriod: Int
+)

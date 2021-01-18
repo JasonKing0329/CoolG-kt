@@ -2,6 +2,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.rank.RankViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -29,12 +36,39 @@
 
         <Spinner
             android:id="@+id/sp_type"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:entries="@array/rank_type"
-            app:layout_constraintTop_toBottomOf="@+id/actionbar"/>
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_period"
+            android:layout_width="70dp"
+            android:layout_height="@dimen/tag_height"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/selector_studio_tag_bg"
+            android:gravity="center"
+            android:text="Period"
+            android:textColor="@drawable/selector_studio_tag_text"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_type"
+            app:layout_constraintEnd_toStartOf="@+id/tv_rtf"
+            app:layout_constraintTop_toTopOf="@+id/sp_type" />
+
+        <TextView
+            android:id="@+id/tv_rtf"
+            android:layout_width="50dp"
+            android:layout_height="@dimen/tag_height"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/selector_studio_tag_bg"
+            android:gravity="center"
+            android:text="RTF"
+            android:textColor="@drawable/selector_studio_tag_text"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/sp_type" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
@@ -45,6 +79,40 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sp_type"
             tools:listitem="@layout/adapter_match_rank"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="@{model.periodGroupVisibility}"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_type"
+            app:layout_constraintTop_toTopOf="@+id/sp_type"
+            app:layout_constraintEnd_toStartOf="@id/tv_period">
+            <ImageView
+                android:id="@+id/iv_previous"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:visibility="@{model.periodLastVisibility}"
+                android:padding="6dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_chevron_left_black_36dp" />
+            <TextView
+                android:id="@+id/tv_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="@{model.periodText}"
+                tools:text="P1-W46"/>
+            <ImageView
+                android:id="@+id/iv_next"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:visibility="@{model.periodNextVisibility}"
+                android:padding="6dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_chevron_right_black_24dp" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

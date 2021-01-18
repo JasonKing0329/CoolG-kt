@@ -131,6 +131,11 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
         PlayOrderActivity.startPageToSelect(this, REQUEST_VIDEO_ORDER)
     }
 
+    override fun onSearch(text: String) {
+        mModel.mKeyword = text
+        mModel.refresh()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_VIDEO_ORDER) {

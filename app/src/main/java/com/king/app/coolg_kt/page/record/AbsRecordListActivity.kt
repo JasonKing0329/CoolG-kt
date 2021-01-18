@@ -69,7 +69,10 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
             actionbar.updateMenuItemVisible(R.id.menu_tag_sort_mode, false)
             actionbar.updateMenuItemVisible(R.id.menu_tag_type, false)
         }
+        actionbar.setOnSearchListener { onSearch(it) }
     }
+
+    protected abstract fun onSearch(text: String);
 
     open fun onClickRecord(view: View, position: Int, data: RecordWrap) {
         goToRecordPage(data.bean)

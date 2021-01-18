@@ -309,7 +309,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
         // next
         val next = rankRepository.getNextPeriod(showPeriod)
-        if (next.period == currentPeriod.period && currentPeriod.orderInPeriod == currentPeriod.orderInPeriod ||
+        if (next.period == currentPeriod.period && next.orderInPeriod == currentPeriod.orderInPeriod ||
             getDatabase().getMatchDao().countRecordRankItems(next.period, next.orderInPeriod) > 0) {
             periodNextVisibility.set(View.VISIBLE)
         }
@@ -320,26 +320,17 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     private fun checkStarLastNext() {
         // last
-        var period = showPeriod.period
-        var orderInPeriod = showPeriod.orderInPeriod - 1
-        if (orderInPeriod == 0) {
-            period -= 1
-            orderInPeriod = MatchConstants.MAX_ORDER_IN_PERIOD
-        }
-        if (period > 0 && getDatabase().getMatchDao().countStarRankItems(period, orderInPeriod) > 0) {
+        var last = rankRepository.getLastPeriod(showPeriod)
+        if (last.period > 0 && getDatabase().getMatchDao().countStarRankItems(last.period, last.orderInPeriod) > 0) {
             periodLastVisibility.set(View.VISIBLE)
         }
         else {
             periodLastVisibility.set(View.INVISIBLE)
         }
         // next
-        period = showPeriod.period
-        orderInPeriod = showPeriod.orderInPeriod + 1
-        if (orderInPeriod > MatchConstants.MAX_ORDER_IN_PERIOD) {
-            period += 1
-            orderInPeriod = 1
-        }
-        if (getDatabase().getMatchDao().countStarRankItems(period, orderInPeriod) > 0) {
+        var next = rankRepository.getNextPeriod(showPeriod)
+        if (next.period == currentPeriod.period && next.orderInPeriod == currentPeriod.orderInPeriod ||
+            getDatabase().getMatchDao().countStarRankItems(next.period, next.orderInPeriod) > 0) {
             periodNextVisibility.set(View.VISIBLE)
         }
         else {

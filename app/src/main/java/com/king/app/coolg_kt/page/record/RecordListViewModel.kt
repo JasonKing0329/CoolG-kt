@@ -47,7 +47,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     private var mSortMode = 0
     private var mSortDesc = false
     private var mKeyScene: String? = null
-    private val mKeyword: String? = null
+    var mKeyword: String? = null
     private val mStarId: Long = 0
     var mOrderId: Long = 0
     private val mRecordType: Int = 0
@@ -221,6 +221,10 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     fun newRecordCursor() {
         moreCursor = RecordCursor()
         moreCursor.number = DEFAULT_LOAD_MORE
+    }
+
+    fun refresh() {
+        loadRecordsByTag()
     }
 
     fun loadRecordsByTag() {

@@ -18,6 +18,7 @@
             app:maxShowIcon="5"
             app:showIconBack="true"
             app:menu="@menu/tag_records"
+            app:supportSearch="true"
             app:iconColor="@color/actionbar_element"
             app:titleColor="@color/actionbar_element"
             app:actionTextColor="@color/actionbar_element"/>

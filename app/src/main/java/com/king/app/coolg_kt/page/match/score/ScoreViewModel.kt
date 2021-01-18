@@ -24,7 +24,7 @@ import io.reactivex.rxjava3.core.Observable
 class ScoreViewModel(application: Application): BaseViewModel(application) {
 
     var scoresObserver = MutableLiveData<List<Any>>()
-    var rankRepository = RankRepository()
+    private var rankRepository = RankRepository()
 
     var recordImageUrl = ObservableField<String>()
     var scoreText = ObservableField<String>()
@@ -77,8 +77,8 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 nameText.set(wrap.bean.name)
                 var rankTxt: String? = null
                 wrap.countRecord?.let { countRecord ->
-                    var periodPack = rankRepository.getRankPeriodPack()
-                    periodPack.matchPeriod?.let { mp ->
+                    var rankMatchPeriod = rankRepository.getRankPeriodToDraw()
+                    rankMatchPeriod?.let { mp ->
                         val rankBean = getDatabase().getMatchDao().getRecordRank(wrap.bean.id!!, mp.period, mp.orderInPeriod)
                         rankBean?.let { rank ->
                             rankTxt = "${rank.rank} (R-${countRecord.rank})"

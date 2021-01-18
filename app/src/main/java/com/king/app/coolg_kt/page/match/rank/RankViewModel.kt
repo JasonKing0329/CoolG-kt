@@ -7,9 +7,15 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.RankItem
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
+import com.king.app.gdb.data.entity.match.MatchRankRecord
+import com.king.app.gdb.data.entity.match.MatchRankStar
+import com.king.app.gdb.data.relation.MatchRankRecordWrap
+import com.king.app.gdb.data.relation.MatchRankStarWrap
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 
 /**
@@ -22,21 +28,19 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var recordRanksObserver = MutableLiveData<List<RankItem<Record?>>>()
     var starRanksObserver = MutableLiveData<List<RankItem<Star?>>>()
 
-    var rankRepository = RankRepository()
+    private var rankRepository = RankRepository()
 
-//    fun recordRankPeriodRx(): Observable<List<RankItem<Record?>>> {
-//        if (rankRepository.isRecordRankCreated()) {
-//
-//        }
-//        else {
-//            return rankRepository.getRankPeriodRecordScores()
-//                .flatMap { toRecordList(it) }
-//        }
-//    }
+    fun isLastRecordRankCreated(): Boolean {
+        return rankRepository.isRecordRankCreated()
+    }
+
+    fun isLastStarRankCreated(): Boolean {
+        return rankRepository.isStarRankCreated()
+    }
 
     fun loadRecordRankPeriod() {
         loadingObserver.value = true
-        rankRepository.getRankPeriodRecordScores()
+        recordRankPeriodRx()
             .flatMap { toRecordList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Record?>>>(getComposite()) {
@@ -53,9 +57,27 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    private fun recordRankPeriodRx(): Observable<List<MatchRankRecordWrap>> {
+        // 从match_rank_record表中查询
+        return if (rankRepository.isRecordRankCreated()) {
+            DebugLog.e("record rank from table")
+            rankRepository.getRankPeriodRecordRanks()
+        }
+        // 实时统计积分排名
+        else {
+            DebugLog.e("record rank from score")
+            rankRepository.getRankPeriodRecordScores()
+                .flatMap { toMatchRankRecords(it) }
+        }
+    }
+
+    /**
+     * race to final肯定实时统计，不做数据表存储
+     */
     fun loadRecordRaceToFinal() {
         loadingObserver.value = true
         rankRepository.getRTFRecordScores()
+            .flatMap { toMatchRankRecords(it) }
             .flatMap { toRecordList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Record?>>>(getComposite()) {
@@ -74,7 +96,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     fun loadStarRankPeriod() {
         loadingObserver.value = true
-        rankRepository.getRankPeriodStarScores()
+        starRankPeriodRx()
             .flatMap { toStarList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Star?>>>(getComposite()) {
@@ -91,9 +113,27 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    private fun starRankPeriodRx(): Observable<List<MatchRankStarWrap>> {
+        // 从match_rank_record表中查询
+        return if (rankRepository.isStarRankCreated()) {
+            DebugLog.e("record rank from table")
+            rankRepository.getRankPeriodStarRanks()
+        }
+        // 实时统计积分排名
+        else {
+            DebugLog.e("record rank from score")
+            rankRepository.getRankPeriodStarScores()
+                .flatMap { toMatchRankStars(it) }
+        }
+    }
+
+    /**
+     * race to final肯定实时统计，不做数据表存储
+     */
     fun loadStarRaceToFinal() {
         loadingObserver.value = true
         rankRepository.getRTFStarScores()
+            .flatMap { toMatchRankStars(it) }
             .flatMap { toStarList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Star?>>>(getComposite()) {
@@ -110,28 +150,28 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-//    private fun toRankRecordList(list: List<MatchRankRecordWrap>): ObservableSource<List<RankItem<Record?>>> {
-//        return ObservableSource {
-//            var result = mutableListOf<RankItem<Record?>>()
-//            list.forEachIndexed { index, bean ->
-//                var url = ImageProvider.getRecordRandomPath(record?.name, null)
-//                var item = RankItem(bean.re, scoreCount.id, (index + 1).toString(), ""
-//                    , url, record?.name, scoreCount.score.toString(), scoreCount.matchCount.toString())
-//                result.add(item)
-//            }
-//            it.onNext(result)
-//            it.onComplete()
-//        }
-//    }
-
-    private fun toRecordList(list: List<ScoreCount>): ObservableSource<List<RankItem<Record?>>> {
+    private fun toMatchRankRecords(list: List<ScoreCount>): ObservableSource<List<MatchRankRecordWrap>> {
         return ObservableSource {
-            var result = mutableListOf<RankItem<Record?>>()
+            var result = mutableListOf<MatchRankRecordWrap>()
             list.forEachIndexed { index, scoreCount ->
                 var record = getDatabase().getRecordDao().getRecordBasic(scoreCount.id)
-                var url = ImageProvider.getRecordRandomPath(record?.name, null)
-                var item = RankItem(record, scoreCount.id, (index + 1).toString(), ""
-                    , url, record?.name, scoreCount.score.toString(), scoreCount.matchCount.toString())
+                result.add(MatchRankRecordWrap(
+                    MatchRankRecord(0, 0, 0,
+                    scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount), record
+                ))
+            }
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    private fun toRecordList(list: List<MatchRankRecordWrap>): ObservableSource<List<RankItem<Record?>>> {
+        return ObservableSource {
+            var result = mutableListOf<RankItem<Record?>>()
+            list.forEach { bean ->
+                var url = ImageProvider.getRecordRandomPath(bean.record?.name, null)
+                var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
+                    , url, bean.record?.name, bean.bean.score, bean.bean.matchCount)
                 result.add(item)
             }
             it.onNext(result)
@@ -139,17 +179,95 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    private fun toStarList(list: List<ScoreCount>): ObservableSource<List<RankItem<Star?>>> {
+    private fun toMatchRankStars(list: List<ScoreCount>): ObservableSource<List<MatchRankStarWrap>> {
         return ObservableSource {
-            var result = mutableListOf<RankItem<Star?>>()
+            var result = mutableListOf<MatchRankStarWrap>()
             list.forEachIndexed { index, scoreCount ->
                 var star = getDatabase().getStarDao().getStar(scoreCount.id)
-                var url = ImageProvider.getStarRandomPath(star?.name, null)
-                var item = RankItem(star, scoreCount.id, (index + 1).toString(), ""
-                    , url, star?.name, scoreCount.score.toString(), scoreCount.matchCount.toString())
+                result.add(MatchRankStarWrap(
+                    MatchRankStar(0, 0, 0,
+                        scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount), star
+                ))
+            }
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    private fun toStarList(list: List<MatchRankStarWrap>): ObservableSource<List<RankItem<Star?>>> {
+        return ObservableSource {
+            var result = mutableListOf<RankItem<Star?>>()
+            list.forEach { bean ->
+                var url = ImageProvider.getStarRandomPath(bean.star?.name, null)
+                var item = RankItem(bean.star, bean.bean.starId, bean.bean.rank, ""
+                    , url, bean.star?.name, bean.bean.score, bean.bean.matchCount)
                 result.add(item)
             }
             it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    fun createRankRecord() {
+        insertRankRecordList()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    messageObserver.value = "success"
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
+    }
+
+    fun createRankStar() {
+        insertRankStarList()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    messageObserver.value = "success"
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
+    }
+
+    private fun insertRankRecordList(): Observable<Boolean> {
+        return Observable.create {
+            rankRepository.getRankPeriodPack().matchPeriod?.let { matchPeriod ->
+                getDatabase().getMatchDao().deleteMatchRankRecords(matchPeriod.period, matchPeriod.orderInPeriod)
+                var insertList = mutableListOf<MatchRankRecord>()
+                recordRanksObserver.value?.forEachIndexed { index, rankItem ->
+                    val bean = MatchRankRecord(0, matchPeriod.period, matchPeriod.orderInPeriod,
+                        rankItem.id, index + 1, rankItem.score, rankItem.matchCount)
+                    insertList.add(bean)
+                }
+                getDatabase().getMatchDao().insertMatchRankRecords(insertList)
+            }
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
+
+    private fun insertRankStarList(): Observable<Boolean> {
+        return Observable.create {
+            rankRepository.getRankPeriodPack().matchPeriod?.let { matchPeriod ->
+                getDatabase().getMatchDao().deleteMatchRankStars(matchPeriod.period, matchPeriod.orderInPeriod)
+                var insertList = mutableListOf<MatchRankStar>()
+                starRanksObserver.value?.forEachIndexed { index, rankItem ->
+                    val bean = MatchRankStar(0, matchPeriod.period, matchPeriod.orderInPeriod,
+                        rankItem.id, index + 1, rankItem.score, rankItem.matchCount)
+                    insertList.add(bean)
+                }
+                getDatabase().getMatchDao().insertMatchRankStars(insertList)
+            }
+            it.onNext(true)
             it.onComplete()
         }
     }

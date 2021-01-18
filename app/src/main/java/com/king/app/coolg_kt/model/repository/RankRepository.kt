@@ -4,6 +4,8 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.MatchRankRecord
+import com.king.app.gdb.data.relation.MatchRankRecordWrap
+import com.king.app.gdb.data.relation.MatchRankStarWrap
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 import io.reactivex.rxjava3.core.Observable
 
@@ -14,14 +16,10 @@ import io.reactivex.rxjava3.core.Observable
  */
 class RankRepository: BaseRepository() {
 
-    fun createRank() {
-
-    }
-
     fun isRecordRankCreated(): Boolean {
         var pack = getRankPeriodPack()
         pack.matchPeriod?.let {
-            return getDatabase().getMatchDao().countRecordRankItems(it.id) > 0
+            return getDatabase().getMatchDao().countRecordRankItems(it.period, it.orderInPeriod) > 0
         }
         return false
     }
@@ -29,7 +27,7 @@ class RankRepository: BaseRepository() {
     fun isStarRankCreated(): Boolean {
         var pack = getRankPeriodPack()
         pack.matchPeriod?.let {
-            return getDatabase().getMatchDao().countStarRankItems(it.id) > 0
+            return getDatabase().getMatchDao().countStarRankItems(it.period, it.orderInPeriod) > 0
         }
         return false
     }
@@ -63,45 +61,33 @@ class RankRepository: BaseRepository() {
     }
 
     /**
-     * 确认当前排名的积分周期
+     * 从match_rank_record表中获取排名、积分、数量
      */
-    fun getRankPeriodPack(): PeriodPack {
-        var bean = PeriodPack()
-        var last = getDatabase().getMatchDao().getLastMatchPeriod()
-        last?.let { period ->
-            bean.matchPeriod = period
-            bean.endPeriod = period.period
-            bean.endPIO = period.orderInPeriod
-            // 确认起始站有3种情况
-            // 当前结束的orderInPeriod等于45或46（46为Final）,计分周期为 1 to orderInPeriod
-            // 当前结束的orderInPeriod小于45，计分周期为 last(orderInPeriod + 1) to orderInPeriod
-            bean.startPeriod = 0
-            bean.startPIO = 0
-            if (period.orderInPeriod == 45 || period.orderInPeriod == 46) {
-                bean.startPeriod = period.period
-                bean.startPIO = 1
-            } else {
-                bean.startPeriod = period.period - 1
-                bean.startPIO = period.orderInPeriod + 1
+    fun getRankPeriodRecordRanks(): Observable<List<MatchRankRecordWrap>> {
+        return Observable.create {
+            val pack = getRankPeriodPack()
+            var result = listOf<MatchRankRecordWrap>()
+            pack.matchPeriod?.let { matchPeriod ->
+                result = getDatabase().getMatchDao().getMatchRankRecordsBy(matchPeriod.period, matchPeriod.orderInPeriod)
             }
+            it.onNext(result)
+            it.onComplete()
         }
-        return bean
     }
 
     /**
-     * 确认RaceToFinal的积分周期
+     * 从match_rank_star表中获取排名、积分、数量
      */
-    fun getRTFPeriodPack(): PeriodPack {
-        var bean = PeriodPack()
-        var last = getDatabase().getMatchDao().getLastMatchPeriod()
-        last?.let { period ->
-            bean.matchPeriod = period
-            bean.endPeriod = period.period
-            bean.endPIO = period.orderInPeriod
-            bean.startPeriod = period.period
-            bean.startPIO = 1
+    fun getRankPeriodStarRanks(): Observable<List<MatchRankStarWrap>> {
+        return Observable.create {
+            val pack = getRankPeriodPack()
+            var result = listOf<MatchRankStarWrap>()
+            pack.matchPeriod?.let { matchPeriod ->
+                result = getDatabase().getMatchDao().getMatchRankStarsBy(matchPeriod.period, matchPeriod.orderInPeriod)
+            }
+            it.onNext(result)
+            it.onComplete()
         }
-        return bean
     }
 
     private fun getRecordScoreList(pack: PeriodPack): List<ScoreCount> {
@@ -129,7 +115,7 @@ class RankRepository: BaseRepository() {
 
             var rankList = mutableListOf<MatchRankRecord>()
             countList.forEachIndexed { index, scoreCount ->
-                rankList.add(MatchRankRecord(0, it.id, scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount))
+//                rankList.add(MatchRankRecord(0, it.id, scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount))
             }
             getDatabase().getMatchDao().insertMatchRankRecords(rankList)
         }

@@ -30,12 +30,12 @@ data class DrawCell (
 data class RankItem<T> (
     var bean: T,
     var id: Long,
-    var rank: String,
+    var rank: Int,
     var change: String,
     var imageUrl: String?,
     var name: String?,
-    var score: String,
-    var matchCount: String
+    var score: Int,
+    var matchCount: Int
 )
 
 data class PeriodPack (

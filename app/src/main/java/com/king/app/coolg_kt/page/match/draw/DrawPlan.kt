@@ -549,7 +549,8 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 }
 
 /**
- * Low范围为300以后1200以内条件随机
+ * Low范围为300以后1200(MatchConstants.RANK_LIMIT_MAX)以内条件随机
+ * list已经满足了1200的条件
  */
 class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
@@ -559,7 +560,7 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
 
     override fun prepareSamePeriodMap() {
         super.prepareSamePeriodMap()
-        rangeList = list.filter { it.rank in 301..1200 && !samePeriodMap.contains(it.recordId) }
+        rangeList = list.filter { it.rank>300 && !samePeriodMap.contains(it.recordId) }
             .shuffled()
             .take(total)
             .sortedBy { it.rank }

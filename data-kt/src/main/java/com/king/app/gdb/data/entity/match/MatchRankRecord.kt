@@ -12,7 +12,8 @@ import androidx.room.PrimaryKey
 data class MatchRankRecord (
     @PrimaryKey(autoGenerate = true)
     var id: Long,
-    var matchId: Long,// matchPeriodId
+    var period: Int,
+    var orderInPeriod: Int,
     var recordId: Long,
     var rank: Int,
     var score: Int,

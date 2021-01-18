@@ -124,6 +124,24 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_13_14: Migration = object : Migration(13, 14) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_13_14")
+            database.execSQL(
+                "DROP TABLE `match_rank_record`"
+            )
+            database.execSQL(
+                "DROP TABLE `match_rank_star`"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_rank_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `period` INTEGER NOT NULL, `orderInPeriod` INTEGER NOT NULL, `recordId` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `score` INTEGER NOT NULL, `matchCount` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `match_rank_star` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `period` INTEGER NOT NULL, `orderInPeriod` INTEGER NOT NULL, `starId` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `score` INTEGER NOT NULL, `matchCount` INTEGER NOT NULL)"
+            )
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

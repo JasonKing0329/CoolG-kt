@@ -60,13 +60,15 @@ class DrawRepository: BaseRepository() {
     }
 
     private fun createRankByRecord(): List<RankRecord> {
-        return getDatabase().getRecordDao().getRankRecords()
+        return getDatabase().getRecordDao().getRankRecords(MatchConstants.RANK_LIMIT_MAX)
     }
 
-    fun createRankSystem(): List<RankRecord> {
-        var list = mutableListOf<RankRecord>()
-
-        return list
+    private fun createRankSystem(): List<RankRecord> {
+        val matchPeriod = getRankPeriodToDraw()
+        matchPeriod?.let {
+            return getDatabase().getMatchDao().getRankRecords(MatchConstants.RANK_LIMIT_MAX, it.period, it.orderInPeriod)
+        }
+        return listOf()
     }
 
     private fun createMainDrawByMatch(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {

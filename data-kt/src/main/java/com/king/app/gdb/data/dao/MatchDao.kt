@@ -1,12 +1,10 @@
 package com.king.app.gdb.data.dao
 
 import androidx.room.*
+import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.*
-import com.king.app.gdb.data.relation.MatchItemWrap
-import com.king.app.gdb.data.relation.MatchPeriodWrap
-import com.king.app.gdb.data.relation.MatchRecordWrap
-import com.king.app.gdb.data.relation.MatchScoreRecordWrap
+import com.king.app.gdb.data.relation.*
 
 /**
  * @description:
@@ -64,14 +62,14 @@ interface MatchDao {
     @Query("select * from match_rank_record")
     fun getAllMatchRankRecords(): List<MatchRankRecord>
 
-//    @Query("select * from match_rank_record where matchId=:matchPeriodId")
-//    fun getMatchRankRecordsBy(matchPeriodId: Long): List<MatchRankRecordWrap>
+    @Query("select * from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
+    fun getMatchRankRecordsBy(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap>
 
     @Query("select * from match_rank_star")
     fun getAllMatchRankStars(): List<MatchRankStar>
 
-//    @Query("select * from match_rank_star where matchId=:matchPeriodId")
-//    fun getMatchRankStarsBy(matchPeriodId: Long): List<MatchRankStarWrap>
+    @Query("select * from match_rank_star where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
+    fun getMatchRankStarsBy(period: Int, orderInPeriod: Int): List<MatchRankStarWrap>
 
     @Query("select * from match_score_star")
     fun getAllMatchScoreStars(): List<MatchScoreStar>
@@ -145,8 +143,14 @@ interface MatchDao {
     @Query("delete from match_rank_star")
     fun deleteMatchRankStars()
 
+    @Query("delete from match_rank_star where period=:period and orderInPeriod=:orderInPeriod")
+    fun deleteMatchRankStars(period: Int, orderInPeriod: Int)
+
     @Query("delete from match_rank_record")
     fun deleteMatchRankRecords()
+
+    @Query("delete from match_rank_record where period=:period and orderInPeriod=:orderInPeriod")
+    fun deleteMatchRankRecords(period: Int, orderInPeriod: Int)
 
     @Query("delete from match_score_star")
     fun deleteMatchScoreStars()
@@ -193,16 +197,23 @@ interface MatchDao {
     @Query("select msr.starId as id, sum(msr.score) as score, count(msr.starId) as matchCount from match_score_star msr join match_period mp on msr.matchId=mp.id where (mp.period=:startPeriod and mp.orderInPeriod>=:startPIO or mp.period=:endPeriod and mp.orderInPeriod<=:endPIO) group by msr.starId order by score desc, matchCount asc")
     fun countStarScoreInPeriod(startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<ScoreCount>
 
-    @Query("select count(*) from match_rank_record where matchId=:matchPeriodId")
-    fun countRecordRankItems(matchPeriodId: Long): Int
+    @Query("select count(*) from match_rank_record where period=:period and orderInPeriod=:orderInPeriod")
+    fun countRecordRankItems(period: Int, orderInPeriod: Int): Int
 
-    @Query("select count(*) from match_rank_star where matchId=:matchPeriodId")
-    fun countStarRankItems(matchPeriodId: Long): Int
+    @Query("select count(*) from match_rank_star where period=:period and orderInPeriod=:orderInPeriod")
+    fun countStarRankItems(period: Int, orderInPeriod: Int): Int
 
     @Query("select msr.*, m.id as matchRealId from match_score_record msr join match_period mp on msr.matchId=mp.id join 'match' m on mp.matchId=m.id where ((mp.period=:startPeriod and mp.orderInPeriod>=:startPIO) or (mp.period=:endPeriod and mp.orderInPeriod<=:endPIO)) and msr.recordId=:recordId order by m.level")
     fun getRecordScoresInPeriod(recordId: Long, startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<MatchScoreRecordWrap>
 
-    @Query("select mrr.* from match_rank_record mrr join match_period mp on mrr.matchId=mp.id where mrr.recordId=:recordId and mp.period=:period and mp.orderInPeriod=:orderInPeriod")
+    @Query("select * from match_rank_record where recordId=:recordId and period=:period and orderInPeriod=:orderInPeriod")
     fun getRecordRank(recordId: Long, period: Int, orderInPeriod: Int): MatchRankRecord?
+
+    /**
+     * 从match_rank_record里按排名加载所有入围record
+     * 不在排名体系里的赋值为9999(MatchConstants.RANK_OUT_OF_SYSTEM)，但不在排名体系的record需要满足其在count_record中的排名在rankLimit之内
+     */
+    @Query("select r._id as recordId, (case when mrr.rank>0 then mrr.rank else 9999 end) as rank, 0 as seed from record r left join match_rank_record mrr on r._id=mrr.recordId and period=:period and orderInPeriod=:orderInPeriod join count_record cr on r._id=cr._id where cr.RANK<=:rankLimit order by rank")
+    fun getRankRecords(rankLimit: Int, period: Int, orderInPeriod: Int): List<RankRecord>
 
 }

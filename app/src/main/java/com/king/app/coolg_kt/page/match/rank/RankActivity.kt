@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match.rank
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
@@ -37,6 +38,11 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
     override fun initView() {
         mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnMenuItemListener {
+            when(it) {
+                R.id.menu_create_rank -> createRank()
+            }
+        }
         mBinding.spType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
@@ -64,6 +70,40 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                 outRect.bottom = 0
             }
         })
+    }
+
+    /**
+     *
+    <item>Record-Period</item>
+    <item>Record-RTF</item>
+    <item>Star-Period</item>
+    <item>Star-RTF</item>
+     */
+    private fun createRank() {
+        when(mBinding.spType.selectedItemPosition) {
+            0 -> {
+                if (mModel.isLastRecordRankCreated()) {
+                    showConfirmCancelMessage("Record ranks of last week have been already created, do you want to override it?",
+                        DialogInterface.OnClickListener { dialog, which -> mModel.createRankRecord() },
+                        null)
+                }
+                else {
+                    mModel.createRankRecord()
+                }
+            }
+            1 -> showMessageShort("Create record ranks can only be executed in Record-Period!")
+            2 -> {
+                if (mModel.isLastStarRankCreated()) {
+                    showConfirmCancelMessage("Star Ranks of last week have been already created, do you want to override it?",
+                        DialogInterface.OnClickListener { dialog, which -> mModel.createRankStar() },
+                        null)
+                }
+                else {
+                    mModel.createRankStar()
+                }
+            }
+            3 -> showMessageShort("Create star ranks can only be executed in Star-Period!")
+        }
     }
 
     override fun initData() {

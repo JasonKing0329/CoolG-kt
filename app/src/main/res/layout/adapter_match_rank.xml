@@ -72,7 +72,7 @@
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:text="@{String.valueOf(bean.score)}"
+            android:text="@{String.valueOf(bean.matchCount)}"
             app:layout_constraintStart_toEndOf="@+id/tv_score"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

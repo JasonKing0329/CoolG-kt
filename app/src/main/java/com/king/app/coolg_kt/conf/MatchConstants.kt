@@ -109,6 +109,23 @@ object MatchConstants {
         }
     }
 
+    fun roundFull(id: Int): String {
+        return when(id) {
+            ROUND_ID_128 -> "Round 128"
+            ROUND_ID_64 -> "Round 64"
+            ROUND_ID_32 -> "Round 32"
+            ROUND_ID_16 -> "Round 16"
+            ROUND_ID_QF -> "Quarter Final"
+            ROUND_ID_SF -> "Semi Final"
+            ROUND_ID_F -> "Final"
+            ROUND_ID_GROUP -> "Round Robin"
+            ROUND_ID_Q1 -> "Qualify 1"
+            ROUND_ID_Q2 -> "Qualify 2"
+            ROUND_ID_Q3 -> "Qualify 3"
+            else -> ""
+        }
+    }
+
 }
 
 data class RoundPack(

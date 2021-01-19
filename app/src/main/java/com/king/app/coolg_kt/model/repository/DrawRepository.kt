@@ -6,6 +6,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.match.DrawCell
 import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.FinalDrawData
 import com.king.app.coolg_kt.page.match.draw.*
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.*
@@ -42,6 +43,18 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    fun createFinalDraw(bean: MatchPeriodWrap):Observable<FinalDrawData> {
+        return Observable.create {
+            var rankRecords = createRankSystem()
+            it.onNext(createMasterFinalDraw(bean, rankRecords))
+            it.onComplete()
+        }
+    }
+
+    private fun createMasterFinalDraw(match: MatchPeriodWrap, rankRecords: List<RankRecord>): FinalDrawData {
+        return FinalDrawPlan(rankRecords, match).arrangeMainDraw()
+    }
+
     fun createDraw(bean: MatchPeriodWrap):Observable<DrawData> {
         return Observable.create {
             var drawData = DrawData(bean.bean)
@@ -53,7 +66,7 @@ class DrawRepository: BaseRepository() {
             else {
                 createRankSystem()
             }
-            createMainDrawByMatch(bean, rankRecords, drawData)
+            createNormalMainDraw(bean, rankRecords, drawData)
             it.onNext(drawData)
             it.onComplete()
         }
@@ -69,16 +82,6 @@ class DrawRepository: BaseRepository() {
             return getDatabase().getMatchDao().getRankRecords(MatchConstants.RANK_LIMIT_MAX, it.period, it.orderInPeriod)
         }
         return listOf()
-    }
-
-    private fun createMainDrawByMatch(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {
-        // master final
-        if (match.match.level == 1) {
-            createMasterFinalDraw(match, rankRecords, drawData)
-        }
-        else {
-            createNormalMainDraw(match, rankRecords, drawData)
-        }
     }
 
     private fun createNormalMainDraw(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {
@@ -97,14 +100,6 @@ class DrawRepository: BaseRepository() {
         val qualifyCells = plan.arrangeQualifyDraw()
         roundId = getMatchRound(match.match, MatchConstants.DRAW_QUALIFY)[0].id
         drawData.qualifyItems = convertDraws(qualifyCells, match, roundId, true)
-    }
-
-    private fun createMasterFinalDraw(
-        match: MatchPeriodWrap,
-        rankRecords: List<RankRecord>,
-        drawData: DrawData
-    ) {
-
     }
 
     private fun convertDraws(draws: List<DrawCell>, match: MatchPeriodWrap, roundId: Int, isQualify: Boolean): MutableList<DrawItem> {

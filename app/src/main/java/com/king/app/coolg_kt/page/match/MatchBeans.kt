@@ -6,6 +6,7 @@ import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
+import com.king.app.gdb.data.relation.RecordWrap
 
 /**
  * @description:
@@ -16,6 +17,13 @@ data class DrawData (
     var matchPeriod: MatchPeriod,
     var mainItems: List<DrawItem> = listOf(),
     var qualifyItems: List<DrawItem> = listOf()
+)
+data class FinalDrawData (
+    var matchPeriod: MatchPeriod,
+    var head: FinalHead,
+    var scoreAList: List<FinalScore>,
+    var scoreBList: List<FinalScore>,
+    var roundMap: MutableMap<String, MutableList<DrawItem>?>
 )
 data class DrawItem (
     var matchItem: MatchItem,
@@ -86,4 +94,21 @@ data class HomeUrls(
     var rankUrl: String? = null,
     var h2hUrl: String? = null,
     var finalUrl: String? = null
+)
+
+data class RecordWithRank(
+    var record: RecordWrap,
+    var rank: Int
+)
+data class FinalHead(
+    var groupAList: List<RecordWithRank>,
+    var groupBList: List<RecordWithRank>
+)
+data class FinalScore(
+    var rank: String,
+    var record: RecordWrap,
+    var result: String
+)
+data class FinalRound(
+    var round: String
 )

@@ -26,5 +26,5 @@ data class MatchItem (
 
     var order: Int,
 
-    var groupFlag: Int?// 0:groupRed, 1:groupBlue
+    var groupFlag: Int?// 0:groupA, 1:groupB
 )

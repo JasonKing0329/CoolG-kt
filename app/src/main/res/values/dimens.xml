@@ -286,6 +286,7 @@
 
     <dimen name="play_order_height_cell2">@dimen/img_height_in_full_screen_std</dimen>
     <dimen name="play_order_height_cell1">112dp</dimen>
+    <dimen name="img_height_cell1of4">52dp</dimen>
 
     <dimen name="common_margin_8">8dp</dimen>
     <dimen name="video_item_action_size">30dp</dimen>

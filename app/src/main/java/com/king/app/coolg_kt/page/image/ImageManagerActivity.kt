@@ -11,6 +11,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityImageManagerBinding
 import com.king.app.coolg_kt.model.bean.ImageBean
+import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.match.list.MatchListActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
@@ -107,16 +108,20 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
     }
 
     private fun onApplyImage(path: String?) {
-        val options = arrayOf("Play Order", "Match")
+        val options = arrayOf("Play Order", "Match", "Match Home")
         AlertDialogFragment()
             .setItems(options) { dialogInterface, i ->
-                if (i === 0) {
-                    onSetCoverForPlayOrder(path)
-                } else if (i === 1) {
-                    onSetCoverForMatch(path)
+                when(i) {
+                    0 -> onSetCoverForPlayOrder(path)
+                    1 -> onSetCoverForMatch(path)
+                    2 -> onSetCoverForMatchHome(path)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")
+    }
+
+    private fun onSetCoverForMatchHome(path: String?) {
+        path?.let { MatchHomeActivity.startPageToSetCover(this, it) }
     }
 
     private fun onSetCoverForMatch(path: String?) {

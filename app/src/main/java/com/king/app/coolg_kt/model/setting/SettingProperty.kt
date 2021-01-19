@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.model.setting
 import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PlayList
+import com.king.app.coolg_kt.page.match.HomeUrls
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.star.random.RandomData
 
@@ -208,6 +209,24 @@ class SettingProperty: BaseProperty() {
                 setString("pref_star_random_data", sql)
             } catch (e: Exception) {
             }
+        }
+
+        fun getMatchHomeUrls(): HomeUrls {
+            val sql = getString("match_home_urls")
+            try {
+                return Gson().fromJson(sql, HomeUrls::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return HomeUrls()
+        }
+
+        fun setMatchHomeUrls(bean: HomeUrls) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("match_home_urls", sql)
         }
 
     }

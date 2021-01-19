@@ -80,3 +80,10 @@ data class ShowPeriod(
     var period: Int,
     var orderInPeriod: Int
 )
+data class HomeUrls(
+    var matchUrl: String? = null,
+    var seasonUrl: String? = null,
+    var rankUrl: String? = null,
+    var h2hUrl: String? = null,
+    var finalUrl: String? = null
+)

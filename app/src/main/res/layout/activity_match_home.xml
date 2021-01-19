@@ -3,46 +3,86 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.MatchHomeViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <com.king.app.coolg_kt.view.CoverView
             android:id="@+id/tv_match"
-            android:layout_width="80dp"
-            android:layout_height="40dp"
-            android:text="Match"
-            android:gravity="center"
-            android:layout_marginTop="40dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="1dp"
+            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-        <TextView
+            app:layout_constraintEnd_toStartOf="@+id/tv_season"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_rank"
+            app:coverText="Match"
+            app:coverTextColor="@color/white"
+            app:coverTextSize="@dimen/match_home_text"
+            app:coverRadius="@dimen/match_home_radius"
+            app:coverStarUrl="@{model.matchUrl}"/>
+        <com.king.app.coolg_kt.view.CoverView
             android:id="@+id/tv_season"
-            android:layout_width="80dp"
-            android:layout_height="40dp"
-            android:text="Season"
-            android:gravity="center"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="1dp"
+            app:layout_constraintTop_toTopOf="@+id/tv_match"
+            app:layout_constraintStart_toEndOf="@+id/tv_match"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_match" />
-        <TextView
+            app:layout_constraintBottom_toBottomOf="@+id/tv_match"
+            app:coverText="Season"
+            app:coverTextColor="@color/white"
+            app:coverTextSize="@dimen/match_home_text"
+            app:coverRadius="@dimen/match_home_radius"
+            app:coverStarUrl="@{model.seasonUrl}" />
+        <com.king.app.coolg_kt.view.CoverView
             android:id="@+id/tv_rank"
-            android:layout_width="80dp"
-            android:layout_height="40dp"
-            android:text="Rank"
-            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/img_height_in_full_screen_std"
+            android:layout_margin="1dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_season" />
-        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/tv_match"
+            app:layout_constraintBottom_toTopOf="@+id/tv_h2h"
+            app:coverText="Rank"
+            app:coverTextColor="@color/white"
+            app:coverTextSize="@dimen/match_home_text"
+            app:coverRadius="@dimen/match_home_radius"
+            app:coverRecordUrl="@{model.rankUrl}"/>
+        <com.king.app.coolg_kt.view.CoverView
             android:id="@+id/tv_h2h"
-            android:layout_width="80dp"
-            android:layout_height="40dp"
-            android:text="H2H"
-            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="1dp"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_final"
+            app:layout_constraintTop_toBottomOf="@+id/tv_rank"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:coverText="H2H"
+            app:coverTextColor="@color/white"
+            app:coverTextSize="@dimen/match_home_text"
+            app:coverRadius="@dimen/match_home_radius"
+            app:coverStarUrl="@{model.h2hUrl}"/>
+        <com.king.app.coolg_kt.view.CoverView
+            android:id="@+id/tv_final"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="1dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_h2h"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_rank" />
+            app:layout_constraintTop_toTopOf="@+id/tv_h2h"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:coverText="Final List"
+            app:coverTextColor="@color/white"
+            app:coverTextSize="@dimen/match_home_text"
+            app:coverRadius="@dimen/match_home_radius"
+            app:coverStarUrl="@{model.finalUrl}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

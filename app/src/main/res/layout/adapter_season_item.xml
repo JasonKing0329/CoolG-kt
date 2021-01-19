@@ -96,5 +96,17 @@
             app:layout_constraintStart_toEndOf="@+id/tv_score"
             app:layout_constraintTop_toTopOf="@+id/tv_score" />
 
+        <TextView
+            android:id="@+id/tv_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:textColor="@color/text_sub"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            app:layout_constraintStart_toStartOf="@id/tv_level"
+            app:layout_constraintTop_toBottomOf="@id/tv_match"
+            tools:text="Draws(128), Bye(32), Q(16), WC(M-2, Q-4)" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

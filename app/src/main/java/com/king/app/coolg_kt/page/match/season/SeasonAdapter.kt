@@ -9,7 +9,6 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterSeasonItemBinding
 import com.king.app.coolg_kt.databinding.AdapterSeasonPeriodBinding
 import com.king.app.coolg_kt.model.bean.MatchPeriodTitle
-import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.coolg_kt.utils.RippleUtil
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 
@@ -56,6 +55,14 @@ class SeasonAdapter: HeadChildBindingAdapter<AdapterSeasonPeriodBinding, Adapter
             else -> binding.tvLevel.resources.getColor(R.color.match_level_low)
         }
         binding.tvLevel.setTextColor(color)
+        val bye = if (bean.match.byeDraws > 0) ", Bye(${bean.match.byeDraws})" else ""
+        val wc = if (bean.bean.mainWildcard > 0) {
+            if (bean.bean.qualifyWildcard > 0) ", WC(M-${bean.bean.mainWildcard}, Q-${bean.bean.qualifyWildcard})" else ", WC(M-${bean.bean.mainWildcard})"
+        }
+        else {
+            if (bean.bean.qualifyWildcard > 0) ", WC(Q-${bean.bean.qualifyWildcard})" else ""
+        }
+        binding.tvInfo.text = "Draws(${bean.match.draws}), Q(${bean.match.qualifyDraws})$bye$wc"
     }
 
     interface OnActionListener {

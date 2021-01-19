@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import com.king.app.coolg_kt.CoolApplication
-import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.FragmentMatchEditorBinding
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 import com.king.app.gdb.data.entity.match.Match
@@ -30,7 +29,6 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
             mBinding.etDraw.setText(it.draws.toString())
             mBinding.etQualifyDraw.setText(it.qualifyDraws.toString())
             mBinding.etByeDraw.setText(it.byeDraws.toString())
-            mBinding.etWildcard.setText(it.wildcardDraws.toString())
             mBinding.etName.setText(it.name)
             mBinding.spLevel.setSelection(it.level)
         }
@@ -56,9 +54,8 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
         val draw = mBinding.etDraw.text.toString().toInt()
         val qualifyDraw = mBinding.etQualifyDraw.text.toString().toInt()
         val byeDraw = mBinding.etByeDraw.text.toString().toInt()
-        val wildcardDraw = mBinding.etWildcard.text.toString().toInt()
         if (match == null) {
-            match = Match(0, level, draw, byeDraw, qualifyDraw, wildcardDraw, order, name, "")
+            match = Match(0, level, draw, byeDraw, qualifyDraw, 0, order, name, "")
             var list = listOf(match!!)
             CoolApplication.instance.database!!.getMatchDao().insertMatches(list)
         }
@@ -68,7 +65,6 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
                 it.draws = draw
                 it.byeDraws = byeDraw
                 it.qualifyDraws = qualifyDraw
-                it.wildcardDraws = wildcardDraw
                 it.orderInPeriod = order
                 it.name = name
                 CoolApplication.instance.database!!.getMatchDao().updateMatch(it)

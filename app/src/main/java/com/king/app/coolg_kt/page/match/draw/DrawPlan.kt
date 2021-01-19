@@ -110,16 +110,16 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
         }
         unArranged.shuffle()
         // arrange wildcard
-        for (i in 0 until match.match.wildcardDraws) {
+        for (i in 0 until match.bean.mainWildcard) {
             fillWildCard(draws, unArranged[i])
         }
         // arrange qualify
-        for (i in match.match.wildcardDraws until match.match.wildcardDraws + match.match.qualifyDraws) {
+        for (i in match.bean.mainWildcard until match.bean.mainWildcard + match.match.qualifyDraws) {
             fillQualify(draws, unArranged[i])
         }
         // arrange direct in
         var directInIndex = 0
-        for (i in match.match.wildcardDraws + match.match.qualifyDraws until unArranged.size) {
+        for (i in match.bean.mainWildcard + match.match.qualifyDraws until unArranged.size) {
             fillNormal(draws, unArranged[i], directInUnSeedList[directInIndex])
             directInIndex ++
         }
@@ -267,6 +267,18 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
         val seedQualify = qualifyList.take(match.match.qualifyDraws)
         val unSeedQualify = qualifyList.subList(match.match.qualifyDraws, qualifyList.size).shuffled()
         var unSeedIndex = 0
+        // 确定wildcard所在位置
+        var wcIndices = listOf<Int>()
+        if (match.bean.qualifyWildcard > 0) {
+            // 不能出现在种子位，随机出现在非种子位
+            val unSeedIndices = mutableListOf<Int>()
+            draws.forEachIndexed { index, drawCell ->
+                if (index % 8 != 0) {// 3轮，所以是每8个签位一个
+                    unSeedIndices.add(index)
+                }
+            }
+            wcIndices = unSeedIndices.shuffled().take(match.bean.qualifyWildcard)
+        }
         draws.forEachIndexed { index, drawCell ->
             if (index % 8 == 0) {// 3轮，所以是每8个签位一个种子
                 val seedIndex = index / 8
@@ -274,8 +286,14 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
                 fillSeed(draws, index, seedQualify[seedIndex])
             }
             else {
-                fillNormal(draws, index, unSeedQualify[unSeedIndex])
-                unSeedIndex ++
+                val wcIndex = wcIndices.firstOrNull { it == index }
+                if (wcIndex == null) {
+                    fillNormal(draws, index, unSeedQualify[unSeedIndex])
+                    unSeedIndex ++
+                }
+                else {
+                    fillWildCard(draws, index)
+                }
             }
         }
     }
@@ -290,7 +308,7 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(li
 
     override fun calcDirectInUnSeed() {
         // gs没有bye,wildcard
-        directInUnSeed = match.match.draws - seed - match.match.qualifyDraws
+        directInUnSeed = match.match.draws - seed - match.match.qualifyDraws - match.bean.mainWildcard
         directInUnSeedList = list.subList(seed, seed + directInUnSeed)
     }
 
@@ -298,7 +316,7 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(li
      * 32 q, 3 rounds, 32*2*2*2 = 256
      */
     override fun calcQualify() {
-        qualify = 256
+        qualify = 256 - match.bean.qualifyWildcard
         qualifyList = list.subList(seed + directInUnSeed, seed + directInUnSeed + qualify)
     }
 
@@ -313,11 +331,6 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(li
  */
 class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
-    companion object {
-        val SCORES_128 = arrayOf(0, 5, 10, 25, 10, 45, 90, 180, 360, 720, 1200, 2000)
-        val SCORES_64 = arrayOf(0, 5, 10, 25, 10, 45, 90, 180, 360, 720, 1200, 2000)
-    }
-
     override fun calcSeed() {
         seed = if (match.match.byeDraws < 16) 16 else match.match.byeDraws
         // 强制
@@ -331,7 +344,7 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list,
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         directInUnSeedList = list.subList(seed, seed + directInUnSeed)
     }
 
@@ -339,7 +352,7 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list,
      * qualify拓展1倍，后50个名额扩展3倍进行shuffle
      */
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
         val forsure = qualify - 50
         val tempList = mutableListOf<RankRecord>()
         val directIn = seed + directInUnSeed
@@ -409,7 +422,7 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         val seedEnd = seedList.last().rank
         var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
         val resultSeeds = mutableListOf<RankRecord>()
@@ -426,7 +439,7 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
      * qualify排名300以内
      */
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.filter { it.rank in (directInEnd + 1)..300 }
         val result = mutableListOf<RankRecord>()
@@ -508,7 +521,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         val seedEnd = seedList.last().rank
         var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
         val resultSeeds = mutableListOf<RankRecord>()
@@ -525,7 +538,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
      * qualify排名500以内
      */
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.filter { it.rank in (directInEnd + 1)..500 }
         val result = mutableListOf<RankRecord>()
@@ -555,7 +568,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     val random = Random()
-    private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws + match.match.qualifyDraws * 8
+    private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard + match.match.qualifyDraws * 8
     private lateinit var rangeList: List<RankRecord>
 
     override fun prepareSamePeriodMap() {
@@ -577,12 +590,12 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
     }
 
     override fun calcDirectInUnSeed() {
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.match.wildcardDraws
+        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         directInUnSeedList = rangeList.subList(seed, seed + directInUnSeed)
     }
 
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8
+        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
         qualifyList = rangeList.takeLast(qualify)
     }
 

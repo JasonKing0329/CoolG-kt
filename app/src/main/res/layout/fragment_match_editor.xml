@@ -76,22 +76,10 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Wildcard"/>
-            <EditText
-                android:id="@+id/et_wildcard"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:text="0"/>
-        </LinearLayout>
+            android:text="Wildcard(Deprecated, apply in MatchPeriod)"/>
 
         <TextView
             android:id="@+id/tv_ok"

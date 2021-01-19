@@ -142,6 +142,18 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_14_15: Migration = object : Migration(14, 15) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_14_15")
+            database.execSQL(
+                "ALTER TABLE 'match_period' ADD COLUMN `mainWildcard` INTEGER NOT NULL DEFAULT 0"
+            )
+            database.execSQL(
+                "ALTER TABLE 'match_period' ADD COLUMN `qualifyWildcard` INTEGER NOT NULL DEFAULT 0"
+            )
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

@@ -49,8 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:ems="10"
-            android:inputType="textPersonName"
+            android:inputType="number"
             app:layout_constraintStart_toEndOf="@+id/tv_period"
             app:layout_constraintTop_toBottomOf="@+id/btn_date" />
 
@@ -59,11 +58,51 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:inputType="number"
             app:layout_constraintBottom_toBottomOf="@+id/et_period"
             app:layout_constraintStart_toEndOf="@+id/et_period"
             app:layout_constraintTop_toTopOf="@+id/et_period"
             tools:text="W12"/>
+
+        <TextView
+            android:id="@+id/tv_wc_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WC-Main"
+            app:layout_constraintStart_toStartOf="@+id/tv_select_match"
+            app:layout_constraintTop_toTopOf="@+id/et_wc_main"
+            app:layout_constraintBottom_toBottomOf="@+id/et_wc_main" />
+
+        <EditText
+            android:id="@+id/et_wc_main"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:inputType="number"
+            android:text="0"
+            app:layout_constraintStart_toEndOf="@+id/tv_wc_main"
+            app:layout_constraintTop_toBottomOf="@+id/et_period" />
+
+        <TextView
+            android:id="@+id/tv_wc_qualify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WC-Q"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@+id/et_wc_main"
+            app:layout_constraintTop_toTopOf="@+id/et_wc_main"
+            app:layout_constraintBottom_toBottomOf="@+id/et_wc_main" />
+
+        <EditText
+            android:id="@+id/et_wc_qualify"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:inputType="number"
+            android:text="0"
+            app:layout_constraintStart_toEndOf="@+id/tv_wc_qualify"
+            app:layout_constraintTop_toBottomOf="@+id/et_period" />
 
         <TextView
             android:id="@+id/tv_ok"
@@ -73,7 +112,7 @@
             android:text="@string/ok"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_period" />
+            app:layout_constraintTop_toBottomOf="@+id/et_wc_main" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

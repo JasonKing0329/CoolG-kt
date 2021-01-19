@@ -2,7 +2,6 @@ package com.king.app.coolg_kt.page.match.season
 
 import android.app.Activity
 import android.content.Intent
-import android.text.TextUtils
 import android.view.LayoutInflater
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.databinding.FragmentSeasonEditorBinding
@@ -48,11 +47,14 @@ class SeasonEditor: DraggableContentFragment<FragmentSeasonEditorBinding>() {
             })
         }
         matchPeriod?.let {
+            match = it.match
             date = it.bean.date
             mBinding.tvSelectMatch.text = it.match.name
             mBinding.btnDate.text = FormatUtil.formatDate(date)
             mBinding.etPeriod.setText(it.bean.period.toString())
             mBinding.tvOrderInPeriod.text = "W${it.bean.orderInPeriod}"
+            mBinding.etWcMain.setText(it.bean.mainWildcard.toString())
+            mBinding.etWcQualify.setText(it.bean.qualifyWildcard.toString())
         }
         mBinding.tvSelectMatch.setOnClickListener {
             MatchListActivity.startPageToSelect(this@SeasonEditor, REQUEST_SELECT_MATCH)
@@ -71,8 +73,22 @@ class SeasonEditor: DraggableContentFragment<FragmentSeasonEditorBinding>() {
             showMessageShort("Error period")
             return
         }
+        var wcMain: Int
+        try {
+            wcMain = mBinding.etWcMain.text.toString().toInt()
+        } catch (e: Exception){
+            showMessageShort("Error period")
+            return
+        }
+        var wcQualify: Int
+        try {
+            wcQualify = mBinding.etWcQualify.text.toString().toInt()
+        } catch (e: Exception){
+            showMessageShort("Error period")
+            return
+        }
         if (matchPeriod == null) {
-            val bean = MatchPeriod(0, match!!.id, date, period, match!!.orderInPeriod, false, false)
+            val bean = MatchPeriod(0, match!!.id, date, period, match!!.orderInPeriod, false, false, wcMain, wcQualify)
             onMatchListener?.onSeasonMatchUpdated(bean)
         }
         else {
@@ -80,6 +96,8 @@ class SeasonEditor: DraggableContentFragment<FragmentSeasonEditorBinding>() {
                 it.bean.matchId = match!!.id
                 it.bean.period = period
                 it.bean.date = date
+                it.bean.mainWildcard = wcMain
+                it.bean.qualifyWildcard = wcQualify
 
                 onMatchListener?.onSeasonMatchUpdated(it.bean)
             }

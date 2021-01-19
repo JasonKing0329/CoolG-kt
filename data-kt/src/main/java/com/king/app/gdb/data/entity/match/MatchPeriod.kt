@@ -24,5 +24,9 @@ data class MatchPeriod (
 
     var isRankCreated: Boolean,
 
-    var isScoreCreated: Boolean
+    var isScoreCreated: Boolean,
+
+    var mainWildcard: Int,
+
+    var qualifyWildcard: Int
 )

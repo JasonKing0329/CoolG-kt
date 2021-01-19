@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 192
-        versionName "7.2.20"
+        versionCode 193
+        versionName "7.2.21"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -171,3 +171,18 @@ class LowScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
         }
     }
 }
+
+/**
+ * 累加制
+ */
+class FinalDrawScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
+
+    override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
+        return when(round) {
+            MatchConstants.ROUND_ID_GROUP -> if (isWinner) 150 else 30
+            MatchConstants.ROUND_ID_SF -> if (isWinner) 400 else 0
+            MatchConstants.ROUND_ID_F -> if (isWinner) 500 else 0
+            else -> 0
+        }
+    }
+}

@@ -83,6 +83,9 @@ interface MatchDao {
     @Query("select * from match_score_record")
     fun getAllMatchScoreRecords(): List<MatchScoreRecord>
 
+    @Query("select max(msr.score) from record_star rs join match_score_record msr on rs.RECORD_ID=msr.recordId join match_period mp on msr.matchId=mp.id and mp.period=:period and mp.orderInPeriod<=:maxOrderInPeriod where rs.STAR_ID=:starId group by msr.recordId order by max(msr.score) desc limit 3")
+    fun getStarTop3Records(starId: Long, period: Int, maxOrderInPeriod: Int): List<Int>
+
     @Insert
     fun insertMatches(list: List<Match>)
 

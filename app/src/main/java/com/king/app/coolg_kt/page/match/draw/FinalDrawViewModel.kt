@@ -118,12 +118,22 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
             }
             // SF
             finalDrawData.roundMap[roundSf]?.let { items ->
-                list.add(FinalRound(roundRobinText))
+                list.add(FinalRound(roundSf))
+                items.forEach { item ->
+                    item.matchRecord1?.let { record -> record.imageUrl = imageMap[record.record?.name] }
+                    item.matchRecord2?.let { record -> record.imageUrl = imageMap[record.record?.name] }
+                    item.winner?.let { record -> record.imageUrl = imageMap[record.record?.name] }
+                }
                 list.addAll(items)
             }
             // F
             finalDrawData.roundMap[roundF]?.let { items ->
-                list.add(FinalRound(roundRobinText))
+                list.add(FinalRound(roundF))
+                items.forEach { item ->
+                    item.matchRecord1?.let { record -> record.imageUrl = imageMap[record.record?.name] }
+                    item.matchRecord2?.let { record -> record.imageUrl = imageMap[record.record?.name] }
+                    item.winner?.let { record -> record.imageUrl = imageMap[record.record?.name] }
+                }
                 list.addAll(items)
             }
             it.onNext(list)
@@ -202,26 +212,27 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
             var isSfChanged = false
             var isSfFinished = true
             dataObserver.value
-                ?.filter { item -> item is DrawItem && item.isChanged }
-                ?.map { item -> item as DrawItem }
+                ?.filterIsInstance<DrawItem>()
                 ?.forEach { drawItem ->
                     when(drawItem.matchItem.round) {
                         MatchConstants.ROUND_ID_GROUP -> {
-                            isRRChanged = true
+                            isRRChanged = drawItem.isChanged
                             if (drawItem.winner == null) {
                                 isRRFinished = false
                             }
                         }
                         MatchConstants.ROUND_ID_SF -> {
-                            isSfChanged = true
+                            isSfChanged = drawItem.isChanged
                             if (drawItem.winner == null) {
                                 isSfFinished = false
                             }
                         }
                     }
                     drawItem.winner?.let { winner ->
-                        drawItem.matchItem.winnerId = winner.bean.recordId
-                        updateMatchItems.add(drawItem.matchItem)
+                        if (drawItem.isChanged) {
+                            drawItem.matchItem.winnerId = winner.bean.recordId
+                            updateMatchItems.add(drawItem.matchItem)
+                        }
                     }
             }
             // 修改胜负情况
@@ -257,6 +268,17 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createScore() {
+        drawRepository.createFinalScore(matchPeriod)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean) {
+                    messageObserver.value = "success"
+                }
 
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
     }
 }

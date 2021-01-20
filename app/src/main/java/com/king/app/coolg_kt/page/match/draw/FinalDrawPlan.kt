@@ -18,7 +18,7 @@ import kotlin.math.abs
  */
 /**
  * Final取top10, 5个一组, 前二晋级
- * 可能的连环套局面：22222 42220 33310
+ * 可能的连环套局面：22222 42220 33310 32221
  * 由于没有比分的概念，出现连环套时以match_score_player的score与matchCount作为辅助判断依据
  */
 class FinalDrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) {

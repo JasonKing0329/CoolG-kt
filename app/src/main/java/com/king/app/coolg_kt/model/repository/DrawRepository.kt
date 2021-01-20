@@ -164,6 +164,8 @@ class DrawRepository: BaseRepository() {
             // 先清除matchPeriodId相关
             getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
             getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
+            getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(data.matchPeriod.id)
+            getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(data.matchPeriod.id)
 
             // 先插入MatchItem获取id
             val insertMatchItemList = mutableListOf<MatchItem>()
@@ -242,7 +244,7 @@ class DrawRepository: BaseRepository() {
     }
 
     private fun nextRoundItem(matchPeriodId: Long, roundId: Int, order: Int, isQualify: Boolean, winner1Record: MatchRecord, winner2Record: MatchRecord): MatchItem {
-        var nextMatchItem = getDatabase().getMatchDao().getMatchItem(matchPeriodId, roundId, 1)
+        var nextMatchItem = getDatabase().getMatchDao().getMatchItem(matchPeriodId, roundId, order)
         if (nextMatchItem == null) {
             nextMatchItem =
                 MatchItem(0, matchPeriodId, roundId, null, isQualify, false, order, null)
@@ -304,8 +306,17 @@ class DrawRepository: BaseRepository() {
     }
 
     fun checkFinalGroup(matchPeriodId: Long, firstRound: MutableList<DrawItem>, scoreAList: MutableList<FinalScore>, scoreBList: MutableList<FinalScore>) {
-        countScore(firstRound, scoreAList)
-        countScore(firstRound, scoreBList)
+        // scoreList的win, lose要重新统计
+        scoreAList.forEach {
+            it.win = 0
+            it.lose = 0
+        }
+        scoreBList.forEach {
+            it.win = 0
+            it.lose = 0
+        }
+        countScore(matchPeriodId, firstRound, scoreAList)
+        countScore(matchPeriodId, firstRound, scoreBList)
         // 先删除已有的sf, f数据
         getDatabase().getMatchDao().deleteMatchItemsBy(matchPeriodId, MatchConstants.ROUND_ID_SF)
         getDatabase().getMatchDao().deleteMatchItemsBy(matchPeriodId, MatchConstants.ROUND_ID_F)
@@ -326,6 +337,61 @@ class DrawRepository: BaseRepository() {
         return getDatabase().getMatchDao().getMatchPeriods(period, orderInPeriod);
     }
 
+    /**
+     * Final Draw算分
+     */
+    fun createFinalScore(match: MatchPeriodWrap): Observable<Boolean> {
+        return Observable.create {
+            getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
+            getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
+            val recordScoreList = mutableListOf<MatchScoreRecord>()
+            val starScoreList = mutableListOf<MatchScoreStar>()
+            val plan = FinalDrawScorePlan(match)
+            val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
+            items.forEach { item ->
+                item.recordList.forEach { matchRecord ->
+                    val score = plan.getRoundScore(item.bean.round, item.bean.winnerId == matchRecord.recordId, false)
+                    var mrs = recordScoreList.firstOrNull { bean -> bean.recordId == matchRecord.recordId }
+                    if (mrs == null) {
+                        mrs = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
+                        recordScoreList.add(mrs)
+                    }
+                    else {
+                        mrs.matchItemId = item.bean.id
+                        mrs.score += score
+                    }
+                }
+            }
+            // star可能存在与多个record中，待record积分计算完毕后，再遍历取最高分计入
+            recordScoreList.forEach { item ->
+                val stars = getDatabase().getRecordDao().getRecordStars(item.recordId)
+                stars.forEach { star ->
+                    var mss = starScoreList.firstOrNull { bean -> bean.starId == star.bean.starId }
+                    if (mss == null) {
+                        mss = MatchScoreStar(0, item.matchId, item.matchItemId, item.recordId, star.bean.starId, item.score)
+                        starScoreList.add(mss)
+                    }
+                    else {
+                        mss.matchItemId = item.matchItemId
+                        mss.score = item.score
+                    }
+                }
+            }
+            getDatabase().getMatchDao().insertMatchScoreRecords(recordScoreList)
+            getDatabase().getMatchDao().insertMatchScoreStars(starScoreList)
+
+            // 更新match_period表
+            match.bean.isScoreCreated = true
+            getDatabase().getMatchDao().updateMatchPeriod(match.bean)
+
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
+
+    /**
+     * 普通签表算分
+     */
     fun createScore(match: MatchPeriodWrap): Observable<Boolean> {
         return Observable.create {
             getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
@@ -348,59 +414,49 @@ class DrawRepository: BaseRepository() {
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
                     if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
-                        var singleScore: Int? = null
-
-                        // win，只有F和RR计分
-                        if (matchRecord.recordId == item.bean.winnerId) {
-                            if (item.bean.round == MatchConstants.ROUND_ID_F) {
-                                singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
-                            }
-                            else if (item.bean.round == MatchConstants.ROUND_ID_GROUP) {
-                                // TODO 待设计
-                            }
+                        var score = if (matchRecord.recordId == item.bean.winnerId && item.bean.round == MatchConstants.ROUND_ID_F) {
+                            plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
                         }
                         // lose，其他所有轮次都计分
                         else {
-                            singleScore = plan.getRoundScore(
+                            plan.getRoundScore(
                                 item.bean.round,
                                 isWinner = false,
                                 isQualify = matchRecord.type == MatchConstants.MATCH_RECORD_QUALIFY
                             )
                         }
 
-                        singleScore?.let { score ->
-                            val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
-                            recordScores.add(matchScoreRecord)
-                            val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
-                            stars.forEach { star ->
-                                // star可能在一站中有多个record，取最高分。还可能在同期赛事中有其他record，还要从数据库里查
-                                var matchScoreStar = starScoreMap[star.bean.starId]
+                        val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
+                        recordScores.add(matchScoreRecord)
+                        val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
+                        stars.forEach { star ->
+                            // star可能在一站中有多个record，取最高分。还可能在同期赛事中有其他record，还要从数据库里查
+                            var matchScoreStar = starScoreMap[star.bean.starId]
+                            if (matchScoreStar == null) {
+                                // 先从数据库里查是否已有记录
+                                matchScoreStar = getDatabase().getMatchDao().getMatchScoreStarBy(match.bean.period, match.bean.orderInPeriod, star.bean.starId)
+                                // 没有则创建新纪录
                                 if (matchScoreStar == null) {
-                                    // 先从数据库里查是否已有记录
-                                    matchScoreStar = getDatabase().getMatchDao().getMatchScoreStarBy(match.bean.period, match.bean.orderInPeriod, star.bean.starId)
-                                    // 没有则创建新纪录
-                                    if (matchScoreStar == null) {
-                                        matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
-                                        starScoreMap[star.bean.starId] = matchScoreStar
-                                        starScores.add(matchScoreStar)
-                                    }
-                                    // 有则判断是否修改记录
-                                    else {
-                                        starScoreMap[star.bean.starId] = matchScoreStar
-                                        updateStarScores.add(matchScoreStar)
-                                        if (score > matchScoreStar.score) {
-                                            matchScoreStar.matchItemId = item.bean.id
-                                            matchScoreStar.recordId = matchRecord.recordId
-                                            matchScoreStar.score = score
-                                        }
-                                    }
+                                    matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
+                                    starScoreMap[star.bean.starId] = matchScoreStar
+                                    starScores.add(matchScoreStar)
                                 }
+                                // 有则判断是否修改记录
                                 else {
+                                    starScoreMap[star.bean.starId] = matchScoreStar
+                                    updateStarScores.add(matchScoreStar)
                                     if (score > matchScoreStar.score) {
                                         matchScoreStar.matchItemId = item.bean.id
                                         matchScoreStar.recordId = matchRecord.recordId
                                         matchScoreStar.score = score
                                     }
+                                }
+                            }
+                            else {
+                                if (score > matchScoreStar.score) {
+                                    matchScoreStar.matchItemId = item.bean.id
+                                    matchScoreStar.recordId = matchRecord.recordId
+                                    matchScoreStar.score = score
                                 }
                             }
                         }
@@ -441,10 +497,10 @@ class DrawRepository: BaseRepository() {
                 var m1 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 1)
                 var m2 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 2)
                 var winner: MatchRecordWrap? = null
-                if (wrap.bean.winnerId == m1!!.bean.recordId) {
+                if (wrap.bean.winnerId == m1?.bean?.recordId) {
                     winner = m1
                 }
-                else if (wrap.bean.winnerId == m2!!.bean.recordId) {
+                else if (wrap.bean.winnerId == m2?.bean?.recordId) {
                     winner = m2
                 }
                 roundItems.add(DrawItem(wrap.bean, m1, m2, winner))
@@ -461,8 +517,8 @@ class DrawRepository: BaseRepository() {
             }
             // 统计score
             firstRound?.let { items ->
-                countScore(items, scoreAList)
-                countScore(items, scoreBList)
+                countScore(matchPeriod.bean.id, items, scoreAList)
+                countScore(matchPeriod.bean.id, items, scoreBList)
             }
             var finalDrawData = FinalDrawData(matchPeriod.bean, head, scoreAList, scoreBList, roundMap)
             it.onNext(finalDrawData)
@@ -470,7 +526,7 @@ class DrawRepository: BaseRepository() {
         }
     }
 
-    private fun countScore(firstRound: MutableList<DrawItem>, scoreList: MutableList<FinalScore>) {
+    private fun countScore(matchPeriodId: Long, firstRound: MutableList<DrawItem>, scoreList: MutableList<FinalScore>) {
         firstRound?.forEach {
             val fs1 = findFinalScore(it.matchRecord1?.bean?.recordId, scoreList)
             val fs2 = findFinalScore(it.matchRecord2?.bean?.recordId, scoreList)
@@ -484,18 +540,66 @@ class DrawRepository: BaseRepository() {
             }
         }
         // 设置extraValue
-        // TODO 规则还没想好，大体上以record关联的star排名进行参考
+        scoreList.forEach { score -> getExtraValue(matchPeriodId, score) }
 
-        // 第一关键字为win
-        scoreList.sortByDescending { it.win }
-        // 第二关键字为lose
-        scoreList.sortBy { it.lose }
-        // 第三关键字为extraValue
-        scoreList.sortByDescending { it.extraValue }
-        // 第四关键字为rank
-        scoreList.sortBy { it.recordRank }
+        scoreList.sortWith(Comparator { o1, o2 ->
+            // 第一关键字为win
+            if (o1.win == o2.win) {
+                // 第二关键字为lose
+                if (o1.lose == o2.lose) {
+                    // 第三关键字为extraValue
+                    if (o1.extraValue == o2.extraValue) {
+                        // 第四关键字为recordRank
+                        sortIntAsc(o1.recordRank, o2.recordRank)
+                    }
+                    else {
+                        sortIntDesc(o1.extraValue, o2.extraValue)
+                    }
+                }
+                else {
+                    sortIntAsc(o1.lose, o2.lose)
+                }
+            }
+            else {
+                sortIntDesc(o1.win, o2.win)
+            }
+        })
 
         scoreList.forEachIndexed { index, finalScore -> finalScore.rank = (index + 1).toString() }
+    }
+
+    /**
+     * 取record关联的star各自最高3个record积分，取平均分（无论star的record有没有3，都要基于3站加权）
+     * 例如record关联了4个star，那么无论4个star各自有没有3个record，最后分母都是4*3=9
+     */
+    private fun getExtraValue(matchPeriodId: Long, score: FinalScore) {
+        var countScore = 0
+        var matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
+        val stars = getDatabase().getRecordDao().getRecordStars(score.record.bean.id!!)
+        val starSize = stars?.size?:0
+        stars?.forEach {
+            val starId = it.bean.starId
+            val top3 = getDatabase().getMatchDao().getStarTop3Records(starId, matchPeriod.bean.period, MatchConstants.MAX_ORDER_IN_PERIOD - 1)
+            top3.forEach { score -> countScore += score }
+        }
+        score.extraValue = if (starSize == 0) 0
+        else countScore / (starSize * 3)
+    }
+
+    private fun sortIntAsc(value1: Int, value2: Int): Int {
+        return when {
+            value1 - value2 > 0 -> 1
+            value1 - value2 < 0 -> -1
+            else -> 0
+        }
+    }
+
+    private fun sortIntDesc(value1: Int, value2: Int): Int {
+        return when {
+            value2 - value1 > 0 -> 1
+            value2 - value1 < 0 -> -1
+            else -> 0
+        }
     }
 
     private fun findFinalScore(recordId: Long?, scoreList: MutableList<FinalScore>): FinalScore? {

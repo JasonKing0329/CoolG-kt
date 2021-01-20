@@ -137,6 +137,9 @@ interface MatchDao {
     @Query("delete from match_item where matchId =:matchPeriodId")
     fun deleteMatchItemsByMatchPeriod(matchPeriodId: Long)
 
+    @Query("delete from match_item where matchId =:matchPeriodId and round=:round")
+    fun deleteMatchItemsBy(matchPeriodId: Long, round: Int)
+
     @Query("delete from match_record")
     fun deleteMatchRecords()
 

@@ -150,6 +150,10 @@ class FinalDrawActivity: BaseActivity<ActivityMatchDrawFinalBinding, FinalDrawVi
             mBinding.actionbar.showConfirmStatus(ACTION_SAVE_DRAW)
         })
         mModel.cancelConfirmCancelStatus.observe(this, Observer { mBinding.actionbar.cancelConfirmStatus() })
+        mModel.saveEditSuccess.observe(this, Observer {
+            mBinding.actionbar.cancelConfirmStatus()
+            isEditing = false
+        })
         mModel.loadMatch(intent.getLongExtra(DrawActivity.EXTRA_MATCH_PERIOD_ID, -1))
     }
 }

@@ -241,58 +241,85 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    private fun nextRoundItem(matchPeriodId: Long, roundId: Int, order: Int, isQualify: Boolean, winner1Record: MatchRecord, winner2Record: MatchRecord): MatchItem {
+        var nextMatchItem = getDatabase().getMatchDao().getMatchItem(matchPeriodId, roundId, 1)
+        if (nextMatchItem == null) {
+            nextMatchItem =
+                MatchItem(0, matchPeriodId, roundId, null, isQualify, false, order, null)
+            var id = getDatabase().getMatchDao().insertMatchItem(nextMatchItem)
+
+            var list = mutableListOf<MatchRecord>()
+            var record1 = winner1Record.copy()
+            record1.id = 0
+            record1.matchItemId = id
+            record1.order = 1
+            list.add(record1)
+            var record2 = winner2Record.copy()
+            record2.id = 0
+            record2.matchItemId = id
+            record2.order = 2
+            list.add(record2)
+            getDatabase().getMatchDao().insertMatchRecords(list)
+        } else {
+            var list = mutableListOf<MatchRecord>()
+            var record1 = getDatabase().getMatchDao()
+                .getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
+            record1?.let {
+                it.bean.recordId = winner1Record.recordId
+                it.bean.recordRank = winner1Record.recordRank
+                it.bean.recordSeed = winner1Record.recordSeed
+                it.bean.order = 1
+                list.add(it.bean)
+            }
+            var record2 = getDatabase().getMatchDao()
+                .getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
+            record2?.let {
+                it.bean.recordId = winner2Record.recordId
+                it.bean.recordRank = winner2Record.recordRank
+                it.bean.recordSeed = winner2Record.recordSeed
+                it.bean.order = 2
+                list.add(it.bean)
+            }
+            getDatabase().getMatchDao().updateMatchRecords(list)
+        }
+        return nextMatchItem
+    }
+
+    fun checkFinalSf(matchPeriodId: Long, winner1Record: MatchRecord, winner2Record: MatchRecord) {
+        nextRoundItem(matchPeriodId, MatchConstants.ROUND_ID_F, 1, false, winner1Record, winner2Record)
+    }
+
     /**
      * 一对签位都产生了胜者，才更新下一轮matchItem
      */
     fun checkNextRound(winner1Item: MatchItem, winner1Record: MatchRecord, winner2Item: MatchItem, winner2Record: MatchRecord) {
-        if (winner1Record == null || winner2Record == null) {
-            return
-        }
         var nextRoundOrder = winner1Item.order / 2
         when(winner1Item.round) {
             MatchConstants.ROUND_ID_Q1, MatchConstants.ROUND_ID_Q2,
             MatchConstants.ROUND_ID_128, MatchConstants.ROUND_ID_64, MatchConstants.ROUND_ID_32,
             MatchConstants.ROUND_ID_16, MatchConstants.ROUND_ID_QF, MatchConstants.ROUND_ID_SF -> {
-                var nextMatchItem = getDatabase().getMatchDao().getMatchItem(winner1Item.matchId, winner1Item.round + 1, nextRoundOrder)
-                if (nextMatchItem == null) {
-                    nextMatchItem = MatchItem(0, winner1Item.matchId, winner1Item.round + 1, null, winner1Item.isQualify, false, nextRoundOrder, null)
-                    var id = getDatabase().getMatchDao().insertMatchItem(nextMatchItem)
-
-                    var list = mutableListOf<MatchRecord>()
-                    var record1 = winner1Record.copy()
-                    record1.id = 0
-                    record1.matchItemId = id
-                    record1.order = 1
-                    list.add(record1)
-                    var record2 = winner2Record.copy()
-                    record2.id = 0
-                    record2.matchItemId = id
-                    record2.order = 2
-                    list.add(record2)
-                    getDatabase().getMatchDao().insertMatchRecords(list)
-                }
-                else {
-                    var list = mutableListOf<MatchRecord>()
-                    var record1 = getDatabase().getMatchDao().getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
-                    record1?.let {
-                        it.bean.recordId = winner1Record.recordId
-                        it.bean.recordRank = winner1Record.recordRank
-                        it.bean.recordSeed = winner1Record.recordSeed
-                        it.bean.order = 1
-                        list.add(it.bean)
-                    }
-                    var record2 = getDatabase().getMatchDao().getMatchRecord(nextMatchItem.id, MatchConstants.MATCH_RECORD_ORDER1)
-                    record2?.let {
-                        it.bean.recordId = winner2Record.recordId
-                        it.bean.recordRank = winner2Record.recordRank
-                        it.bean.recordSeed = winner2Record.recordSeed
-                        it.bean.order = 2
-                        list.add(it.bean)
-                    }
-                    getDatabase().getMatchDao().updateMatchRecords(list)
-                }
+                nextRoundItem(winner1Item.matchId, winner1Item.round + 1, nextRoundOrder, winner1Item.isQualify, winner1Record, winner2Record)
             }
         }
+    }
+
+    fun checkFinalGroup(matchPeriodId: Long, firstRound: MutableList<DrawItem>, scoreAList: MutableList<FinalScore>, scoreBList: MutableList<FinalScore>) {
+        countScore(firstRound, scoreAList)
+        countScore(firstRound, scoreBList)
+        // 先删除已有的sf, f数据
+        getDatabase().getMatchDao().deleteMatchItemsBy(matchPeriodId, MatchConstants.ROUND_ID_SF)
+        getDatabase().getMatchDao().deleteMatchItemsBy(matchPeriodId, MatchConstants.ROUND_ID_F)
+        // 各组取top2晋级，且A1-B2，A2-B1
+        val a1 = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, matchPeriodId, 0,
+            scoreAList[0].record.bean.id!!, scoreAList[0].recordRank, scoreAList[0].recordRank, 1)
+        val b2 = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, matchPeriodId, 0,
+            scoreBList[1].record.bean.id!!, scoreBList[1].recordRank, scoreBList[1].recordRank, 2)
+        nextRoundItem(matchPeriodId, MatchConstants.ROUND_ID_SF, 1, false, a1, b2)
+        val a2 = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, matchPeriodId, 0,
+            scoreAList[1].record.bean.id!!, scoreAList[1].recordRank, scoreAList[1].recordRank, 1)
+        val b1 = MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, matchPeriodId, 0,
+            scoreBList[0].record.bean.id!!, scoreBList[0].recordRank, scoreBList[0].recordRank, 2)
+        nextRoundItem(matchPeriodId, MatchConstants.ROUND_ID_SF, 2, false, a2, b1)
     }
 
     private fun getSamePeriodMatches(period: Int, orderInPeriod: Int): List<MatchPeriod> {

@@ -147,6 +147,7 @@ class FinalDrawAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun onBindScore(binding: AdapterMatchFinalScoreBinding, position: Int, bean: FinalScore) {
         binding.tvRank.text = bean.rank
+        binding.tvSeed.text = "[${bean.recordRank}]"
         binding.tvResult.text = "${bean.win}胜${bean.lose}负"
         binding.ivRecord.setOnClickListener { onDrawListener?.onClickPlayer(position, bean.record.bean) }
         ImageBindingAdapter.setRecordUrl(binding.ivRecord, bean.record.imageUrl)

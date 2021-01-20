@@ -21,8 +21,8 @@ data class DrawData (
 data class FinalDrawData (
     var matchPeriod: MatchPeriod,
     var head: FinalHead,
-    var scoreAList: List<FinalScore>,
-    var scoreBList: List<FinalScore>,
+    var scoreAList: MutableList<FinalScore>,
+    var scoreBList: MutableList<FinalScore>,
     var roundMap: MutableMap<String, MutableList<DrawItem>?>
 )
 data class DrawItem (

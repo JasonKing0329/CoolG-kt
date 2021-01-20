@@ -10,7 +10,9 @@ import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.FinalDrawData
 import com.king.app.coolg_kt.page.match.FinalRound
+import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.relation.MatchPeriodWrap
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 
 /**
@@ -26,10 +28,12 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
 
     var newDrawCreated = MutableLiveData<Boolean>()
     var cancelConfirmCancelStatus = MutableLiveData<Boolean>()
+    var saveEditSuccess = MutableLiveData<Boolean>()
 
     var dataObserver = MutableLiveData<List<Any>>()
 
     var createdDrawData: FinalDrawData? = null
+    var presentDrawData: FinalDrawData? = null
 
     fun isDrawExist(): Boolean {
         return drawRepository.isDrawExist(matchPeriod.bean.id)
@@ -47,7 +51,10 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
     private fun loadMatch() {
         loadingObserver.value = true
         drawRepository.getFinalDrawData(matchPeriod)
-            .flatMap { toViewList(it) }
+            .flatMap {
+                presentDrawData = it
+                toViewList(it)
+            }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
                 override fun onNext(t: List<Any>) {
@@ -170,7 +177,68 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun saveEdit() {
+        saveEditRx()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    messageObserver.value = "success"
+                    saveEditSuccess.value = true
+                    reloadMatch()
+                }
 
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message
+                }
+            })
+    }
+
+    private fun saveEditRx(): Observable<Boolean> {
+        return Observable.create {
+            val updateMatchItems = mutableListOf<MatchItem>()
+            // RR需要等待全部完成才能决定次轮，SF需要等待两场均完赛决定F
+            var isRRChanged = false
+            var isRRFinished = true
+            var isSfChanged = false
+            var isSfFinished = true
+            dataObserver.value
+                ?.filter { item -> item is DrawItem && item.isChanged }
+                ?.map { item -> item as DrawItem }
+                ?.forEach { drawItem ->
+                    when(drawItem.matchItem.round) {
+                        MatchConstants.ROUND_ID_GROUP -> {
+                            isRRChanged = true
+                            if (drawItem.winner == null) {
+                                isRRFinished = false
+                            }
+                        }
+                        MatchConstants.ROUND_ID_SF -> {
+                            isSfChanged = true
+                            if (drawItem.winner == null) {
+                                isSfFinished = false
+                            }
+                        }
+                    }
+                    drawItem.winner?.let { winner ->
+                        drawItem.matchItem.winnerId = winner.bean.recordId
+                        updateMatchItems.add(drawItem.matchItem)
+                    }
+            }
+            // 修改胜负情况
+            getDatabase().getMatchDao().updateMatchItems(updateMatchItems)
+            // 判定sf晋级情况
+            if (isSfChanged && isSfFinished) {
+                val sfList = presentDrawData!!.roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_SF)]!!
+                drawRepository.checkFinalSf(matchPeriod.bean.id, sfList[0].winner!!.bean, sfList[1].winner!!.bean)
+            }
+            // 判定group晋级情况
+            if (isRRChanged && isRRFinished) {
+                val firstRound = presentDrawData!!.roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]!!
+                drawRepository.checkFinalGroup(matchPeriod.bean.id, firstRound, presentDrawData!!.scoreAList, presentDrawData!!.scoreBList)
+            }
+            it.onNext(true)
+            it.onComplete()
+        }
     }
 
     fun cancelSaveDraw() {
@@ -185,7 +253,7 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun cancelEdit() {
-
+        reloadMatch()
     }
 
     fun createScore() {

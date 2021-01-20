@@ -3,10 +3,7 @@ package com.king.app.coolg_kt.model.repository
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.image.ImageProvider
-import com.king.app.coolg_kt.page.match.DrawCell
-import com.king.app.coolg_kt.page.match.DrawData
-import com.king.app.coolg_kt.page.match.DrawItem
-import com.king.app.coolg_kt.page.match.FinalDrawData
+import com.king.app.coolg_kt.page.match.*
 import com.king.app.coolg_kt.page.match.draw.*
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.*
@@ -160,6 +157,41 @@ class DrawRepository: BaseRepository() {
 
     fun isDrawExist(matchPeriodId: Long): Boolean {
         return getDatabase().getMatchDao().countMatchItemsByMatchPeriod(matchPeriodId) > 0
+    }
+
+    fun saveFinalDraw(data: FinalDrawData): Observable<FinalDrawData> {
+        return Observable.create {
+            // 先清除matchPeriodId相关
+            getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
+            getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
+
+            // 先插入MatchItem获取id
+            val insertMatchItemList = mutableListOf<MatchItem>()
+            val firstRound = data.roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]
+            firstRound?.forEach { drawItem ->
+                insertMatchItemList.add(drawItem.matchItem)
+            }
+            val ids = getDatabase().getMatchDao().insertMatchItems(insertMatchItemList)
+            insertMatchItemList.forEachIndexed { index, matchItem ->
+                matchItem.id = ids[index]
+            }
+            // 再插入MatchRecord
+            val insertMatchRecordList = mutableListOf<MatchRecord>()
+            firstRound?.forEach { drawItem ->
+                drawItem.matchRecord1?.bean?.let { matchRecord ->
+                    matchRecord.matchItemId = drawItem.matchItem.id
+                    insertMatchRecordList.add(matchRecord)
+                }
+                drawItem.matchRecord2?.bean?.let { matchRecord ->
+                    matchRecord.matchItemId = drawItem.matchItem.id
+                    insertMatchRecordList.add(matchRecord)
+                }
+            }
+            getDatabase().getMatchDao().insertMatchRecords(insertMatchRecordList)
+
+            it.onNext(data)
+            it.onComplete()
+        }
     }
 
     fun saveDraw(data: DrawData):Observable<DrawData> {
@@ -360,4 +392,118 @@ class DrawRepository: BaseRepository() {
             it.onComplete()
         }
     }
+
+    fun getFinalDrawData(matchPeriod: MatchPeriodWrap): Observable<FinalDrawData> {
+        return Observable.create {
+            var groupAList = mutableListOf<RecordWithRank>()
+            var groupBList = mutableListOf<RecordWithRank>()
+            var head = FinalHead(groupAList, groupBList)
+            var scoreAList = mutableListOf<FinalScore>()
+            var scoreBList = mutableListOf<FinalScore>()
+
+            var roundMap = mutableMapOf<String, MutableList<DrawItem>?>()
+            // round, order已有序
+            var matchItems = getDatabase().getMatchDao().getMatchItemsSorted(matchPeriod.bean.id)
+            matchItems.forEach { wrap ->
+                var round = MatchConstants.roundFull(wrap.bean.round)
+                var roundItems = roundMap[round]
+                if (roundItems == null) {
+                    roundItems = mutableListOf()
+                    roundMap[round] = roundItems
+                }
+                var m1 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 1)
+                var m2 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 2)
+                var winner: MatchRecordWrap? = null
+                if (wrap.bean.winnerId == m1!!.bean.recordId) {
+                    winner = m1
+                }
+                else if (wrap.bean.winnerId == m2!!.bean.recordId) {
+                    winner = m2
+                }
+                roundItems.add(DrawItem(wrap.bean, m1, m2, winner))
+            }
+            // define group for all records
+            val firstRound = roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]
+            firstRound?.forEach { item ->
+                if (item.matchItem.groupFlag == 0) {
+                    addToFinalGroup(item, groupAList, scoreAList)
+                }
+                else {
+                    addToFinalGroup(item, groupBList, scoreBList)
+                }
+            }
+            // 统计score
+            firstRound?.let { items ->
+                countScore(items, scoreAList)
+                countScore(items, scoreBList)
+            }
+            var finalDrawData = FinalDrawData(matchPeriod.bean, head, scoreAList, scoreBList, roundMap)
+            it.onNext(finalDrawData)
+            it.onComplete()
+        }
+    }
+
+    private fun countScore(firstRound: MutableList<DrawItem>, scoreList: MutableList<FinalScore>) {
+        firstRound?.forEach {
+            val fs1 = findFinalScore(it.matchRecord1?.bean?.recordId, scoreList)
+            val fs2 = findFinalScore(it.matchRecord2?.bean?.recordId, scoreList)
+            if (it.matchRecord1?.bean?.recordId == it.matchItem.winnerId) {
+                fs1?.let { finalScore -> finalScore.win++ }
+                fs2?.let { finalScore -> finalScore.lose++ }
+            }
+            else if (it.matchRecord2?.bean?.recordId == it.matchItem.winnerId) {
+                fs1?.let { finalScore -> finalScore.lose++ }
+                fs2?.let { finalScore -> finalScore.win++ }
+            }
+        }
+        // 设置extraValue
+        // TODO 规则还没想好，大体上以record关联的star排名进行参考
+
+        // 第一关键字为win
+        scoreList.sortByDescending { it.win }
+        // 第二关键字为lose
+        scoreList.sortBy { it.lose }
+        // 第三关键字为extraValue
+        scoreList.sortByDescending { it.extraValue }
+        // 第四关键字为rank
+        scoreList.sortBy { it.recordRank }
+
+        scoreList.forEachIndexed { index, finalScore -> finalScore.rank = (index + 1).toString() }
+    }
+
+    private fun findFinalScore(recordId: Long?, scoreList: MutableList<FinalScore>): FinalScore? {
+        for (fs in scoreList) {
+            if (fs.record.bean.id == recordId) {
+                return fs
+            }
+        }
+        return null
+    }
+
+    /**
+     * 分组、生成scoreList
+     */
+    private fun addToFinalGroup(item: DrawItem, groupList: MutableList<RecordWithRank>, scoreList: MutableList<FinalScore>) {
+        val record1 = getDatabase().getRecordDao().getRecord(item.matchRecord1!!.bean.recordId)!!
+        record1.imageUrl = ImageProvider.getRecordRandomPath(record1.bean.name, null)
+        val record2 = getDatabase().getRecordDao().getRecord(item.matchRecord2!!.bean.recordId)!!
+        record2.imageUrl = ImageProvider.getRecordRandomPath(record2.bean.name, null)
+        var r1 = groupList.firstOrNull { it.record.bean.id == record1.bean.id }
+        if (r1 == null) {
+            groupList.add(RecordWithRank(record1, item.matchRecord1!!.bean.recordRank!!))
+        }
+        var r2 = groupList.firstOrNull { it.record.bean.id == record2.bean.id }
+        if (r2 == null) {
+            groupList.add(RecordWithRank(record2, item.matchRecord2!!.bean.recordRank!!))
+        }
+        var s1 = scoreList.firstOrNull { it.record.bean.id == record1.bean.id }
+        if (s1 == null) {
+            scoreList.add(FinalScore("0", record1, item.matchRecord1?.bean?.recordRank?:0))
+        }
+        var s2 = scoreList.firstOrNull { it.record.bean.id == record2.bean.id }
+        if (s2 == null) {
+            scoreList.add(FinalScore("0", record2, item.matchRecord2?.bean?.recordRank?:0))
+        }
+    }
+
 }

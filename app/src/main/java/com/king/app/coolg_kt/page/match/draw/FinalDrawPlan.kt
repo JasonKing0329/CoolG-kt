@@ -43,56 +43,56 @@ class FinalDrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) {
         val scoreA = mutableListOf<FinalScore>()
         val scoreB = mutableListOf<FinalScore>()
         groupA.add(top10[0])
-        scoreA.add(FinalScore("1", top10[0].record, ""))
+        scoreA.add(FinalScore("1", top10[0].record, top10[0].rank))
         groupB.add(top10[1])
-        scoreB.add(FinalScore("1", top10[1].record, ""))
+        scoreB.add(FinalScore("1", top10[1].record, top10[1].rank))
         if (abs(random.nextInt()) % 2 == 0) {
             groupA.add(top10[2])
-            scoreA.add(FinalScore("2", top10[2].record, ""))
+            scoreA.add(FinalScore("2", top10[2].record, top10[2].rank))
             groupB.add(top10[3])
-            scoreB.add(FinalScore("2", top10[3].record, ""))
+            scoreB.add(FinalScore("2", top10[3].record, top10[3].rank))
         }
         else {
             groupA.add(top10[3])
-            scoreA.add(FinalScore("2", top10[3].record, ""))
+            scoreA.add(FinalScore("2", top10[3].record, top10[3].rank))
             groupB.add(top10[2])
-            scoreB.add(FinalScore("2", top10[2].record, ""))
+            scoreB.add(FinalScore("2", top10[2].record, top10[2].rank))
         }
         if (abs(random.nextInt()) % 2 == 0) {
             groupA.add(top10[4])
-            scoreA.add(FinalScore("3", top10[4].record, ""))
+            scoreA.add(FinalScore("3", top10[4].record, top10[4].rank))
             groupB.add(top10[5])
-            scoreB.add(FinalScore("3", top10[5].record, ""))
+            scoreB.add(FinalScore("3", top10[5].record, top10[5].rank))
         }
         else {
             groupA.add(top10[5])
-            scoreA.add(FinalScore("3", top10[5].record, ""))
+            scoreA.add(FinalScore("3", top10[5].record, top10[5].rank))
             groupB.add(top10[4])
-            scoreB.add(FinalScore("3", top10[4].record, ""))
+            scoreB.add(FinalScore("3", top10[4].record, top10[4].rank))
         }
         if (abs(random.nextInt()) % 2 == 0) {
             groupA.add(top10[6])
-            scoreA.add(FinalScore("4", top10[6].record, ""))
+            scoreA.add(FinalScore("4", top10[6].record, top10[6].rank))
             groupB.add(top10[7])
-            scoreB.add(FinalScore("4", top10[7].record, ""))
+            scoreB.add(FinalScore("4", top10[7].record, top10[7].rank))
         }
         else {
             groupA.add(top10[7])
-            scoreA.add(FinalScore("4", top10[7].record, ""))
+            scoreA.add(FinalScore("4", top10[7].record, top10[7].rank))
             groupB.add(top10[6])
-            scoreB.add(FinalScore("4", top10[6].record, ""))
+            scoreB.add(FinalScore("4", top10[6].record, top10[7].rank))
         }
         if (abs(random.nextInt()) % 2 == 0) {
             groupA.add(top10[8])
-            scoreA.add(FinalScore("5", top10[8].record, ""))
+            scoreA.add(FinalScore("5", top10[8].record, top10[8].rank))
             groupB.add(top10[9])
-            scoreB.add(FinalScore("5", top10[9].record, ""))
+            scoreB.add(FinalScore("5", top10[9].record, top10[9].rank))
         }
         else {
             groupA.add(top10[9])
-            scoreA.add(FinalScore("5", top10[9].record, ""))
+            scoreA.add(FinalScore("5", top10[9].record, top10[9].rank))
             groupB.add(top10[8])
-            scoreB.add(FinalScore("5", top10[8].record, ""))
+            scoreB.add(FinalScore("5", top10[8].record, top10[8].rank))
         }
 
         val pairsA = mutableListOf<RecordPair>()
@@ -112,7 +112,7 @@ class FinalDrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) {
         val firstRound = mutableListOf<DrawItem>()
         roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)] = firstRound
         addToFirstRound(0, pairsA, firstRound)
-        addToFirstRound(0, pairsB, firstRound)
+        addToFirstRound(1, pairsB, firstRound)
         return FinalDrawData(match.bean, head, scoreA, scoreB, roundMap)
     }
 
@@ -122,11 +122,11 @@ class FinalDrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) {
                 DrawItem(
                     MatchItem(0, match.bean.id, MatchConstants.ROUND_ID_GROUP, 0, false, false, index + 1, groupFlg),
                     MatchRecordWrap(
-                        MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.id, 0, recordPair.record1.record.bean.id!!, recordPair.record1.rank, recordPair.record1.rank, 1)
+                        MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.id, 0, recordPair.record1.record.bean.id!!, recordPair.record1.rank, recordPair.record1.rank, MatchConstants.MATCH_RECORD_ORDER1)
                         , recordPair.record1.record.bean
                     ),
                     MatchRecordWrap(
-                        MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.id, 0, recordPair.record2.record.bean.id!!, recordPair.record2.rank, recordPair.record2.rank, 2)
+                        MatchRecord(0, MatchConstants.MATCH_RECORD_NORMAL, match.bean.id, 0, recordPair.record2.record.bean.id!!, recordPair.record2.rank, recordPair.record2.rank, MatchConstants.MATCH_RECORD_ORDER2)
                         , recordPair.record2.record.bean
                     ),
                     null, true

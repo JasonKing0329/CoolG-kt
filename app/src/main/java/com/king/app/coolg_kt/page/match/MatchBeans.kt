@@ -107,7 +107,10 @@ data class FinalHead(
 data class FinalScore(
     var rank: String,
     var record: RecordWrap,
-    var result: String
+    var recordRank: Int,
+    var win: Int = 0,
+    var lose: Int = 0,
+    var extraValue: Int = 0
 )
 data class FinalRound(
     var round: String

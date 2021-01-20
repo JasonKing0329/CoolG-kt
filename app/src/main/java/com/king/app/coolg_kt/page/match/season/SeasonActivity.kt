@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
-import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivitySeasonBinding
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
+import com.king.app.coolg_kt.page.match.draw.FinalDrawActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.MatchPeriod
@@ -99,7 +100,12 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
             }
             adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<MatchPeriodWrap> {
                 override fun onClickItem(view: View, position: Int, match: MatchPeriodWrap) {
-                    DrawActivity.startPage(this@SeasonActivity, match.bean.id)
+                    if (match.match.level == MatchConstants.MATCH_LEVEL_FINAL) {
+                        FinalDrawActivity.startPage(this@SeasonActivity, match.bean.id)
+                    }
+                    else {
+                        DrawActivity.startPage(this@SeasonActivity, match.bean.id)
+                    }
                 }
             }
             mBinding.rvList.adapter = adapter

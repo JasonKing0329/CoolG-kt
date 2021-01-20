@@ -80,6 +80,7 @@
         <activity android:name=".page.match.list.MatchListActivity"/>
         <activity android:name=".page.match.season.SeasonActivity"/>
         <activity android:name=".page.match.draw.DrawActivity"/>
+        <activity android:name=".page.match.draw.FinalDrawActivity"/>
         <activity android:name=".page.match.rank.RankActivity"/>
         <activity android:name=".page.match.score.ScoreActivity"/>
         <activity android:name=".page.match.h2h.H2hActivity"/>

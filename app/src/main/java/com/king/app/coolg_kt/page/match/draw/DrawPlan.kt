@@ -316,8 +316,8 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(li
      * 32 q, 3 rounds, 32*2*2*2 = 256
      */
     override fun calcQualify() {
-        qualify = 256 - match.bean.qualifyWildcard
-        qualifyList = list.subList(seed + directInUnSeed, seed + directInUnSeed + qualify)
+        qualify = 256
+        qualifyList = list.subList(seed + directInUnSeed, seed + directInUnSeed + qualify - match.bean.qualifyWildcard)
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
@@ -352,13 +352,13 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list,
      * qualify拓展1倍，后50个名额扩展3倍进行shuffle
      */
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
+        qualify = match.match.qualifyDraws * 8
         val forsure = qualify - 50
         val tempList = mutableListOf<RankRecord>()
         val directIn = seed + directInUnSeed
         tempList.addAll(list.subList(directIn, directIn + forsure))
         // 后50个名额扩展3倍进行shuffle
-        val extend = list.subList(directIn + forsure, directIn + forsure + 150).shuffled().take(50)
+        val extend = list.subList(directIn + forsure, directIn + forsure + 150).shuffled().take(50 - match.bean.qualifyWildcard)
         tempList.addAll(extend)
         qualifyList = tempList
     }
@@ -439,7 +439,7 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
      * qualify排名300以内
      */
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
+        qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.filter { it.rank in (directInEnd + 1)..300 }
         val result = mutableListOf<RankRecord>()
@@ -448,7 +448,7 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
                 if (!samePeriodMap.contains(it.recordId)) {
                     result.add(it)
                 }
-                if (result.size == qualify) {
+                if (result.size == qualify - match.bean.qualifyWildcard) {
                     return@outside
                 }
             }
@@ -538,7 +538,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
      * qualify排名500以内
      */
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
+        qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         val limitList = list.filter { it.rank in (directInEnd + 1)..500 }
         val result = mutableListOf<RankRecord>()
@@ -547,7 +547,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
                 if (!samePeriodMap.contains(it.recordId)) {
                     result.add(it)
                 }
-                if (result.size == qualify) {
+                if (result.size == qualify - match.bean.qualifyWildcard) {
                     return@outside
                 }
             }
@@ -568,7 +568,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
     val random = Random()
-    private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard + match.match.qualifyDraws * 8
+    private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard + match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
     private lateinit var rangeList: List<RankRecord>
 
     override fun prepareSamePeriodMap() {
@@ -595,8 +595,8 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
     }
 
     override fun calcQualify() {
-        qualify = match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
-        qualifyList = rangeList.takeLast(qualify)
+        qualify = match.match.qualifyDraws * 8
+        qualifyList = rangeList.takeLast(qualify - match.bean.qualifyWildcard)
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {

@@ -414,49 +414,55 @@ class DrawRepository: BaseRepository() {
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
                     if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
-                        var score = if (matchRecord.recordId == item.bean.winnerId && item.bean.round == MatchConstants.ROUND_ID_F) {
-                            plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
+                        var singleScore: Int? = null
+                        // win，只有F计分
+                        if (matchRecord.recordId == item.bean.winnerId) {
+                            if (item.bean.round == MatchConstants.ROUND_ID_F) {
+                                singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
+                            }
                         }
                         // lose，其他所有轮次都计分
                         else {
-                            plan.getRoundScore(
+                            singleScore = plan.getRoundScore(
                                 item.bean.round,
                                 isWinner = false,
                                 isQualify = matchRecord.type == MatchConstants.MATCH_RECORD_QUALIFY
                             )
                         }
 
-                        val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
-                        recordScores.add(matchScoreRecord)
-                        val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
-                        stars.forEach { star ->
-                            // star可能在一站中有多个record，取最高分。还可能在同期赛事中有其他record，还要从数据库里查
-                            var matchScoreStar = starScoreMap[star.bean.starId]
-                            if (matchScoreStar == null) {
-                                // 先从数据库里查是否已有记录
-                                matchScoreStar = getDatabase().getMatchDao().getMatchScoreStarBy(match.bean.period, match.bean.orderInPeriod, star.bean.starId)
-                                // 没有则创建新纪录
+                        singleScore?.let { score ->
+                            val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
+                            recordScores.add(matchScoreRecord)
+                            val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
+                            stars.forEach { star ->
+                                // star可能在一站中有多个record，取最高分。还可能在同期赛事中有其他record，还要从数据库里查
+                                var matchScoreStar = starScoreMap[star.bean.starId]
                                 if (matchScoreStar == null) {
-                                    matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
-                                    starScoreMap[star.bean.starId] = matchScoreStar
-                                    starScores.add(matchScoreStar)
+                                    // 先从数据库里查是否已有记录
+                                    matchScoreStar = getDatabase().getMatchDao().getMatchScoreStarBy(match.bean.period, match.bean.orderInPeriod, star.bean.starId)
+                                    // 没有则创建新纪录
+                                    if (matchScoreStar == null) {
+                                        matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
+                                        starScoreMap[star.bean.starId] = matchScoreStar
+                                        starScores.add(matchScoreStar)
+                                    }
+                                    // 有则判断是否修改记录
+                                    else {
+                                        starScoreMap[star.bean.starId] = matchScoreStar
+                                        updateStarScores.add(matchScoreStar)
+                                        if (score > matchScoreStar.score) {
+                                            matchScoreStar.matchItemId = item.bean.id
+                                            matchScoreStar.recordId = matchRecord.recordId
+                                            matchScoreStar.score = score
+                                        }
+                                    }
                                 }
-                                // 有则判断是否修改记录
                                 else {
-                                    starScoreMap[star.bean.starId] = matchScoreStar
-                                    updateStarScores.add(matchScoreStar)
                                     if (score > matchScoreStar.score) {
                                         matchScoreStar.matchItemId = item.bean.id
                                         matchScoreStar.recordId = matchRecord.recordId
                                         matchScoreStar.score = score
                                     }
-                                }
-                            }
-                            else {
-                                if (score > matchScoreStar.score) {
-                                    matchScoreStar.matchItemId = item.bean.id
-                                    matchScoreStar.recordId = matchRecord.recordId
-                                    matchScoreStar.score = score
                                 }
                             }
                         }

@@ -81,7 +81,8 @@ data class H2hItem (
     var level: String,
     var matchName: String,
     var round: String,
-    var winner: String
+    var winner: String,
+    var loser: String
 )
 
 data class ShowPeriod(

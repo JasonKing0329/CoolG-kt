@@ -38,9 +38,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     companion object {
         val EXTRA_MATCH_PERIOD_ID = "match_period_id"
-        fun startPage(context: Context, id: Long) {
+        fun startPage(context: Context, matchPeriodId: Long) {
             var intent = Intent(context, DrawActivity::class.java)
-            intent.putExtra(EXTRA_MATCH_PERIOD_ID, id)
+            intent.putExtra(EXTRA_MATCH_PERIOD_ID, matchPeriodId)
             context.startActivity(intent)
         }
     }

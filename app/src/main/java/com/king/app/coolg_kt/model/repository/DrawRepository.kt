@@ -347,17 +347,24 @@ class DrawRepository: BaseRepository() {
         // 已存在，修改MatchRecord
         else {
             // winner是第1个
-            val nextRecord = if (matchItem.order % 2 == 0) {
-                nextWrap.recordList.first { it.order == 1 }
+            var nextRecord = if (matchItem.order % 2 == 0) {
+                nextWrap.recordList.firstOrNull { it.order == 1 }
             }
             else {
-                nextWrap.recordList.first { it.order == 2 }
+                nextWrap.recordList.firstOrNull { it.order == 2 }
             }
-            nextRecord.recordId = winner.bean.recordId
-            nextRecord.recordRank = winner.bean.recordRank
-            nextRecord.recordSeed = winner.bean.recordSeed
-            nextRecord.type = winner.bean.type
-            getDatabase().getMatchDao().updateMatchRecords(listOf(nextRecord))
+            if (nextRecord == null) {
+                nextRecord = winner.bean.copy()
+                nextRecord.id = 0
+                nextRecord.order = matchItem.order % 2 + 1
+            }
+            else {
+                nextRecord.recordId = winner.bean.recordId
+                nextRecord.recordRank = winner.bean.recordRank
+                nextRecord.recordSeed = winner.bean.recordSeed
+                nextRecord.type = winner.bean.type
+                getDatabase().getMatchDao().updateMatchRecords(listOf(nextRecord))
+            }
         }
     }
 

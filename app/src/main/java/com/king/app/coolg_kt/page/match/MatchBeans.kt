@@ -5,6 +5,7 @@ import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchItemWrap
+import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import com.king.app.gdb.data.relation.RecordWrap
 
@@ -115,4 +116,10 @@ data class FinalScore(
 )
 data class FinalRound(
     var round: String
+)
+
+data class FinalListItem(
+    var match: MatchPeriodWrap,
+    var recordWin: MatchRecordWrap,
+    var recordLose: MatchRecordWrap
 )

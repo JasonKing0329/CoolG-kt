@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.FinalListItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/tv_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="W45" />
+
+        <ImageView
+            android:id="@+id/iv_player_win"
+            android:layout_width="140dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="@+id/tv_week"
+            app:layout_constraintTop_toBottomOf="@+id/tv_week"
+            app:recordUrl="@{bean.recordWin.imageUrl}"
+            tools:src="@drawable/def_small" />
+
+        <ImageView
+            android:id="@+id/iv_player_lose"
+            android:layout_width="140dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/iv_player_win"
+            app:recordUrl="@{bean.recordLose.imageUrl}"
+            tools:src="@drawable/def_small" />
+
+        <TextView
+            android:id="@+id/tv_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_week"
+            app:layout_constraintTop_toTopOf="@+id/tv_week"
+            tools:text="Grand Slam" />
+
+        <TextView
+            android:id="@+id/tv_match"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_level"
+            app:layout_constraintTop_toTopOf="@+id/tv_level"
+            tools:text="LE" />
+
+        <TextView
+            android:id="@+id/tv_def"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="def."
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player_win"
+            app:layout_constraintEnd_toStartOf="@+id/iv_player_lose"
+            app:layout_constraintStart_toEndOf="@+id/iv_player_win"
+            app:layout_constraintTop_toTopOf="@+id/iv_player_win" />
+
+        <TextView
+            android:id="@+id/tv_seed_win"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"
+            android:shadowColor="#000000"
+            android:shadowRadius="10"
+            app:layout_constraintStart_toStartOf="@+id/iv_player_win"
+            app:layout_constraintTop_toTopOf="@+id/iv_player_win"
+            tools:text="[5]/269" />
+
+        <TextView
+            android:id="@+id/tv_seed_lose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"
+            android:shadowColor="#000000"
+            android:shadowRadius="10"
+            app:layout_constraintStart_toStartOf="@+id/iv_player_lose"
+            app:layout_constraintTop_toTopOf="@+id/iv_player_lose"
+            tools:text="[5]/269" />
+
+        <TextView
+            android:id="@+id/tv_name_win"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintEnd_toEndOf="@+id/iv_player_win"
+            app:layout_constraintStart_toStartOf="@+id/iv_player_win"
+            app:layout_constraintTop_toBottomOf="@+id/iv_player_win"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="TextView" />
+
+        <TextView
+            android:id="@+id/tv_name_lose"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintEnd_toEndOf="@+id/iv_player_lose"
+            app:layout_constraintStart_toStartOf="@+id/iv_player_lose"
+            app:layout_constraintTop_toBottomOf="@+id/iv_player_lose"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="TextView" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

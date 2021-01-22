@@ -79,6 +79,10 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    fun isFirstRound(): Boolean {
+        return roundPosition == 0
+    }
+
     fun onClickPrevious() {
         roundList.value?.let {
             var target = roundPosition - 1
@@ -214,12 +218,20 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         reloadRound()
     }
 
-    fun setWildCard(recordId: Long) {
-        val wrap = getDatabase().getRecordDao().getRecord(recordId)
-        mToSetWildCardRecord?.bean?.recordId = recordId
-        mToSetWildCardRecord?.bean?.recordRank = wrap?.countRecord?.rank?:0
-        mToSetWildCardRecord?.imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
-        mToSetWildCard?.isChanged = true
+    fun setWildCard(recordId: Long): Boolean {
+        // 先查询是否已存在当前period的签表中
+        val existCount = getDatabase().getMatchDao().countMatchRecord(matchPeriod.bean.period, matchPeriod.bean.orderInPeriod, recordId)
+        return if (existCount > 0) {
+            messageObserver.value = "This record is already in current period"
+            false
+        } else {
+            val wrap = getDatabase().getRecordDao().getRecord(recordId)
+            mToSetWildCardRecord?.bean?.recordId = recordId
+            mToSetWildCardRecord?.bean?.recordRank = wrap?.countRecord?.rank?:0
+            mToSetWildCardRecord?.imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
+            mToSetWildCard?.isChanged = true
+            true
+        }
     }
 
     fun isModified(): Boolean {
@@ -245,7 +257,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun cancelEdit() {
-
+        cancelConfirmCancelStatus.value = true
         reloadRound()
     }
 
@@ -270,15 +282,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                         // 其他，判断进入到下一轮
                         else -> {
                             // 一对签位，在第二个item检查下一轮
-                            if (drawItem.matchItem.order % 2 == 1) {
-                                var winner1Item = itemsObserver.value!![drawItem.matchItem.order - 1].matchItem
-                                var winner1Record = itemsObserver.value!![drawItem.matchItem.order - 1].winner
-                                var winner2Item = drawItem.matchItem
-                                var winner2Record = winner.bean
-                                winner1Record?.bean?.let { winner1Record ->
-                                    drawRepository.checkNextRound(winner1Item, winner1Record, winner2Item, winner2Record)
-                                }
-                            }
+                            // 检查下一轮
+                            drawRepository.toggleNextRound(drawItem.matchItem, winner)
                         }
                     }
                 }

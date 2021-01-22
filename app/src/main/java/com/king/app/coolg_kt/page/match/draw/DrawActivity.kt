@@ -21,7 +21,6 @@ import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
 import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
-import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.MatchRecordWrap
@@ -106,7 +105,6 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                         showConfirmCancelMessage("Are you sure to drop the edit?",
                             DialogInterface.OnClickListener { dialog, which ->
                                 mModel.cancelEdit()
-                                mBinding.actionbar.cancelConfirmStatus()
                             },
                             null)
                         false
@@ -131,7 +129,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                             }
                         }
                         MatchConstants.MATCH_RECORD_WILDCARD -> {
-                            if (isEditing) {
+                            if (isEditing && mModel.isFirstRound()) {
                                 selectWildCardRecord(position, drawItem, it)
                             }
                             else {
@@ -197,8 +195,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         if (requestCode == REQUEST_SELECT_WILDCARD) {
             if (resultCode == Activity.RESULT_OK) {
                 val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
-                mModel.setWildCard(recordId!!)
-                adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+                if (mModel.setWildCard(recordId!!)) {
+                    adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+                }
             }
         }
     }
@@ -211,7 +210,10 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     override fun initData() {
 
-        mModel.cancelConfirmCancelStatus.observe(this, Observer { mBinding.actionbar.cancelConfirmStatus() })
+        mModel.cancelConfirmCancelStatus.observe(this, Observer {
+            isEditing = false
+            mBinding.actionbar.cancelConfirmStatus()
+        })
         mModel.setRoundPosition.observe(this, Observer { mBinding.spRound.setSelection(it) })
         mModel.roundList.observe(this, Observer {
             mBinding.spRound.adapter = RoundAdapter(it)

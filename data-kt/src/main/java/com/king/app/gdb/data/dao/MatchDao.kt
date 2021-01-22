@@ -62,6 +62,9 @@ interface MatchDao {
     @Query("select * from match_record where matchItemId=:matchItemId and `order`=:order")
     fun getMatchRecord(matchItemId: Long, order: Int): MatchRecordWrap?
 
+    @Query("select count(*) from match_record mr join match_period mp on mr.matchId=mp.id where mp.period=:period and mp.orderInPeriod=:orderInPeriod and recordId=:recordId")
+    fun countMatchRecord(period: Int, orderInPeriod: Int, recordId:Long): Int
+
     @Query("select * from match_rank_record")
     fun getAllMatchRankRecords(): List<MatchRankRecord>
 
@@ -183,7 +186,7 @@ interface MatchDao {
     fun countMatchItemsByMatchPeriod(matchPeriodId: Long): Int
 
     @Query("select * from match_item where matchId=:matchId and round=:round and `order`=:order")
-    fun getMatchItem(matchId: Long, round: Int, order: Int): MatchItem?
+    fun getMatchItem(matchId: Long, round: Int, order: Int): MatchItemWrap?
 
     @Query("select * from match_record where matchId=:matchPeriodId and type=3 and recordId=0")
     fun getUndefinedQualifies(matchPeriodId: Long): List<MatchRecord>

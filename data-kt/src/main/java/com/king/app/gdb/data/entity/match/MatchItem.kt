@@ -24,7 +24,7 @@ data class MatchItem (
 
     var isBye: Boolean,
 
-    var order: Int,
+    var order: Int,// 下标从0开始
 
     var groupFlag: Int?// 0:groupA, 1:groupB
 )

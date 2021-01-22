@@ -244,7 +244,7 @@ class DrawRepository: BaseRepository() {
     }
 
     private fun nextRoundItem(matchPeriodId: Long, roundId: Int, order: Int, isQualify: Boolean, winner1Record: MatchRecord, winner2Record: MatchRecord): MatchItem {
-        var nextMatchItem = getDatabase().getMatchDao().getMatchItem(matchPeriodId, roundId, order)
+        var nextMatchItem = getDatabase().getMatchDao().getMatchItem(matchPeriodId, roundId, order)?.bean
         if (nextMatchItem == null) {
             nextMatchItem =
                 MatchItem(0, matchPeriodId, roundId, null, isQualify, false, order, null)
@@ -302,6 +302,62 @@ class DrawRepository: BaseRepository() {
             MatchConstants.ROUND_ID_16, MatchConstants.ROUND_ID_QF, MatchConstants.ROUND_ID_SF -> {
                 nextRoundItem(winner1Item.matchId, winner1Item.round + 1, nextRoundOrder, winner1Item.isQualify, winner1Record, winner2Record)
             }
+        }
+    }
+
+    fun toggleNextRound(matchItem: MatchItem, winner: MatchRecordWrap) {
+        val nextRoundOrder = matchItem.order / 2
+        val nextWrap = getDatabase().getMatchDao().getMatchItem(matchItem.matchId, matchItem.round + 1, nextRoundOrder)
+        // 不存在，创建新的MatchItem与MatchRecord
+        if (nextWrap == null) {
+            val nextItem = matchItem.copy()
+            nextItem.id = 0
+            nextItem.round = matchItem.round + 1
+            nextItem.order = nextRoundOrder
+            nextItem.isBye = false
+            nextItem.winnerId = 0
+            val id = getDatabase().getMatchDao().insertMatchItem(nextItem)
+            nextItem.id = id
+            val nextRecord1 = winner.bean.copy()
+            nextRecord1.id = 0
+            nextRecord1.matchItemId = nextItem.id
+            val nextRecord2 = winner.bean.copy()
+            nextRecord2.id = 0
+            nextRecord2.matchItemId = nextItem.id
+            // winner是第1个
+            if (matchItem.order % 2 == 0) {
+                nextRecord1.order = 1
+                nextRecord2.order = 2
+                nextRecord2.recordId = 0
+                nextRecord2.recordRank = 0
+                nextRecord2.recordSeed = 0
+                nextRecord2.type = 0
+            }
+            // winner是第2个
+            else {
+                nextRecord2.order = 1
+                nextRecord1.order = 2
+                nextRecord1.recordId = 0
+                nextRecord1.recordRank = 0
+                nextRecord1.recordSeed = 0
+                nextRecord1.type = 0
+            }
+            getDatabase().getMatchDao().insertMatchRecords(listOf(nextRecord1, nextRecord2))
+        }
+        // 已存在，修改MatchRecord
+        else {
+            // winner是第1个
+            val nextRecord = if (matchItem.order % 2 == 0) {
+                nextWrap.recordList.first { it.order == 1 }
+            }
+            else {
+                nextWrap.recordList.first { it.order == 2 }
+            }
+            nextRecord.recordId = winner.bean.recordId
+            nextRecord.recordRank = winner.bean.recordRank
+            nextRecord.recordSeed = winner.bean.recordSeed
+            nextRecord.type = winner.bean.type
+            getDatabase().getMatchDao().updateMatchRecords(listOf(nextRecord))
         }
     }
 

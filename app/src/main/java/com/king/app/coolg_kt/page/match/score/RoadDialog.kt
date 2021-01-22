@@ -24,7 +24,7 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
     override fun getBinding(inflater: LayoutInflater): FragmentDialogMatchRoadBinding = FragmentDialogMatchRoadBinding.inflate(inflater)
 
     override fun initData() {
-        mBinding.rvList.layoutManager = GridLayoutManager(requireContext(), 3)
+        mBinding.rvList.layoutManager = GridLayoutManager(requireContext(), 2)
         mBinding.rvList.adapter = adapter
 
         loadRecordRoad();
@@ -32,7 +32,7 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
 
     private fun loadRecordRoad() {
         var dao = CoolApplication.instance.database!!.getMatchDao()
-        var list = dao.getMatchItems(matchPeriodId, recordId)
+        var list = dao.getMatchItems(matchPeriodId, recordId).sortedByDescending { MatchConstants.getRoundSortValue(it.bean.round) }
         var data = mutableListOf<RoadBean>()
         list.forEachIndexed { index, it ->
             var matchRecord = it.recordList.first { item -> item.recordId != recordId }
@@ -55,9 +55,7 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
                 mBinding.tvResult.text = "Rank ${roadRecord.recordRank}$seed   Result: $result"
             }
         }
-        data.reverse()
         adapter.list = data
         adapter.notifyDataSetChanged()
     }
-
 }

@@ -5,46 +5,43 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/iv_record"
-            android:layout_width="100dp"
-            android:layout_height="60dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/def_small" />
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:id="@+id/tv_round"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10dp"
-            android:layout_marginStart="4dp"
+            android:textSize="14dp"
             app:layout_constraintStart_toStartOf="@+id/iv_record"
-            app:layout_constraintTop_toBottomOf="@+id/iv_record"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="R128" />
+
+        <ImageView
+            android:id="@+id/iv_record"
+            android:layout_width="160dp"
+            android:layout_height="90dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="4dp"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_round"
+            app:srcCompat="@drawable/def_small" />
 
         <TextView
             android:id="@+id/tv_seed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10dp"
-            android:textStyle="bold"
-            android:layout_marginEnd="4dp"
-            app:layout_constraintEnd_toStartOf="@+id/tv_rank"
-            app:layout_constraintTop_toBottomOf="@+id/iv_record"
-            tools:text="[32]" />
-
-        <TextView
-            android:id="@+id/tv_rank"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/white"
+            android:shadowColor="#000000"
+            android:shadowRadius="10"
             app:layout_constraintEnd_toEndOf="@+id/iv_record"
-            app:layout_constraintTop_toBottomOf="@+id/iv_record"
-            tools:text="1047" />
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record"
+            tools:text="[5]/269" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

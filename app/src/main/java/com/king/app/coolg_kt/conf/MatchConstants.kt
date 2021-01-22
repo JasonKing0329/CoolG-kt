@@ -52,6 +52,16 @@ object MatchConstants {
     val ROUND_ID_Q1 = 9
     val ROUND_ID_Q2 = 10
     val ROUND_ID_Q3 = 11
+    /**
+     * round的排名权值
+     */
+    fun getRoundSortValue(round: Int): Int {
+        return when {
+            round >= ROUND_ID_Q1 -> round - ROUND_ID_Q3
+            round == ROUND_ID_GROUP -> ROUND_ID_SF - 1
+            else -> round
+        }
+    }
 
     val ROUND_MAIN_DRAW128 = listOf(
         RoundPack(ROUND_ID_128, "Round One", "R128"),

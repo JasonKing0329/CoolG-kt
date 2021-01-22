@@ -22,7 +22,11 @@ class RoadAdapter: BaseBindingAdapter<AdapterMatchRoundRoadBinding, RoadBean>() 
     override fun onBindItem(binding: AdapterMatchRoundRoadBinding, position: Int, bean: RoadBean) {
         ImageBindingAdapter.setRecordUrl(binding.ivRecord, bean.imageUrl)
         binding.tvRound.text = bean.round
-        binding.tvRank.text = bean.rank
-        binding.tvSeed.text = bean.seed?:""
+        binding.tvSeed.text = if (bean.seed?.isNotEmpty() == true) {
+            "${bean.seed}/${bean.rank}"
+        }
+        else {
+            "${bean.rank}"
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
+import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
 import com.king.app.gdb.data.relation.RecordStarWrap
@@ -472,6 +473,14 @@ class RecordRepository: BaseRepository() {
     fun getLatestPlayableRecords(limitStart: Int, limitNum: Int): Observable<List<RecordWrap>> {
         return Observable.create {
             it.onNext(getDatabase().getRecordDao().getOnlineRecords(limitStart, limitNum))
+            it.onComplete()
+        }
+    }
+
+    fun getRecordsWithoutStudio(): Observable<List<RecordWrap>> {
+        return Observable.create {
+            val list = getDatabase().getRecordDao().getRecordsWithoutStudio()
+            it.onNext(list)
             it.onComplete()
         }
     }

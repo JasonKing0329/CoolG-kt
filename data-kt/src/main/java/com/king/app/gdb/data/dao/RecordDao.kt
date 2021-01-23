@@ -68,4 +68,7 @@ interface RecordDao {
     @Query("select r.* from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:studioId order by r.LAST_MODIFY_TIME desc limit :num")
     fun getStudioRecentRecords(studioId: Long, num: Int): List<RecordWrap>
 
+    @Query("select * from record where _id not in (select r._id from record r join favor_record fr on fr.RECORD_ID=r._id join favor_order_record fo ON fr.ORDER_ID=fo._id AND fo.PARENT_ID=1)")
+    fun getRecordsWithoutStudio(): List<RecordWrap>
+
 }

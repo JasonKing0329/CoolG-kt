@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.king.app.jactionbar.JActionbar
+            android:id="@+id/actionbar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/actionbar_height"
+            android:background="@color/actionbar_bg"
+            android:theme="@style/EtActionSearch"
+            app:actionTextColor="@color/actionbar_element"
+            app:iconColor="@color/actionbar_element"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxShowIcon="5"
+            app:showIconBack="true"
+            app:supportSearch="false"
+            app:iconSize="@dimen/actionbar_icon_width"
+            app:iconPadding="@dimen/actionbar_icon_padding"
+            app:titleSize="@dimen/actionbar_title_text_size"
+            app:title="Videos without studio"
+            app:titleColor="@color/actionbar_element" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

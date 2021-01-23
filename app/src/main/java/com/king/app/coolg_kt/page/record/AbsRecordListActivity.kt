@@ -63,6 +63,7 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
                 R.id.menu_offset -> showSetOffset()
                 R.id.menu_tag_sort_mode -> setTagSortMode()
                 R.id.menu_tag_type -> setTagType()
+                R.id.menu_no_studio -> noStudioPage()
             }
         }
         if (isHideTagBar()) {
@@ -72,7 +73,11 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
         actionbar.setOnSearchListener { onSearch(it) }
     }
 
-    protected abstract fun onSearch(text: String);
+    private fun noStudioPage() {
+        NoStudioActivity.startPage(this)
+    }
+
+    protected abstract fun onSearch(text: String)
 
     open fun onClickRecord(view: View, position: Int, data: RecordWrap) {
         goToRecordPage(data.bean)

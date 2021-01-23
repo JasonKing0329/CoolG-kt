@@ -30,6 +30,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     var scoreText = ObservableField<String>()
     var rankText = ObservableField<String>()
     var nameText = ObservableField<String>()
+    var totalMatchesText = ObservableField<String>()
 
     var recordWrap: RecordWrap? = null
     var curPeriodPack: PeriodPack? = null
@@ -96,6 +97,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun convertRecordScores(recordId: Long, list: List<MatchScoreRecordWrap>): Observable<List<Any>> {
+        totalMatchesText.set("${list.size} Matches")
         return Observable.create {
             var result = mutableListOf<Any>()
             var lastLevel = -1
@@ -122,7 +124,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 }
                 val isChampion = isWinner && wrap.matchItem.round == MatchConstants.ROUND_ID_F
                 var scoreBean = ScoreBean(wrap.bean.score, match.name, MatchConstants.roundResultShort(wrap.matchItem.round, isWinner),
-                    isCompleted, isChampion, matchPeriod.bean.period, wrap.matchItem, match)
+                    isCompleted, isChampion, matchPeriod.bean, wrap.matchItem, match)
                 result.add(scoreBean)
 
                 score += wrap.bean.score

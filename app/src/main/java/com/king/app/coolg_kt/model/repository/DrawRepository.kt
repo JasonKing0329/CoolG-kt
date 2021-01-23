@@ -356,7 +356,9 @@ class DrawRepository: BaseRepository() {
             if (nextRecord == null) {
                 nextRecord = winner.bean.copy()
                 nextRecord.id = 0
+                nextRecord.matchItemId = nextWrap.bean.id
                 nextRecord.order = matchItem.order % 2 + 1
+                getDatabase().getMatchDao().insertMatchRecords(listOf(nextRecord))
             }
             else {
                 nextRecord.recordId = winner.bean.recordId

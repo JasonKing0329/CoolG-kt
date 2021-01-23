@@ -14,6 +14,7 @@ import com.king.app.coolg_kt.page.match.FinalListItem
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
 import com.king.app.coolg_kt.page.match.draw.FinalDrawActivity
 import com.king.app.coolg_kt.page.match.score.ScoreActivity
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
 /**
@@ -38,6 +39,11 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
 
     override fun initView() {
         mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnMenuItemListener {
+            when(it) {
+                R.id.menu_filter -> filter()
+            }
+        }
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         adapter.onClickRecordListener = object : FinalListAdapter.OnClickRecordListener {
@@ -64,5 +70,15 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
             adapter.notifyDataSetChanged()
         })
         mModel.loadData()
+    }
+
+    private fun filter() {
+        val elements = MatchConstants.MATCH_LEVEL.toMutableList()
+        elements.add("All")
+        AlertDialogFragment()
+            .setItems(elements.toTypedArray()) { dialogInterface, i ->
+                mModel.filterByLevel(i)
+            }
+            .show(supportFragmentManager, "AlertDialogFragment")
     }
 }

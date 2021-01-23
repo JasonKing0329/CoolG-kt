@@ -60,7 +60,7 @@ data class ScoreBean (
     var round: String,
     var isCompleted: Boolean,
     var isChampion: Boolean,
-    var period: Int,
+    var matchPeriod: MatchPeriod,
     var matchItem: MatchItem,
     var match: Match
 )

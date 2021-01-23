@@ -19,8 +19,10 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
 
     var dataObserver = MutableLiveData<List<FinalListItem>>()
 
+    private var mFilterLevel = MatchConstants.MATCH_LEVEL_ALL
+
     fun loadData() {
-        getFinals()
+        getFinals(mFilterLevel)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<FinalListItem>>(getComposite()){
                 override fun onNext(t: List<FinalListItem>) {
@@ -34,10 +36,15 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    private fun getFinals(): Observable<List<FinalListItem>> {
+    private fun getFinals(level: Int): Observable<List<FinalListItem>> {
         return Observable.create {
             val list = mutableListOf<FinalListItem>()
-            val matchItems = getDatabase().getMatchDao().getMatchItemsByRound(MatchConstants.ROUND_ID_F)
+            val matchItems = if (level == MatchConstants.MATCH_LEVEL_ALL) {
+                getDatabase().getMatchDao().getMatchItemsByRound(MatchConstants.ROUND_ID_F)
+            }
+            else {
+                getDatabase().getMatchDao().getMatchItemsByRoundLevel(MatchConstants.ROUND_ID_F, level)
+            }
             matchItems.forEach { wrap ->
                 val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.bean.matchId)
                 val winner = wrap.recordList.first { it.recordId == wrap.bean.winnerId }
@@ -53,5 +60,10 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
             it.onNext(list)
             it.onComplete()
         }
+    }
+
+    fun filterByLevel(levelIndex: Int) {
+        mFilterLevel = levelIndex
+        loadData()
     }
 }

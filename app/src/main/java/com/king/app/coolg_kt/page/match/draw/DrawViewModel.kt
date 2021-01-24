@@ -10,6 +10,7 @@ import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.DrawRepository
+import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.gdb.data.entity.match.Match
@@ -44,6 +45,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var drawType = MatchConstants.DRAW_MAIN
 
     var drawRepository = DrawRepository()
+    var rankRepository = RankRepository()
 
     var createdDrawData: DrawData? = null
 
@@ -227,7 +229,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         } else {
             val wrap = getDatabase().getRecordDao().getRecord(recordId)
             mToSetWildCardRecord?.bean?.recordId = recordId
-            mToSetWildCardRecord?.bean?.recordRank = wrap?.countRecord?.rank?:0
+            // 查询排名
+            mToSetWildCardRecord?.bean?.recordRank = rankRepository.getRecordRankToDraw(recordId)
             mToSetWildCardRecord?.imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
             mToSetWildCard?.isChanged = true
             true

@@ -79,15 +79,12 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 nameText.set(wrap.bean.name)
                 var rankTxt: String? = null
                 wrap.countRecord?.let { countRecord ->
-                    var rankMatchPeriod = rankRepository.getRankPeriodToDraw()
-                    rankMatchPeriod?.let { mp ->
-                        val rankBean = getDatabase().getMatchDao().getRecordRank(wrap.bean.id!!, mp.period, mp.orderInPeriod)
-                        rankBean?.let { rank ->
-                            rankTxt = "${rank.rank} (R-${countRecord.rank})"
-                        }
+                    val curRank = rankRepository.getRecordRankToDraw(wrap.bean.id!!)
+                    rankTxt = if (MatchConstants.RANK_OUT_OF_SYSTEM == curRank) {
+                        "R-${countRecord.rank}"
                     }
-                    if (rankTxt == null) {
-                        rankTxt = "R-${countRecord.rank}"
+                    else {
+                        "$curRank (R-${countRecord.rank})"
                     }
                 }
                 rankTxt?.let { text -> rankText.set(text) }
@@ -120,7 +117,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.matchItem.matchId)
                 var isCompleted = false
                 curPeriodPack?.matchPeriod?.let { curPeriod ->
-                    isCompleted = matchPeriod.bean.period < curPeriod.period || matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
+                    isCompleted = matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
                 }
                 val isChampion = isWinner && wrap.matchItem.round == MatchConstants.ROUND_ID_F
                 val isNotCount = index >= MatchConstants.MATCH_COUNT_SCORE
@@ -147,6 +144,8 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                     else -> getResource().getColor(R.color.match_level_low)
                 }
                 result.add(ScoreTitle(MatchConstants.MATCH_LEVEL[level], color))
+                // item按orderInPeriod归类
+                map[level]?.sortBy { item -> item.matchPeriod.orderInPeriod }
                 result.addAll(map[level]!!)
             }
 

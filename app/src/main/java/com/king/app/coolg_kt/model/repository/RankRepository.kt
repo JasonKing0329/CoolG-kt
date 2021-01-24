@@ -190,4 +190,15 @@ class RankRepository: BaseRepository() {
         return -1
     }
 
+    fun getRecordRankToDraw(recordId: Long): Int {
+        var rankMatchPeriod = getRankPeriodToDraw()
+        rankMatchPeriod?.let { mp ->
+            val rankBean = getDatabase().getMatchDao().getRecordRank(recordId, mp.period, mp.orderInPeriod)
+            rankBean?.let {
+                return it.rank
+            }
+        }
+        return MatchConstants.RANK_OUT_OF_SYSTEM
+    }
+
 }

@@ -63,7 +63,9 @@ data class MatchRankRecordWrap (
         entityColumn = "_id")
     var record: Record?
 
-)
+) {
+    var unAvailableScore: Int? = null
+}
 data class MatchRankStarWrap (
 
     @Embedded

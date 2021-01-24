@@ -68,6 +68,17 @@
             tools:text="13850"/>
 
         <TextView
+            android:id="@+id/tv_score_no"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textSize="10dp"
+            android:textColor="@color/text_sub"
+            app:layout_constraintStart_toStartOf="@+id/tv_score"
+            app:layout_constraintTop_toBottomOf="@+id/tv_score"
+            tools:text="240"/>
+
+        <TextView
             android:id="@+id/tv_match_count"
             android:layout_width="50dp"
             android:layout_height="wrap_content"

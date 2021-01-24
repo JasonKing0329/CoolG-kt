@@ -19,4 +19,6 @@ data class ScoreCount(
     var id: Long,
     var score: Int,
     var matchCount: Int
-)
+) {
+    var unavailableScore: Int? = null
+}

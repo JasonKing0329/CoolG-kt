@@ -203,6 +203,12 @@ interface MatchDao {
     @Query("select * from match_period order by period desc, orderInPeriod desc limit 1")
     fun getLastMatchPeriod(): MatchPeriod?
 
+    @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id where msr.recordId=:recordId and mp.period=:period and mp.orderInPeriod>=:start and mp.orderInPeriod<=:end order by score desc limit :limitNum")
+    fun getRecordScoreLimit(recordId: Long, limitNum: Int, period: Int, start: Int, end: Int): List<MatchScoreRecord>
+
+    @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id where msr.recordId=:recordId and (mp.period=:startPeriod and mp.orderInPeriod>=:startPIO or mp.period=:endPeriod and mp.orderInPeriod<=:endPIO) order by score desc limit :limitNum")
+    fun getRecordScoreLimit(recordId: Long, limitNum: Int, startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<MatchScoreRecord>
+
     @Query("select msr.recordId as id, sum(msr.score) as score, count(msr.recordId) as matchCount from match_score_record msr join match_period mp on msr.matchId=mp.id where mp.period=:period and mp.orderInPeriod>=:start and mp.orderInPeriod<=:end and msr.recordId!=0 group by msr.recordId order by score desc, matchCount asc")
     fun countRecordScoreInPeriod(period: Int, start: Int, end: Int): List<ScoreCount>
 
@@ -221,7 +227,7 @@ interface MatchDao {
     @Query("select count(*) from match_rank_star where period=:period and orderInPeriod=:orderInPeriod")
     fun countStarRankItems(period: Int, orderInPeriod: Int): Int
 
-    @Query("select msr.*, m.id as matchRealId from match_score_record msr join match_period mp on msr.matchId=mp.id join 'match' m on mp.matchId=m.id where ((mp.period=:startPeriod and mp.orderInPeriod>=:startPIO) or (mp.period=:endPeriod and mp.orderInPeriod<=:endPIO)) and msr.recordId=:recordId order by m.level")
+    @Query("select msr.*, m.id as matchRealId from match_score_record msr join match_period mp on msr.matchId=mp.id join 'match' m on mp.matchId=m.id where ((mp.period=:startPeriod and mp.orderInPeriod>=:startPIO) or (mp.period=:endPeriod and mp.orderInPeriod<=:endPIO)) and msr.recordId=:recordId order by msr.score desc")
     fun getRecordScoresInPeriod(recordId: Long, startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<MatchScoreRecordWrap>
 
     @Query("select * from match_rank_record where recordId=:recordId and period=:period and orderInPeriod=:orderInPeriod")

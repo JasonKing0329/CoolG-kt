@@ -41,6 +41,7 @@ class ScoreItemAdapter: HeadChildBindingAdapter<AdapterScoreTitleBinding, Adapte
         binding.tvScore.text = item.score.toString()
         binding.ivWinner.visibility = if (item.isChampion) View.VISIBLE else View.GONE
         binding.tvComplete.visibility = if (item.isCompleted) View.VISIBLE else View.GONE
+        binding.tvNo.visibility = if (item.isNotCount) View.VISIBLE else View.GONE
         binding.tvWeek.text = "W${item.matchPeriod.orderInPeriod}"
     }
 }

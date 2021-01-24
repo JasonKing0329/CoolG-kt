@@ -245,10 +245,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             var result = mutableListOf<MatchRankRecordWrap>()
             list.forEachIndexed { index, scoreCount ->
                 var record = getDatabase().getRecordDao().getRecordBasic(scoreCount.id)
-                result.add(MatchRankRecordWrap(
+                var wrap = MatchRankRecordWrap(
                     MatchRankRecord(0, 0, 0,
                     scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount), record
-                ))
+                )
+                wrap.unAvailableScore = scoreCount.unavailableScore
+                result.add(wrap)
             }
             it.onNext(result)
             it.onComplete()
@@ -261,7 +263,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             list.forEach { bean ->
                 var url = ImageProvider.getRecordRandomPath(bean.record?.name, null)
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
-                    , url, bean.record?.name, bean.bean.score, bean.bean.matchCount)
+                    , url, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore)
                 result.add(item)
             }
             it.onNext(result)

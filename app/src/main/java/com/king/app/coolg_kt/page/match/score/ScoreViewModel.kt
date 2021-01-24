@@ -28,6 +28,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
 
     var recordImageUrl = ObservableField<String>()
     var scoreText = ObservableField<String>()
+    var scoreNotCountText = ObservableField<String>()
     var rankText = ObservableField<String>()
     var nameText = ObservableField<String>()
     var totalMatchesText = ObservableField<String>()
@@ -96,25 +97,24 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    /**
+     * @param list list按score降序排列
+     */
     private fun convertRecordScores(recordId: Long, list: List<MatchScoreRecordWrap>): Observable<List<Any>> {
         totalMatchesText.set("${list.size} Matches")
         return Observable.create {
             var result = mutableListOf<Any>()
-            var lastLevel = -1
             var score = 0
-            list.forEach { wrap ->
+            var scoreNotCount = 0
+            // 按level归类
+            var map = mutableMapOf<Int, MutableList<ScoreBean>?>()
+
+            list.forEachIndexed { index, wrap ->
                 var match = getDatabase().getMatchDao().getMatch(wrap.matchRealId)
-                if (match.level != lastLevel) {
-                    lastLevel = match.level
-                    val color = when(match.level) {
-                        MatchConstants.MATCH_LEVEL_GS -> getResource().getColor(R.color.match_level_gs)
-                        MatchConstants.MATCH_LEVEL_FINAL -> getResource().getColor(R.color.match_level_final)
-                        MatchConstants.MATCH_LEVEL_GM1000 -> getResource().getColor(R.color.match_level_gm1000)
-                        MatchConstants.MATCH_LEVEL_GM500 -> getResource().getColor(R.color.match_level_gm500)
-                        MatchConstants.MATCH_LEVEL_GM250 -> getResource().getColor(R.color.match_level_gm250)
-                        else -> getResource().getColor(R.color.match_level_low)
-                    }
-                    result.add(ScoreTitle(MatchConstants.MATCH_LEVEL[match.level], color))
+                var items = map[match.level]
+                if (items == null) {
+                    items = mutableListOf()
+                    map[match.level] = items
                 }
                 val isWinner = wrap.matchItem.winnerId == recordId
                 val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.matchItem.matchId)
@@ -123,13 +123,37 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                     isCompleted = matchPeriod.bean.period < curPeriod.period || matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
                 }
                 val isChampion = isWinner && wrap.matchItem.round == MatchConstants.ROUND_ID_F
+                val isNotCount = index >= MatchConstants.MATCH_COUNT_SCORE
                 var scoreBean = ScoreBean(wrap.bean.score, match.name, MatchConstants.roundResultShort(wrap.matchItem.round, isWinner),
-                    isCompleted, isChampion, matchPeriod.bean, wrap.matchItem, match)
-                result.add(scoreBean)
+                    isCompleted, isChampion, isNotCount, matchPeriod.bean, wrap.matchItem, match)
+                items.add(scoreBean)
 
-                score += wrap.bean.score
+                if (isNotCount) {
+                    scoreNotCount += wrap.bean.score
+                }
+                else {
+                    score += wrap.bean.score
+                }
             }
+            // 按level排序
+            val keys = map.keys.sortedBy { level -> level }
+            keys.forEach { level ->
+                val color = when(level) {
+                    MatchConstants.MATCH_LEVEL_GS -> getResource().getColor(R.color.match_level_gs)
+                    MatchConstants.MATCH_LEVEL_FINAL -> getResource().getColor(R.color.match_level_final)
+                    MatchConstants.MATCH_LEVEL_GM1000 -> getResource().getColor(R.color.match_level_gm1000)
+                    MatchConstants.MATCH_LEVEL_GM500 -> getResource().getColor(R.color.match_level_gm500)
+                    MatchConstants.MATCH_LEVEL_GM250 -> getResource().getColor(R.color.match_level_gm250)
+                    else -> getResource().getColor(R.color.match_level_low)
+                }
+                result.add(ScoreTitle(MatchConstants.MATCH_LEVEL[level], color))
+                result.addAll(map[level]!!)
+            }
+
             scoreText.set(score.toString())
+            if (scoreNotCount > 0) {
+                scoreNotCountText.set("(${scoreNotCount})")
+            }
             it.onNext(result)
             it.onComplete()
         }

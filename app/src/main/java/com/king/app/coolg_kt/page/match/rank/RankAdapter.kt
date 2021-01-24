@@ -34,6 +34,13 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
         }
         binding.tvChange.visibility = if (bean.change.isEmpty()) View.GONE else View.VISIBLE
 
+        if (bean.unavailableScore == null) {
+            binding.tvScoreNo.visibility = View.GONE
+        }
+        else {
+            binding.tvScoreNo.text = bean.unavailableScore.toString()
+            binding.tvScoreNo.visibility = View.VISIBLE
+        }
         binding.ivHead.setOnClickListener { onItemListener?.onClickId(bean) }
         binding.tvScore.setOnClickListener { onItemListener?.onClickScore(bean) }
         binding.tvMatchCount.setOnClickListener { onItemListener?.onClickScore(bean) }

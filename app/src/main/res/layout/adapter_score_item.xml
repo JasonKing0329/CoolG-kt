@@ -9,21 +9,20 @@
         android:orientation="horizontal"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:paddingLeft="5dp"
         android:gravity="center_vertical">
         <TextView
             android:id="@+id/tv_week"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
             android:textSize="14dp"
-            android:textColor="#3c3c3c"
+            android:textColor="@color/text_normal"
             tools:text="W45"/>
         <TextView
             android:id="@+id/tv_name"
-            android:layout_width="150dp"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:textSize="14dp"
-            android:textColor="#3c3c3c"
+            android:textColor="@color/text_normal"
             tools:text="Lucas Entertainment"/>
         <TextView
             android:id="@+id/tv_round"
@@ -31,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:textSize="14dp"
-            android:textColor="#3c3c3c"
+            android:textColor="@color/text_normal"
             tools:text="Final"/>
         <TextView
             android:id="@+id/tv_score"
@@ -39,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:textSize="14dp"
-            android:textColor="#3c3c3c"
+            android:textColor="@color/text_normal"
             tools:text="2000" />
         <ImageView
             android:id="@+id/iv_winner"
@@ -52,8 +51,16 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:textSize="14dp"
-            android:textColor="#3c3c3c"
+            android:textColor="@color/text_normal"
             android:text="√" />
+        <TextView
+            android:id="@+id/tv_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:textSize="12dp"
+            android:textColor="@color/text_sub"
+            android:text="不计入" />
     </LinearLayout>
 
 </layout>

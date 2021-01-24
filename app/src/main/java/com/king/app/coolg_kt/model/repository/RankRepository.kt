@@ -113,12 +113,35 @@ class RankRepository: BaseRepository() {
     }
 
     private fun getRecordScoreList(pack: PeriodPack): List<ScoreCount> {
-        return if (pack.startPeriod == pack.endPeriod) {
+        val list =  if (pack.startPeriod == pack.endPeriod) {
             getDatabase().getMatchDao().countRecordScoreInPeriod(pack.endPeriod, pack.startPIO, pack.endPIO)
         }
         else {
             getDatabase().getMatchDao().countRecordScoreInPeriod(pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
         }
+        return defineRecordScore(list, pack)
+    }
+
+    /**
+     * 超过20站的取最高20站积分
+     */
+    private fun defineRecordScore(list: List<ScoreCount>, pack: PeriodPack): List<ScoreCount> {
+        list.forEach {
+            if (it.matchCount > MatchConstants.MATCH_COUNT_SCORE) {
+                val scores =  if (pack.startPeriod == pack.endPeriod) {
+                    getDatabase().getMatchDao().getRecordScoreLimit(it.id, MatchConstants.MATCH_COUNT_SCORE, pack.endPeriod, pack.startPIO, pack.endPIO)
+                }
+                else {
+                    getDatabase().getMatchDao().getRecordScoreLimit(it.id, MatchConstants.MATCH_COUNT_SCORE, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
+                }
+                var sum = 0
+                scores.forEach { bean -> sum += bean.score }
+                it.unavailableScore = it.score - sum
+                it.score = sum
+            }
+        }
+        // 重新按score降序排序
+        return list.sortedByDescending { it.score }
     }
 
     private fun getStarScoreList(pack: PeriodPack): List<ScoreCount> {
@@ -143,11 +166,17 @@ class RankRepository: BaseRepository() {
         }
     }
 
+    /**
+     * @return 按score降序排列
+     */
     fun getRecordRankPeriodScores(recordId: Long): List<MatchScoreRecordWrap> {
         var pack = getRankPeriodPack()
         return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
     }
 
+    /**
+     * @return 按score降序排列
+     */
     fun getRecordPeriodScores(recordId: Long, period: Int): List<MatchScoreRecordWrap> {
         return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, period, 0, period, MatchConstants.MAX_ORDER_IN_PERIOD)
     }

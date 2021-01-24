@@ -44,7 +44,8 @@ data class RankItem<T> (
     var imageUrl: String?,
     var name: String?,
     var score: Int,
-    var matchCount: Int
+    var matchCount: Int,
+    var unavailableScore: Int? = null
 )
 
 data class PeriodPack (
@@ -60,6 +61,7 @@ data class ScoreBean (
     var round: String,
     var isCompleted: Boolean,
     var isChampion: Boolean,
+    var isNotCount: Boolean,
     var matchPeriod: MatchPeriod,
     var matchItem: MatchItem,
     var match: Match

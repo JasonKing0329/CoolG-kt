@@ -17,7 +17,6 @@
             android:id="@+id/tv_match"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="1dp"
             app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_season"
@@ -32,7 +31,6 @@
             android:id="@+id/tv_season"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="1dp"
             app:layout_constraintTop_toTopOf="@+id/tv_match"
             app:layout_constraintStart_toEndOf="@+id/tv_match"
             app:layout_constraintEnd_toEndOf="parent"
@@ -46,7 +44,6 @@
             android:id="@+id/tv_rank"
             android:layout_width="0dp"
             android:layout_height="@dimen/img_height_in_full_screen_std"
-            android:layout_margin="1dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_match"
@@ -60,7 +57,6 @@
             android:id="@+id/tv_h2h"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="1dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_final"
             app:layout_constraintTop_toBottomOf="@+id/tv_rank"
@@ -74,7 +70,6 @@
             android:id="@+id/tv_final"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="1dp"
             app:layout_constraintStart_toEndOf="@+id/tv_h2h"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_h2h"
@@ -84,5 +79,14 @@
             app:coverTextSize="@dimen/match_home_text"
             app:coverRadius="@dimen/match_home_radius"
             app:coverStarUrl="@{model.finalUrl}"/>
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_back_white"
+            android:padding="13dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

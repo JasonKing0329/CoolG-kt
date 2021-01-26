@@ -203,6 +203,9 @@ interface MatchDao {
     @Query("select * from match_period order by period desc, orderInPeriod desc limit 1")
     fun getLastMatchPeriod(): MatchPeriod?
 
+    @Query("select * from match_period where isScoreCreated=1 order by period desc, orderInPeriod desc limit 1")
+    fun getLastCompletedMatchPeriod(): MatchPeriod?
+
     @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id where msr.recordId=:recordId and mp.period=:period and mp.orderInPeriod>=:start and mp.orderInPeriod<=:end order by score desc limit :limitNum")
     fun getRecordScoreLimit(recordId: Long, limitNum: Int, period: Int, start: Int, end: Int): List<MatchScoreRecord>
 
@@ -237,7 +240,7 @@ interface MatchDao {
      * 从match_rank_record里按排名加载所有入围record
      * 不在排名体系里的赋值为9999(MatchConstants.RANK_OUT_OF_SYSTEM)，但不在排名体系的record需要满足其在count_record中的排名在rankLimit之内
      */
-    @Query("select r._id as recordId, (case when mrr.rank>0 then mrr.rank else 9999 end) as rank, 0 as seed from record r left join match_rank_record mrr on r._id=mrr.recordId and period=:period and orderInPeriod=:orderInPeriod join count_record cr on r._id=cr._id where cr.RANK<=:rankLimit order by rank")
+    @Query("select r._id as recordId, (case when mrr.rank>0 then mrr.rank else 9999 end) as rank, 0 as seed from record r left join match_rank_record mrr on r._id=mrr.recordId and period=:period and orderInPeriod=:orderInPeriod join count_record cr on r._id=cr._id where cr.RANK<=:rankLimit or mrr.rank>0 order by rank")
     fun getRankRecords(rankLimit: Int, period: Int, orderInPeriod: Int): List<RankRecord>
 
 }

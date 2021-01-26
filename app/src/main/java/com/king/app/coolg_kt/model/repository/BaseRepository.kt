@@ -38,10 +38,38 @@ abstract class BaseRepository {
     }
 
     /**
+     * 已完成赛事的积分周期
+     */
+    fun getCompletedPeriodPack(): PeriodPack {
+        var bean = PeriodPack()
+        // 取最近一站已完成的为截至日期
+        var last = getDatabase().getMatchDao().getLastCompletedMatchPeriod()
+        last?.let { period ->
+            bean.matchPeriod = period
+            bean.endPeriod = period.period
+            bean.endPIO = period.orderInPeriod
+            // 确认起始站有3种情况
+            // 当前结束的orderInPeriod等于45或46（46为Final）,计分周期为 1 to orderInPeriod
+            // 当前结束的orderInPeriod小于45，计分周期为 last(orderInPeriod + 1) to orderInPeriod
+            bean.startPeriod = 0
+            bean.startPIO = 0
+            if (period.orderInPeriod == 45 || period.orderInPeriod == 46) {
+                bean.startPeriod = period.period
+                bean.startPIO = 1
+            } else {
+                bean.startPeriod = period.period - 1
+                bean.startPIO = period.orderInPeriod + 1
+            }
+        }
+        return bean
+    }
+
+    /**
      * 确认当前排名的积分周期
      */
     fun getRankPeriodPack(): PeriodPack {
         var bean = PeriodPack()
+        // 取最近一站已完成的为截至日期
         var last = getDatabase().getMatchDao().getLastMatchPeriod()
         last?.let { period ->
             bean.matchPeriod = period

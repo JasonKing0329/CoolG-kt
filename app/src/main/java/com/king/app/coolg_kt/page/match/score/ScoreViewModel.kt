@@ -37,7 +37,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     var curPeriodPack: PeriodPack? = null
 
     fun loadRankPeriod(recordId: Long) {
-        curPeriodPack = rankRepository.getRankPeriodPack()
+        curPeriodPack = rankRepository.getCompletedPeriodPack()
         loadRecord(recordId)
             .flatMap { convertRecordScores(recordId, rankRepository.getRecordRankPeriodScores(recordId)) }
             .compose(applySchedulers())

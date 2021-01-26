@@ -40,6 +40,8 @@ class MatchHomeActivity: BaseActivity<ActivityMatchHomeBinding, MatchHomeViewMod
     override fun initView() {
         mBinding.model = mModel
 
+        mBinding.ivBack.setOnClickListener { onBackPressed() }
+
         mBinding.tvMatch.setOnClickListener {
             if (setCoverPath == null) {
                 MatchListActivity.startPage(this@MatchHomeActivity)

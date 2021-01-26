@@ -39,6 +39,16 @@
             app:layout_constraintStart_toEndOf="@+id/group_index1"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/def_small"/>
+        <ImageView
+            android:id="@+id/iv_edit1"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_edit_white_36dp"
+            android:scaleType="fitCenter"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toEndOf="@+id/iv_player1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player1"/>
         <TextView
             android:id="@+id/tv_bye1"
             android:layout_width="0dp"
@@ -85,6 +95,16 @@
             app:layout_constraintStart_toEndOf="@+id/group_index2"
             app:layout_constraintTop_toBottomOf="@+id/iv_player1"
             tools:src="@drawable/def_small"/>
+        <ImageView
+            android:id="@+id/iv_edit2"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_edit_white_36dp"
+            android:scaleType="fitCenter"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toEndOf="@+id/iv_player2"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player2"/>
         <TextView
             android:id="@+id/tv_bye2"
             android:layout_width="0dp"

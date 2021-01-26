@@ -131,6 +131,9 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             adapter.list = it
             mBinding.rvList.adapter = adapter
         })
+        mModel.imageChanged.observe(this, Observer {
+            mBinding.rvList.adapter?.notifyItemRangeChanged(it.start, it.count)
+        })
 
         mBinding.tvPeriod.isSelected = true
         // spinner会自动触发onItemSelected 0

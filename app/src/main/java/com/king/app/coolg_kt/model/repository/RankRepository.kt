@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.PeriodPack
+import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.MatchRankRecord
 import com.king.app.gdb.data.relation.MatchRankRecordWrap
@@ -34,7 +35,10 @@ class RankRepository: BaseRepository() {
 
     fun getRankPeriodRecordScores(): Observable<List<ScoreCount>> {
         return Observable.create {
-            it.onNext(getRecordScoreList(getRankPeriodPack()))
+            TimeCostUtil.start()
+            val list = getRecordScoreList(getRankPeriodPack())
+            TimeCostUtil.end("getRankPeriodRecordScores")
+            it.onNext(list)
             it.onComplete()
         }
     }
@@ -87,11 +91,13 @@ class RankRepository: BaseRepository() {
      */
     fun getRankPeriodRecordRanks(): Observable<List<MatchRankRecordWrap>> {
         return Observable.create {
+            TimeCostUtil.start()
             val pack = getRankPeriodPack()
             var result = listOf<MatchRankRecordWrap>()
             pack.matchPeriod?.let { matchPeriod ->
                 result = getDatabase().getMatchDao().getMatchRankRecordsBy(matchPeriod.period, matchPeriod.orderInPeriod)
             }
+            TimeCostUtil.end("getRankPeriodRecordRanks")
             it.onNext(result)
             it.onComplete()
         }
@@ -170,7 +176,7 @@ class RankRepository: BaseRepository() {
      * @return 按score降序排列
      */
     fun getRecordRankPeriodScores(recordId: Long): List<MatchScoreRecordWrap> {
-        var pack = getRankPeriodPack()
+        var pack = getCompletedPeriodPack()
         return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
     }
 
@@ -182,7 +188,7 @@ class RankRepository: BaseRepository() {
     }
 
     fun getRecordCurrentRank(recordId: Long): Int {
-        var pack = getRankPeriodPack()
+        var pack = getCompletedPeriodPack()
         pack.matchPeriod?.let {
             val rankItem = getDatabase().getMatchDao().getRecordRank(recordId, it.period, it.orderInPeriod)
             rankItem?.let { item -> return item.rank }

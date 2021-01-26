@@ -129,13 +129,10 @@ abstract class AbsRecordListActivity<T: ViewDataBinding, VM: RecordListViewModel
     open fun showEditPopup(view: View, data: Record) {
         val menu = PopupMenu(this, view)
         menu.menuInflater.inflate(R.menu.popup_record_edit, menu.getMenu())
-        menu.menu.findItem(R.id.menu_set_cover).isVisible = false
-        menu.menu.findItem(R.id.menu_delete).isVisible = false
         menu.setOnMenuItemClickListener { item ->
             when (item.getItemId()) {
-                R.id.menu_add_to_order -> {
-                }
                 R.id.menu_add_to_play_order -> addToPlayOrder(data)
+                R.id.menu_detail -> goToRecordPage(data)
             }
             false
         }

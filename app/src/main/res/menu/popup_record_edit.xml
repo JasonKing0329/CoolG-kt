@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/menu_add_to_order"
-        android:title="Add to order"/>
     <item android:id="@+id/menu_add_to_play_order"
         android:title="Add to play order"/>
-    <item android:id="@+id/menu_set_cover"
-        android:title="Set as cover"/>
-    <item android:id="@+id/menu_delete"
-        android:title="Delete"/>
-    <item android:id="@+id/menu_gallery"
-        android:title="View in gallery"/>
+    <item android:id="@+id/menu_detail"
+        android:title="Detail page"/>
 </menu>

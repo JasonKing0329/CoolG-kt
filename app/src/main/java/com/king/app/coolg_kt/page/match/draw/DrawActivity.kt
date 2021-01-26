@@ -5,15 +5,18 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
@@ -35,6 +38,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     val ACTION_SAVE_DRAW = 1111111111
 
     var REQUEST_SELECT_WILDCARD = 11901
+
+    var REQUEST_CHANGE_PLAYER = 11902
 
     companion object {
         val EXTRA_MATCH_PERIOD_ID = "match_period_id"
@@ -140,6 +145,25 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 }
             }
 
+            override fun onEditPlayer(anchorView: View, position: Int, drawItem: DrawItem, bean: MatchRecordWrap?) {
+                bean?.let {
+                    val menu = PopupMenu(this@DrawActivity, anchorView)
+                    menu.menuInflater.inflate(R.menu.match_draw_record, menu.menu)
+                    menu.setOnMenuItemClickListener { item: MenuItem ->
+                        when (item.itemId) {
+                            R.id.menu_change -> {
+                                if (isEditing && mModel.isFirstRound()) {
+                                    selectChangeRecord(position, drawItem, it)
+                                }
+                            }
+                            R.id.menu_detail -> recordPage(it.record)
+                        }
+                        false
+                    }
+                    menu.show()
+                }
+            }
+
             override fun onPlayerWin(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?) {
                 if (isEditing) {
                     drawItem.winner = bean
@@ -183,6 +207,13 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         }
     }
 
+    private fun selectChangeRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {
+        mModel.mToSetWildCard = drawItem
+        mModel.mToSetWildCardPosition = position
+        mModel.mToSetWildCardRecord = recordWrap
+        PhoneRecordListActivity.startPageToSelect(this, REQUEST_CHANGE_PLAYER)
+    }
+
     private fun selectWildCardRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {
         mModel.mToSetWildCard = drawItem
         mModel.mToSetWildCardPosition = position
@@ -193,6 +224,14 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SELECT_WILDCARD) {
+            if (resultCode == Activity.RESULT_OK) {
+                val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
+                if (mModel.setWildCard(recordId!!)) {
+                    adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+                }
+            }
+        }
+        else if (requestCode == REQUEST_CHANGE_PLAYER) {
             if (resultCode == Activity.RESULT_OK) {
                 val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
                 if (mModel.setWildCard(recordId!!)) {

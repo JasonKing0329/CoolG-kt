@@ -13,6 +13,7 @@ import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
@@ -32,6 +33,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     var recordRanksObserver = MutableLiveData<List<RankItem<Record?>>>()
     var starRanksObserver = MutableLiveData<List<RankItem<Star?>>>()
+    var imageChanged = MutableLiveData<ImageRange>()
 
     var periodGroupVisibility = ObservableInt(View.GONE)
     var periodLastVisibility = ObservableInt(View.GONE)
@@ -117,12 +119,27 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     checkRecordLastNext()
                     loadingObserver.value = false
                     recordRanksObserver.value = t
+                    loadImages()
                 }
 
                 override fun onError(e: Throwable?) {
                     loadingObserver.value = false
                     e?.printStackTrace()
                     messageObserver.value = e?.message
+                }
+            })
+    }
+
+    private fun loadImages() {
+        loadRecordImages(recordRanksObserver.value)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
+                override fun onNext(t: ImageRange) {
+                    imageChanged.value = t
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
                 }
             })
     }
@@ -164,6 +181,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 override fun onNext(t: List<RankItem<Record?>>?) {
                     loadingObserver.value = false
                     recordRanksObserver.value = t
+                    loadImages()
                 }
 
                 override fun onError(e: Throwable?) {
@@ -242,6 +260,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     private fun toMatchRankRecords(list: List<ScoreCount>): ObservableSource<List<MatchRankRecordWrap>> {
         return ObservableSource {
+            TimeCostUtil.start()
             var result = mutableListOf<MatchRankRecordWrap>()
             list.forEachIndexed { index, scoreCount ->
                 var record = getDatabase().getRecordDao().getRecordBasic(scoreCount.id)
@@ -252,6 +271,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 wrap.unAvailableScore = scoreCount.unavailableScore
                 result.add(wrap)
             }
+            TimeCostUtil.end("toMatchRankRecords")
             it.onNext(result)
             it.onComplete()
         }
@@ -259,14 +279,47 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     private fun toRecordList(list: List<MatchRankRecordWrap>): ObservableSource<List<RankItem<Record?>>> {
         return ObservableSource {
+            TimeCostUtil.start()
             var result = mutableListOf<RankItem<Record?>>()
             list.forEach { bean ->
-                var url = ImageProvider.getRecordRandomPath(bean.record?.name, null)
+                // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
-                    , url, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore)
+                    , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore)
                 result.add(item)
             }
+            TimeCostUtil.end("toRecordList")
             it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    data class ImageRange (
+        var start: Int,
+        var count: Int
+    )
+
+    /**
+     * 给1000+条加载图片路径属于耗时操作（经测试1200个record耗时2秒）,改为先显示列表后陆续加载
+     */
+    private fun loadRecordImages(items: List<RankItem<Record?>>?): Observable<ImageRange> {
+        return Observable.create {
+            items?.let { list ->
+                var count = 0
+                var totalNotified = 0
+                list.forEach { item ->
+                    // 每30条通知一次
+                    var url = ImageProvider.getRecordRandomPath(item.bean?.name, null)
+                    item.imageUrl = url
+                    count ++
+                    if (count % 30 == 0) {
+                        it.onNext(ImageRange(count - 30, count))
+                        totalNotified = count
+                    }
+                }
+                if (totalNotified != list.size) {
+                    it.onNext(ImageRange(totalNotified, list.size - totalNotified))
+                }
+            }
             it.onComplete()
         }
     }

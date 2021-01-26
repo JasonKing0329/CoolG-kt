@@ -29,7 +29,7 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
         val EXTRA_SELECT_MODE = "select_mode"
-        val RESP_RECORD_ID = "select_mode"
+        val RESP_RECORD_ID = "record_id"
         fun startPage(context: Context) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             context.startActivity(intent)

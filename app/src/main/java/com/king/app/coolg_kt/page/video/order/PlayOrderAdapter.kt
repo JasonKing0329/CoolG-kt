@@ -54,14 +54,14 @@ class PlayOrderAdapter: BaseBindingAdapter<AdapterPlayOrderItemBinding, VideoPla
                 tvParam.bottomMargin = ScreenUtils.dp2px(16f)
             }
             AppConstants.VIEW_TYPE_GRID -> {
-                coverParam.height = binding.cover.resources.getDimensionPixelSize(R.dimen.play_order_height_cell1)
+                coverParam.height = binding.cover.resources.getDimensionPixelSize(R.dimen.play_order_height)
                 binding.cover.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18f)
                 binding.tvVideos.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
                 tvParam.marginEnd = ScreenUtils.dp2px(8f)
                 tvParam.bottomMargin = ScreenUtils.dp2px(8f)
             }
             else -> {
-                coverParam.height = binding.cover.resources.getDimensionPixelSize(R.dimen.play_order_height_cell1)
+                coverParam.height = binding.cover.resources.getDimensionPixelSize(R.dimen.play_order_height)
                 binding.cover.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24f)
                 binding.tvVideos.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
                 tvParam.marginEnd = ScreenUtils.dp2px(16f)

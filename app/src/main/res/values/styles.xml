@@ -50,6 +50,24 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="BaseJActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/actionbar_height</item>
+        <item name="android:theme">@style/EtActionSearch</item>
+        <item name="android:background">@color/actionbar_bg</item>
+        <item name="actionTextColor">@color/actionbar_element</item>
+        <item name="iconColor">@color/actionbar_element</item>
+        <item name="iconSize">@dimen/actionbar_icon_width</item>
+        <item name="iconPadding">@dimen/actionbar_icon_padding</item>
+        <item name="titleSize">@dimen/actionbar_title_text_size</item>
+        <item name="titleColor">@color/actionbar_element</item>
+    </style>
+
+    <style name="CommonJActionBar" parent="BaseJActionBar">
+        <item name="maxShowIcon">5</item>
+        <item name="showIconBack">true</item>
+    </style>
+
     <style name="TvLoginItem">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">40dp</item>
@@ -220,13 +238,14 @@
         <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:drawableRight">@drawable/ic_keyboard_arrow_right_grey_700_24dp</item>
         <item name="android:textColor">@color/text_normal</item>
+        <item name="android:textSize">@dimen/text_common_14</item>
     </style>
 
     <style name="CoverViewOrder">
-        <item name="android:layout_width">165dp</item>
-        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_width">@dimen/video_home_cover_width</item>
+        <item name="android:layout_height">@dimen/video_home_cover_height</item>
         <item name="coverTextColor">@color/white</item>
-        <item name="coverTextSize">14dp</item>
+        <item name="coverTextSize">@dimen/text_common_14</item>
         <item name="coverTextBackgroundColor">#33000000</item>
         <item name="coverRadius">8dp</item>
     </style>
@@ -297,5 +316,4 @@
         <item name="android:shadowRadius">10</item>
         <item name="android:textColor">@color/white</item>
     </style>
-
 </resources>

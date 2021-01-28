@@ -9,24 +9,12 @@
 
         <com.king.app.jactionbar.JActionbar
             android:id="@+id/actionbar"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/actionbar_height"
-            android:background="@color/actionbar_bg"
-            android:theme="@style/EtActionSearch"
-            app:actionTextColor="@color/actionbar_element"
-            app:iconColor="@color/actionbar_element"
+            style="@style/CommonJActionBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:maxShowIcon="5"
             app:menu="@menu/video_play_order"
-            app:showIconBack="true"
-            app:supportSearch="false"
-            app:iconSize="@dimen/actionbar_icon_width"
-            app:iconPadding="@dimen/actionbar_icon_padding"
-            app:titleSize="@dimen/actionbar_title_text_size"
-            app:title="Play Orders"
-            app:titleColor="@color/actionbar_element" />
+            app:title="Play Orders" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"

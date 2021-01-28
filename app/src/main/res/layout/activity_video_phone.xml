@@ -47,17 +47,9 @@
                     app:contentInsetLeft="0dp">
                     <com.king.app.jactionbar.JActionbar
                         android:id="@+id/actionbar"
-                        android:layout_width="match_parent"
-                        android:layout_height="?android:attr/actionBarSize"
-                        android:background="@color/actionbar_bg"
-                        android:theme="@style/EtActionSearch"
+                        style="@style/CommonJActionBar"
                         app:title="Videos"
-                        app:menu="@menu/video_home"
-                        app:maxShowIcon="5"
-                        app:showIconBack="false"
-                        app:iconColor="@color/actionbar_element"
-                        app:titleColor="@color/actionbar_element"
-                        app:actionTextColor="@color/actionbar_element"/>
+                        app:menu="@menu/video_home"/>
                 </androidx.appcompat.widget.Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

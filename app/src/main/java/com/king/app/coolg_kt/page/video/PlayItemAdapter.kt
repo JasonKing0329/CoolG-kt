@@ -22,8 +22,6 @@ class PlayItemAdapter: BaseBindingAdapter<AdapterPlayItemBinding, PlayItemViewBe
 
     var onPlayEmptyUrlListener: OnPlayEmptyUrlListener? = null
 
-    var itemHeight: Int = 0
-
     override fun onCreateBind(inflater: LayoutInflater, parent: ViewGroup): AdapterPlayItemBinding
         = AdapterPlayItemBinding.inflate(inflater, parent, false)
 
@@ -32,10 +30,6 @@ class PlayItemAdapter: BaseBindingAdapter<AdapterPlayItemBinding, PlayItemViewBe
         position: Int,
         bean: PlayItemViewBean
     ) {
-        var param = binding.videoView.layoutParams
-        param.height = itemHeight
-        binding.videoView.layoutParams = param
-
         binding.tvName.text = bean.record.bean.name
         binding.ivDelete.visibility = if (enableDelete) View.VISIBLE else View.GONE
         binding.videoView.setUp(bean.playUrl, "")

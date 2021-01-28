@@ -181,6 +181,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application) {
      * 播放item
      */
     fun playItem(bean: PlayList.PlayItem, index: Int) {
+        mPlayBean = bean
         mPlayIndex = index
         focusToIndex.value = index
         if (bean.url == null) {

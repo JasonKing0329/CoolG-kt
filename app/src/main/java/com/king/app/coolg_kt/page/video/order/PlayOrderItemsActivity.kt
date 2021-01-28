@@ -55,51 +55,17 @@ class PlayOrderItemsActivity:
 
     override fun initView() {
         mBinding.model = mModel
-        if (ScreenUtils.isTablet()) {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            mBinding.tvTotal.visibility = View.GONE
-
-            mBinding.rvVideos.layoutManager = GridLayoutManager(this, 3)
-            adapter.itemHeight = resources.getDimensionPixelSize(R.dimen.play_order_height_cell2)
-            mBinding.rvVideos.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    val position: Int = parent.getChildLayoutPosition(view)
-                    outRect.top = ScreenUtils.dp2px(10f)
-                    when {
-                        position % 3 == 0 -> {
-                            outRect.left = ScreenUtils.dp2px(8f)
-                        }
-                        position % 3 == 1 -> {
-                            outRect.left = ScreenUtils.dp2px(8f)
-                        }
-                        else -> {
-                            outRect.left = ScreenUtils.dp2px(8f)
-                            outRect.right = ScreenUtils.dp2px(8f)
-                        }
-                    }
-                }
-            })
-        }
-        else {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            mBinding.rvVideos.layoutManager = GridLayoutManager(this, 2)
-            adapter.itemHeight = resources.getDimensionPixelSize(R.dimen.play_order_height_cell1)
-            mBinding.rvVideos.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    outRect.top = ScreenUtils.dp2px(8f)
-                }
-            })
-        }
+        mBinding.rvVideos.layoutManager = GridLayoutManager(this, 2)
+        mBinding.rvVideos.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                outRect.top = ScreenUtils.dp2px(8f)
+            }
+        })
         registerVideoList(mBinding.rvVideos)
 
         mBinding.actionbar.setOnBackListener { onBackPressed() }

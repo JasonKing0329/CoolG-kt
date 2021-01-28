@@ -4,6 +4,15 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="common_margin_8">8dp</dimen>
+    <dimen name="common_margin_10">10dp</dimen>
+    <dimen name="common_margin_16">8dp</dimen>
+    <dimen name="text_common_8">8dp</dimen>
+    <dimen name="text_common_10">10dp</dimen>
+    <dimen name="text_common_12">12dp</dimen>
+    <dimen name="text_common_14">14dp</dimen>
+    <dimen name="text_common_16">16dp</dimen>
+
     <dimen name="vertical_divider">1px</dimen>
 
     <dimen name="img_height_in_full_screen_std">210dp</dimen>
@@ -286,12 +295,11 @@
 
     <dimen name="play_order_height_cell2">@dimen/img_height_in_full_screen_std</dimen>
     <dimen name="play_order_height_cell1">112dp</dimen>
+    <dimen name="play_order_height">112dp</dimen>
     <dimen name="img_height_cell1of4">52dp</dimen>
 
-    <dimen name="common_margin_8">8dp</dimen>
     <dimen name="video_item_action_size">30dp</dimen>
     <dimen name="video_item_action_padding">3dp</dimen>
-    <dimen name="text_8">8dp</dimen>
     <dimen name="draw_index_width">30dp</dimen>
     <dimen name="h2h_item_text">14dp</dimen>
     <dimen name="match_home_radius">0dp</dimen>
@@ -310,4 +318,9 @@
     <dimen name="home_menu_text">36dp</dimen>
     <dimen name="home_menu_text_left">16dp</dimen>
 
+    <dimen name="video_home_cover_width">380dp</dimen>
+    <dimen name="video_home_cover_height">220dp</dimen>
+    <dimen name="play_order_item_height">112dp</dimen>
+    <dimen name="video_home_add_icon">36dp</dimen>
+    <dimen name="video_home_add_icon_padding">5dp</dimen>
 </resources>

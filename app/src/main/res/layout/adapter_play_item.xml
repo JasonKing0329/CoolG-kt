@@ -9,7 +9,7 @@
         <com.king.app.coolg_kt.view.widget.video.EmbedJzvd
             android:id="@+id/video_view"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/play_order_height_cell1"
+            android:layout_height="@dimen/play_order_item_height"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -22,7 +22,7 @@
             android:paddingRight="8dp"
             android:maxLines="2"
             android:ellipsize="end"
-            android:textSize="@dimen/text_8"
+            android:textSize="@dimen/text_common_8"
             android:gravity="center_vertical"
             app:layout_constraintTop_toTopOf="@+id/iv_play"
             app:layout_constraintBottom_toBottomOf="@+id/iv_play"

@@ -3,8 +3,13 @@ package com.king.app.coolg_kt.view.widget.video;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.king.app.coolg_kt.R;
@@ -12,6 +17,7 @@ import com.king.app.coolg_kt.utils.DebugLog;
 import com.king.app.coolg_kt.utils.FormatUtil;
 
 import cn.jzvd.JZDataSource;
+import cn.jzvd.JZUtils;
 import cn.jzvd.Jzvd;
 import cn.jzvd.JzvdStd;
 
@@ -192,7 +198,7 @@ public class FullJzvd extends JzvdStd {
 
     private void setControlBarVisible(boolean isLoading) {
         setAllControlsVisiblity(View.VISIBLE, View.VISIBLE, View.VISIBLE,
-                isLoading ? View.VISIBLE:View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                isLoading ? View.VISIBLE:View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE);
     }
 
     @Override
@@ -440,7 +446,125 @@ public class FullJzvd extends JzvdStd {
         ivBack.setVisibility(topCon);
     }
 
+    @Override
+    public void showProgressDialog(float deltaX, String seekTime, long seekTimePosition, String totalTime, long totalTimeDuration) {
+        DebugLog.e();
+        super.showProgressDialog(deltaX, seekTime, seekTimePosition, totalTime, totalTimeDuration);
+    }
+
     public interface OnBackListener {
         void onBack();
     }
+
+    /**
+     * 拖动进度条，首先触发onInfo() -> setState(STATE_PREPARING_PLAYING) -> onStatePreparingPlaying -> changeUIToPreparingPlaying
+     * 上面在onInfo中可以看到是MediaPlayer.MEDIA_INFO_BUFFERING_START
+     * 那么对应的，结束就应该是MediaPlayer.MEDIA_INFO_BUFFERING_END
+     * 实际结束时，经常会观测到继续拖动seekBar总是会跳回一开始的位置，发生不了进度改变，通过调试发现是
+     * onStopTrackingTouch方法里面下面代码return了
+     if (state != STATE_PLAYING &&
+     state != STATE_PAUSE) return;
+     * 因此，可以得知在MEDIA_INFO_BUFFERING_END后没有还原state，从而导致继续拖动进度条无效
+     * 在这里覆盖一下父类方法，还原一下state就可以解决
+     * 同样在这里可以隐藏loading，解决这个状态下已经开始播放了但还是一直在转圈的问题
+     * @param what
+     * @param extra
+     */
+    @Override
+    public void onInfo(int what, int extra) {
+        super.onInfo(what, extra);
+        if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+            state = STATE_PLAYING;
+            setControlBarVisible(false);
+        }
+    }
+
+    /**
+     * 覆盖父类的ontouch move方法，父类判断了screen类型，但screen在各种状态切换下会改变，直接覆盖去掉对screen的校验。FullJzvd一直是full_screen
+     * @param x
+     * @param y
+     */
+    @Override
+    protected void touchActionMove(float x, float y) {
+        Log.i(TAG, "onTouch surfaceContainer actionMove [" + this.hashCode() + "] ");
+        float deltaX = x - mDownX;
+        float deltaY = y - mDownY;
+        float absDeltaX = Math.abs(deltaX);
+        float absDeltaY = Math.abs(deltaY);
+        //拖动的是NavigationBar和状态栏
+        if (mDownX > JZUtils.getScreenWidth(getContext()) || mDownY < JZUtils.getStatusBarHeight(getContext())) {
+            return;
+        }
+        if (!mChangePosition && !mChangeVolume && !mChangeBrightness) {
+            if (absDeltaX > THRESHOLD || absDeltaY > THRESHOLD) {
+                cancelProgressTimer();
+                if (absDeltaX >= THRESHOLD) {
+                    // 全屏模式下的CURRENT_STATE_ERROR状态下,不响应进度拖动事件.
+                    // 否则会因为mediaplayer的状态非法导致App Crash
+                    if (state != STATE_ERROR) {
+                        mChangePosition = true;
+                        mGestureDownPosition = getCurrentPositionWhenPlaying();
+                    }
+                } else {
+                    //如果y轴滑动距离超过设置的处理范围，那么进行滑动事件处理
+                    if (mDownX < mScreenHeight * 0.5f) {//左侧改变亮度
+                        mChangeBrightness = true;
+                        WindowManager.LayoutParams lp = JZUtils.getWindow(getContext()).getAttributes();
+                        if (lp.screenBrightness < 0) {
+                            try {
+                                mGestureDownBrightness = Settings.System.getInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+                                Log.i(TAG, "current system brightness: " + mGestureDownBrightness);
+                            } catch (Settings.SettingNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            mGestureDownBrightness = lp.screenBrightness * 255;
+                            Log.i(TAG, "current activity brightness: " + mGestureDownBrightness);
+                        }
+                    } else {//右侧改变声音
+                        mChangeVolume = true;
+                        mGestureDownVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    }
+                }
+            }
+        }
+        if (mChangePosition) {
+            long totalTimeDuration = getDuration();
+            mSeekTimePosition = (int) (mGestureDownPosition + deltaX * totalTimeDuration / mScreenWidth);
+            if (mSeekTimePosition > totalTimeDuration)
+                mSeekTimePosition = totalTimeDuration;
+            String seekTime = JZUtils.stringForTime(mSeekTimePosition);
+            String totalTime = JZUtils.stringForTime(totalTimeDuration);
+
+            showProgressDialog(deltaX, seekTime, mSeekTimePosition, totalTime, totalTimeDuration);
+        }
+        if (mChangeVolume) {
+            deltaY = -deltaY;
+            int max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int deltaV = (int) (max * deltaY * 3 / mScreenHeight);
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mGestureDownVolume + deltaV, 0);
+            //dialog中显示百分比
+            int volumePercent = (int) (mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight);
+            showVolumeDialog(-deltaY, volumePercent);
+        }
+
+        if (mChangeBrightness) {
+            deltaY = -deltaY;
+            int deltaV = (int) (255 * deltaY * 3 / mScreenHeight);
+            WindowManager.LayoutParams params = JZUtils.getWindow(getContext()).getAttributes();
+            if (((mGestureDownBrightness + deltaV) / 255) >= 1) {//这和声音有区别，必须自己过滤一下负值
+                params.screenBrightness = 1;
+            } else if (((mGestureDownBrightness + deltaV) / 255) <= 0) {
+                params.screenBrightness = 0.01f;
+            } else {
+                params.screenBrightness = (mGestureDownBrightness + deltaV) / 255;
+            }
+            JZUtils.getWindow(getContext()).setAttributes(params);
+            //dialog中显示百分比
+            int brightnessPercent = (int) (mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight);
+            showBrightnessDialog(brightnessPercent);
+//                        mDownY = y;
+        }
+    }
+
 }

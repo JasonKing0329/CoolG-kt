@@ -71,12 +71,14 @@
         <activity android:name=".page.video.order.PlayOrderActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".page.video.order.PlayOrderItemsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".page.star.random.StarRandomActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.video.server.VideoServerActivity"/>
-        <activity android:name=".page.video.order.PlayOrderItemsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".page.video.order.PopularStarActivity"/>
         <activity android:name=".page.star.list.StarSelectorActivity"/>
         <activity android:name=".page.match.MatchHomeActivity"/>

@@ -50,11 +50,6 @@ class PlayOrderActivity : BaseActivity<ActivityPlayOrderBinding, PlayOrderViewMo
     override fun getContentView(): Int = R.layout.activity_play_order
     
     override fun initView() {
-        requestedOrientation = if (ScreenUtils.isTablet()) {
-            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
         updateListViewType()
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->

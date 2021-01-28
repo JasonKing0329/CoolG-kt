@@ -9,4 +9,5 @@ interface OnFingerResultListener {
     fun fingerResult(result: Boolean)
     fun onCancel()
     fun retry()
+    fun unSupport()
 }

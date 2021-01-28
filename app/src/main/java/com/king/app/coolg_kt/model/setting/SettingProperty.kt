@@ -16,6 +16,8 @@ class SettingProperty: BaseProperty() {
 
     companion object {
 
+        fun isEnablePassword(): Boolean = getBoolean("pref_user_check")
+
         fun isEnableFingerPrint(): Boolean = getBoolean("pref_safety_fingerprint")
 
         fun getDemoImageVersion(): String {

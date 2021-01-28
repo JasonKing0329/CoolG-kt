@@ -296,5 +296,18 @@
     <dimen name="h2h_item_text">14dp</dimen>
     <dimen name="match_home_radius">0dp</dimen>
     <dimen name="match_home_text">30dp</dimen>
+    <dimen name="home_date_text">28dp</dimen>
+    <dimen name="home_menu_icon_size">50dp</dimen>
+    <dimen name="home_menu_icon_padding">8dp</dimen>
+    <dimen name="home_menu_icon_margin">10dp</dimen>
+    <dimen name="home_menu_left">24dp</dimen>
+    <dimen name="home_menu_icon_left">2dp</dimen>
+    <dimen name="home_menu_top">20dp</dimen>
+    <dimen name="home_match_text">30dp</dimen>
+    <dimen name="home_match_text_padding">10dp</dimen>
+    <dimen name="home_rank_text">12dp</dimen>
+    <dimen name="home_star_text">16dp</dimen>
+    <dimen name="home_menu_text">36dp</dimen>
+    <dimen name="home_menu_text_left">16dp</dimen>
 
 </resources>

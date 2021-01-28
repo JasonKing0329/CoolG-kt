@@ -10,6 +10,7 @@ import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
 import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.utils.AppUtil
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.ProgressDialogFragment
 
@@ -43,19 +44,24 @@ abstract class RootActivity : AppCompatActivity() {
     }
 
     private fun setFullScreen() {
-        val uiOptions = (
-                // 底部的导航栏
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        if (AppUtil.isAndroidP()) {
+            val uiOptions = (
+                    // 底部的导航栏
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 //                // 顶部状态栏
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                // 当状态栏隐藏的时候，手动调出状态栏导航栏，显示一会儿随后就会隐藏掉。设置该属性后不会清除flag
-                // SYSTEM_UI_FLAG_IMMERSIVE 会在手动调出状态栏后立马清除flag
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                )
-        window.decorView.systemUiVisibility = uiOptions
+                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            // 当状态栏隐藏的时候，手动调出状态栏导航栏，显示一会儿随后就会隐藏掉。设置该属性后不会清除flag
+                            // SYSTEM_UI_FLAG_IMMERSIVE 会在手动调出状态栏后立马清除flag
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    )
+            window.decorView.systemUiVisibility = uiOptions
+        }
+        else {
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        }
     }
 
     /**

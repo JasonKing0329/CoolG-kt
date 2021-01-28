@@ -4,6 +4,12 @@
         app:icon="@drawable/ic_fingerprint_black_36dp">
 
         <SwitchPreference
+            app:defaultValue="true"
+            app:key="pref_user_check"
+            app:title="Check user"
+            app:summary="Use password" />
+
+        <SwitchPreference
             app:defaultValue="false"
             app:key="pref_safety_fingerprint"
             app:summary="@string/pref_safety_fingerprint_desc"

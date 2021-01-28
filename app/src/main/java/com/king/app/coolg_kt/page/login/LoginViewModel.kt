@@ -37,6 +37,8 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
 
     var fingerprintObserver = MutableLiveData<Boolean>()
 
+    var passwordCheck = MutableLiveData<Boolean>()
+
     var loginObserver = MutableLiveData<Boolean>()
 
     var extendObserver = MutableLiveData<Boolean>()
@@ -82,7 +84,7 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
                     if (SettingProperty.isEnableFingerPrint()) {
                         fingerprintObserver.setValue(true)
                     } else {
-                        groupLoginVisibility.set(View.VISIBLE)
+                        passwordCheck.setValue(true)
                     }
                 }
 

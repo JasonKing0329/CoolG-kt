@@ -11,6 +11,7 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BindingDialogFragment
 import com.king.app.coolg_kt.databinding.DialogFingerprintBinding
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
+import com.king.app.coolg_kt.utils.DebugLog
 import javax.crypto.Cipher
 
 /**
@@ -62,13 +63,20 @@ class FingerprintDialog : BindingDialogFragment<DialogFingerprintBinding>() {
                     errorCode: Int,
                     errString: CharSequence
                 ) {
+                    DebugLog.e("errorCode:$errorCode errString:$errString")
                     if (!isSelfCancelled) {
 
-                        if (errorCode == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT) {
-                            //Toast.makeText(mActivity, errString, Toast.LENGTH_SHORT).show();
-                            Toast.makeText(context, errString.toString() + "", Toast.LENGTH_SHORT).show()
-                            onFingerPrintListener?.fingerResult(false)
-                            dismiss()
+                        when(errorCode) {
+                            FingerprintManager.FINGERPRINT_ERROR_HW_UNAVAILABLE -> {
+                                onFingerPrintListener?.unSupport()
+                                dismissAllowingStateLoss()
+                            }
+                            FingerprintManager.FINGERPRINT_ERROR_LOCKOUT -> {
+                                //Toast.makeText(mActivity, errString, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, errString.toString() + "", Toast.LENGTH_SHORT).show()
+                                onFingerPrintListener?.fingerResult(false)
+                                dismiss()
+                            }
                         }
                     }
                 }
@@ -77,10 +85,11 @@ class FingerprintDialog : BindingDialogFragment<DialogFingerprintBinding>() {
                     helpCode: Int,
                     helpString: CharSequence
                 ) {
-
+                    DebugLog.e("onAuthenticationHelp:$helpString")
                 }
 
                 override fun onAuthenticationSucceeded(result: FingerprintManager.AuthenticationResult) {
+                    DebugLog.e("onAuthenticationSucceeded")
                     // ToastUtil.showToast(mActivity, "指纹认证成功");
                     onFingerPrintListener?.fingerResult(true)
                     dismiss()
@@ -88,6 +97,7 @@ class FingerprintDialog : BindingDialogFragment<DialogFingerprintBinding>() {
                 }
 
                 override fun onAuthenticationFailed() {
+                    DebugLog.e("onAuthenticationFailed")
                     onFingerPrintListener?.fingerResult(false)
                 }
             },

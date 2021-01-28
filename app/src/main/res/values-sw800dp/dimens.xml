@@ -224,8 +224,29 @@
     <dimen name="video_back_size">50dp</dimen>
     <dimen name="video_back_padding">10dp</dimen>
     <dimen name="video_loading_size">80dp</dimen>
-    <dimen name="home_record_height">225dp</dimen>
+    <dimen name="home_record_height">@dimen/img_height_in_full_screen_std</dimen>
     <dimen name="video_item_action_size">36dp</dimen>
     <dimen name="video_item_action_padding">5dp</dimen>
     <dimen name="text_8">12dp</dimen>
+    <dimen name="home_date_text">38dp</dimen>
+    <dimen name="home_menu_icon_size">70dp</dimen>
+    <dimen name="home_menu_icon_padding">16dp</dimen>
+    <dimen name="home_menu_icon_margin">10dp</dimen>
+    <dimen name="home_menu_height">120dp</dimen>
+    <dimen name="home_menu_radius">60dp</dimen>
+    <dimen name="home_menu_left">48dp</dimen>
+    <dimen name="home_menu_icon_height">112dp</dimen>
+    <dimen name="home_menu_icon_radius">56dp</dimen>
+    <dimen name="home_menu_icon_left">4dp</dimen>
+    <dimen name="home_menu_top">40dp</dimen>
+    <dimen name="home_match_text">50dp</dimen>
+    <dimen name="home_match_text_padding">16dp</dimen>
+
+    <dimen name="img_height_in_full_screen_std">450dp</dimen>
+    <dimen name="home_star_height_cell1">@dimen/img_height_in_full_screen_std</dimen>
+    <dimen name="home_star_height_cell2">225dp</dimen>
+    <dimen name="home_rank_text">20dp</dimen>
+    <dimen name="home_star_text">28dp</dimen>
+    <dimen name="home_menu_text">68dp</dimen>
+    <dimen name="home_menu_text_left">32dp</dimen>
 </resources>

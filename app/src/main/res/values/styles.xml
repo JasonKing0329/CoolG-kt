@@ -62,7 +62,7 @@
     <style name="IvLoginItemArrow">
         <item name="android:layout_width">24dp</item>
         <item name="android:layout_height">24dp</item>
-        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
     </style>
 
     <style name="IvDialogIcon">
@@ -203,9 +203,9 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">36dp</item>
+        <item name="android:textSize">@dimen/home_menu_text</item>
         <item name="android:textStyle">bold|italic</item>
-        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginStart">@dimen/home_menu_text_left</item>
         <item name="android:layout_marginEnd">@dimen/home_menu_height</item>
     </style>
 

@@ -16,5 +16,6 @@
         app:coverTextColor="@color/white"
         app:coverTextBackgroundColor="#33000000"
         app:coverText="@{bean.bean.star.name}"
+        app:coverTextSize="@dimen/home_star_text"
         app:coverStarUrl="@{bean.bean.imageUrl}"/>
 </layout>

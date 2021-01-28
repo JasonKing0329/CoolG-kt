@@ -14,6 +14,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.home.phone.PhoneHomeActivity
 import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
@@ -52,6 +53,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun initCreate() {
+        mModel.passwordCheck.observe(this, Observer { showPasswordCheck() })
         mModel.initCreate()
     }
 
@@ -71,6 +73,11 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             override fun retry() {
                 initCreate()
             }
+
+            override fun unSupport() {
+                showMessageShort("指纹硬件无法使用")
+                showPasswordCheck()
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             helper.startBiometricPromptIn28(this)
@@ -78,7 +85,16 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             helper.startBiometricPromptIn23(supportFragmentManager)
         }
         else {
+            showPasswordCheck()
+        }
+    }
+
+    private fun showPasswordCheck() {
+        if (SettingProperty.isEnablePassword()) {
             mBinding.groupLogin.visibility = View.VISIBLE
+        }
+        else {
+            superUser()
         }
     }
 

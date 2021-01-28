@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.match.rank
 
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchRankBinding
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.score.ScoreActivity
@@ -26,9 +28,16 @@ import com.king.app.gdb.data.entity.Star
 class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
     companion object {
+        val EXTRA_SELECT_MODE = "select_mode"
+        val RESP_RECORD_ID = "record_id"
         fun startPage(context: Context) {
             var intent = Intent(context, RankActivity::class.java)
             context.startActivity(intent)
+        }
+        fun startPageToSelect(context: Activity, requestCode: Int) {
+            var intent = Intent(context, RankActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            context.startActivityForResult(intent, requestCode)
         }
     }
 
@@ -110,6 +119,16 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     override fun initData() {
         mModel.recordRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Record?>()
+            adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{
+                override fun onClickItem(view: View, position: Int, data: RankItem<Record?>) {
+                    if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+                        val intent = Intent()
+                        intent.putExtra(RESP_RECORD_ID, data.bean?.id)
+                        setResult(Activity.RESULT_OK, intent)
+                        finish()
+                    }
+                }
+            })
             adapter.onItemListener = object : RankAdapter.OnItemListener<Record?> {
                 override fun onClickScore(bean: RankItem<Record?>) {
                     bean.bean?.let { record ->

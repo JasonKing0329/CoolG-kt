@@ -22,9 +22,11 @@ import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
+import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -211,14 +213,27 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         mModel.mToSetWildCard = drawItem
         mModel.mToSetWildCardPosition = position
         mModel.mToSetWildCardRecord = recordWrap
-        PhoneRecordListActivity.startPageToSelect(this, REQUEST_CHANGE_PLAYER)
+        selectRecord()
     }
 
     private fun selectWildCardRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {
         mModel.mToSetWildCard = drawItem
         mModel.mToSetWildCardPosition = position
         mModel.mToSetWildCardRecord = recordWrap
-        PhoneRecordListActivity.startPageToSelect(this, REQUEST_SELECT_WILDCARD)
+        selectRecord()
+    }
+
+    private fun selectRecord() {
+        AlertDialogFragment()
+            .setItems(
+                arrayOf("Record List", "Rank List")
+            ) { dialog, which ->
+                when(which) {
+                    0 -> PhoneRecordListActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD)
+                    1 -> RankActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD)
+                }
+            }
+            .show(supportFragmentManager, "AlertDialogFragment")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

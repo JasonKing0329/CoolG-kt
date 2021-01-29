@@ -95,6 +95,10 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="landscape"/>
 
+        <activity android:name=".page.record.pad.RecordPadActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="landscape"/>
+
         <service android:name=".service.FileService"/>
 
         <provider

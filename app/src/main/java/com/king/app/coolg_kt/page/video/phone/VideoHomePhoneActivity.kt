@@ -20,6 +20,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment.OnAnimSettingListener
+import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.record.popup.RecommendFragment
@@ -37,6 +38,7 @@ import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.widget.video.EmbedJzvd
 import com.king.app.coolg_kt.view.widget.video.OnPlayEmptyUrlListener
+import com.king.app.gdb.data.entity.Record
 
 /**
  * Desc:
@@ -178,7 +180,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                 }
 
                 override fun onClickItem(position: Int, bean: PlayItemViewBean) {
-                    RecordActivity.startPage(this@VideoHomePhoneActivity, bean.record.bean.id!!)
+                    goToRecordPage(bean.record.bean.id!!)
                 }
 
                 override fun onAddToVideoOrder(bean: PlayItemViewBean) {
@@ -241,7 +243,7 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
                     }
 
                     override fun onClickPlayItem(item: PlayItemViewBean) {
-                        RecordActivity.startPage(this@VideoHomePhoneActivity, item.record.bean.id!!)
+                        goToRecordPage(item.record.bean.id!!)
                     }
 
                     override fun onInterceptFullScreen(item: PlayItemViewBean) {
@@ -261,6 +263,15 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
             Observer { playList(true) }
         )
         mModel.buildPage()
+    }
+
+    private fun goToRecordPage(recordId: Long) {
+        if (ScreenUtils.isTablet()) {
+            RecordPadActivity.startPage(this, recordId)
+        }
+        else {
+            RecordActivity.startPage(this, recordId)
+        }
     }
 
     private fun playList(autoPlay: Boolean) {

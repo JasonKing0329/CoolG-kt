@@ -35,7 +35,7 @@ import kotlin.math.abs
  * @author：Jing Yang
  * @date: 2020/12/15 14:38
  */
-class RecordViewModel(application: Application): BaseViewModel(application) {
+open class RecordViewModel(application: Application): BaseViewModel(application) {
 
     var recordObserver: MutableLiveData<RecordWrap> = MutableLiveData()
 
@@ -72,13 +72,13 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
 
     var mVideoCover: String? = null
 
-    private var mPlayUrl: String? = null
+    var mPlayUrl: String? = null
 
-    private val mUrlToSetCover: String? = null
+    var mUrlToSetCover: String? = null
 
     var bitmapObserver: MutableLiveData<Bitmap> = MutableLiveData()
 
-    fun loadRecord(recordId: Long) {
+    open fun loadRecord(recordId: Long) {
         DebugLog.e("recordId=$recordId")
         repository.getRecord(recordId)
             .flatMap {
@@ -196,7 +196,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
         videoUrlObserver.value = mPlayUrl
     }
 
-    private fun checkPlayable() {
+    fun checkPlayable() {
         AppHttpClient.getInstance().getAppService().getVideoPath(getPathRequest())
             .flatMap { UrlUtil.toVideoUrl(it) }
             .compose(applySchedulers())
@@ -224,7 +224,7 @@ class RecordViewModel(application: Application): BaseViewModel(application) {
         tagsObserver.postValue(getTags(mRecord))
     }
 
-    private fun getTags(record: RecordWrap): List<Tag> {
+    fun getTags(record: RecordWrap): List<Tag> {
         return getDatabase().getTagDao().getRecordTags(record.bean.id!!)
     }
 

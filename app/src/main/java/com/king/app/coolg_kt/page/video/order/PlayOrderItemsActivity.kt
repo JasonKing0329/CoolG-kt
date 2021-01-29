@@ -15,6 +15,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityPlayerOrderItemsBinding
 import com.king.app.coolg_kt.model.bean.PlayItemViewBean
+import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.video.PlayItemAdapter
 import com.king.app.coolg_kt.page.video.player.PlayerActivity
@@ -153,7 +154,7 @@ class PlayOrderItemsActivity:
 
     private fun goToRecordPage(record: Record) {
         if (ScreenUtils.isTablet()) {
-
+            RecordPadActivity.startPage(this, record.id!!)
         }
         else {
             RecordActivity.startPage(this, record.id!!)

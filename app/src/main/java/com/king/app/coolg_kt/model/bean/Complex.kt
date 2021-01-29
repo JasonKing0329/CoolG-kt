@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.model.bean
 
+import android.net.Uri
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
@@ -77,6 +78,7 @@ class RecordComplexFilter {
 class TitleValueBean {
     var title: String? = null
     var value: String? = null
+    var isOnlyValue: Boolean = false
 
     constructor() {}
     constructor(title: String?, value: String?) {
@@ -182,4 +184,21 @@ class StarDetailBuilder {
 class IndexRange {
     var start = 0
     var end = 0
+}
+
+class VideoData {
+    var id: String? = null
+    var name: String? = null
+    var path: String? = null
+    var size: String? = null
+    var duration: String? = null
+    var mimeType: String? = null
+    var height = 0
+    var width = 0
+    var dateAdded: Long = 0
+    var durationInt = 0
+    var sizeLong: Long = 0
+    val uri: Uri
+        get() = Uri.parse("file://$path")
+
 }

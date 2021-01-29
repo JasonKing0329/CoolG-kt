@@ -316,4 +316,29 @@
         <item name="android:shadowRadius">10</item>
         <item name="android:textColor">@color/white</item>
     </style>
+
+    <style name="IvPadActionIcon">
+        <item name="android:layout_width">@dimen/actionbar_height</item>
+        <item name="android:layout_height">@dimen/actionbar_height</item>
+        <item name="android:padding">@dimen/actionbar_icon_padding</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="TvRecordPadAddTitle">
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">18dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="IconRecordPadAdd">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:src">@drawable/ic_add_white_36dp</item>
+    </style>
+
 </resources>

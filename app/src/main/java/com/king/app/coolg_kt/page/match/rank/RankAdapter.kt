@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.page.match.rank
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterMatchRankBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
@@ -44,6 +45,18 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
         binding.ivHead.setOnClickListener { onItemListener?.onClickId(bean) }
         binding.tvScore.setOnClickListener { onItemListener?.onClickScore(bean) }
         binding.tvMatchCount.setOnClickListener { onItemListener?.onClickScore(bean) }
+
+        when {
+            bean.change.startsWith("+") -> {
+                binding.tvChange.setTextColor(binding.tvChange.resources.getColor(R.color.redC93437))
+            }
+            bean.change.startsWith("-") -> {
+                binding.tvChange.setTextColor(binding.tvChange.resources.getColor(R.color.green34A350))
+            }
+            else -> {
+                binding.tvChange.setTextColor(binding.tvChange.resources.getColor(R.color.text_normal))
+            }
+        }
     }
 
     interface OnItemListener<T> {

@@ -69,10 +69,13 @@ class RankRepository: BaseRepository() {
      */
     fun getSpecificPeriodRecordRanks(period: Int, orderInPeriod: Int): Observable<List<MatchRankRecordWrap>> {
         return Observable.create {
-            var result = getDatabase().getMatchDao().getMatchRankRecordsBy(period, orderInPeriod)
-            it.onNext(result)
+            it.onNext(specificPeriodRecordRanks(period, orderInPeriod))
             it.onComplete()
         }
+    }
+
+    fun specificPeriodRecordRanks(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap> {
+        return getDatabase().getMatchDao().getMatchRankRecordsBy(period, orderInPeriod)
     }
 
     /**

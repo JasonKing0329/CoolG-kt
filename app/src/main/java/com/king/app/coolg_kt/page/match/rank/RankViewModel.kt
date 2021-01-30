@@ -280,12 +280,34 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     private fun toRecordList(list: List<MatchRankRecordWrap>): ObservableSource<List<RankItem<Record?>>> {
         return ObservableSource {
             TimeCostUtil.start()
+            var lastRanks = listOf<MatchRankRecordWrap>()
+            // period加载变化
+            if (periodOrRtf == 0) {
+                // 当前period的上一站
+                val lp = rankRepository.getLastPeriod(showPeriod)
+                lastRanks = rankRepository.specificPeriodRecordRanks(lp.period, lp.orderInPeriod)
+            }
             var result = mutableListOf<RankItem<Record?>>()
             list.forEach { bean ->
                 // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
                     , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore)
                 result.add(item)
+
+                // 上一站存在才加载变化
+                if (lastRanks.isNotEmpty()) {
+                    val lastRank = lastRanks.firstOrNull { it.bean.recordId == bean.bean.recordId }
+                    item.change = if (lastRank == null) {
+                        "New"
+                    }
+                    else {
+                        when {
+                            lastRank.bean.rank > bean.bean.rank -> "+${lastRank.bean.rank - bean.bean.rank}"
+                            bean.bean.rank > lastRank.bean.rank -> "-${bean.bean.rank - lastRank.bean.rank}"
+                            else -> "0"
+                        }
+                    }
+                }
             }
             TimeCostUtil.end("toRecordList")
             it.onNext(result)

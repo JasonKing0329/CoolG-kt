@@ -341,4 +341,10 @@
         <item name="android:src">@drawable/ic_add_white_36dp</item>
     </style>
 
+    <style name="GroupWhiteSecItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/gdb_record_line_height</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
 </resources>

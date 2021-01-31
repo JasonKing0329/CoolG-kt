@@ -70,6 +70,17 @@ data class ScoreTitle (
     var name: String,
     var color: Int
 )
+data class ScoreHead (
+    var recordId: Long,
+    var score: String = "",
+    var scoreNoCount: String = "",
+    var rank: String = "",
+    var name: String = "",
+    var matchCount: String = "",
+    var periodMatches: String = "",
+    var best: String = "",
+    var imageUrl: String? = null
+)
 
 data class RoadBean (
     var round: String,

@@ -4,6 +4,7 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
+import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchRankRecord
 import com.king.app.gdb.data.relation.MatchRankRecordWrap
 import com.king.app.gdb.data.relation.MatchRankStarWrap
@@ -208,6 +209,18 @@ class RankRepository: BaseRepository() {
             }
         }
         return MatchConstants.RANK_OUT_OF_SYSTEM
+    }
+
+    fun getRankPeriodRecordMatchItems(recordId: Long): List<MatchItem> {
+        return getRecordMatchItems(recordId, getRankPeriodPack())
+    }
+
+    fun getRTFRecordMatchItems(recordId: Long): List<MatchItem> {
+        return getRecordMatchItems(recordId, getRTFPeriodPack())
+    }
+
+    fun getRecordMatchItems(recordId: Long, pack: PeriodPack): List<MatchItem> {
+        return getDatabase().getMatchDao().getRecordMatchItems(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
     }
 
 }

@@ -30,7 +30,7 @@ class ScoreActivity: BaseActivity<ActivityMatchScoreBinding, ScoreViewModel>() {
         }
     }
 
-    val adapter = ScoreItemAdapter()
+    val adapter = ScoreAdapter()
 
     override fun getContentView(): Int = R.layout.activity_match_score
 
@@ -40,15 +40,26 @@ class ScoreActivity: BaseActivity<ActivityMatchScoreBinding, ScoreViewModel>() {
         mBinding.model = mModel
 
         mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnMenuItemListener {
+            when(it) {
+                R.id.menu_period -> mModel.onClickCalendar(mBinding.tvYear.isSelected)
+            }
+        }
+        mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
+        mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
+
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.adapter = adapter
-        adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<ScoreBean> {
-            override fun onClickItem(view: View, position: Int, data: ScoreBean) {
+
+        adapter.onPageListener = object : ScoreAdapter.OnPageListener {
+            override fun onClickRecord(recordId: Long) {
+                RecordActivity.startPage(this@ScoreActivity, recordId)
+            }
+
+            override fun onClickScore(position: Int, data: ScoreBean) {
                 showRoadDialog(data)
             }
         }
-
-        mBinding.ivHead.setOnClickListener { RecordActivity.startPage(this, getRecordId()) }
         mBinding.tvWeek.setOnClickListener {
             mBinding.tvWeek.isSelected = true
             mBinding.tvYear.isSelected = false

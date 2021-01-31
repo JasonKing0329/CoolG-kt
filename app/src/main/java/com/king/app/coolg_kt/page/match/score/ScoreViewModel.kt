@@ -1,7 +1,9 @@
 package com.king.app.coolg_kt.page.match.score
 
 import android.app.Application
+import android.view.View
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseViewModel
@@ -11,6 +13,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.ScoreBean
+import com.king.app.coolg_kt.page.match.ScoreHead
 import com.king.app.coolg_kt.page.match.ScoreTitle
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 import com.king.app.gdb.data.relation.RecordWrap
@@ -26,17 +29,17 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     var scoresObserver = MutableLiveData<List<Any>>()
     private var rankRepository = RankRepository()
 
-    var recordImageUrl = ObservableField<String>()
-    var scoreText = ObservableField<String>()
-    var scoreNotCountText = ObservableField<String>()
-    var rankText = ObservableField<String>()
-    var nameText = ObservableField<String>()
-    var totalMatchesText = ObservableField<String>()
+    var periodGroupVisibility = ObservableInt(View.GONE)
+    var periodLastVisibility = ObservableInt(View.INVISIBLE)
+    var periodNextVisibility = ObservableInt(View.VISIBLE)
+    var periodText = ObservableField<String>()
 
     var recordWrap: RecordWrap? = null
     var curPeriodPack: PeriodPack? = null
+    var scoreHead = ScoreHead(0)
 
     fun loadRankPeriod(recordId: Long) {
+        periodGroupVisibility.set(View.GONE)
         curPeriodPack = rankRepository.getCompletedPeriodPack()
         loadRecord(recordId)
             .flatMap { convertRecordScores(recordId, rankRepository.getRecordRankPeriodScores(recordId)) }
@@ -56,6 +59,17 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     fun loadRaceToFinal(recordId: Long) {
         curPeriodPack = rankRepository.getRTFPeriodPack()
         var period = curPeriodPack?.startPeriod?:0
+        periodText.set("Period $period")
+        if (period == 1) {
+            periodLastVisibility.set(View.INVISIBLE)
+        }
+        else {
+            periodLastVisibility.set(View.VISIBLE)
+        }
+        loadPeriodScores(recordId, period)
+    }
+
+    private fun loadPeriodScores(recordId: Long, period: Int) {
         loadRecord(recordId)
             .flatMap { convertRecordScores(recordId, rankRepository.getRecordPeriodScores(recordId, period)) }
             .compose(applySchedulers())
@@ -75,8 +89,8 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
         return Observable.create {
             recordWrap = getDatabase().getRecordDao().getRecord(recordId)
             recordWrap?.let { wrap ->
-                recordImageUrl.set(ImageProvider.getRecordRandomPath(wrap.bean.name, null))
-                nameText.set(wrap.bean.name)
+                scoreHead.imageUrl = ImageProvider.getRecordRandomPath(wrap.bean.name, null)
+                scoreHead.name = wrap.bean.name?:""
                 var rankTxt: String? = null
                 wrap.countRecord?.let { countRecord ->
                     val curRank = rankRepository.getRecordRankToDraw(wrap.bean.id!!)
@@ -87,7 +101,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                         "$curRank (R-${countRecord.rank})"
                     }
                 }
-                rankTxt?.let { text -> rankText.set(text) }
+                rankTxt?.let { text -> scoreHead.rank = text }
             }
             it.onNext(recordWrap)
             it.onComplete()
@@ -98,12 +112,31 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
      * @param list list按score降序排列
      */
     private fun convertRecordScores(recordId: Long, list: List<MatchScoreRecordWrap>): Observable<List<Any>> {
-        totalMatchesText.set("${list.size} Matches")
+        scoreHead.matchCount = list.size.toString()
         return Observable.create {
             var result = mutableListOf<Any>()
+
+            // 统计总胜负
+            var win = 0
+            var lose = 0
+            curPeriodPack?.let { pack ->
+                val items = rankRepository.getRecordMatchItems(recordId, pack)
+                items.forEach { item ->
+                    if (item.winnerId == recordId) {
+                        win ++
+                    }
+                    else {
+                        lose ++
+                    }
+                }
+                scoreHead.periodMatches = "${win}胜${lose}负"
+            }
+
+            // 按level归类，统计best, score not count
             var score = 0
             var scoreNotCount = 0
-            // 按level归类
+            var best = 0
+            var bestTimes = 0
             var map = mutableMapOf<Int, MutableList<ScoreBean>?>()
 
             list.forEachIndexed { index, wrap ->
@@ -112,6 +145,13 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 if (items == null) {
                     items = mutableListOf()
                     map[match.level] = items
+                }
+                if (wrap.bean.score > best) {
+                    best = wrap.bean.score
+                    bestTimes = 1
+                }
+                else if (wrap.bean.score == best) {
+                    bestTimes ++
                 }
                 val isWinner = wrap.matchItem.winnerId == recordId
                 val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.matchItem.matchId)
@@ -132,6 +172,18 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                     score += wrap.bean.score
                 }
             }
+            // head信息
+            scoreHead.score = score.toString()
+            if (scoreNotCount > 0) {
+                scoreHead.scoreNoCount = "(${scoreNotCount})"
+            }
+            if (bestTimes > 1) {
+                scoreHead.best = "$best($bestTimes times)"
+            }
+            else {
+                scoreHead.best = best.toString()
+            }
+            result.add(scoreHead)
             // 按level排序
             val keys = map.keys.sortedBy { level -> level }
             keys.forEach { level ->
@@ -149,12 +201,45 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 result.addAll(map[level]!!)
             }
 
-            scoreText.set(score.toString())
-            if (scoreNotCount > 0) {
-                scoreNotCountText.set("(${scoreNotCount})")
-            }
             it.onNext(result)
             it.onComplete()
+        }
+    }
+
+    fun onClickCalendar(isPeriodPage: Boolean) {
+        if (isPeriodPage) {
+            if (periodGroupVisibility.get() == View.VISIBLE) {
+                periodGroupVisibility.set(View.GONE)
+            }
+            else {
+                periodGroupVisibility.set(View.VISIBLE)
+            }
+        }
+    }
+
+    fun nextPeriod() {
+        curPeriodPack?.let {
+            var period = it.startPeriod + 1
+            it.startPeriod = period
+            it.endPeriod = period
+            periodText.set("Period $period")
+            periodLastVisibility.set(View.VISIBLE)
+            loadPeriodScores(recordWrap!!.bean.id!!, period)
+        }
+    }
+
+    fun lastPeriod() {
+        curPeriodPack?.let {
+            var period = it.startPeriod - 1
+            if (period > 0) {
+                it.startPeriod = period
+                it.endPeriod = period
+                if (period == 1) {
+                    periodLastVisibility.set(View.INVISIBLE)
+                }
+                periodText.set("Period $period")
+                loadPeriodScores(recordWrap!!.bean.id!!, period)
+            }
         }
     }
 }

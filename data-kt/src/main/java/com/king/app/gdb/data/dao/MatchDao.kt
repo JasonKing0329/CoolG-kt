@@ -59,6 +59,9 @@ interface MatchDao {
     @Query("select r.* from match_record rp join match_item r on rp.matchItemId=r.id where rp.recordId=:recordId1 and r.winnerId!=0 and rp.matchItemId in (select matchItemId from match_record where recordId=:recordId2)")
     fun getH2hItems(recordId1: Long, recordId2: Long): List<MatchItemWrap>
 
+    @Query("select mi.* from match_item mi join match_record mr on mi.id=mr.matchItemId join match_period mp on mi.matchId=mp.id and ((mp.period=:startPeriod and mp.orderInPeriod>=:startPIO) or (mp.period=:endPeriod and mp.orderInPeriod<=:endPIO)) where mr.recordId=:recordId and mi.winnerId>0")
+    fun getRecordMatchItems(recordId: Long, startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<MatchItem>
+
     @Query("select * from match_record")
     fun getAllMatchRecords(): List<MatchRecord>
 

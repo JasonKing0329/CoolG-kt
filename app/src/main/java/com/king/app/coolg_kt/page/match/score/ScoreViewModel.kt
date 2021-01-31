@@ -87,6 +87,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
 
     private fun loadRecord(recordId: Long): Observable<RecordWrap> {
         return Observable.create {
+            scoreHead.recordId = recordId
             recordWrap = getDatabase().getRecordDao().getRecord(recordId)
             recordWrap?.let { wrap ->
                 scoreHead.imageUrl = ImageProvider.getRecordRandomPath(wrap.bean.name, null)

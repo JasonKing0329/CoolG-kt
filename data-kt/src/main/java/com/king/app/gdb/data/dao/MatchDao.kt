@@ -80,6 +80,18 @@ interface MatchDao {
     @Query("select * from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
     fun getMatchRankRecordsBy(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap>
 
+    @Query("select min(rank) from match_rank_record where recordId=:recordId")
+    fun getRecordHighestRank(recordId: Long): Int
+
+    @Query("select max(rank) from match_rank_record where recordId=:recordId")
+    fun getRecordLowestRank(recordId: Long): Int
+
+    @Query("select * from match_rank_record where recordId=:recordId and rank=:rank order by period, orderInPeriod limit 1")
+    fun getRecordRankFirstTime(recordId: Long, rank: Int): MatchRankRecord?
+
+    @Query("select count(*) from match_rank_record where recordId=:recordId and rank=:rank")
+    fun getRecordRankWeeks(recordId: Long, rank: Int): Int
+
     @Query("select * from match_rank_star")
     fun getAllMatchRankStars(): List<MatchRankStar>
 

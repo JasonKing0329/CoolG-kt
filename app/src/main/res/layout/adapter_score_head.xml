@@ -156,8 +156,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:layout_width="match_parent"
-            app:layout_constraintTop_toBottomOf="@+id/group_record_matches"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/group_record_matches">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -170,10 +169,137 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{bean.best}"
+                app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_best_result_sub"
                 tools:text="SF(3 times)"/>
+            <TextView
+                android:id="@+id/tv_best_result_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{bean.bestSub}"
+                android:textSize="10dp"
+                android:textColor="@color/text_sub"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_best_result"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="Corbin Fisher, Sean Cody, Lucas Entertainment"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/vertical_divider"
+                android:background="@color/divider"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/group_rank_high"
+            style="@style/GroupWhiteSecItem"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/group_best">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="Highest rank"/>
+            <TextView
+                android:id="@+id/tv_high"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{bean.rankHigh}"
+                app:layout_constraintEnd_toStartOf="@+id/tv_high_week"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="225"/>
+            <TextView
+                android:id="@+id/tv_high_first"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{bean.rankHighFirst}"
+                android:textColor="@color/text_sub"
+                android:textSize="10dp"
+                android:gravity="right"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="@+id/tv_high_week"
+                app:layout_constraintEnd_toEndOf="@+id/tv_high_week"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_high_week"
+                tools:text="P2-W35"/>
+            <TextView
+                android:id="@+id/tv_high_week"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="@{bean.rankHighWeeks}"
+                android:textColor="@color/text_sub"
+                android:textSize="10dp"
+                android:gravity="right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_high_first"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="56 weeks"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/vertical_divider"
+                android:background="@color/divider"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/group_rank_low"
+            style="@style/GroupWhiteSecItem"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/group_rank_high"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="Lowest rank"/>
+            <TextView
+                android:id="@+id/tv_low"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{bean.rankLow}"
+                app:layout_constraintEnd_toStartOf="@+id/tv_low_week"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="225"/>
+            <TextView
+                android:id="@+id/tv_low_first"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{bean.rankLowFirst}"
+                android:textColor="@color/text_sub"
+                android:textSize="10dp"
+                android:gravity="right"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="@+id/tv_low_week"
+                app:layout_constraintEnd_toEndOf="@+id/tv_low_week"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_low_week"
+                tools:text="P2-W35"/>
+            <TextView
+                android:id="@+id/tv_low_week"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="@{bean.rankLowWeeks}"
+                android:textColor="@color/text_sub"
+                android:textSize="10dp"
+                android:gravity="right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_low_first"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="12 weeks"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/vertical_divider"

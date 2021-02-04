@@ -79,6 +79,13 @@ data class ScoreHead (
     var matchCount: String = "",
     var periodMatches: String = "",
     var best: String = "",
+    var bestSub: String = "",
+    var rankHigh: String = "",
+    var rankHighFirst: String = "",
+    var rankHighWeeks: String = "",
+    var rankLow: String = "",
+    var rankLowFirst: String = "",
+    var rankLowWeeks: String = "",
     var imageUrl: String? = null
 )
 

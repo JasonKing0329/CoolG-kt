@@ -15,6 +15,7 @@ import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.ScoreBean
 import com.king.app.coolg_kt.page.match.ScoreHead
 import com.king.app.coolg_kt.page.match.ScoreTitle
+import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -118,26 +119,17 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
             var result = mutableListOf<Any>()
 
             // 统计总胜负
-            var win = 0
-            var lose = 0
-            curPeriodPack?.let { pack ->
-                val items = rankRepository.getRecordMatchItems(recordId, pack)
-                items.forEach { item ->
-                    if (item.winnerId == recordId) {
-                        win ++
-                    }
-                    else {
-                        lose ++
-                    }
-                }
-                scoreHead.periodMatches = "${win}胜${lose}负"
-            }
+            countWinLose(recordId)
+            
+            // 排名
+            countRank(recordId)
 
             // 按level归类，统计best, score not count
             var score = 0
             var scoreNotCount = 0
             var best = 0
             var bestTimes = 0
+            var bestMatches = mutableListOf<Match>()
             var map = mutableMapOf<Int, MutableList<ScoreBean>?>()
 
             list.forEachIndexed { index, wrap ->
@@ -150,9 +142,12 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 if (wrap.bean.score > best) {
                     best = wrap.bean.score
                     bestTimes = 1
+                    bestMatches.clear()
+                    bestMatches.add(match)
                 }
                 else if (wrap.bean.score == best) {
                     bestTimes ++
+                    bestMatches.add(match)
                 }
                 val isWinner = wrap.matchItem.winnerId == recordId
                 val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.matchItem.matchId)
@@ -180,9 +175,26 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
             }
             if (bestTimes > 1) {
                 scoreHead.best = "$best($bestTimes times)"
+                val buffer = StringBuffer()
+                // 最多显示3个
+                bestMatches.take(3).forEachIndexed { index, match ->
+                    if (index == 0) {
+                        buffer.append(match.name)
+                    }
+                    else {
+                        buffer.append(", ").append(match.name)
+                    }
+                }
+                scoreHead.bestSub = if (bestMatches.size > 3) {
+                    "${buffer}..."
+                }
+                else {
+                    buffer.toString()
+                }
             }
             else {
                 scoreHead.best = best.toString()
+                scoreHead.bestSub = "${bestMatches[0].name}(${MatchConstants.MATCH_LEVEL[bestMatches[0].level]})"
             }
             result.add(scoreHead)
             // 按level排序
@@ -204,6 +216,40 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
 
             it.onNext(result)
             it.onComplete()
+        }
+    }
+
+    private fun countRank(recordId: Long) {
+        val high = getDatabase().getMatchDao().getRecordHighestRank(recordId)
+        val low = getDatabase().getMatchDao().getRecordLowestRank(recordId)
+        scoreHead.rankHigh = high.toString()
+        scoreHead.rankLow = low.toString()
+        getDatabase().getMatchDao().getRecordRankFirstTime(recordId, high)?.let {
+            scoreHead.rankHighFirst = "P${it.period}-W${it.orderInPeriod}"
+        }
+        getDatabase().getMatchDao().getRecordRankFirstTime(recordId, low)?.let {
+            scoreHead.rankLowFirst = "P${it.period}-W${it.orderInPeriod}"
+        }
+        val highWeeks = getDatabase().getMatchDao().getRecordRankWeeks(recordId, high)
+        val lowWeeks = getDatabase().getMatchDao().getRecordRankWeeks(recordId, low)
+        scoreHead.rankHighWeeks = "$highWeeks weeks"
+        scoreHead.rankLowWeeks = "$lowWeeks weeks"
+    }
+
+    private fun countWinLose(recordId: Long) {
+        var win = 0
+        var lose = 0
+        curPeriodPack?.let { pack ->
+            val items = rankRepository.getRecordMatchItems(recordId, pack)
+            items.forEach { item ->
+                if (item.winnerId == recordId) {
+                    win ++
+                }
+                else {
+                    lose ++
+                }
+            }
+            scoreHead.periodMatches = "${win}胜${lose}负"
         }
     }
 

@@ -151,6 +151,24 @@ class SettingProperty: BaseProperty() {
             setInt("record_list_tag_type", type)
         }
 
+        fun getRankLimitForMatchLow(): Int {
+            val text = getString("pref_match_low_rank_limit")
+            return try {
+                text.toInt()
+            } catch (e: Exception) {
+                200
+            }
+        }
+
+        fun getRankLimitForMatch500(): Int {
+            val text = getString("pref_match_500_rank_limit")
+            return try {
+                text.toInt()
+            } catch (e: Exception) {
+                200
+            }
+        }
+
         fun setPlayList(bean: PlayList?) {
             var sql: String? = null
             try {

@@ -194,7 +194,9 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
             }
             else {
                 scoreHead.best = best.toString()
-                scoreHead.bestSub = "${bestMatches[0].name}(${MatchConstants.MATCH_LEVEL[bestMatches[0].level]})"
+                if (bestMatches.size == 1) {
+                    scoreHead.bestSub = "${bestMatches[0].name}(${MatchConstants.MATCH_LEVEL[bestMatches[0].level]})"
+                }
             }
             result.add(scoreHead)
             // 按level排序

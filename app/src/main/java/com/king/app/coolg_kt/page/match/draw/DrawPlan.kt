@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.page.match.draw
 
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.DrawCell
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.MatchRecord
@@ -562,18 +563,19 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 }
 
 /**
- * Low范围为300以后1200(MatchConstants.RANK_LIMIT_MAX)以内条件随机
+ * Low范围为rankLimit以后1200(MatchConstants.RANK_LIMIT_MAX)以内条件随机
  * list已经满足了1200的条件
  */
 class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
 
+    val rankLimit = SettingProperty.getRankLimitForMatchLow()
     val random = Random()
     private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard + match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
     private lateinit var rangeList: List<RankRecord>
 
     override fun prepareSamePeriodMap() {
         super.prepareSamePeriodMap()
-        rangeList = list.filter { it.rank>300 && !samePeriodMap.contains(it.recordId) }
+        rangeList = list.filter { it.rank>rankLimit && !samePeriodMap.contains(it.recordId) }
             .shuffled()
             .take(total)
             .sortedBy { it.rank }

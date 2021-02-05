@@ -51,19 +51,33 @@
     </style>
 
     <style name="BaseJActionBar">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/actionbar_height</item>
         <item name="android:theme">@style/EtActionSearch</item>
         <item name="android:background">@color/actionbar_bg</item>
         <item name="actionTextColor">@color/actionbar_element</item>
         <item name="iconColor">@color/actionbar_element</item>
-        <item name="iconSize">@dimen/actionbar_icon_width</item>
-        <item name="iconPadding">@dimen/actionbar_icon_padding</item>
-        <item name="titleSize">@dimen/actionbar_title_text_size</item>
         <item name="titleColor">@color/actionbar_element</item>
     </style>
 
-    <style name="CommonJActionBar" parent="BaseJActionBar">
+    <style name="PhoneJActionBar" parent="BaseJActionBar">
+        <item name="android:layout_height">@dimen/actionbar_height</item>
+        <item name="iconSize">@dimen/actionbar_icon_width</item>
+        <item name="iconPadding">@dimen/actionbar_icon_padding</item>
+        <item name="titleSize">@dimen/actionbar_title_text_size</item>
+    </style>
+
+    <style name="CommonJActionBar" parent="PhoneJActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="maxShowIcon">5</item>
+        <item name="showIconBack">true</item>
+    </style>
+
+    <!-- 800dp下也固定取360dp下的参数 -->
+    <style name="StarsJActionBar" parent="BaseJActionBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="iconSize">35dp</item>
+        <item name="iconPadding">5dp</item>
+        <item name="titleSize">20dp</item>
         <item name="maxShowIcon">5</item>
         <item name="showIconBack">true</item>
     </style>
@@ -346,5 +360,4 @@
         <item name="android:layout_height">40dp</item>
         <item name="android:background">@color/white</item>
     </style>
-
 </resources>

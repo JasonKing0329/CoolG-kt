@@ -20,6 +20,7 @@ import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
+import com.king.app.coolg_kt.page.star.pad.StarsPadActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
@@ -116,7 +117,14 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
             }
         }
         mBinding.blurView.setOnTouchListener(touchListener)
-        mBinding.groupMenuStar.setOnClickListener { TagStarActivity.startPage(this) }
+        mBinding.groupMenuStar.setOnClickListener {
+            if (ScreenUtils.isTablet()) {
+                StarsPadActivity.startPage(this)
+            }
+            else {
+                TagStarActivity.startPage(this)
+            }
+        }
         mBinding.groupMenuRecord.setOnClickListener { PhoneRecordListActivity.startPage(this) }
         mBinding.groupMenuVideo.setOnClickListener { VideoHomePhoneActivity.startPage(this) }
         mBinding.groupMenuStudio.setOnClickListener { StudioActivity.startPage(this) }

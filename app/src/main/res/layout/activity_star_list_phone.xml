@@ -18,13 +18,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:contentScrim="@color/actionbar_bg"
-                app:scrimVisibleHeightTrigger="@dimen/home_scrim_visible_height"
+                app:scrimVisibleHeightTrigger="100dp"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                 <RelativeLayout
                     android:id="@+id/rl_banner"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/gdb_star_header_height">
+                    android:layout_height="210dp">
 
                     <com.king.lib.banner.CoolBanner
                         android:id="@+id/banner"
@@ -42,8 +42,8 @@
                         android:layout_marginRight="10dp"
                         android:background="@drawable/shape_oval_transgrey">
                         <ImageView
-                            android:layout_width="@dimen/gdb_star_header_icon_size"
-                            android:layout_height="@dimen/gdb_star_header_icon_size"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_margin="10dp"
                             android:padding="5dp"
                             android:src="@drawable/ic_settings_white_36dp"
@@ -54,7 +54,7 @@
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/actionbar_height"
+                    android:layout_height="50dp"
                     app:title="Glory"
                     app:layout_collapseMode="pin"
                     app:popupTheme="@style/CustomActionBarTheme.PopupOverlay"
@@ -62,25 +62,16 @@
                     app:contentInsetLeft="0dp">
                     <com.king.app.jactionbar.JActionbar
                         android:id="@+id/actionbar"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/actionbar_height"
-                        android:background="@color/actionbar_bg"
-                        android:theme="@style/EtActionSearch"
+                        style="@style/StarsJActionBar"
                         app:title="Stars"
-                        app:maxShowIcon="5"
-                        app:supportSearch="true"
-                        app:showIconBack="true"
-                        app:menu="@menu/player_list"
-                        app:iconColor="@color/actionbar_element"
-                        app:titleColor="@color/actionbar_element"
-                        app:actionTextColor="@color/actionbar_element"/>
+                        app:menu="@menu/player_list"/>
                 </androidx.appcompat.widget.Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/actionbar_height"
+                android:layout_height="50dp"
                 android:background="@color/actionbar_bg"
                 app:tabGravity="fill"
                 app:tabMode="fixed"

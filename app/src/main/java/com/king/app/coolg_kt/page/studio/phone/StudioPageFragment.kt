@@ -10,7 +10,7 @@ import com.king.app.coolg_kt.databinding.FragmentStudioPageBinding
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
-import com.king.app.coolg_kt.page.star.phone.StarListPhoneActivity
+import com.king.app.coolg_kt.page.star.phone.StarsPhoneActivity
 import com.king.app.gdb.data.bean.StarWrapWithCount
 import com.king.app.gdb.data.relation.RecordWrap
 
@@ -49,7 +49,7 @@ class StudioPageFragment: BaseFragment<FragmentStudioPageBinding, StudioPageView
 
         adapter.onPageListener = object : StudioPageAdapter.OnPageListener {
             override fun viewAllStars() {
-                StarListPhoneActivity.startStudioPage(requireContext(), requireArguments().getLong(ARG_STUDIO_ID))
+                StarsPhoneActivity.startStudioPage(requireContext(), requireArguments().getLong(ARG_STUDIO_ID))
             }
 
             override fun onClickStar(position: Int, star: StarWrapWithCount) {

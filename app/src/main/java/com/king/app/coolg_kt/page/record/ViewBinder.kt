@@ -279,6 +279,7 @@ open class BaseItemBinder {
 }
 
 data class RecordTag(
+    var type: Int, //0 tag, 1 scene
     var name: String,
     var id: Long,
     var number: Int = 0

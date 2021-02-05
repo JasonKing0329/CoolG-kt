@@ -5,26 +5,35 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityRecordTagBinding
-import com.king.app.coolg_kt.page.record.AbsRecordListActivity
-import com.king.app.coolg_kt.page.record.RecordListViewModel
-import com.king.app.coolg_kt.page.record.RecordTag
+import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.record.*
+import com.king.app.coolg_kt.page.record.popup.RecommendBean
+import com.king.app.coolg_kt.page.record.popup.RecommendFragment
+import com.king.app.coolg_kt.page.record.popup.SortDialogContent
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordWrap
+import com.king.app.jactionbar.JActionbar
 
 /**
  * Desc:
  * @author：Jing Yang
  * @date: 2020/12/15 9:49
  */
-class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, RecordListViewModel>() {
+class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecordListViewModel>() {
 
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
@@ -50,9 +59,11 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
 
     var sceneAdapter = HeadTagAdapter()
 
+    val ftRecord = RecordsFragment()
+
     override fun getContentView(): Int = R.layout.activity_record_tag
 
-    override fun createViewModel(): RecordListViewModel = generateViewModel(RecordListViewModel::class.java)
+    override fun createViewModel(): PhoneRecordListViewModel = generateViewModel(PhoneRecordListViewModel::class.java)
 
     override fun initView() {
         val manager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL)
@@ -71,78 +82,119 @@ class PhoneRecordListActivity: AbsRecordListActivity<ActivityRecordTagBinding, R
         })
         tagAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordTag>{
             override fun onClickItem(view: View, position: Int, data: RecordTag) {
-                mModel.loadRecordsByTag(data)
+                if (data.type == 0) {
+                    ftRecord.factor.tagId = data.id
+                    ftRecord.factor.scene = AppConstants.KEY_SCENE_ALL
+                }
+                else {
+                    ftRecord.factor.scene = data.name
+                    ftRecord.factor.tagId = 0
+                }
+                ftRecord.onDataChanged()
             }
         })
         mBinding.rvTags.adapter = tagAdapter
 
-        mBinding.rvRecords.layoutManager = GridLayoutManager(this, 2)
-        mBinding.rvRecords.setEnableLoadMore(true)
-        mBinding.rvRecords.setOnLoadMoreListener { mModel.loadMoreRecords() }
-
-        mBinding.fabTop.setOnClickListener { v -> mBinding.rvRecords.scrollToPosition(0) }
+        mBinding.fabTop.setOnClickListener { ftRecord.scrollTo(0) }
 
         // studio records page, hide tag bar and related menu
-        var studioId = intent.getLongExtra(EXTRA_STUDIO_ID, 0)
-        mModel.mOrderId = studioId
-        if (studioId != 0L) {
+        if (getStudioId() != 0L) {
             mBinding.rvTags.visibility = View.GONE
-            mBinding.actionbar.setTitle(mModel.loadStudioTitle(studioId))
+            mBinding.actionbar.setTitle(mModel.loadStudioTitle(getStudioId()))
         }
-        initActionBar(mBinding.actionbar)
+        initActionBar()
+
+        ftRecord.onClickRecordListener = object : RecordsFragment.OnClickRecordListener {
+            override fun onClickRecord(recordId: Long) {
+                if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+                    val intent = Intent()
+                    intent.putExtra(RESP_RECORD_ID, recordId)
+                    setResult(Activity.RESULT_OK, intent)
+                    finish()
+                }
+            }
+        }
     }
 
-    override fun onClickRecord(view: View, position: Int, data: RecordWrap) {
-        if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
-            val intent = Intent()
-            intent.putExtra(RESP_RECORD_ID, data.bean.id)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
-        }
-        else {
-            super.onClickRecord(view, position, data)
-        }
-    }
-    /**
-     * studio records page, hide tag bar and related menu
-     */
-    override fun isHideTagBar(): Boolean = intent.getLongExtra(EXTRA_STUDIO_ID, 0) != 0L
-
-    override fun getRecordRecyclerView(): RecyclerView {
-        return mBinding.rvRecords
+    private fun getStudioId(): Long {
+        return intent.getLongExtra(EXTRA_STUDIO_ID, 0)
     }
 
-    override fun showTags(tags: List<RecordTag>) {
+    override fun initData() {
+        mModel.tagsObserver.observe(this, Observer{ tags -> showTags(tags) })
+        mModel.focusTagPosition.observe(this, Observer{ position -> focusOnTag(position) })
+        if (getStudioId() == 0L) {
+            mModel.loadHead()
+        }
+
+        ftRecord.factor.orderId = getStudioId()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.ft_records, ftRecord, "RecordsFragment")
+            .commit()
+    }
+
+    private fun initActionBar() {
+        mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
+            when (menuId) {
+                R.id.menu_sort -> ftRecord.changeSortType()
+                R.id.menu_filter -> ftRecord.changeFilter()
+                R.id.menu_offset -> ftRecord.showSetOffset()
+                R.id.menu_tag_sort_mode -> setTagSortMode()
+                R.id.menu_tag_type -> setTagType()
+                R.id.menu_no_studio -> noStudioPage()
+            }
+        }
+        if (getStudioId() != 0L) {
+            mBinding.actionbar.updateMenuItemVisible(R.id.menu_tag_sort_mode, false)
+            mBinding.actionbar.updateMenuItemVisible(R.id.menu_tag_type, false)
+        }
+        mBinding.actionbar.setOnSearchListener { onSearch(it) }
+    }
+
+    private fun showTags(tags: List<RecordTag>) {
         tagAdapter.list = tags
         tagAdapter.notifyDataSetChanged()
     }
 
-    override fun focusOnTag(position: Int) {
+    private fun focusOnTag(position: Int) {
         tagAdapter.selection = position
         tagAdapter.notifyDataSetChanged()
     }
 
-    override fun goToRecordPage(record: Record) {
-        RecordActivity.startPage(this, record.id!!)
+    private fun onSearch(text: String) {
+        ftRecord.factor.keyword = text
+        ftRecord.onDataChanged()
     }
 
-    override fun addToPlayOrder(data: Record) {
-        mModel.saveRecordToPlayOrder(data)
-        PlayOrderActivity.startPageToSelect(this, REQUEST_VIDEO_ORDER)
+    private fun noStudioPage() {
+        NoStudioActivity.startPage(this)
     }
 
-    override fun onSearch(text: String) {
-        mModel.mKeyword = text
-        mModel.refresh()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_VIDEO_ORDER) {
-            if (resultCode == Activity.RESULT_OK) {
-                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
-                mModel.addToPlay(list)
-            }
+    private fun setTagSortMode() {
+        var arrays = if (SettingProperty.getRecordListTagType() == 1) {
+            resources.getStringArray(R.array.scene_sort_mode)
         }
+        else {
+            resources.getStringArray(R.array.tag_sort_mode)
+        }
+        AlertDialogFragment()
+            .setTitle(null)
+            .setItems(arrays) { dialog, which ->
+                SettingProperty.setTagSortType(which)
+                mModel.onTagSortChanged()
+                mModel.startSortTag()
+            }.show(supportFragmentManager, "AlertDialogFragment")
     }
+
+    private fun setTagType() {
+        AlertDialogFragment()
+            .setTitle(null)
+            .setItems(resources.getStringArray(R.array.record_list_tag_type)) { dialog, which ->
+                SettingProperty.setRecordListTagType(which)
+                mModel.onTagTypeChanged()
+                mModel.loadHead()
+            }.show(supportFragmentManager, "AlertDialogFragment")
+    }
+
 }

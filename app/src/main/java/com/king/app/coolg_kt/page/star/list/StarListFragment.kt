@@ -55,14 +55,7 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
 
     var mCircleAdapter = StarCircleAdapter()
     var mRichAdapter = StarRichAdapter()
-    private var holder: IStarListHolder? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is IStarListHolder) {
-            holder = context
-        }
-    }
+    var holder: IStarListHolder? = null
 
     override fun getBinding(inflater: LayoutInflater): FragmentStarRichBinding = FragmentStarRichBinding.inflate(inflater)
 
@@ -257,7 +250,10 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
     }
 
     fun onStarClick(star: StarWrap) {
-        holder?.dispatchClickStar(star.bean).let { retainInstance }
+        val consumed = holder?.dispatchClickStar(star.bean)
+        if (consumed == true) {
+            return
+        }
         StarActivity.startPage(requireContext(), star.bean.id!!)
     }
 

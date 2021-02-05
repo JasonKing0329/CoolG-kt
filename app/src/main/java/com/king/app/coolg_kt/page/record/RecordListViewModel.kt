@@ -28,33 +28,16 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     val DEFAULT_LOAD_MORE = 50
 
-    var tagsObserver: MutableLiveData<List<RecordTag>> = MutableLiveData()
     var recordsObserver: MutableLiveData<List<RecordWrap>> = MutableLiveData()
     var moreObserver: MutableLiveData<Int> = MutableLiveData()
     var scrollPositionObserver: MutableLiveData<Int> = MutableLiveData()
-    var focusTagPosition: MutableLiveData<Int> = MutableLiveData()
-
-    private var mTagType = SettingProperty.getRecordListTagType()
-    private var mTagSortType = SettingProperty.getTagSortType()
-
-    private var dataTagList: List<RecordTag> = mutableListOf()
 
     private var mRecordList = mutableListOf<RecordWrap>()
 
-    private var tagRepository = TagRepository()
     private var recordRepository = RecordRepository()
 
     private var mSortMode = 0
     private var mSortDesc = false
-    private var mKeyScene: String? = null
-    var mKeyword: String? = null
-    private val mStarId: Long = 0
-    var mOrderId: Long = 0
-    private val mRecordType: Int = 0
-
-    private var tagAll = RecordTag(AppConstants.KEY_SCENE_ALL, 0L, 0)
-    private var mTagBean = tagAll
-    private var mTagId: Long = 0
 
     var mRecommendBean: RecommendBean? = null
 
@@ -63,6 +46,8 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     private var moreCursor = RecordCursor()
 
     private var playRepository = PlayRepository()
+
+    private var factor = RecordsFragment.Factor()
 
     init {
         onSortTypeChanged()
@@ -78,199 +63,20 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
         mSortDesc = SettingProperty.isRecordSortDesc()
     }
 
-    fun loadHead() {
-        // studio records page, hide tag bar and related menu
-        if (mOrderId != 0L) {
-            val allList: List<RecordTag> = addTagAll(dataTagList)
-            tagsObserver.value = allList
-            loadTagRecords(allList[0].id!!)
-        }
-        else {
-            var type = SettingProperty.getRecordListTagType()
-            if (type == 1) {
-                loadScenes()
-            }
-            else {
-                loadTags()
-            }
-        }
-    }
-
-    private fun loadTags() {
-        convertTags()
-            .flatMap {
-                dataTagList = it
-                sortTags(mTagSortType, dataTagList)
-            }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordTag>>(getComposite()) {
-                override fun onNext(t: List<RecordTag>) {
-                    val allList: List<RecordTag> = addTagAll(t)
-                    tagsObserver.value = allList
-                    loadTagRecords(allList[0].id!!)
-                    focusTagPosition.value = 0
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-
-            })
-    }
-
-    private fun convertTags(): Observable<List<RecordTag>> {
-        return Observable.create {
-            var list = tagRepository.loadTags(DataConstants.TAG_TYPE_RECORD)
-            var result = mutableListOf<RecordTag>()
-            list.forEach { tag ->
-                var recordTag = RecordTag(tag.name?:"", tag.id!!)
-                recordTag.number = getDatabase().getTagDao().countRecordTagItems(tag.id!!)
-                result.add(recordTag)
-            }
-            it.onNext(result)
-            it.onComplete()
-        }
-    }
-
-    private fun loadScenes() {
-        dataTagList = convertScenes(getDatabase().getRecordDao().getAllScenes())
-        sortTags(mTagSortType, dataTagList)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordTag>>(getComposite()) {
-                override fun onNext(t: List<RecordTag>) {
-                    val allList: List<RecordTag> = addTagAll(t)
-                    tagsObserver.value = allList
-                    loadSceneRecords(allList[0].name)
-                    focusTagPosition.value = 0
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-
-            })
-    }
-
-    private fun convertScenes(list: List<RecordScene>): List<RecordTag> {
-        var result = mutableListOf<RecordTag>()
-        list.forEach {
-            it.name?.let { name -> result.add(RecordTag(name, 0L, it.number)) }
-        }
-        return result
-    }
-
-    private fun sortTags(sortType: Int, list: List<RecordTag>): Observable<List<RecordTag>> {
-        return Observable.create {
-            var result = when(sortType) {
-                AppConstants.TAG_SORT_NAME -> list.sortedBy { tag -> tag.name }
-                AppConstants.TAG_SORT_RANDOM -> list.shuffled()
-                AppConstants.TAG_SORT_NUMBER -> list.sortedByDescending { tag -> tag.number }
-                else -> list
-            }
-            it.onNext(result)
-            it.onComplete()
-        }
-    }
-
-    fun startSortTag() {
-        sortTags(mTagSortType, dataTagList)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordTag>>(getComposite()) {
-                override fun onNext(t: List<RecordTag>) {
-                    val allList: List<RecordTag> = addTagAll(t)
-                    tagsObserver.value = allList
-                    focusToCurrentTag(allList)
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-
-            })
-    }
-
-    private fun addTagAll(tagList: List<RecordTag>): List<RecordTag> {
-        val tags = mutableListOf<RecordTag>()
-        tags.add(tagAll)
-        if (tagList.isNotEmpty()) {
-            tags.addAll(tagList)
-        }
-        return tags
-    }
-
-    private fun focusToCurrentTag(allList: List<RecordTag>) {
-        for (i in allList.indices) {
-            if (mTagBean.name == allList[i].name) {
-                focusTagPosition.value = i
-                break
-            }
-        }
-    }
-
-    fun onTagTypeChanged() {
-        mTagType = SettingProperty.getRecordListTagType()
-    }
-
-    fun onTagSortChanged() {
-        mTagSortType = SettingProperty.getTagSortType()
-    }
-
     fun newRecordCursor() {
         moreCursor = RecordCursor()
         moreCursor.number = DEFAULT_LOAD_MORE
     }
 
-    fun refresh() {
-        loadRecordsByTag()
-    }
-
-    fun loadRecordsByTag() {
-        loadRecordsByTag(mTagBean)
-    }
-
-    fun loadRecordsByTag(bean: RecordTag) {
-        mTagBean = bean
-        if (mTagType == 1) {
-            loadSceneRecords(bean.name)
-        }
-        else {
-            loadTagRecords(bean.id)
-        }
-    }
-
-    private fun loadTagRecords(tagId: Long) {
+    fun reloadRecords() {
         mRecordList.clear()
-        mTagId = tagId
-        mKeyScene = null
         // 偏移量从0开始
         newRecordCursor()
-        queryRecords(tagId)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordWrap>>(getComposite()) {
-
-                override fun onNext(list: List<RecordWrap>) {
-                    mRecordList.addAll(list)
-                    recordsObserver.value = mRecordList
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = "Load records error: " + e?.message
-                }
-            })
+        loadRecords()
     }
 
-    private fun loadSceneRecords(scene: String) {
-        mRecordList.clear()
-        mTagId = 0
-        mKeyScene = if (scene == AppConstants.KEY_SCENE_ALL) null
-            else scene
-        // 偏移量从0开始
-        newRecordCursor()
-        queryRecords(mTagId)
+    private fun loadRecords() {
+        queryRecords()
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RecordWrap>>(getComposite()) {
 
@@ -290,9 +96,9 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
         loadMoreRecords(null)
     }
 
-    fun loadMoreRecords(scrollPosition: Int?) {
+    private fun loadMoreRecords(scrollPosition: Int?) {
         val originSize = mRecordList.size
-        queryRecords(mTagId)
+        queryRecords()
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RecordWrap>>(getComposite()) {
 
@@ -312,8 +118,9 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
             })
     }
 
-    private fun queryRecords(tagId: Long): Observable<List<RecordWrap>> {
-        return recordRepository.getRecordFilter(mSortMode, mSortDesc, mRecordType, mStarId, mOrderId, tagId, moreCursor, mRecommendBean, mKeyword, mKeyScene)
+    private fun queryRecords(): Observable<List<RecordWrap>> {
+        return recordRepository.getRecordFilter(mSortMode, mSortDesc, factor.recordType, factor.starId
+            , factor.orderId, factor.tagId, moreCursor, mRecommendBean, factor.keyword, factor.scene)
             .flatMap { filter -> recordRepository.getRecords(filter) }
             .flatMap { list ->  toViewItems(list)}
             .compose(applySchedulers());
@@ -363,12 +170,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
         }
     }
 
-    fun loadStudioTitle(studioId: Long): String {
-        var studio = getDatabase().getFavorDao().getFavorRecordOrderBy(studioId)
-        var title: String? = null
-        studio?.let {
-            title = it.name
-        }
-        return title?:"Records"
+    fun updateFactors(factor: RecordsFragment.Factor) {
+        this.factor = factor
     }
 }

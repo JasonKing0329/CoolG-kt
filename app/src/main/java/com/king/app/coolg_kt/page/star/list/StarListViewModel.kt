@@ -62,6 +62,7 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
     }
 
     fun loadStarList() {
+        mList.clear()
         isLoading = true
         currentViewMode = SettingProperty.getStarListViewMode()
         loadingObserver.value = true

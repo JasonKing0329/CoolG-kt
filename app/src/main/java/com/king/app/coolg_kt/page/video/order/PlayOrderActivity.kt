@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Rect
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,11 @@ class PlayOrderActivity : BaseActivity<ActivityPlayOrderBinding, PlayOrderViewMo
             var intent = Intent(activity, PlayOrderActivity::class.java)
             intent.putExtra(EXTRA_MULTI_SELECT, true)
             activity.startActivityForResult(intent, requestCode)
+        }
+        fun startPageToSelect(fragment: Fragment, requestCode: Int) {
+            var intent = Intent(fragment.context, PlayOrderActivity::class.java)
+            intent.putExtra(EXTRA_MULTI_SELECT, true)
+            fragment.startActivityForResult(intent, requestCode)
         }
     }
     

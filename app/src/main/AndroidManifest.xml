@@ -52,7 +52,7 @@
         <activity android:name=".page.star.phone.StarActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name=".page.star.phone.StarListPhoneActivity"
+        <activity android:name=".page.star.phone.StarsPhoneActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".page.star.phone.TagStarActivity"
@@ -97,6 +97,9 @@
 
         <activity android:name=".page.record.pad.RecordPadActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="landscape"/>
+
+        <activity android:name=".page.star.pad.StarsPadActivity"
             android:screenOrientation="landscape"/>
 
         <service android:name=".service.FileService"/>

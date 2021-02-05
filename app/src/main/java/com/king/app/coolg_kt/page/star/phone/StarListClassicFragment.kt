@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.page.star.phone
 
 import android.content.Context
 import android.content.Intent
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.king.app.coolg_kt.R
-import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityStarListPhoneBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
@@ -40,22 +41,13 @@ import java.util.concurrent.TimeUnit
  * @author：Jing Yang
  * @date: 2018/8/9 17:04
  */
-class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarListTitleViewModel>(), IStarListHolder {
-
-    companion object {
-        const val EXTRA_STUDIO_ID = "studio_id"
-        fun startPage(context: Context) {
-            var intent = Intent(context, StarListPhoneActivity::class.java)
-            context.startActivity(intent)
-        }
-        fun startStudioPage(context: Context, studioId: Long) {
-            var intent = Intent(context, StarListPhoneActivity::class.java)
-            intent.putExtra(EXTRA_STUDIO_ID, studioId)
-            context.startActivity(intent)
-        }
-    }
+class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarListTitleViewModel>(), IStarListHolder {
 
     private lateinit var pagerAdapter: StarListPagerAdapter
+
+    var studioId: Long = 0
+
+    var onClickStarListener: OnClickStarListener? = null
 
     /**
      * 控制detail index显示的timer
@@ -63,9 +55,9 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
     private var indexDisposable: Disposable? = null
     private var curDetailIndex: String? = null
 
-    override fun getContentView(): Int = R.layout.activity_star_list_phone
+    override fun getBinding(inflater: LayoutInflater): ActivityStarListPhoneBinding = ActivityStarListPhoneBinding.inflate(inflater)
 
-    override fun initView() {
+    override fun initView(view: View) {
         initActionbar()
         BannerHelper.setBannerParams(mBinding.banner, ViewProperty.getStarBannerParams())
         // hide head banner when it's studio star page
@@ -112,11 +104,11 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = content
         dialogFragment.setTitle("Banner Setting")
-        dialogFragment.show(supportFragmentManager, "BannerSettingFragment")
+        dialogFragment.show(childFragmentManager, "BannerSettingFragment")
     }
 
     private fun initActionbar() {
-        mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnBackListener { requireActivity().onBackPressed() }
         mBinding.actionbar.setOnSearchListener { currentPage.filterStar(it) }
         mBinding.actionbar.registerPopupMenu(R.id.menu_sort)
         mBinding.actionbar.setPopupMenuProvider { iconMenuId: Int, anchorView: View ->
@@ -146,7 +138,7 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
     }
 
     private fun createSortPopup(anchorView: View): PopupMenu {
-        val menu = PopupMenu(this, anchorView)
+        val menu = PopupMenu(requireContext(), anchorView)
         menu.menuInflater.inflate(R.menu.player_sort, menu.menu)
         menu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
@@ -202,9 +194,6 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
         }
     }
 
-    private val studioId: Long
-        private get() = intent.getLongExtra(EXTRA_STUDIO_ID, 0)
-
     private val isStudioStarPage: Boolean
         private get() = studioId != 0L
 
@@ -228,14 +217,18 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
     private fun showTitles() {
         var list = mutableListOf<StarListFragment>()
         val fragmentAll = StarListFragment.newInstance(DataConstants.STAR_MODE_ALL, studioId)
+        fragmentAll.holder = this
         list.add(fragmentAll)
         val fragment1 = StarListFragment.newInstance(DataConstants.STAR_MODE_TOP, studioId)
+        fragment1.holder = this
         list.add(fragment1)
         val fragment0 = StarListFragment.newInstance(DataConstants.STAR_MODE_BOTTOM, studioId)
+        fragment0.holder = this
         list.add(fragment0)
         val fragment05 = StarListFragment.newInstance(DataConstants.STAR_MODE_HALF, studioId)
+        fragment05.holder = this
         list.add(fragment05)
-        pagerAdapter = StarListPagerAdapter(this, list)
+        pagerAdapter = StarListPagerAdapter(requireActivity(), list)
         mBinding.viewpager.adapter = pagerAdapter
 
         var mediator = TabLayoutMediator(mBinding.tabLayout, mBinding.viewpager,
@@ -247,10 +240,18 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
         private get() = pagerAdapter.list[mBinding.viewpager.currentItem]
 
     override fun dispatchClickStar(star: Star): Boolean {
+        onClickStarListener?.let {
+            it.onClickStar(star.id!!)
+            return true
+        }
         return false
     }
 
     override fun dispatchOnLongClickStar(star: Star): Boolean {
+        onClickStarListener?.let {
+            it.onLongClickStar(star.id!!)
+            return true
+        }
         return false
     }
 
@@ -339,6 +340,11 @@ class StarListPhoneActivity : BaseActivity<ActivityStarListPhoneBinding, StarLis
     }
 
     private fun onClickBannerItem(bean: Star) {
-        StarActivity.startPage(this, bean.id!!)
+        StarActivity.startPage(requireContext(), bean.id!!)
+    }
+
+    interface OnClickStarListener {
+        fun onClickStar(starId: Long)
+        fun onLongClickStar(starId: Long)
     }
 }

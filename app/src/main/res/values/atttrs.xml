@@ -65,4 +65,19 @@
         <attr name="maxWidth" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="LineChart">
+        <attr name="minXCellWidth" format="dimension" />
+        <attr name="normalXCellWidth" format="dimension" />
+        <attr name="valueTextColor" format="color" />
+        <attr name="valueTextSize" format="dimension" />
+        <attr name="lineColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="AxisChart">
+        <attr name="axisXExtendLineWidth" format="dimension" />
+        <attr name="axisXTextSize" format="dimension" />
+        <attr name="axisYTextSize" format="dimension" />
+        <attr name="axisYTextWidth" format="dimension" />
+    </declare-styleable>
+
 </resources>

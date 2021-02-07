@@ -42,6 +42,8 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
             binding.tvScoreNo.text = bean.unavailableScore.toString()
             binding.tvScoreNo.visibility = View.VISIBLE
         }
+        binding.tvRank.setOnClickListener { onItemListener?.onClickRank(bean) }
+        binding.tvChange.setOnClickListener { onItemListener?.onClickRank(bean) }
         binding.ivHead.setOnClickListener { onItemListener?.onClickId(bean) }
         binding.tvScore.setOnClickListener { onItemListener?.onClickScore(bean) }
         binding.tvMatchCount.setOnClickListener { onItemListener?.onClickScore(bean) }
@@ -60,6 +62,7 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
     }
 
     interface OnItemListener<T> {
+        fun onClickRank(bean: RankItem<T>)
         fun onClickScore(bean: RankItem<T>)
         fun onClickId(bean: RankItem<T>)
     }

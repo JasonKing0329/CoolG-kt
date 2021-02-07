@@ -251,6 +251,9 @@ interface MatchDao {
     @Query("select * from match_rank_record where recordId=:recordId and period=:period and orderInPeriod=:orderInPeriod")
     fun getRecordRank(recordId: Long, period: Int, orderInPeriod: Int): MatchRankRecord?
 
+    @Query("select * from match_rank_record where recordId=:recordId order by period, orderInPeriod")
+    fun getRecordRanks(recordId: Long): List<MatchRankRecord>
+
     /**
      * 从match_rank_record里按排名加载所有入围record
      * 不在排名体系里的赋值为9999(MatchConstants.RANK_OUT_OF_SYSTEM)，但不在排名体系的record需要满足其在count_record中的排名在rankLimit之内

@@ -14,9 +14,13 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchRankBinding
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
+import com.king.app.coolg_kt.page.record.popup.SortDialogContent
+import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
 
@@ -141,6 +145,12 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                         RecordActivity.startPage(this@RankActivity, record.id!!)
                     }
                 }
+
+                override fun onClickRank(bean: RankItem<Record?>) {
+                    bean.bean?.let { record ->
+                        showRankDialog(record)
+                    }
+                }
             }
             adapter.list = it
             mBinding.rvList.adapter = adapter
@@ -165,5 +175,15 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                 mModel.onRecordOrStarChanged(position)
             }
         }
+    }
+
+    private fun showRankDialog(record: Record) {
+        val content = RankDialog()
+        content.recordId = record.id!!
+        val dialogFragment = DraggableDialogFragment()
+        dialogFragment.contentFragment = content
+        dialogFragment.setTitle("Rank")
+        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() *2 / 3
+        dialogFragment.show(supportFragmentManager, "RankDialog")
     }
 }

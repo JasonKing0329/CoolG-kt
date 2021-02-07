@@ -83,6 +83,8 @@ class ScoreAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private fun onBindHead(binding: AdapterScoreHeadBinding, position: Int, scoreHead: ScoreHead) {
         binding.bean = scoreHead
         binding.ivHead.setOnClickListener { onPageListener?.onClickRecord(scoreHead.recordId) }
+        binding.groupRankHigh.setOnClickListener { onPageListener?.onClickRank(scoreHead.recordId) }
+        binding.groupRankLow.setOnClickListener { onPageListener?.onClickRank(scoreHead.recordId) }
     }
 
     private fun onBindLevel(binding: AdapterScoreTitleBinding, position: Int, head: ScoreTitle) {
@@ -106,6 +108,7 @@ class ScoreAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     interface OnPageListener {
+        fun onClickRank(recordId: Long)
         fun onClickRecord(recordId: Long)
         fun onClickScore(position: Int, scoreBean: ScoreBean)
     }

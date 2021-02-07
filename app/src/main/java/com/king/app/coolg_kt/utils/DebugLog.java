@@ -14,6 +14,7 @@ public class DebugLog {
 	private static boolean isDebug= true;
     /**控制是否打印日志**/
     public static boolean isDebugDownload=false;
+    private static boolean isDebugScroll=true;
 	/**类名**/
 	private static String className;
 	/**方法名**/
@@ -69,6 +70,15 @@ public class DebugLog {
 
     public static void e(String message){
         if (!isDebug)
+            return;
+
+        // Throwable instance must be created before any methods
+        getMethodNames(new Throwable().getStackTrace());
+        Log.e(className, createLog(message));
+    }
+
+    public static void scroll(String message) {
+        if (!isDebugScroll)
             return;
 
         // Throwable instance must be created before any methods

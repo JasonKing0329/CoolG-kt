@@ -1,13 +1,12 @@
 package com.king.app.coolg_kt.page.match
 
-import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchItem
-import com.king.app.gdb.data.entity.match.MatchPeriod
-import com.king.app.gdb.data.entity.match.MatchRecord
+import com.king.app.coolg_kt.view.widget.chart.adapter.LineData
+import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import com.king.app.gdb.data.relation.RecordWrap
+import java.util.*
 
 /**
  * @description:
@@ -143,3 +142,19 @@ data class FinalListItem(
     var recordWin: MatchRecordWrap,
     var recordLose: MatchRecordWrap
 )
+class AxisDegree<T> {
+    var text: String? = null
+    var isNotDraw = false
+    var weight = 0
+    var data: T? = null
+}
+class LineChartData {
+    var axisYCount = 0
+    var axisYTotalWeight = 0
+    var axisYDegreeList: MutableList<AxisDegree<Int>> = mutableListOf()
+    var axisXCount = 0
+    var axisXTotalWeight = 0
+    var axisXDegreeList: MutableList<AxisDegree<MatchRankRecord>> = mutableListOf()
+    var lineList: MutableList<LineData> = mutableListOf()
+
+}

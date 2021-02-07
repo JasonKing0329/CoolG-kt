@@ -10,9 +10,11 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchScoreBinding
 import com.king.app.coolg_kt.page.match.ScoreBean
+import com.king.app.coolg_kt.page.match.rank.RankDialog
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.gdb.data.entity.Record
 
 /**
  * @description:
@@ -59,6 +61,10 @@ class ScoreActivity: BaseActivity<ActivityMatchScoreBinding, ScoreViewModel>() {
             override fun onClickScore(position: Int, data: ScoreBean) {
                 showRoadDialog(data)
             }
+
+            override fun onClickRank(recordId: Long) {
+                showRankDialog(recordId)
+            }
         }
         mBinding.tvWeek.setOnClickListener {
             mBinding.tvWeek.isSelected = true
@@ -74,6 +80,16 @@ class ScoreActivity: BaseActivity<ActivityMatchScoreBinding, ScoreViewModel>() {
             mBinding.dividerYear.visibility = View.VISIBLE
             mModel.loadRaceToFinal(getRecordId())
         }
+    }
+
+    private fun showRankDialog(recordId: Long) {
+        val content = RankDialog()
+        content.recordId = recordId
+        val dialogFragment = DraggableDialogFragment()
+        dialogFragment.contentFragment = content
+        dialogFragment.setTitle("Rank")
+        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() *2 / 3
+        dialogFragment.show(supportFragmentManager, "RankDialog")
     }
 
     private fun showRoadDialog(data: ScoreBean) {

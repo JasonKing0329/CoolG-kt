@@ -34,7 +34,7 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
 
     private val REQUEST_VIDEO_ORDER = 1603
     
-    var onClickRecordListener: OnClickRecordListener? = null
+    var overrideClickRecordListener: OnClickRecordListener? = null
 
     private var recordAdapter: RecordGridAdapter = RecordGridAdapter()
 
@@ -57,11 +57,11 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
         }
         recordAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordWrap> {
             override fun onClickItem(view: View, position: Int, data: RecordWrap) {
-                if (onClickRecordListener == null) {
+                if (overrideClickRecordListener == null) {
                     onClickRecord(view, position, data)
                 }
                 else {
-                    onClickRecordListener!!.onClickRecord(data.bean.id!!)
+                    overrideClickRecordListener!!.onClickRecord(data.bean.id!!)
                 }
             }
         })

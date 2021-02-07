@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Rect
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.king.app.coolg_kt.R
@@ -16,24 +15,15 @@ import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityRecordTagBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.record.*
-import com.king.app.coolg_kt.page.record.popup.RecommendBean
-import com.king.app.coolg_kt.page.record.popup.RecommendFragment
-import com.king.app.coolg_kt.page.record.popup.SortDialogContent
-import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
-import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
-import com.king.app.coolg_kt.view.dialog.SimpleDialogs
-import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.relation.RecordWrap
-import com.king.app.jactionbar.JActionbar
 
 /**
  * Desc:
  * @author：Jing Yang
  * @date: 2020/12/15 9:49
  */
-class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecordListViewModel>() {
+open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecordListViewModel>() {
 
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
@@ -57,8 +47,6 @@ class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecor
 
     var tagAdapter = HeadTagAdapter()
 
-    var sceneAdapter = HeadTagAdapter()
-
     val ftRecord = RecordsFragment()
 
     override fun getContentView(): Int = R.layout.activity_record_tag
@@ -66,6 +54,11 @@ class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecor
     override fun createViewModel(): PhoneRecordListViewModel = generateViewModel(PhoneRecordListViewModel::class.java)
 
     override fun initView() {
+        initPhone()
+        initPub()
+    }
+
+    private fun initPhone() {
         val manager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL)
         mBinding.rvTags.layoutManager = manager
         mBinding.rvTags.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -80,6 +73,10 @@ class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecor
                 outRect.bottom = ScreenUtils.dp2px(5f)
             }
         })
+    }
+
+    open fun initPub() {
+
         tagAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordTag>{
             override fun onClickItem(view: View, position: Int, data: RecordTag) {
                 if (data.type == 0) {
@@ -104,9 +101,9 @@ class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, PhoneRecor
         }
         initActionBar()
 
-        ftRecord.onClickRecordListener = object : RecordsFragment.OnClickRecordListener {
-            override fun onClickRecord(recordId: Long) {
-                if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+        if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+            ftRecord.overrideClickRecordListener = object : RecordsFragment.OnClickRecordListener {
+                override fun onClickRecord(recordId: Long) {
                     val intent = Intent()
                     intent.putExtra(RESP_RECORD_ID, recordId)
                     setResult(Activity.RESULT_OK, intent)

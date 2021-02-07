@@ -62,7 +62,7 @@
                     app:contentInsetLeft="0dp">
                     <com.king.app.jactionbar.JActionbar
                         android:id="@+id/actionbar"
-                        style="@style/StarsJActionBar"
+                        style="@style/PhoneJActionBar"
                         app:title="Stars"
                         app:menu="@menu/player_list"/>
                 </androidx.appcompat.widget.Toolbar>

@@ -326,4 +326,8 @@
 
     <dimen name="pad_record_star_size">70dp</dimen>
     <dimen name="pad_record_star_radius">35dp</dimen>
+    <dimen name="records_tag_height">24dp</dimen>
+    <dimen name="records_tag_padding">10dp</dimen>
+    <dimen name="records_tag_text">14dp</dimen>
+    <dimen name="records_tag_remove_size">20dp</dimen>
 </resources>

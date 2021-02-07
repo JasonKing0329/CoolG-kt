@@ -102,6 +102,9 @@
         <activity android:name=".page.star.pad.StarsPadActivity"
             android:screenOrientation="landscape"/>
 
+        <activity android:name=".page.record.pad.PadRecordListActivity"
+            android:screenOrientation="landscape"/>
+
         <service android:name=".service.FileService"/>
 
         <provider

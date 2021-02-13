@@ -117,10 +117,14 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                         false
                     }
                     else {
+                        isEditing = false
                         true
                     }
                 }
-                else -> true
+                else -> {
+                    isEditing = false
+                    true
+                }
             }
             autoCancel
         }
@@ -284,6 +288,15 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             isEditing = false
         })
         mModel.loadMatch(intent.getLongExtra(EXTRA_MATCH_PERIOD_ID, -1))
+    }
+
+    override fun onBackPressed() {
+        if (isEditing) {
+            showConfirmMessage("Data is changed, please save or drop it first!", null)
+        }
+        else {
+            super.onBackPressed()
+        }
     }
 
     class RoundAdapter constructor(var list: List<RoundPack>): BaseAdapter() {

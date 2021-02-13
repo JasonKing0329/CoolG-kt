@@ -90,7 +90,7 @@ abstract class RootActivity : AppCompatActivity() {
 
     open fun getStatusBarColor():Int = resources.getColor(R.color.white)
 
-    fun showConfirmMessage(msg: String, listener: DialogInterface.OnClickListener) {
+    fun showConfirmMessage(msg: String, listener: DialogInterface.OnClickListener?) {
         AlertDialog.Builder(this)
             .setTitle(null)
             .setMessage(msg)

@@ -43,6 +43,10 @@ class SettingProperty: BaseProperty() {
             return getBoolean("pref_demo_image")
         }
 
+        fun setServerUrl(url: String) {
+            return setString("pref_http_server", url)
+        }
+
         fun getServerUrl(): String {
             return getString("pref_http_server")
         }
@@ -149,6 +153,14 @@ class SettingProperty: BaseProperty() {
 
         fun setRecordListTagType(type: Int) {
             setInt("record_list_tag_type", type)
+        }
+
+        fun getForwardUnit(): Int {
+            return getInt("video_forward_unit", 5)
+        }
+
+        fun setForwardUnit(type: Int) {
+            setInt("video_forward_unit", type)
         }
 
         fun getRankLimitForMatchLow(): Int {

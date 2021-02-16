@@ -17,6 +17,8 @@ class AppHttpClient {
 
     private val TIMEOUT = 15000
 
+    private var currentBaseUrl: String? = null
+
     companion object {
         private var instance: AppHttpClient? = null
         fun getInstance(): AppHttpClient {
@@ -52,7 +54,8 @@ class AppHttpClient {
 
     @Throws(Exception::class)
     fun createRetrofit() {
-        val url: String = UrlProvider.formatUrl(UrlProvider.getBaseUrl())
+        val url: String = getBaseUrl()
+        currentBaseUrl = url
         DebugLog.e(url)
         val retrofit = Retrofit.Builder()
             .baseUrl(url)
@@ -67,7 +70,16 @@ class AppHttpClient {
         appService = retrofit.create(AppService::class.java)
     }
 
+    private fun getBaseUrl(): String {
+        return UrlProvider.formatUrl(UrlProvider.getBaseUrl())
+    }
+
     fun getAppService(): AppService {
+        var url = getBaseUrl()
+        // baseUrl变了，重新创建retrofit
+        if (url != currentBaseUrl) {
+            createRetrofit()
+        }
         return appService
     }
 }

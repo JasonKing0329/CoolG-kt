@@ -9,6 +9,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationSet
 import android.view.animation.ScaleAnimation
 import androidx.lifecycle.Observer
+import com.king.app.coolg_kt.BuildConfig
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityLoginBinding
@@ -18,6 +19,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.home.phone.PhoneHomeActivity
 import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
+import com.king.app.coolg_kt.page.tv.TvActivity
 import com.king.app.coolg_kt.utils.AppUtil
 import com.tbruyelle.rxpermissions3.RxPermissions
 
@@ -99,16 +101,21 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun superUser() {
-        mBinding.groupLogin.visibility = View.GONE
-        mBinding.groupPass.visibility = View.VISIBLE
-        mBinding.groupPass.startAnimation(appearNextStep())
-        mBinding.tvHome.setOnClickListener { v ->
-            goToHome()
+        if ("tv" == BuildConfig.DEVICE_TYPE) {
+            startActivity(Intent().setClass(this, TvActivity::class.java))
             finish()
         }
-        mBinding.tvSetting.setOnClickListener { v -> goToSetting() }
-        mBinding.tvManage.setOnClickListener { v -> goToManage() }
-
+        else {
+            mBinding.groupLogin.visibility = View.GONE
+            mBinding.groupPass.visibility = View.VISIBLE
+            mBinding.groupPass.startAnimation(appearNextStep())
+            mBinding.tvHome.setOnClickListener { v ->
+                goToHome()
+                finish()
+            }
+            mBinding.tvSetting.setOnClickListener { v -> goToSetting() }
+            mBinding.tvManage.setOnClickListener { v -> goToManage() }
+        }
     }
 
     private fun goToHome() {

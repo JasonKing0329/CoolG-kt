@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.avery.subtitle.widget.SimpleSubtitleView;
 import com.king.app.coolg_kt.R;
+import com.king.app.coolg_kt.page.tv.JZMediaIjk;
 import com.king.app.coolg_kt.utils.DebugLog;
 import com.king.app.coolg_kt.utils.FormatUtil;
 
@@ -27,7 +28,7 @@ import cn.jzvd.JzvdStd;
  * @author：Jing
  * @date: 2020/12/17 22:34
  */
-public class FullJzvd extends JzvdStd {
+public class TvJzvd extends JzvdStd {
 
     private OnVideoListener onVideoListener;
 
@@ -47,11 +48,11 @@ public class FullJzvd extends JzvdStd {
 
     private boolean isInitVideo = true;
 
-    public FullJzvd(Context context) {
+    public TvJzvd(Context context) {
         super(context);
     }
 
-    public FullJzvd(Context context, AttributeSet attrs) {
+    public TvJzvd(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -97,7 +98,7 @@ public class FullJzvd extends JzvdStd {
 
     @Override
     public int getLayoutId() {
-        return R.layout.layout_full_jzvd;
+        return R.layout.layout_tv_jzvd;
     }
 
     @Override
@@ -311,7 +312,7 @@ public class FullJzvd extends JzvdStd {
                     public void onClick(DialogInterface dialog, int which) {
                         isSeekToAfterPrepared = true;
                         isInitVideo = false;
-                        FullJzvd.super.startVideo();
+                        TvJzvd.super.startVideo();
                     }
                 })
                 .setNegativeButton("Restart", new DialogInterface.OnClickListener() {
@@ -319,7 +320,7 @@ public class FullJzvd extends JzvdStd {
                     public void onClick(DialogInterface dialog, int which) {
                         isSeekToAfterPrepared = false;
                         isInitVideo = false;
-                        FullJzvd.super.startVideo();
+                        TvJzvd.super.startVideo();
                     }
                 })
                 .show();
@@ -411,6 +412,7 @@ public class FullJzvd extends JzvdStd {
     }
 
     /**
+     * 经实测小米电视E43K只能用ijk引擎才能正常播放，其他引擎只有声音，画面一直卡在转圈那里
      * 设置播放地址并播放，如果没有setUp过用setUp在clickStart，否则直接changeUrl
      * @param url
      * @param title
@@ -418,7 +420,7 @@ public class FullJzvd extends JzvdStd {
     public void playUrl(String url, String title) {
         DebugLog.e(url);
         if (jzDataSource == null) {
-            setUp(url, title);
+            setUp(url, title, JzvdStd.SCREEN_FULLSCREEN, JZMediaIjk.class);
             clickStart();
         }
         // 以后的调用更换url，但父类的changeUrl直接调用了startVideo，通过覆盖onStatePreparingChangeUrl禁止自动播放

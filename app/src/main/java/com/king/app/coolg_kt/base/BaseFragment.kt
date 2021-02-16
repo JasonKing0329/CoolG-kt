@@ -50,4 +50,8 @@ abstract class BaseFragment<T : ViewDataBinding, VM: BaseViewModel>: BindingFrag
 
     abstract fun initView(view: View)
 
+    override fun onDestroyView() {
+        mModel?.onDestroy()
+        super.onDestroyView()
+    }
 }

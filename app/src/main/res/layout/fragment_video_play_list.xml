@@ -38,7 +38,7 @@
             android:id="@+id/iv_random_setting"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_setting_white_24dp"
+            android:src="@drawable/ic_settings_white_36dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:layout_constraintStart_toEndOf="@id/tv_random"
             app:layout_constraintTop_toTopOf="@+id/iv_close"

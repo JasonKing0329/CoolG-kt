@@ -52,7 +52,6 @@ import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import com.king.lib.banner.CoolBannerAdapter
-import tcking.github.com.giraffeplayer2.PlayerManager
 
 /**
  * Desc:
@@ -487,16 +486,6 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
 
 //        mBinding.videoView.setVideoPath(url)
 //        mBinding.videoView.prepare()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        // videoView必须在manifest中所属activity指定
-        // android:configChanges="orientation|screenSize",且其中两个参数缺一不可
-        // 同时在onConfigurationChanged中加入相关代码。
-        // 这样在点击全屏时才能顺畅地切换为全屏
-        PlayerManager.getInstance().onConfigurationChanged(newConfig)
     }
 
     override fun onBackPressed() {

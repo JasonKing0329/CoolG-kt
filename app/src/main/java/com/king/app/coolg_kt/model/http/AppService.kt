@@ -37,6 +37,9 @@ interface AppService {
     @POST("surfFolder")
     fun requestSurf(@Body data: FolderRequest): Observable<FolderResponse>
 
+    @POST("subtitle")
+    fun searchSubtitle(@Body data: SubtitleRequest): Observable<SubtitleResponse>
+
     @POST("uploadStarRatings")
     fun uploadStarRatings(@Body data: UploadStarRatingRequest): Observable<BaseResponse<*>>
 

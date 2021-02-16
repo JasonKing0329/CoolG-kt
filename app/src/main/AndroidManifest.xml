@@ -14,13 +14,17 @@
     <application
         android:name=".CoolApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:icon="${app_icon}"
+        android:roundIcon="${app_icon}"
+        android:label="${app_name}"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/CustomActionBarTheme">
+        <activity
+            android:name=".page.tv.TvActivity"
+            android:screenOrientation="landscape">
+        </activity>
 
         <!-- 安卓10文件存储机制修改成了沙盒模式。应用只能访问自己沙盒下的文件和公共媒体文件（文件夹不受影响）。用requestLegacyExternalStorage才能访问其他目录的文件 -->
         <activity android:name=".page.login.LoginActivity">
@@ -30,82 +34,88 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".page.home.phone.PhoneHomeActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.setting.SettingsActivity"
-            android:theme="@style/AppTheme"/>
-
-        <activity android:name=".page.setting.ManageActivity"/>
-
-        <activity android:name=".page.record.phone.PhoneRecordListActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.record.phone.RecordActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.record.NoStudioActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.star.phone.StarActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.star.phone.StarsPhoneActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.star.phone.TagStarActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.image.ImageManagerActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.studio.phone.StudioActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.video.phone.VideoHomePhoneActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.video.order.PlayOrderActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.video.order.PlayOrderItemsActivity"
+        <activity
+            android:name=".page.home.phone.PhoneHomeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.setting.SettingsActivity"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".page.setting.ManageActivity" />
+        <activity
+            android:name=".page.record.phone.PhoneRecordListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.record.phone.RecordActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".page.star.random.StarRandomActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".page.video.server.VideoServerActivity"/>
-        <activity android:name=".page.video.order.PopularStarActivity"/>
-        <activity android:name=".page.star.list.StarSelectorActivity"/>
-        <activity android:name=".page.match.MatchHomeActivity"/>
-        <activity android:name=".page.match.list.MatchListActivity"/>
-        <activity android:name=".page.match.season.SeasonActivity"/>
-        <activity android:name=".page.match.draw.DrawActivity"/>
-        <activity android:name=".page.match.draw.FinalDrawActivity"/>
-        <activity android:name=".page.match.rank.RankActivity"/>
-        <activity android:name=".page.match.score.ScoreActivity"/>
-        <activity android:name=".page.match.h2h.H2hActivity"/>
-        <activity android:name=".page.match.list.FinalListActivity"/>
-
-        <activity android:name=".page.video.player.PlayerActivity"
+        <activity
+            android:name=".page.record.NoStudioActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.star.phone.StarActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.star.phone.StarsPhoneActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.star.phone.TagStarActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.image.ImageManagerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.studio.phone.StudioActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.video.phone.VideoHomePhoneActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="landscape"/>
-
-        <activity android:name=".page.record.pad.RecordPadActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.video.order.PlayOrderActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.video.order.PlayOrderItemsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.star.random.StarRandomActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".page.video.server.VideoServerActivity" />
+        <activity android:name=".page.video.order.PopularStarActivity" />
+        <activity android:name=".page.star.list.StarSelectorActivity" />
+        <activity android:name=".page.match.MatchHomeActivity" />
+        <activity android:name=".page.match.list.MatchListActivity" />
+        <activity android:name=".page.match.season.SeasonActivity" />
+        <activity android:name=".page.match.draw.DrawActivity" />
+        <activity android:name=".page.match.draw.FinalDrawActivity" />
+        <activity android:name=".page.match.rank.RankActivity" />
+        <activity android:name=".page.match.score.ScoreActivity" />
+        <activity android:name=".page.match.h2h.H2hActivity" />
+        <activity android:name=".page.match.list.FinalListActivity" />
+        <activity
+            android:name=".page.video.player.PlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".page.tv.IjkPlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".page.tv.SystemPlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".page.record.pad.RecordPadActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".page.star.pad.StarsPadActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".page.record.pad.PadRecordListActivity"
+            android:screenOrientation="landscape" />
 
-        <activity android:name=".page.star.pad.StarsPadActivity"
-            android:screenOrientation="landscape"/>
-
-        <activity android:name=".page.record.pad.PadRecordListActivity"
-            android:screenOrientation="landscape"/>
-
-        <service android:name=".service.FileService"/>
+        <service android:name=".service.FileService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

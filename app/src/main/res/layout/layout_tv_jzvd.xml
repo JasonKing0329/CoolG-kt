@@ -8,6 +8,7 @@
     <!-- Jzvd id, don't modify -->
     <FrameLayout
         android:id="@+id/surface_container"
+        android:focusable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
@@ -19,6 +20,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
+        android:focusable="true"
         android:adjustViewBounds="true"
         android:background="#000000"
         android:scaleType="fitXY" />
@@ -37,7 +39,8 @@
             android:padding="@dimen/video_back_padding"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_back_white"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:focusable="true"
+            android:background="@drawable/selector_border"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 
@@ -108,7 +111,7 @@
         <!-- Jzvd id, don't modify -->
         <ImageView
             android:id="@+id/start"
-            style="@style/IvVideoIcon"
+            style="@style/IvVideoIconTv"
             android:src="@drawable/ic_play_arrow_white_24dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -117,7 +120,7 @@
 
         <ImageView
             android:id="@+id/app_video_last"
-            style="@style/IvVideoIcon"
+            style="@style/IvVideoIconTv"
             android:src="@drawable/ic_skip_previous_white_24dp"
             android:layout_marginRight="@dimen/video_player_icon_margin"
             app:layout_constraintEnd_toStartOf="@id/start"
@@ -125,7 +128,7 @@
 
         <ImageView
             android:id="@+id/app_video_next"
-            style="@style/IvVideoIcon"
+            style="@style/IvVideoIconTv"
             android:src="@drawable/ic_skip_next_white_24dp"
             android:layout_marginLeft="@dimen/video_player_icon_margin"
             app:layout_constraintStart_toEndOf="@id/start"
@@ -133,14 +136,14 @@
 
         <ImageView
             android:id="@+id/app_video_clarity"
-            style="@style/IvVideoIcon"
+            style="@style/IvVideoIconTv"
             android:src="@drawable/ic_settings_white_36dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/start"/>
 
         <ImageView
             android:id="@+id/app_video_list"
-            style="@style/IvVideoIcon"
+            style="@style/IvVideoIconTv"
             android:src="@drawable/ic_playlist_play_white_24dp"
             android:layout_marginEnd="@dimen/video_player_icon_size"
             app:layout_constraintEnd_toEndOf="parent"

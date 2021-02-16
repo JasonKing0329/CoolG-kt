@@ -7,6 +7,8 @@ package com.king.app.coolg_kt.conf
  */
 object AppConstants {
 
+    const val PORT_RECEIVE = 9002
+
     const val KEY_SCENE_ALL = "All"
 
     const val RESP_ORDER_ID = "order_id"

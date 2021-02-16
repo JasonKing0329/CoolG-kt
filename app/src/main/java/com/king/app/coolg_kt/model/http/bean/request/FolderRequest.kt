@@ -8,4 +8,13 @@ class FolderRequest {
      */
     var type: String? = null
 
+    var isCountSize = true
+
+    var isGuest = true
+
+    /**
+     * see HttpConstants.FILE_FILTER_XX
+     */
+    var filterType = 0
+
 }

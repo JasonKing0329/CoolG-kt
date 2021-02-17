@@ -15,6 +15,11 @@ public class ServerBody {
 
     private String ip;
 
+    /**
+     * 扩展字段
+     */
+    private boolean isOnline;
+
     public String getIdentity() {
         return identity;
     }
@@ -53,5 +58,13 @@ public class ServerBody {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
     }
 }

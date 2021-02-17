@@ -258,10 +258,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         if (uniqueDown) {
             when(event.keyCode) {
                 KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_DPAD_CENTER -> {
-                    videoController.performClickVideo()
-                    // 经实测，虽然先执行了performClickVideo才requestFocus，但是还是会立即执行暂停。所以设置为只有在control bar消失的状态（播放状态）按下才requestFocus
                     if (mBinding.layoutBottom.visibility != View.VISIBLE) {
+                        videoController.performClickVideo()
                         mBinding.start.requestFocus()
+                    }
+                    else {
+                        if (mBinding.videoView.isFocused) {
+                            videoController.performClickVideo()
+                        }
                     }
                 }
             }

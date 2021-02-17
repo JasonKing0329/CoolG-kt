@@ -14,8 +14,10 @@ import com.king.app.coolg_kt.model.http.bean.request.PathRequest
 import com.king.app.coolg_kt.model.http.bean.response.OpenFileResponse
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.utils.PinyinUtil
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import net.sourceforge.pinyin4j.PinyinHelper
 import java.util.*
 import kotlin.Comparator
 
@@ -163,6 +165,10 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
 
     private fun sortFiles(list: MutableList<FileBean>): ObservableSource<MutableList<FileBean>> {
         return ObservableSource {
+            // 生成名称拼音（耗时操作，只生成一次）
+            list.forEach {bean ->
+                bean.name?.let { name -> bean.namePinyin = PinyinUtil.toPinyinConcat(name) }
+            }
             list.sortWith(object : Comparator<FileBean>{
                 override fun compare(o1: FileBean, o2: FileBean): Int {
                     // folder先于file
@@ -171,7 +177,7 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
                         if (o2.isFolder) {
                             return when(mSortType) {
                                 SORT_TYPE_DATE -> compareLong(o1.lastModifyTime, o2.lastModifyTime)
-                                else -> compareName(o1.name?:"", o2.name?:"")
+                                else -> compareName(o1.namePinyin?:"", o2.namePinyin?:"")
                             }
                         }
                         else {

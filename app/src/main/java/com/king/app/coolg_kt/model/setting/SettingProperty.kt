@@ -6,6 +6,7 @@ import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.match.HomeUrls
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.star.random.RandomData
+import com.king.app.coolg_kt.page.tv.TvServers
 
 /**
  * Desc:
@@ -259,6 +260,24 @@ class SettingProperty: BaseProperty() {
             } catch (e: java.lang.Exception) {
             }
             setString("match_home_urls", sql)
+        }
+
+        fun getTvServers(): TvServers {
+            val sql = getString("tv_servers")
+            try {
+                return Gson().fromJson(sql, TvServers::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return TvServers()
+        }
+
+        fun setTvServers(bean: TvServers) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("tv_servers", sql)
         }
 
     }

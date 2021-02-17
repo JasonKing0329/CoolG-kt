@@ -120,4 +120,6 @@ dependencies {
     implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
     implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.4'
     implementation 'com.avery:subtitle:1.0.6'
+
+    implementation 'com.belerweb:pinyin4j:2.5.0'
 }

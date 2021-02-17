@@ -7,11 +7,11 @@ class FileBean {
     var isFolder = false
     var lastModifyTime: Long = 0
     var size: Long = 0
+    var sourceUrl: String? = null
 
     /**
      * server端不赋值，client端记录parent
      */
     var parentBean: FileBean? = null
-    var sourceUrl: String? = null
-
+    var namePinyin: String? = null
 }

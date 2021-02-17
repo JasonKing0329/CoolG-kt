@@ -67,6 +67,9 @@ class ServerFragment: BaseFragment<FragmentTvServerBinding, ServerViewModel>() {
             adapter.list = it
             adapter.notifyDataSetChanged()
         })
+        // 先加载本地保存的
+        mModel.loadServers()
+        // 接受服务端广播IP，更新或添加IP地址
         mModel.onReceiveIp()
     }
 

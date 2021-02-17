@@ -31,6 +31,9 @@ interface AppService {
     @GET("checkNew")
     fun checkNewFile(@Query("type") type: String): Observable<GdbCheckNewFileBean>
 
+    @GET("bg")
+    fun getBgFiles(): Observable<BgResponse>
+
     @POST("requestMove")
     fun requestMoveImages(@Body data: GdbRequestMoveBean): Observable<GdbMoveResponse>
 

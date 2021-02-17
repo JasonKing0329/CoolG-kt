@@ -2,10 +2,12 @@ package com.king.app.coolg_kt.view.dialog
 
 import android.content.DialogInterface
 import android.graphics.drawable.GradientDrawable
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.ViewGroup
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BindingDialogFragment
 import com.king.app.coolg_kt.databinding.DialogBaseBinding
@@ -41,6 +43,11 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
     /**
      * 固定高度
      */
+    var fixedWidth = 0
+
+    /**
+     * 固定高度
+     */
     var fixedHeight = 0
     
     var dismissListener: DialogInterface.OnDismissListener? = null
@@ -65,7 +72,7 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
             it.dialogHolder = this
             replaceContentFragment(it, "ContentView")
         }
-        limitFixedHeight()
+        limitFixedSize()
         mBinding.flFt.post {
             DebugLog.e("groupFtContent height=" + mBinding.flFt.height)
             limitMaxHeight()
@@ -91,12 +98,34 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
     }
 
     /**
-     * 固定高度
+     * 固定宽高
      */
-    private fun limitFixedHeight() {
-        if (fixedHeight > 0) {
+    override fun onResume() {
+        super.onResume()
+        if (fixedHeight > 0 || fixedWidth > 0) {
+            var dm = DisplayMetrics()
+            requireActivity().windowManager.defaultDisplay.getMetrics(dm)
+            // 按比例可以这样设置：(int) (dm.widthPixels * 0.75)
+            var height = if (fixedHeight > 0) fixedHeight
+            else ViewGroup.LayoutParams.WRAP_CONTENT
+            var width = if (fixedWidth > 0) fixedWidth
+            else ViewGroup.LayoutParams.MATCH_PARENT
+            dialog?.window?.setLayout(width, height)
+        }
+    }
+
+    /**
+     * 当dialog固定了宽高,contentFragment也需要固定高度
+     */
+    private fun limitFixedSize() {
+        if (fixedHeight > 0 || fixedWidth > 0) {
             val params = mBinding.flFt.layoutParams
-            params.height = fixedHeight
+            if (fixedHeight > 0) {
+                params.height = fixedHeight
+            }
+            if (fixedWidth > 0) {
+                params.width = fixedWidth
+            }
             mBinding.flFt.layoutParams = params
             mBinding.flFt.invalidate()
             mBinding.flFt.requestLayout()

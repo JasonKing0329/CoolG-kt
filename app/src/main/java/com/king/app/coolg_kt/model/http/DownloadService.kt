@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Streaming
+import retrofit2.http.Url
 
 interface DownloadService {
     @Streaming
@@ -14,4 +15,9 @@ interface DownloadService {
         @Query("name") name: String,
         @Query("key") key: String?
     ): Observable<ResponseBody>
+
+    @Streaming
+    @GET()
+    fun download(@Url path: String): Observable<ResponseBody>
+
 }

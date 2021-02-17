@@ -4,16 +4,30 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/ic_tv_bg">
+        android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/iv_user"
+            android:id="@+id/iv_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_tv_bg"/>
+
+        <ImageView
+            android:id="@+id/iv_change_bg"
+            style="@style/TvActionIcon"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_setting"
+            app:layout_constraintEnd_toStartOf="@+id/iv_su"
+            app:srcCompat="@drawable/ic_desktop_windows_white_36dp" />
+
+        <ImageView
+            android:id="@+id/iv_su"
             style="@style/TvActionIcon"
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="@+id/iv_setting"
             app:layout_constraintEnd_toStartOf="@+id/iv_setting"
-            app:srcCompat="@drawable/ic_desktop_windows_white_36dp" />
+            app:srcCompat="@drawable/ic_favorite_border_white_36dp" />
 
         <ImageView
             android:id="@+id/iv_setting"

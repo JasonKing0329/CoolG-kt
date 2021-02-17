@@ -36,6 +36,8 @@ object AppConfig {
     val APP_DIR_CONF_PREF_DEF = "$APP_DIR_CONF_PREF/default"
     val APP_DIR_CONF_CRASH = "$APP_DIR_CONF/crash"
     val APP_DIR_CONF_APP = "$APP_DIR_CONF/app"
+    val APP_DIR_TV = "$APP_ROOT/tv"
+    val APP_DIR_TV_BG = "$APP_DIR_TV/bg"
 
     // 采用自动更新替代gdata.db的方法，因为jornal的存在，会使重新使用这个db出现问题
     var GDB_DB_JOURNAL = "$APP_DIR_CONF/gdata.db-journal"
@@ -64,7 +66,9 @@ object AppConfig {
         APP_DIR_CONF_PREF,
         APP_DIR_CONF_PREF_DEF,
         APP_DIR_CONF_CRASH,
-        APP_DIR_CONF_APP
+        APP_DIR_CONF_APP,
+        APP_DIR_TV,
+        APP_DIR_TV_BG
     )
 
     /**

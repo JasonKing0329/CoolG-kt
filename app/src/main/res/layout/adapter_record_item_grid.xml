@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
@@ -106,5 +107,19 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_selected"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="Selected"
+            android:textSize="18dp"
+            android:textColor="@color/white"
+            android:background="#99000000"
+            app:layout_constraintBottom_toBottomOf="@+id/group_file_info"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/iv_record" />
     </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
 </layout>

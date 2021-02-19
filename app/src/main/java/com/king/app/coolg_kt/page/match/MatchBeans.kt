@@ -44,7 +44,8 @@ data class RankItem<T> (
     var name: String?,
     var score: Int,
     var matchCount: Int,
-    var unavailableScore: Int? = null
+    var unavailableScore: Int? = null,
+    var canSelect: Boolean = true
 )
 
 data class PeriodPack (

@@ -6,7 +6,6 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
-import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
@@ -131,7 +130,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun loadImages() {
-        loadRecordImages(recordRanksObserver.value)
+        loadTimeWaste(recordRanksObserver.value)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
                 override fun onNext(t: ImageRange) {
@@ -322,9 +321,11 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     /**
      * 给1000+条加载图片路径属于耗时操作（经测试1200个record耗时2秒）,改为先显示列表后陆续加载
+     * 另外，将其他耗时操作也在此进行，每30条通知一次更新
      */
-    private fun loadRecordImages(items: List<RankItem<Record?>>?): Observable<ImageRange> {
+    private fun loadTimeWaste(items: List<RankItem<Record?>>?): Observable<ImageRange> {
         return Observable.create {
+            var samePeriodMap = getDatabase().getMatchDao().getSamePeriodRecordIds(currentPeriod.period, currentPeriod.orderInPeriod)
             items?.let { list ->
                 var count = 0
                 var totalNotified = 0
@@ -332,6 +333,11 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     // 每30条通知一次
                     var url = ImageProvider.getRecordRandomPath(item.bean?.name, null)
                     item.imageUrl = url
+                    // 是否可选
+                    if (samePeriodMap.contains(item.id)) {
+                        item.canSelect = false
+                    }
+
                     count ++
                     if (count % 30 == 0) {
                         it.onNext(ImageRange(count - 30, count))

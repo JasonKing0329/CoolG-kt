@@ -39,4 +39,5 @@ data class RecordWrap (
     var countRecord: CountRecord? = null
 ) {
     var imageUrl: String? = null
+    var canSelect: Boolean? = null
 }

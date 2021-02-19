@@ -23,6 +23,12 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
 
     override fun onBindItem(binding: AdapterMatchRankBinding, position: Int, bean: RankItem<T>) {
         binding.bean = bean
+        if (bean.canSelect) {
+            binding.root.setBackgroundColor(binding.root.context.resources.getColor(R.color.white))
+        }
+        else  {
+            binding.root.setBackgroundColor(binding.root.context.resources.getColor(R.color.darkgrey))
+        }
         if (bean.bean is Star) {
             binding.ivHead.visibility = View.GONE
             binding.tvName.visibility = View.VISIBLE

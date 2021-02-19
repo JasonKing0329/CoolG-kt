@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.PlayRepository
+import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.model.repository.TagRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
@@ -48,6 +49,8 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     private var playRepository = PlayRepository()
 
     private var factor = RecordsFragment.Factor()
+
+    var selectAsMatchItem = false
 
     init {
         onSortTypeChanged()
@@ -132,6 +135,17 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
             list.forEach { record ->
                 var name = record.bean.name?:""
                 record.imageUrl = ImageProvider.getRecordRandomPath(name, null)
+                // 默认都可选
+                record.canSelect = true
+            }
+            if (selectAsMatchItem) {
+                var rankPack = RankRepository().getRankPeriodPack()
+                rankPack.matchPeriod?.let { matchPeriod ->
+                    var samePeriodMap = getDatabase().getMatchDao().getSamePeriodRecordIds(matchPeriod.period, matchPeriod.orderInPeriod)
+                    list.forEach { record ->
+                        record.canSelect = !samePeriodMap.contains(record.bean.id)
+                    }
+                }
             }
             it.onNext(list)
             it.onComplete()

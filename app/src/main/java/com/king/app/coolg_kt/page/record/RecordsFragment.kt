@@ -32,6 +32,8 @@ import com.king.app.gdb.data.relation.RecordWrap
  */
 class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>() {
 
+    var selectAsMatchItem = false
+
     private val REQUEST_VIDEO_ORDER = 1603
     
     var overrideClickRecordListener: OnClickRecordListener? = null
@@ -61,7 +63,7 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
                     onClickRecord(view, position, data)
                 }
                 else {
-                    overrideClickRecordListener!!.onClickRecord(data.bean.id!!)
+                    overrideClickRecordListener!!.onClickRecord(data)
                 }
             }
         })
@@ -70,6 +72,7 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
 
     override fun initData() {
 
+        mModel.selectAsMatchItem = selectAsMatchItem
         mModel.recordsObserver.observe(this, Observer{ list -> showRecords(list) })
         mModel.moreObserver.observe(this, Observer{ offset -> showMoreList(offset) })
         mModel.scrollPositionObserver.observe(this, Observer{ offset -> scrollTo(offset) })
@@ -184,7 +187,7 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
     }
 
     interface OnClickRecordListener {
-        fun onClickRecord(recordId: Long)
+        fun onClickRecord(record: RecordWrap)
     }
 
     class Factor {

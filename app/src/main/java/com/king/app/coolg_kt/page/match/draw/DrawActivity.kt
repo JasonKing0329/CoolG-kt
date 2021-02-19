@@ -233,7 +233,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 arrayOf("Record List", "Rank List")
             ) { dialog, which ->
                 when(which) {
-                    0 -> PhoneRecordListActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD)
+                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, REQUEST_SELECT_WILDCARD)
                     1 -> RankActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD)
                 }
             }

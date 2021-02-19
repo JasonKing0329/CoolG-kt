@@ -68,6 +68,7 @@ class RecordItemGridBinder: BaseItemBinder() {
     var onPopupListener: OnPopupListener? = null
 
     fun bind(binding: AdapterRecordItemGridBinding, position: Int, item: RecordWrap) {
+        binding.tvSelected.visibility = if (item.canSelect == true) View.GONE else View.VISIBLE
         if (selectionMode) {
             binding.tvSeq.visibility = View.GONE
             binding.cbCheck.visibility = View.VISIBLE

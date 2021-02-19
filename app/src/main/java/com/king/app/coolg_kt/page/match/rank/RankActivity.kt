@@ -120,16 +120,25 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         }
     }
 
+    private fun isSelectMode(): Boolean {
+        return intent.getBooleanExtra(EXTRA_SELECT_MODE, false)
+    }
+
     override fun initData() {
         mModel.recordRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Record?>()
             adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{
                 override fun onClickItem(view: View, position: Int, data: RankItem<Record?>) {
-                    if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
-                        val intent = Intent()
-                        intent.putExtra(RESP_RECORD_ID, data.bean?.id)
-                        setResult(Activity.RESULT_OK, intent)
-                        finish()
+                    if (isSelectMode()) {
+                        if (data.canSelect) {
+                            val intent = Intent()
+                            intent.putExtra(RESP_RECORD_ID, data.bean?.id)
+                            setResult(Activity.RESULT_OK, intent)
+                            finish()
+                        }
+                        else {
+                            showMessageShort("This record is already in draws of current week")
+                        }
                     }
                 }
             })

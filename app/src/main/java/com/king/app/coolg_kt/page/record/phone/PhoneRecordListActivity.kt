@@ -17,6 +17,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.record.*
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
+import com.king.app.gdb.data.relation.RecordWrap
 
 /**
  * Desc:
@@ -28,6 +29,7 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
         val EXTRA_SELECT_MODE = "select_mode"
+        val EXTRA_SELECT_AS_MATCH_ITEM = "select_as_match_item"
         val RESP_RECORD_ID = "record_id"
         fun startPage(context: Context) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
@@ -36,6 +38,12 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         fun startPageToSelect(context: Activity, requestCode: Int) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)
+            context.startActivityForResult(intent, requestCode)
+        }
+        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int) {
+            var intent = Intent(context, PhoneRecordListActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
             context.startActivityForResult(intent, requestCode)
         }
         fun startStudioPage(context: Context, studioId: Long) {
@@ -102,12 +110,19 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         initActionBar()
 
         if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+            val selectAsMatchItem = intent.getBooleanExtra(EXTRA_SELECT_AS_MATCH_ITEM, false)
+            ftRecord.selectAsMatchItem = selectAsMatchItem
             ftRecord.overrideClickRecordListener = object : RecordsFragment.OnClickRecordListener {
-                override fun onClickRecord(recordId: Long) {
-                    val intent = Intent()
-                    intent.putExtra(RESP_RECORD_ID, recordId)
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
+                override fun onClickRecord(record: RecordWrap) {
+                    if (selectAsMatchItem && record.canSelect != true) {
+                        showMessageShort("This record is already in draws of current week")
+                    }
+                    else {
+                        val intent = Intent()
+                        intent.putExtra(RESP_RECORD_ID, record.bean.id!!)
+                        setResult(Activity.RESULT_OK, intent)
+                        finish()
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.match.HomeUrls
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.star.random.RandomData
+import com.king.app.coolg_kt.page.tv.TvPlayTimes
 import com.king.app.coolg_kt.page.tv.TvServers
 
 /**
@@ -157,11 +158,19 @@ class SettingProperty: BaseProperty() {
         }
 
         fun getForwardUnit(): Int {
-            return getInt("video_forward_unit", 5)
+            return getInt("video_forward_unit", 0)
         }
 
         fun setForwardUnit(type: Int) {
             setInt("video_forward_unit", type)
+        }
+
+        fun isRememberTvPlayTime(): Boolean {
+            return getBoolean("remember_tv_play_time")
+        }
+
+        fun setRememberTvPlayTime(type: Boolean) {
+            setBoolean("remember_tv_play_time", type)
         }
 
         fun getRankLimitForMatchLow(): Int {
@@ -272,6 +281,24 @@ class SettingProperty: BaseProperty() {
         }
 
         fun setTvServers(bean: TvServers) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("tv_servers", sql)
+        }
+
+        fun getTvRemembers(): TvPlayTimes {
+            val sql = getString("tv_servers")
+            try {
+                return Gson().fromJson(sql, TvPlayTimes::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return TvPlayTimes()
+        }
+
+        fun setTvRemembers(bean: TvPlayTimes) {
             var sql: String? = null
             try {
                 sql = Gson().toJson(bean)

@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.tv
+package com.king.app.coolg_kt.page.tv.player
 
 import android.app.Application
 import com.king.app.coolg_kt.base.BaseViewModel

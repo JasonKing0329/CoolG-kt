@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.tv
+package com.king.app.coolg_kt.page.tv.player
 
 import android.content.Context
 import android.content.DialogInterface
@@ -14,10 +14,13 @@ import androidx.lifecycle.Observer
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityTvPlayerSystemBinding
-import com.king.app.coolg_kt.model.http.UrlProvider
+import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.tv.popup.PlayerSetting
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.utils.UrlUtil
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
+import com.king.app.coolg_kt.view.dialog.TvDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -53,11 +56,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
     override fun getContentView(): Int = R.layout.activity_tv_player_system
 
-    override fun createViewModel(): SystemPlayerViewModel = generateViewModel(SystemPlayerViewModel::class.java)
+    override fun createViewModel(): SystemPlayerViewModel = generateViewModel(
+        SystemPlayerViewModel::class.java)
 
     override fun initView() {
-        videoController = VideoController(this, mBinding.videoView)
-        mBinding.start.requestFocus()
+        videoController = VideoController(
+            this,
+            mBinding.videoView
+        )
 
         mBinding.ivBack.setOnClickListener { onBackPressed() }
         mBinding.start.setOnClickListener {
@@ -82,6 +88,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 showMessageShort("Can't backward anymore!")
             }
         }
+        mBinding.ivSetting.setOnClickListener {
+            val content = PlayerSetting()
+            val dialog = TvDialogFragment()
+            dialog.contentFragment = content
+            dialog.title = "设置"
+            dialog.setSize((ScreenUtils.getScreenWidth() * 0.4).toInt(), ScreenUtils.getScreenHeight() / 2)
+            dialog.show(supportFragmentManager, "PlayerSetting")
+        }
         mBinding.bottomSeekProgress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
@@ -97,12 +111,10 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
         })
 
-        videoController.videoService = object : VideoService {
+        videoController.videoService = object :
+            VideoService {
             override fun onClickVideoView(view: VideoView) {
                 changeControlBarStatus()
-                if (mBinding.layoutBottom.visibility == View.VISIBLE) {
-                    startControlBarTimer()
-                }
             }
 
             override fun onPlayForward(view: VideoView, progress: Int) {
@@ -114,10 +126,12 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
 
             override fun onPrepared(view: VideoView, player: MediaPlayer) {
+                // 获取并显示总时间
                 mBinding.total.text = videoController.duration
                 mBinding.current.text = "00:00:00"
                 mBinding.bottomSeekProgress.max = videoController.durationTime
 
+                // 取消loading进度，并设置seekTo监听，结束时停止loading进度
                 setVideoLoading(false)
                 player.setOnSeekCompleteListener {
                     DebugLog.e("VideoController onSeekComplete")
@@ -127,8 +141,22 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                     DebugLog.e("VideoController onBufferingUpdate percent=$percent")
                 }
 
+                // 开始控制栏消失计时
+                if (mBinding.layoutBottom.visibility == View.VISIBLE) {
+                    startControlBarTimer()
+                }
+
+                // 搜索字幕
                 mBinding.subtitleView.bindToMediaPlayer(player)
                 mModel.searchSubtitle(intent.getStringExtra(EXTRA_PATH))
+
+                // 跳转记录的时间
+                if (SettingProperty.isRememberTvPlayTime()) {
+                    val seekTo = mModel.findRememberTime(getUrl())
+                    if (seekTo > 0) {
+                        player.seekTo(seekTo)
+                    }
+                }
             }
 
             override fun onPlayBackward(view: VideoView, progress: Int) {
@@ -168,8 +196,12 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
     }
 
+    private fun getUrl(): String {
+        return intent.getStringExtra(EXTRA_URL)
+    }
+
     override fun initData() {
-        val url = intent.getStringExtra(EXTRA_URL)
+        val url = getUrl()
         val name = url.substring(url.lastIndexOf("/"))
         mBinding.videoView.setVideoURI(Uri.parse(url))
         mBinding.title.text = name
@@ -245,6 +277,11 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             .subscribe { changeProgress() }
     }
 
+    override fun onBackPressed() {
+        mModel.updatePlayTime(getUrl(), videoController.currentTime)
+        super.onBackPressed()
+    }
+
     override fun onDestroy() {
         hideControlDisposable?.dispose()
         timeDisposable?.dispose()
@@ -257,13 +294,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         DebugLog.e("keyCode=${event.keyCode} isUnique=$uniqueDown")
         if (uniqueDown) {
             when(event.keyCode) {
-                KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_DPAD_CENTER -> {
+                KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
                     if (mBinding.layoutBottom.visibility != View.VISIBLE) {
                         videoController.performClickVideo()
                         mBinding.start.requestFocus()
                     }
                     else {
-                        if (mBinding.videoView.isFocused) {
+                        if (!mBinding.start.isFocused && !mBinding.appVideoNext.isFocused
+                            && !mBinding.appVideoLast.isFocused) {
                             videoController.performClickVideo()
                         }
                     }

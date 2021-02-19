@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.tv;
+package com.king.app.coolg_kt.page.tv.player;
 
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;

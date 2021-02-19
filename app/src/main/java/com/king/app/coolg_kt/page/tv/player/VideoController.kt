@@ -1,17 +1,20 @@
-package com.king.app.coolg_kt.page.tv
+package com.king.app.coolg_kt.page.tv.player
 
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.VideoView
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.VideoData
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.tv.player.VideoFormatter
+import com.king.app.coolg_kt.page.tv.player.VideoService
 import com.king.app.coolg_kt.utils.DebugLog
+import java.lang.Exception
 
 class VideoController(private val mContext: Context, private val videoView: VideoView) :
     MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener {
@@ -161,7 +164,7 @@ class VideoController(private val mContext: Context, private val videoView: Vide
                             }
                         }
                     }
-                    if (time - downTime < 100) {
+                    if (time - downTime < 200) {
                         if (x - lastX < 20 && x - lastX > -20 && y - lastY < 20 && y - lastY > -20) {
                             performClickVideo()
                         }
@@ -178,10 +181,18 @@ class VideoController(private val mContext: Context, private val videoView: Vide
         videoService?.onClickVideoView(videoView)
     }
 
+    private fun getControlTime(): Int {
+        return try {
+            AppConstants.timeParamValues[SettingProperty.getForwardUnit()] * 1000
+        } catch (e: Exception) {
+            5000
+        }
+    }
+
     fun getForward(dis: Float): Int {
         val total = videoView.duration
         val remain = total - currentPosition
-        val factor = SettingProperty.getForwardUnit() * 1000
+        val factor = getControlTime()
         val disFactor = 100
         val progress = dis.toInt() / disFactor * factor
         return if (progress < remain - factor) {
@@ -191,7 +202,7 @@ class VideoController(private val mContext: Context, private val videoView: Vide
 
     fun getBackward(dis: Float): Int {
         val remain = currentPosition
-        val factor = SettingProperty.getForwardUnit() * 1000
+        val factor = getControlTime()
         val disFactor = 100
         val progress = dis.toInt() / disFactor * factor
         return if (progress < remain - factor) {
@@ -200,14 +211,12 @@ class VideoController(private val mContext: Context, private val videoView: Vide
     }
 
     fun backward(): Boolean {
-        val factor = SettingProperty.getForwardUnit() * 1000
+        val factor = getControlTime()
         val remain = currentPosition
         if (factor < remain - factor) {
             currentPosition -= factor
             videoView.seekTo(currentPosition)
-            if (videoService != null) {
-                videoService!!.onPlayBackward(videoView, factor)
-            }
+            videoService?.onPlayBackward(videoView, factor)
             return true
         }
         return false
@@ -216,13 +225,11 @@ class VideoController(private val mContext: Context, private val videoView: Vide
     fun forward(): Boolean {
         val total = videoView.duration
         val remain = total - currentPosition
-        val factor = SettingProperty.getForwardUnit() * 1000
+        val factor = getControlTime()
         if (factor < remain - factor) {
             currentPosition += factor
             videoView.seekTo(currentPosition)
-            if (videoService != null) {
-                videoService!!.onPlayForward(videoView, factor)
-            }
+            videoService?.onPlayForward(videoView, factor)
             return true
         }
         return false

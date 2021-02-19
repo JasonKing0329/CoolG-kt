@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.tv
+package com.king.app.coolg_kt.page.tv.player
 
 import android.content.Context
 import android.content.Intent
@@ -31,7 +31,8 @@ class IjkPlayerActivity: BaseActivity<ActivityTvPlayerIjkBinding, IjkPlayerViewM
 
     override fun getContentView(): Int = R.layout.activity_tv_player_ijk
 
-    override fun createViewModel(): IjkPlayerViewModel = generateViewModel(IjkPlayerViewModel::class.java)
+    override fun createViewModel(): IjkPlayerViewModel = generateViewModel(
+        IjkPlayerViewModel::class.java)
 
     override fun initView() {
         mBinding.videoView.onBackListener = TvJzvd.OnBackListener { onBackPressed() }

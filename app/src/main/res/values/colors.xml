@@ -55,4 +55,8 @@
 
     <color name="h2h_bg_more">#34495e</color>
     <color name="h2h_bg_less">#3b9dd4</color>
+
+    <color name="tv_dlg_bg">#99308FC5</color>
+    <color name="tv_dlg_title_text">#ffff00</color>
+    <color name="tv_dlg_close">#ffffff</color>
 </resources>

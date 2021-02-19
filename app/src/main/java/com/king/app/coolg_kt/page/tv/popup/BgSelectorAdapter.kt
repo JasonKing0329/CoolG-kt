@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.tv
+package com.king.app.coolg_kt.page.tv.popup
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

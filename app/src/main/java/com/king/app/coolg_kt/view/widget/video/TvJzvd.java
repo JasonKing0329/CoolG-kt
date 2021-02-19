@@ -14,7 +14,7 @@ import android.widget.ImageView;
 
 import com.avery.subtitle.widget.SimpleSubtitleView;
 import com.king.app.coolg_kt.R;
-import com.king.app.coolg_kt.page.tv.JZMediaIjk;
+import com.king.app.coolg_kt.page.tv.player.JZMediaIjk;
 import com.king.app.coolg_kt.utils.DebugLog;
 import com.king.app.coolg_kt.utils.FormatUtil;
 

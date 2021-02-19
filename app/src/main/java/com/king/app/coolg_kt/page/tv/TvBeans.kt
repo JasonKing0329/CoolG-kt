@@ -10,3 +10,12 @@ import com.king.app.coolg_kt.model.udp.ServerBody
 data class TvServers (
     var list: List<ServerBody> = listOf()
 )
+
+data class PlayTime (
+    var url: String,
+    var time: Int
+)
+
+data class TvPlayTimes (
+    var list: MutableList<PlayTime> = mutableListOf()
+)

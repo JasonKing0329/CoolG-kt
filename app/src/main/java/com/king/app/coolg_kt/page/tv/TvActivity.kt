@@ -4,13 +4,13 @@ import android.view.View
 import androidx.lifecycle.Observer
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
-import com.king.app.coolg_kt.base.EmptyViewModel
 import com.king.app.coolg_kt.databinding.ActivityTvBinding
 import com.king.app.coolg_kt.model.GlideApp
-import com.king.app.coolg_kt.page.match.rank.RankDialog
+import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
+import com.king.app.coolg_kt.page.tv.popup.BgSelector
 import com.king.app.coolg_kt.utils.ScreenUtils
-import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
+import com.king.app.coolg_kt.view.dialog.TvDialogFragment
 
 /**
  * @description:
@@ -32,7 +32,8 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
             showServerPage()
         }
         mBinding.ivChangeBg.setOnClickListener {
-            mModel.getBg()
+            SystemPlayerActivity.startPage(this, "http://192.168.26.57:8080/JJGalleryServer/videos/d_scene/1.mp4", "")
+//            mModel.getBg()
         }
         mBinding.ivSu.setOnClickListener {
             SimpleDialogs()
@@ -90,11 +91,11 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
                 updateBg(url)
             }
         }
-        val dialogFragment = DraggableDialogFragment()
+        val dialogFragment = TvDialogFragment()
+        dialogFragment.showConfirm = false
         dialogFragment.contentFragment = content
-        dialogFragment.setTitle("Change Background")
-        dialogFragment.fixedWidth = ScreenUtils.getScreenWidth() * 4 / 5
-        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() *2 / 3
+        dialogFragment.title = "更换背景图片"
+        dialogFragment.setSize(ScreenUtils.getScreenWidth() * 4 / 5, ScreenUtils.getScreenHeight() * 2 / 3)
         dialogFragment.show(supportFragmentManager, "BgSelector")
     }
 }

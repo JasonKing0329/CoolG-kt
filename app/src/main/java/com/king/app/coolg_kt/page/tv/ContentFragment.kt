@@ -5,13 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.FragmentTvContentBinding
 import com.king.app.coolg_kt.model.http.bean.data.FileBean
-import com.king.app.coolg_kt.page.video.server.FileAdapter
+import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.utils.UrlUtil

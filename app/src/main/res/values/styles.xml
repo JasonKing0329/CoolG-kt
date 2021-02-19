@@ -96,11 +96,20 @@
     </style>
 
     <style name="IvDialogIcon">
-        <item name="android:layout_width">45dp</item>
-        <item name="android:layout_height">45dp</item>
-        <item name="android:padding">10dp</item>
+        <item name="android:layout_width">@dimen/dlg_icon_size</item>
+        <item name="android:layout_height">@dimen/dlg_icon_size</item>
+        <item name="android:padding">@dimen/dlg_icon_padding</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="IvDialogIconTv">
+        <item name="android:layout_width">@dimen/dlg_icon_size</item>
+        <item name="android:layout_height">@dimen/dlg_icon_size</item>
+        <item name="android:padding">@dimen/dlg_icon_padding</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">@drawable/selector_border</item>
     </style>
 
     <style name="EtActionSearch" parent="Theme.AppCompat.Light.NoActionBar">
@@ -373,4 +382,7 @@
         <item name="android:padding">10dp</item>
         <item name="android:background">@drawable/selector_border</item>
     </style>
+
+    <dimen name="dlg_icon_size">45dp</dimen>
+    <dimen name="dlg_icon_padding">10dp</dimen>
 </resources>

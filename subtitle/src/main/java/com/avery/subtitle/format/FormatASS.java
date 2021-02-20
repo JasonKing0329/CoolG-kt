@@ -72,6 +72,11 @@ public class FormatASS implements TimedTextFileFormat {
 			lineCounter++;
 			while (line!=null){
 				line = line.trim();
+				// @Jing 修改部分，有的字幕文件是utf-8-sig编码（utf-8 with BOM）的，会在字节流开头增加一个'\ufeff'字符，造成解析第一个num失败
+				// 这里处理一下这种情况，直接截取真正的数字字符即可。也可以在服务端将字幕文件转为utf-8无BOM编码格式(notepad++的格式选项里可以做到)
+				if (line.startsWith("\ufeff")) {
+					line = line.substring(1);
+				}
 				//we skip any line until we find a section [section name]
 				if(line.startsWith("[")){
 					//now we must identify the section
@@ -165,11 +170,15 @@ public class FormatASS implements TimedTextFileFormat {
 							if (line.startsWith("Dialogue:")){
 								//we parse the dialogue
 								caption = parseDialogueForASS(line.split(":",2)[1].trim().split(",",10),dialogueFormat,timer, tto);
-								//and save the caption
-								int key = caption.start.mseconds;
-								//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
-								while (tto.captions.containsKey(key)) key++;
-								tto.captions.put(key, caption);
+
+								// @Jing 修改部分
+								if (caption != null) {
+									//and save the caption
+									int key = caption.start.mseconds;
+									//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
+									while (tto.captions.containsKey(key)) key++;
+									tto.captions.put(key, caption);
+								}
 							}
 							//next line
 							lineCounter++;
@@ -483,8 +492,17 @@ public class FormatASS implements TimedTextFileFormat {
 		//all information from fields 10 onwards are the caption text therefore needn't be split
 		String captionText = line[9];
 		//text is cleaned before being inserted into the caption
-		newCaption.content = captionText.replaceAll("\\{.*?\\}", "").replace("\n", "<br />").replace("\\N", "<br />");		
-		
+		newCaption.content = captionText.replaceAll("\\{.*?\\}", "").replace("\n", "<br />").replace("\\N", "<br />");
+
+		// @Jing 修改部分
+		// Dialogue内容中经常会有这样的信息：m 50 0 l 179 0 b 208 0 229 21 229 50 l
+		// 它们不是字幕，具体用途未知，但是有时会和正常字幕时间交叠，造成显示这些无用的代码为字幕（这里过滤掉这种字幕）
+		if (newCaption.content != null && newCaption.content.startsWith("m ")) {
+			if (newCaption.content.length() > 2 && Character.isDigit(newCaption.content.charAt(2))) {
+				return null;
+			}
+		}
+
 		for (int i = 0; i < dialogueFormat.length; i++) {
 			//we go through every format parameter and save the interesting values
 			if (dialogueFormat[i].trim().equalsIgnoreCase("Style")){

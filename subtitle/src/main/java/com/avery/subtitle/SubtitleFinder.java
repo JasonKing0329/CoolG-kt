@@ -25,6 +25,8 @@
 
 package com.avery.subtitle;
 
+import android.util.Log;
+
 import com.avery.subtitle.model.Subtitle;
 
 import java.util.List;
@@ -48,20 +50,20 @@ public class SubtitleFinder {
             int middle = (start + end) / 2;
             Subtitle middleSubtitle = subtitles.get(middle);
             if (position < middleSubtitle.start.mseconds) {
-                if (position > middleSubtitle.end.mseconds) {
-                    return middleSubtitle;
-                }
                 end = middle - 1;
             } else if (position > middleSubtitle.end.mseconds) {
-                if (position < middleSubtitle.start.mseconds) {
-                    return middleSubtitle;
-                }
                 start = middle + 1;
             } else if (position >= middleSubtitle.start.mseconds
                     && position <= middleSubtitle.end.mseconds) {
+                logSubTitle(position, middleSubtitle);
                 return middleSubtitle;
             }
         }
         return null;
+    }
+
+    private static void logSubTitle(long position, Subtitle bean) {
+        Log.e("Subtitle", "[find]position=" + position);
+        Log.e("Subtitle", "return start=" + bean.start.mseconds + ", end=" + bean.end.mseconds + ", content=" + bean.content);
     }
 }

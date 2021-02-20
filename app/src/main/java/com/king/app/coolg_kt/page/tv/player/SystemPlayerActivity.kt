@@ -138,7 +138,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                     setVideoLoading(false)
                 }
                 player.setOnBufferingUpdateListener { mp, percent ->
-                    DebugLog.e("VideoController onBufferingUpdate percent=$percent")
+
                 }
 
                 // 开始控制栏消失计时

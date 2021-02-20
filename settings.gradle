@@ -1,3 +1,4 @@
+include ':subtitle'
 include ':data-kt'
 include ':app'
 rootProject.name = "CoolG-kt"

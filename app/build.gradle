@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 221
-        versionName "8.0.3"
+        versionCode 222
+        versionName "8.0.4"
         flavorDimensions "1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -84,6 +84,7 @@ dependencies {
     implementation project(path: ':data-kt')
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.palette:palette:1.0.0'
+    implementation project(path: ':subtitle')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -118,7 +119,7 @@ dependencies {
 
     implementation 'cn.jzvd:jiaozivideoplayer:7.5.0'
     implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.4'
-    implementation 'com.avery:subtitle:1.0.6'
+//    implementation 'com.avery:subtitle:1.0.6'
 
     implementation 'com.belerweb:pinyin4j:2.5.0'
 }

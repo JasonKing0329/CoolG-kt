@@ -32,8 +32,8 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
             showServerPage()
         }
         mBinding.ivChangeBg.setOnClickListener {
-            SystemPlayerActivity.startPage(this, "http://192.168.26.57:8080/JJGalleryServer/videos/d_scene/1.mp4", "")
-//            mModel.getBg()
+//            SystemPlayerActivity.startPage(this, "http://192.168.26.57:8080/JJGalleryServer/videos/d_scene/1.mp4", "")
+            mModel.getBg()
         }
         mBinding.ivSu.setOnClickListener {
             SimpleDialogs()

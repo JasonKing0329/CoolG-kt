@@ -125,6 +125,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     }
 
     override fun initData() {
+        mModel.isSelectMode = isSelectMode()
         mModel.recordRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Record?>()
             adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{

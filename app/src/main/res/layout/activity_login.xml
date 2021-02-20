@@ -107,6 +107,15 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_setting" />
 
+            <TextView
+                android:id="@+id/tv_tv"
+                style="@style/TvLoginItem"
+                android:text="TV"
+                android:layout_marginTop="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_manage" />
+
             <ImageView
                 android:id="@+id/iv_arrow_home"
                 style="@style/IvLoginItemArrow"

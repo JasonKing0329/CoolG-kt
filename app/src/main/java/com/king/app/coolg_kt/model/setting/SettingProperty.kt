@@ -290,7 +290,7 @@ class SettingProperty: BaseProperty() {
         }
 
         fun getTvRemembers(): TvPlayTimes {
-            val sql = getString("tv_servers")
+            val sql = getString("tv_remembers")
             try {
                 return Gson().fromJson(sql, TvPlayTimes::class.java)
             } catch (e: java.lang.Exception) {
@@ -304,7 +304,7 @@ class SettingProperty: BaseProperty() {
                 sql = Gson().toJson(bean)
             } catch (e: java.lang.Exception) {
             }
-            setString("tv_servers", sql)
+            setString("tv_remembers", sql)
         }
 
     }

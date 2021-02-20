@@ -47,6 +47,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var showPeriod : ShowPeriod
     var currentPeriod: ShowPeriod
 
+    var isSelectMode = false
+
     init {
         val rankPack = rankRepository.getRankPeriodPack()
         showPeriod = if (rankPack.matchPeriod == null) {
@@ -290,7 +292,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             list.forEach { bean ->
                 // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
-                    , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore)
+                    , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore, true)
                 result.add(item)
 
                 // 上一站存在才加载变化
@@ -334,7 +336,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     var url = ImageProvider.getRecordRandomPath(item.bean?.name, null)
                     item.imageUrl = url
                     // 是否可选
-                    if (samePeriodMap.contains(item.id)) {
+                    if (isSelectMode && samePeriodMap.contains(item.id)) {
                         item.canSelect = false
                     }
 

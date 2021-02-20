@@ -102,7 +102,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 
     private fun superUser() {
         if ("tv" == BuildConfig.DEVICE_TYPE) {
-            startActivity(Intent().setClass(this, TvActivity::class.java))
+            goToTv()
             finish()
         }
         else {
@@ -115,6 +115,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             }
             mBinding.tvSetting.setOnClickListener { v -> goToSetting() }
             mBinding.tvManage.setOnClickListener { v -> goToManage() }
+            mBinding.tvTv.setOnClickListener { v -> goToTv() }
         }
     }
 
@@ -128,6 +129,10 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 
     private fun goToSetting() {
         startActivity(Intent().setClass(this, SettingsActivity::class.java))
+    }
+
+    private fun goToTv() {
+        startActivity(Intent().setClass(this, TvActivity::class.java))
     }
 
     private fun appearNextStep(): Animation? {

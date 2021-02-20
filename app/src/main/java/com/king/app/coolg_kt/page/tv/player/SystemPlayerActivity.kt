@@ -154,6 +154,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 if (SettingProperty.isRememberTvPlayTime()) {
                     val seekTo = mModel.findRememberTime(getUrl())
                     if (seekTo > 0) {
+                        setVideoLoading(true)
                         player.seekTo(seekTo)
                     }
                 }
@@ -288,22 +289,46 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         super.onDestroy()
     }
 
+    private fun isCenterKey(keyCode: Int): Boolean {
+        return keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val uniqueDown = (event.repeatCount == 0
                 && event.action == KeyEvent.ACTION_DOWN)
         DebugLog.e("keyCode=${event.keyCode} isUnique=$uniqueDown")
         if (uniqueDown) {
-            when(event.keyCode) {
-                KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
-                    if (mBinding.layoutBottom.visibility != View.VISIBLE) {
+            // 点击中心键的事件
+            if (isCenterKey(event.keyCode)) {
+                // 控制栏显示时，焦点不在任何有事件的控件上，点击中心键控制栏消失
+                if (mBinding.layoutBottom.visibility == View.VISIBLE) {
+                    if (!mBinding.start.isFocused && !mBinding.appVideoNext.isFocused
+                        && !mBinding.appVideoLast.isFocused && !mBinding.ivBack.isFocused && !mBinding.ivSetting.isFocused) {
                         videoController.performClickVideo()
-                        mBinding.start.requestFocus()
                     }
-                    else {
-                        if (!mBinding.start.isFocused && !mBinding.appVideoNext.isFocused
-                            && !mBinding.appVideoLast.isFocused) {
+                }
+                // 控制栏不显示时，点击中心键显示控制栏并暂停
+                else {
+                    videoController.performClickVideo()
+                    mBinding.start.requestFocus()
+                }
+            }
+            else {
+                when(event.keyCode) {
+                    // 上下左右键
+                    KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        // 控制栏消失时，唤起控制栏
+                        if (mBinding.layoutBottom.visibility != View.VISIBLE) {
                             videoController.performClickVideo()
                         }
+                        // 控制栏显示时，保持激活
+                        else {
+                            startControlBarTimer()
+                        }
+                    }
+                    // 返回键，记录视频播放时间
+                    KeyEvent.KEYCODE_BACK -> {
+                        mModel.updatePlayTime(getUrl(), videoController.currentTime)
                     }
                 }
             }

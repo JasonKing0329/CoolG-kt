@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.tv
 
 import android.app.Application
+import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.AppHttpClient
@@ -28,6 +29,7 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
 
     fun loadServers() {
         serverList = SettingProperty.getTvServers().list.toMutableList()
+        serverList.removeAll { TextUtils.isEmpty(it.serverName) }
         // 从本地加载出来的先一律设置为离线
         serverList.forEach { it.isOnline = false}
         serversObserver.value = serverList
@@ -79,31 +81,33 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
 
     private fun distinctServer(serverBody: ServerBody): ObservableSource<ServerBody> {
         return ObservableSource {
-            serverBody.isOnline = true
-            val server = serverList.firstOrNull { server -> server.serverName == serverBody.serverName }
-            if (server == null) {
-                serverList.add(serverBody)
-            }
-            else {
-                // server ip发生变化，更新
-                if (server.ip != serverBody.ip) {
-                    server.isOnline = true
-                    server.ip = serverBody.ip
-                    server.port = serverBody.port
-                    server.extraUrl = serverBody.extraUrl
+            if (!TextUtils.isEmpty(serverBody.serverName)) {
+                serverBody.isOnline = true
+                val server = serverList.firstOrNull { server -> server.serverName == serverBody.serverName }
+                if (server == null) {
+                    serverList.add(serverBody)
                 }
                 else {
-                    // 已上线，不需要更新
-                    if (server.isOnline) {
-                        throw Throwable("server is existed")
-                    }
-                    // 未上线，更新为已上线
-                    else {
+                    // server ip发生变化，更新
+                    if (server.ip != serverBody.ip) {
                         server.isOnline = true
+                        server.ip = serverBody.ip
+                        server.port = serverBody.port
+                        server.extraUrl = serverBody.extraUrl
+                    }
+                    else {
+                        // 已上线，不需要更新
+                        if (server.isOnline) {
+                            throw Throwable("server is existed")
+                        }
+                        // 未上线，更新为已上线
+                        else {
+                            server.isOnline = true
+                        }
                     }
                 }
+                SettingProperty.setTvServers(TvServers(serverList))
             }
-            SettingProperty.setTvServers(TvServers(serverList))
             it.onNext(serverBody)
             it.onComplete()
         }

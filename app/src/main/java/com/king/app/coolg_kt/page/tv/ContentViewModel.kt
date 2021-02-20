@@ -101,7 +101,7 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
                     loadingObserver.value = false
-                    messageObserver.value = e?.message
+                    messageObserver.value = e?.message?:""
                     // 返回上层目录
                     if (isBack) {
                         // 将popFolder重新入栈

@@ -68,17 +68,23 @@ public class FormatSRT implements TimedTextFileFormat {
                     allGood = false;
                     //the first thing should be an increasing number
                     try {
-                        int num = Integer.parseInt(line);
-                        if (num != captionNumber)
-                            throw new Exception();
-                        else {
-                            captionNumber++;
-                            allGood = true;
+                        // @Jing 修改部分，有的字幕文件是utf-8-sig编码（utf-8 with BOM）的，会在字节流开头增加一个'\ufeff'字符，造成解析第一个num失败
+                        // 这里处理一下这种情况，直接截取真正的数字字符即可。也可以在服务端将字幕文件转为utf-8无BOM编码格式(notepad++的格式选项里可以做到)
+                        if (line.startsWith("\ufeff")) {
+                            line = line.substring(1);
                         }
+                        int num = Integer.parseInt(line);
+                        // @Jing 修改部分，源文件只支持srt文件内按1,2,3...行有序解析，但实测很多字幕文件这种行号并不连续，会有缺失
+                        // 因此，去掉对num != captionNumber时的异常抛出，改为继续解析
+                        if (num != captionNumber) {
+                            captionNumber = num;
+                        }
+                        allGood = true;
                     } catch (Exception e) {
                         tto.warnings += captionNumber + " expected at line " + lineCounter;
                         tto.warnings += "\n skipping to next line\n\n";
                     }
+                    captionNumber++;
                     if (allGood) {
                         //we go to next line, here the begin and end time should be found
                         try {

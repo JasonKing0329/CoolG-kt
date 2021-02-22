@@ -22,6 +22,7 @@ class PlayerSetting: TvDialogContentFragment<FragmentTvPlayerSettingBinding>() {
         mBinding.tvTime.text = AppConstants.timeParams[timeUnit]
 
         mBinding.cbLast.isChecked = SettingProperty.isRememberTvPlayTime()
+        mBinding.cbAutoNext.isChecked = SettingProperty.isAutoPlayNextTv()
         mBinding.ivTimePlus.setOnClickListener {
             val target = timeUnit + 1
             if (target < AppConstants.timeParamValues.size) {
@@ -42,6 +43,7 @@ class PlayerSetting: TvDialogContentFragment<FragmentTvPlayerSettingBinding>() {
     override fun onConfirm(): Boolean {
         SettingProperty.setForwardUnit(timeUnit)
         SettingProperty.setRememberTvPlayTime(mBinding.cbLast.isChecked)
+        SettingProperty.setAutoPlayNextTv(mBinding.cbAutoNext.isChecked)
         return false
     }
 }

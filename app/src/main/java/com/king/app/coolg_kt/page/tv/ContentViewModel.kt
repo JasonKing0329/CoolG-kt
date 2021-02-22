@@ -129,6 +129,16 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
         listObserver.value = list
     }
 
+    fun preparePlayList(data: FileBean) {
+        val list = mutableListOf<FileBean>()
+        val startIndex = mPageTotalList.indexOf(data)
+        for (i in startIndex until mPageTotalList.size) {
+            list.add(mPageTotalList[i])
+        }
+        TvPlayList.playIndex = 0
+        TvPlayList.list = list
+    }
+
     private fun updateUpperVisibility() {
         if (getCurrentFolder() == null) {
             upperVisibility.set(View.GONE)

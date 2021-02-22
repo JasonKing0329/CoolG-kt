@@ -60,6 +60,9 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         SystemPlayerViewModel::class.java)
 
     override fun initView() {
+        mModel.currentUrl = intent.getStringExtra(EXTRA_URL)
+        mModel.currentPathInServer = intent.getStringExtra(EXTRA_PATH)
+
         videoController = VideoController(
             this,
             mBinding.videoView
@@ -79,14 +82,22 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
         }
         mBinding.appVideoNext.setOnClickListener {
+            setVideoLoading(true)
             if (!videoController.forward()) {
+                setVideoLoading(false)
                 showMessageShort("Can't forward anymore!")
             }
         }
         mBinding.appVideoLast.setOnClickListener {
+            setVideoLoading(true)
             if (!videoController.backward()) {
+                setVideoLoading(false)
                 showMessageShort("Can't backward anymore!")
             }
+        }
+        mBinding.tvFromStart.setOnClickListener {
+            setVideoLoading(true)
+            videoController.playFromStart()
         }
         mBinding.ivSetting.setOnClickListener {
             val content = PlayerSetting()
@@ -148,11 +159,11 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
                 // 搜索字幕
                 mBinding.subtitleView.bindToMediaPlayer(player)
-                mModel.searchSubtitle(intent.getStringExtra(EXTRA_PATH))
+                mModel.searchSubtitle(mModel.currentPathInServer)
 
                 // 跳转记录的时间
                 if (SettingProperty.isRememberTvPlayTime()) {
-                    val seekTo = mModel.findRememberTime(getUrl())
+                    val seekTo = mModel.findRememberTime(mModel.currentUrl)
                     if (seekTo > 0) {
                         setVideoLoading(true)
                         player.seekTo(seekTo)
@@ -169,7 +180,9 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
 
             override fun onCompletion(view: VideoView, player: MediaPlayer) {
-
+                if (SettingProperty.isAutoPlayNextTv()) {
+                    mModel.nextVideo()
+                }
             }
 
             override fun onError(
@@ -197,16 +210,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
     }
 
-    private fun getUrl(): String {
-        return intent.getStringExtra(EXTRA_URL)
-    }
-
     override fun initData() {
-        val url = getUrl()
-        val name = url.substring(url.lastIndexOf("/"))
-        mBinding.videoView.setVideoURI(Uri.parse(url))
-        mBinding.title.text = name
-
         mModel.subtitles.observe(this, Observer {
             AlertDialogFragment()
                 .setItems(mModel.toArrays(it), DialogInterface.OnClickListener { dialog, which ->
@@ -215,6 +219,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 })
                 .show(supportFragmentManager, "AlertDialogFragment")
         })
+        mModel.playNextVideo.observe(this, Observer { playVideo(mModel.currentUrl) })
+        playVideo(mModel.currentUrl)
+    }
+
+    private fun playVideo(url: String) {
+        val name = url.substring(url.lastIndexOf("/"))
+        mBinding.videoView.setVideoURI(Uri.parse(url))
+        mBinding.title.text = name
 
         setVideoLoading(true)
         videoController.play()
@@ -273,13 +285,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
     }
 
     private fun loopCurrentTime() {
+        timeDisposable?.dispose()
         timeDisposable = Observable.interval(1, TimeUnit.SECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { changeProgress() }
     }
 
     override fun onBackPressed() {
-        mModel.updatePlayTime(getUrl(), videoController.currentTime)
+        mModel.updatePlayTime(mModel.currentUrl, videoController.currentTime)
         super.onBackPressed()
     }
 
@@ -328,7 +341,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                     }
                     // 返回键，记录视频播放时间
                     KeyEvent.KEYCODE_BACK -> {
-                        mModel.updatePlayTime(getUrl(), videoController.currentTime)
+                        mModel.updatePlayTime(mModel.currentUrl, videoController.currentTime)
                     }
                 }
             }

@@ -44,6 +44,7 @@ class VideoController(private val mContext: Context, private val videoView: Vide
     }
 
     fun play() {
+        currentPosition = 0
         videoView.seekTo(currentPosition)
         videoView.start()
         isPaused = false
@@ -234,4 +235,14 @@ class VideoController(private val mContext: Context, private val videoView: Vide
         }
         return false
     }
+
+    fun playFromStart() {
+        currentPosition = 0
+        val isPlaying = videoView.isPlaying
+        videoView.seekTo(0)
+        if (!isPlaying) {
+            videoView.start()
+        }
+    }
+
 }

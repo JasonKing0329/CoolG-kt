@@ -173,6 +173,14 @@ class SettingProperty: BaseProperty() {
             setBoolean("remember_tv_play_time", type)
         }
 
+        fun isAutoPlayNextTv(): Boolean {
+            return getBoolean("tv_auto_play_next")
+        }
+
+        fun setAutoPlayNextTv(type: Boolean) {
+            setBoolean("tv_auto_play_next", type)
+        }
+
         fun getRankLimitForMatchLow(): Int {
             val text = getString("pref_match_low_rank_limit")
             return try {

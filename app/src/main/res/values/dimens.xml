@@ -330,4 +330,8 @@
     <dimen name="records_tag_padding">10dp</dimen>
     <dimen name="records_tag_text">14dp</dimen>
     <dimen name="records_tag_remove_size">20dp</dimen>
+
+    <dimen name="tv_action_icon_size">50dp</dimen>
+    <dimen name="tv_video_player_icon_size">50dp</dimen>
+    <dimen name="tv_video_player_icon_padding">10dp</dimen>
 </resources>

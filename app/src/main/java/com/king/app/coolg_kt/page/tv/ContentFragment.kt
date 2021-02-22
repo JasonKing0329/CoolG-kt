@@ -10,11 +10,11 @@ import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.FragmentTvContentBinding
 import com.king.app.coolg_kt.model.http.bean.data.FileBean
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.utils.UrlUtil
-import com.king.app.coolg_kt.view.widget.PageIndicator
 
 /**
  * @description:
@@ -110,6 +110,9 @@ class ContentFragment: BaseFragment<FragmentTvContentBinding, ContentViewModel>(
             val url = UrlUtil.toVideoUrl(data.sourceUrl)
             DebugLog.e("playUrl $url")
             url?.let {
+                if (SettingProperty.isAutoPlayNextTv()) {
+                    mModel.preparePlayList(data)
+                }
                 SystemPlayerActivity.startPage(requireContext(), it, data.path)
             }
         } catch (e: Exception) {

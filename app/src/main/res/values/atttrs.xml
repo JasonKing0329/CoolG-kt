@@ -80,4 +80,13 @@
         <attr name="axisYTextWidth" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="PageIndicator">
+        <attr name="pi_textSize" format="dimension" />
+        <attr name="pi_textColor" format="color" />
+        <attr name="pi_itemWidth" format="dimension" />
+        <attr name="pi_itemBackground" format="reference" />
+        <attr name="pi_itemMargin" format="dimension" />
+        <attr name="pi_maxPage" format="integer" />
+    </declare-styleable>
+
 </resources>

@@ -377,12 +377,13 @@
     </style>
 
     <style name="TvActionIcon">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">@dimen/tv_action_icon_size</item>
+        <item name="android:layout_height">@dimen/tv_action_icon_size</item>
         <item name="android:padding">10dp</item>
         <item name="android:background">@drawable/selector_border</item>
     </style>
 
     <dimen name="dlg_icon_size">45dp</dimen>
     <dimen name="dlg_icon_padding">10dp</dimen>
+    <dimen name="tv_action_icon_size">50dp</dimen>
 </resources>

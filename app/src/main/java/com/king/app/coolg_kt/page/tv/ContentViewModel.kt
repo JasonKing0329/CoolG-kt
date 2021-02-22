@@ -17,9 +17,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.utils.PinyinUtil
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
-import net.sourceforge.pinyin4j.PinyinHelper
 import java.util.*
-import kotlin.Comparator
 
 /**
  * @description:
@@ -28,17 +26,23 @@ import kotlin.Comparator
  */
 class ContentViewModel(application: Application): BaseViewModel(application) {
 
+    var PAGE_NUM = 12 // 4列3行
+
     var ROOT = HttpConstants.FOLDER_TYPE_ALL
     var upperVisibility = ObservableInt(View.GONE)
     var listObserver = MutableLiveData<MutableList<FileBean>>()
     private var mFolderList: MutableList<FileBean> = mutableListOf()
     private val mFolderStack = Stack<FileBean>()
+    var totalPageObserver: MutableLiveData<Int> = MutableLiveData()
+    private var mPageTotalList: MutableList<FileBean> = mutableListOf()
     private var mFilterText: String? = null
 
     val SORT_TYPE_NAME = 0
     val SORT_TYPE_DATE = 1
     val SORT_TYPE_SIZE = 2
     private var mSortType = SORT_TYPE_NAME
+
+    var currentPage = 0
 
     var isSuperUser = false
 
@@ -88,14 +92,18 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<MutableList<FileBean>>(getComposite()) {
                 override fun onNext(list: MutableList<FileBean>) {
-                    listObserver.value = list
                     loadingObserver.value = false
+                    mPageTotalList = list
 
                     // 进入子目录
                     if (isNew) {
                         mFolderStack.push(folder)
                     }
                     updateUpperVisibility()
+
+                    currentPage = 0
+                    totalPageObserver.value = (list.size - 1) / PAGE_NUM + 1
+                    onPageChanged()
                 }
 
                 override fun onError(e: Throwable?) {
@@ -109,6 +117,16 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
                     }
                 }
             })
+    }
+
+    fun onPageChanged() {
+        val list = mutableListOf<FileBean>()
+        var i = currentPage * PAGE_NUM
+        while (i < currentPage * PAGE_NUM + PAGE_NUM && i < mPageTotalList.size) {
+            list.add(mPageTotalList[i])
+            i++
+        }
+        listObserver.value = list
     }
 
     private fun updateUpperVisibility() {
@@ -211,7 +229,8 @@ class ContentViewModel(application: Application): BaseViewModel(application) {
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<MutableList<FileBean>>(getComposite()) {
                 override fun onNext(list: MutableList<FileBean>) {
-                    listObserver.value = list
+                    mPageTotalList = list
+                    onPageChanged()
                 }
 
                 override fun onError(e: Throwable?) {

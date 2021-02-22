@@ -113,6 +113,21 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    // 本机模拟器测试用（udp端口问题，模拟器无法接受服务器广播）
+//    init {
+//        var server = TvServers()
+//        var body = ServerBody()
+//        body.serverName = "PC-Aiden"
+//        body.ip = "192.168.2.151"
+//        body.port = 8080
+//        body.extraUrl = "JJGalleryServer"
+//        body.identity = UdpReceiver.UDP_SERVER_IDENTITY
+//        var list = server.list.toMutableList()
+//        list.add(body)
+//        server.list = list
+//        SettingProperty.setTvServers(server)
+//    }
+
     override fun onDestroy() {
         udpReceiver.destroy()
         super.onDestroy()

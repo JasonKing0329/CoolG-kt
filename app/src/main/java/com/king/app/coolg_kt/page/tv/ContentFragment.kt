@@ -14,6 +14,7 @@ import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.utils.UrlUtil
+import com.king.app.coolg_kt.view.widget.PageIndicator
 
 /**
  * @description:
@@ -54,9 +55,24 @@ class ContentFragment: BaseFragment<FragmentTvContentBinding, ContentViewModel>(
                 }
             }
         })
+        mBinding.pageIndicator.setOnPageListener {
+            if (mModel.currentPage != it) {
+                mModel.currentPage = it
+                mModel.onPageChanged()
+            }
+        }
     }
 
     override fun initData() {
+        mModel.totalPageObserver.observe(this, Observer {
+            if (it == 1) {
+                mBinding.pageIndicator.visibility = View.INVISIBLE
+            }
+            else {
+                mBinding.pageIndicator.visibility = View.VISIBLE
+                mBinding.pageIndicator.setPage(it)
+            }
+        })
         mModel.listObserver.observe(this,
             Observer { list ->
                 if (mBinding.rvList.adapter == null) {

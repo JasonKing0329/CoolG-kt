@@ -38,6 +38,17 @@ public class AppUtil {
     }
 
     /**
+     * android P (7.0)
+     * @return
+     */
+    public static boolean isAndroidN() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * android 9.0开始，部分机型如小米，Android P 后谷歌限制了开发者调用非官方公开API 方法或接口，也就是说，
      * 用反射直接调用源码就会有这样的提示弹窗出现，非 SDK 接口指的是 Android 系统内部使用、
      * 并未提供在 SDK 中的接口，开发者可能通过 Java 反射、JNI 等技术来调用这些接口

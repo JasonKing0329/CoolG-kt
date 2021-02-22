@@ -25,6 +25,7 @@ class DownloadViewModel(application: Application) : BaseViewModel(application) {
 
     private val downloadCallback: DownloadCallback = object : DownloadCallback {
         override fun onDownloadFinish(item: DownloadItem) {
+            DebugLog.e()
             onDownloadListener?.onDownloadFinish(item)
         }
 
@@ -34,6 +35,7 @@ class DownloadViewModel(application: Application) : BaseViewModel(application) {
         }
 
         override fun onDownloadAllFinish() {
+            DebugLog.e()
             onDownloadListener?.onDownloadFinish()
         }
     }

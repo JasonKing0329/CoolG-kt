@@ -5,15 +5,22 @@ import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConfig
+import com.king.app.coolg_kt.model.bean.DownloadDialogBean
 import com.king.app.coolg_kt.model.http.AppHttpClient
+import com.king.app.coolg_kt.model.http.Command
+import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
+import com.king.app.coolg_kt.model.http.bean.response.AppCheckBean
 import com.king.app.coolg_kt.model.http.bean.response.BgResponse
 import com.king.app.coolg_kt.model.http.download.DownLoadFile
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.repository.PropertyRepository
+import com.king.app.coolg_kt.utils.AppUtil
 import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.coolg_kt.utils.UrlUtil
 import io.reactivex.rxjava3.core.ObservableSource
 import java.io.File
 import java.io.FileFilter
+import java.util.ArrayList
 
 /**
  * @description:
@@ -29,6 +36,10 @@ class TvViewModel(application: Application): BaseViewModel(application) {
     var bgFilePath = MutableLiveData<String>()
 
     var bgObserver = MutableLiveData<List<String>>()
+
+    var newVersionFound = MutableLiveData<String>()
+
+    var appCheckBean: AppCheckBean? = null
 
     fun checkUserCode(code: String) {
         isSuperUser = code == "1010520"
@@ -96,4 +107,45 @@ class TvViewModel(application: Application): BaseViewModel(application) {
                 }
             })
     }
+
+    /**
+     * {"isAppUpdate":true,"appVersion":"8.1","appName":"JJGallery-4.7.2-release-20170812224854.apk","appSize":10618166,"isGdbDatabaseUpdate":false,"gdbDabaseSize":0}
+     */
+    fun checkAppUpdate() {
+        var version = AppUtil.getAppVersionName()
+        AppHttpClient.getInstance().getAppService().checkAppUpdate(Command.TYPE_APP, version)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<AppCheckBean>(getComposite()) {
+                override fun onNext(t: AppCheckBean) {
+                    if (t.isAppUpdate) {
+                        appCheckBean = t
+                        newVersionFound.value = "发现新版本${t.appVersion}，是否更新？"
+                    }
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message?:""
+                }
+
+            })
+    }
+
+    fun getDownloadRequest(): DownloadDialogBean {
+        val bean = DownloadDialogBean()
+        bean.isShowPreview = false
+        bean.savePath = AppConfig.APP_DIR_CONF_APP
+        val item = DownloadItem()
+        item.flag = Command.TYPE_APP
+        if (appCheckBean!!.appSize != 0L) {
+            item.size = appCheckBean!!.appSize
+        }
+        item.name = appCheckBean!!.appName!!
+        val list: MutableList<DownloadItem> = ArrayList()
+        list.add(item)
+        bean.downloadList = list
+        return bean
+    }
+
 }

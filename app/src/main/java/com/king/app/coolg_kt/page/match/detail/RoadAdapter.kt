@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.match.score
+package com.king.app.coolg_kt.page.match.detail
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

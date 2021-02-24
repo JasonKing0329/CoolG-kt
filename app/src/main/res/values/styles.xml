@@ -383,6 +383,33 @@
         <item name="android:background">@drawable/selector_border</item>
     </style>
 
+    <style name="TabLayoutTextStyle" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/text_common_14</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="TvTag">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/records_tag_height</item>
+        <item name="android:paddingLeft">@dimen/records_tag_padding</item>
+        <item name="android:paddingRight">@dimen/records_tag_padding</item>
+        <item name="android:textColor">@drawable/selector_studio_tag_text</item>
+        <item name="android:background">@drawable/selector_studio_tag_bg</item>
+        <item name="android:textSize">@dimen/records_tag_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TvTagPeriod">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/records_tag_height</item>
+        <item name="android:paddingLeft">@dimen/records_tag_padding</item>
+        <item name="android:paddingRight">@dimen/records_tag_padding</item>
+        <item name="android:textColor">@drawable/selector_period_tag_text</item>
+        <item name="android:background">@drawable/selector_period_tag_bg</item>
+        <item name="android:textSize">@dimen/records_tag_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <dimen name="dlg_icon_size">45dp</dimen>
     <dimen name="dlg_icon_padding">10dp</dimen>
 </resources>

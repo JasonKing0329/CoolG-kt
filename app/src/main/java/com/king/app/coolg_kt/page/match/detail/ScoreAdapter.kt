@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.match.score
+package com.king.app.coolg_kt.page.match.detail
 
 import android.view.LayoutInflater
 import android.view.View
@@ -82,9 +82,10 @@ class ScoreAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun onBindHead(binding: AdapterScoreHeadBinding, position: Int, scoreHead: ScoreHead) {
         binding.bean = scoreHead
-        binding.ivHead.setOnClickListener { onPageListener?.onClickRecord(scoreHead.recordId) }
-        binding.groupRankHigh.setOnClickListener { onPageListener?.onClickRank(scoreHead.recordId) }
-        binding.groupRankLow.setOnClickListener { onPageListener?.onClickRank(scoreHead.recordId) }
+        binding.tvPeriodSpecific.text = scoreHead.periodSpecificText
+        binding.tvPeriodRank.setOnClickListener { onPageListener?.onPeriodType(0, scoreHead) }
+        binding.tvPeriodRtf.setOnClickListener { onPageListener?.onPeriodType(1, scoreHead) }
+        binding.tvPeriodSpecific.setOnClickListener { onPageListener?.onPeriodType(2, scoreHead) }
     }
 
     private fun onBindLevel(binding: AdapterScoreTitleBinding, position: Int, head: ScoreTitle) {
@@ -108,8 +109,11 @@ class ScoreAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     interface OnPageListener {
-        fun onClickRank(recordId: Long)
-        fun onClickRecord(recordId: Long)
         fun onClickScore(position: Int, scoreBean: ScoreBean)
+
+        /**
+         * @param type 0:period rank, 1: race to final, 2:specific period
+         */
+        fun onPeriodType(type: Int, scoreHead: ScoreHead)
     }
 }

@@ -9,8 +9,8 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawFinalBinding
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
-import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -137,7 +137,7 @@ class FinalDrawActivity: BaseActivity<ActivityMatchDrawFinalBinding, FinalDrawVi
     }
 
     private fun recordPage(record: Record) {
-        ScoreActivity.startRecordPage(this, record.id!!)
+        DetailActivity.startRecordPage(this, record.id!!)
     }
 
     override fun initData() {

@@ -53,7 +53,7 @@ abstract class BaseRepository {
             // 当前结束的orderInPeriod小于45，计分周期为 last(orderInPeriod + 1) to orderInPeriod
             bean.startPeriod = 0
             bean.startPIO = 0
-            if (period.orderInPeriod == 45 || period.orderInPeriod == 46) {
+            if (period.orderInPeriod == MatchConstants.MAX_ORDER_IN_PERIOD - 1 || period.orderInPeriod == MatchConstants.MAX_ORDER_IN_PERIOD) {
                 bean.startPeriod = period.period
                 bean.startPIO = 1
             } else {
@@ -80,7 +80,7 @@ abstract class BaseRepository {
             // 当前结束的orderInPeriod小于45，计分周期为 last(orderInPeriod + 1) to orderInPeriod
             bean.startPeriod = 0
             bean.startPIO = 0
-            if (period.orderInPeriod == 45 || period.orderInPeriod == 46) {
+            if (period.orderInPeriod == MatchConstants.MAX_ORDER_IN_PERIOD - 1 || period.orderInPeriod == MatchConstants.MAX_ORDER_IN_PERIOD) {
                 bean.startPeriod = period.period
                 bean.startPIO = 1
             } else {
@@ -107,6 +107,34 @@ abstract class BaseRepository {
         return bean
     }
 
+    /**
+     * All time
+     */
+    fun getAllTimePeriodPack(): PeriodPack {
+        var bean = PeriodPack()
+        var last = getDatabase().getMatchDao().getLastMatchPeriod()
+        last?.let { period ->
+            bean.matchPeriod = period
+            bean.endPeriod = period.period
+            bean.endPIO = period.orderInPeriod
+            bean.startPeriod = 1
+            bean.startPIO = 1
+        }
+        return bean
+    }
+
+    /**
+     * Specific Period
+     */
+    fun getSpecificPeriodPack(period: Int): PeriodPack {
+        var bean = PeriodPack()
+        bean.endPeriod = period
+        bean.endPIO = MatchConstants.MAX_ORDER_IN_PERIOD
+        bean.startPeriod = period
+        bean.startPIO = 1
+        return bean
+    }
+
     fun getNextPeriod(showPeriod: ShowPeriod): ShowPeriod {
         var period = showPeriod.period
         var orderInPeriod = showPeriod.orderInPeriod + 1
@@ -126,4 +154,17 @@ abstract class BaseRepository {
         }
         return ShowPeriod(period, orderInPeriod)
     }
+
+    fun getAllPeriods(): List<Int> {
+        val list = mutableListOf<Int>()
+        // 取最近一站已完成的为截至日期
+        var last = getDatabase().getMatchDao().getLastMatchPeriod()
+        last?.let {
+            for (i in 1..it.period) {
+                list.add(i)
+            }
+        }
+        return list
+    }
+
 }

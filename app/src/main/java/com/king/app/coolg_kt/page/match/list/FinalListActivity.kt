@@ -11,9 +11,9 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivityMatchFinalListBinding
 import com.king.app.coolg_kt.page.match.FinalListItem
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
 import com.king.app.coolg_kt.page.match.draw.FinalDrawActivity
-import com.king.app.coolg_kt.page.match.score.ScoreActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -48,7 +48,7 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
 
         adapter.onClickRecordListener = object : FinalListAdapter.OnClickRecordListener {
             override fun onClickRecord(matchRecordWrap: MatchRecordWrap) {
-                ScoreActivity.startRecordPage(this@FinalListActivity, matchRecordWrap.bean.recordId)
+                DetailActivity.startRecordPage(this@FinalListActivity, matchRecordWrap.bean.recordId)
             }
         }
         adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<FinalListItem> {

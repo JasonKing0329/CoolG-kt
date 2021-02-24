@@ -7,18 +7,11 @@
         android:orientation="horizontal">
         <TextView
             android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/records_tag_height"
-            android:paddingLeft="@dimen/records_tag_padding"
-            android:paddingRight="@dimen/records_tag_padding"
-            android:textColor="@drawable/selector_studio_tag_text"
-            android:background="@drawable/selector_studio_tag_bg"
-            android:textSize="@dimen/records_tag_text"
-            android:gravity="center"
+            style="@style/TvTag"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" />
         <ImageView
             android:id="@+id/iv_remove"
             android:layout_width="@dimen/records_tag_remove_size"

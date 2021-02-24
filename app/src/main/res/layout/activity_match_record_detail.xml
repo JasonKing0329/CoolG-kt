@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.detail.DetailViewModel"/>
+    </data>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/group_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stateListAnimator="@null"
+            android:background="@color/white">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:title="@{model.toolbarText}"
+                app:contentScrim="@color/actionbar_bg"
+                app:scrimVisibleHeightTrigger="100dp"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/img_height_in_full_screen_std">
+
+                    <ImageView
+                        android:id="@+id/iv_head"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="fitXY"
+                        app:recordUrl="@{model.headData.imageUrl}"/>
+
+                    <TextView
+                        android:id="@id/tv_score"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="30dp"
+                        android:textColor="@color/white"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="10"
+                        android:text="@{model.headData.score}"
+                        app:layout_constraintVertical_chainStyle="packed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/iv_head"
+                        app:layout_constraintBottom_toTopOf="@+id/tv_score_no"
+                        tools:text="7795"/>
+                    <TextView
+                        android:id="@+id/tv_score_no"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14dp"
+                        android:textColor="@color/white"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="10"
+                        android:text="@{model.headData.scoreNoCount}"
+                        android:layout_marginTop="0dp"
+                        app:layout_constraintStart_toStartOf="@id/tv_score"
+                        app:layout_constraintEnd_toEndOf="@id/tv_score"
+                        app:layout_constraintTop_toBottomOf="@id/tv_score"
+                        app:layout_constraintBottom_toBottomOf="@+id/iv_head"
+                        tools:text="(270)"/>
+                    <TextView
+                        android:id="@id/tv_rank"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="22dp"
+                        android:textColor="@color/white"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="10"
+                        android:text="@{model.headData.rank}"
+                        android:layout_marginStart="16dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_score"
+                        app:layout_constraintBottom_toBottomOf="@+id/iv_head"
+                        tools:text="16 (R-118)"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/actionbar_height"
+                    app:title="Glory"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/CustomActionBarTheme.PopupOverlay"
+                    app:contentInsetStart="0dp"
+                    app:contentInsetLeft="0dp">
+                    <com.king.app.jactionbar.JActionbar
+                        android:id="@+id/actionbar"
+                        style="@style/CommonJActionBar"
+                        android:layout_width="match_parent"
+                        app:title="Glory"
+                        app:menu="@menu/match_score"
+                        android:background="#00000000"/>
+                </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/actionbar_bg"
+                app:tabTextAppearance="@style/TabLayoutTextStyle"
+                app:tabGravity="fill"
+                app:tabMode="scrollable"
+                app:tabSelectedTextColor="@color/colorAccent"
+                app:tabTextColor="@color/actionbar_element"
+                app:tabIndicatorColor="@color/colorAccent" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

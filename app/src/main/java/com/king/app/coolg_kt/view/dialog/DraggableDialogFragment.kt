@@ -102,16 +102,16 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
      */
     override fun onResume() {
         super.onResume()
-        if (fixedHeight > 0 || fixedWidth > 0) {
-            var dm = DisplayMetrics()
-            requireActivity().windowManager.defaultDisplay.getMetrics(dm)
-            // 按比例可以这样设置：(int) (dm.widthPixels * 0.75)
-            var height = if (fixedHeight > 0) fixedHeight
-            else ViewGroup.LayoutParams.WRAP_CONTENT
-            var width = if (fixedWidth > 0) fixedWidth
-            else ViewGroup.LayoutParams.MATCH_PARENT
-            dialog?.window?.setLayout(width, height)
-        }
+//        if (fixedHeight > 0 || fixedWidth > 0) {
+//            var dm = DisplayMetrics()
+//            requireActivity().windowManager.defaultDisplay.getMetrics(dm)
+//            // 按比例可以这样设置：(int) (dm.widthPixels * 0.75)
+//            var height = if (fixedHeight > 0) fixedHeight
+//            else ViewGroup.LayoutParams.WRAP_CONTENT
+//            var width = if (fixedWidth > 0) fixedWidth
+//            else ViewGroup.LayoutParams.MATCH_PARENT
+//            dialog?.window?.setLayout(width, height)
+//        }
     }
 
     /**

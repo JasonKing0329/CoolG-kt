@@ -1,5 +1,8 @@
 package com.king.app.coolg_kt.page.match
 
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import com.king.app.coolg_kt.BR
 import com.king.app.coolg_kt.view.widget.chart.adapter.LineData
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
@@ -70,24 +73,89 @@ data class ScoreTitle (
     var name: String,
     var color: Int
 )
-data class ScoreHead (
-    var recordId: Long,
-    var score: String = "",
-    var scoreNoCount: String = "",
-    var rank: String = "",
-    var name: String = "",
-    var matchCount: String = "",
-    var periodMatches: String = "",
-    var best: String = "",
-    var bestSub: String = "",
-    var rankHigh: String = "",
-    var rankHighFirst: String = "",
-    var rankHighWeeks: String = "",
-    var rankLow: String = "",
-    var rankLowFirst: String = "",
-    var rankLowWeeks: String = "",
+class DetailHead: BaseObservable() {
+
+    @get:Bindable
+    var score: String = ""
+        set(score) {
+            field = score
+            notifyPropertyChanged(BR.score)
+        }
+
+    @get:Bindable
+    var scoreNoCount: String = ""
+        set(scoreNoCount) {
+            field = scoreNoCount
+            notifyPropertyChanged(BR.scoreNoCount)
+        }
+
+    var rank: String = ""
     var imageUrl: String? = null
-)
+}
+
+class DetailBasic: BaseObservable() {
+
+    var name: String = ""
+
+    @get:Bindable
+    var matchCount: String = ""
+        set(matchCount) {
+            field = matchCount
+            notifyPropertyChanged(BR.matchCount)
+        }
+
+
+    @get:Bindable
+    var periodMatches: String = ""
+        set(periodMatches) {
+            field = periodMatches
+            notifyPropertyChanged(BR.periodMatches)
+        }
+
+    @get:Bindable
+    var best: String = ""
+        set(best) {
+            field = best
+            notifyPropertyChanged(BR.best)
+        }
+
+    @get:Bindable
+    var bestSub: String = ""
+        set(bestSub) {
+            field = bestSub
+            notifyPropertyChanged(BR.bestSub)
+        }
+
+    var rankHigh: String = ""
+    var rankHighFirst: String = ""
+    var rankHighWeeks: String = ""
+    var rankLow: String = ""
+    var rankLowFirst: String = ""
+    var rankLowWeeks: String = ""
+}
+class ScoreHead: BaseObservable() {
+
+    @get:Bindable
+    var selectedType = 0
+        set(selectedType) {
+            field = selectedType
+            notifyPropertyChanged(BR.selectedType)
+        }
+
+    @get:Bindable
+    var periodSpecificText: String = ""
+        set(periodSpecificText) {
+            field = periodSpecificText
+            notifyPropertyChanged(BR.periodSpecificText)
+        }
+
+    @get:Bindable
+    var scoreText: String = ""
+        set(scoreText) {
+            field = scoreText
+            notifyPropertyChanged(BR.scoreText)
+        }
+}
 
 data class RoadBean (
     var round: String,

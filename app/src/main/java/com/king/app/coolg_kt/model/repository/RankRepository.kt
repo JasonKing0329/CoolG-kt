@@ -179,6 +179,13 @@ class RankRepository: BaseRepository() {
     /**
      * @return 按score降序排列
      */
+    fun getPeriodScores(recordId: Long, pack: PeriodPack): List<MatchScoreRecordWrap> {
+        return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
+    }
+
+    /**
+     * @return 按score降序排列
+     */
     fun getRecordRankPeriodScores(recordId: Long): List<MatchScoreRecordWrap> {
         var pack = getCompletedPeriodPack()
         return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
@@ -221,6 +228,13 @@ class RankRepository: BaseRepository() {
 
     fun getRecordMatchItems(recordId: Long, pack: PeriodPack): List<MatchItem> {
         return getDatabase().getMatchDao().getRecordMatchItems(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
+    }
+
+    fun getRecordMatchItemsRange(recordId: Long, pack: PeriodPack): List<MatchItem> {
+        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+        return getDatabase().getMatchDao().getRecordMatchItemsRange(recordId, rangeStart, rangeEnd, circleTotal)
     }
 
 }

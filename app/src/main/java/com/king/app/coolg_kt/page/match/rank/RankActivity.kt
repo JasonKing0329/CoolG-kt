@@ -14,11 +14,9 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchRankBinding
-import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.RankItem
-import com.king.app.coolg_kt.page.match.score.ScoreActivity
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
-import com.king.app.coolg_kt.page.record.popup.SortDialogContent
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.Record
@@ -146,7 +144,8 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             adapter.onItemListener = object : RankAdapter.OnItemListener<Record?> {
                 override fun onClickScore(bean: RankItem<Record?>) {
                     bean.bean?.let { record ->
-                        ScoreActivity.startRecordPage(this@RankActivity, record.id!!)
+                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
+//                        ScoreActivity.startRecordPage(this@RankActivity, record.id!!)
                     }
                 }
 

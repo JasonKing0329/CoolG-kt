@@ -38,6 +38,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
         get() = recordWrap?.bean?.id?:0
 
     fun loadRankPeriod() {
+        curPeriodPack = rankRepository.getRankPeriodPack()
         convertRecordScores(recordId, rankRepository.getRecordRankPeriodScores(recordId))
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
@@ -59,6 +60,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun loadPeriod(period: Int) {
+        curPeriodPack = rankRepository.getSpecificPeriodPack(period)
         loadPeriodScores(recordId, period)
     }
 

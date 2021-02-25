@@ -64,8 +64,8 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
         list.add(BasicFragment())
         list.add(ScoreFragment())
         list.add(ChampionFragment())
-//        list.add(ChampionFragment())
-//        list.add(ChampionFragment())
+        list.add(GsFragment())
+        list.add(Gm1000Fragment())
         pagerAdapter = DetailPagerAdapter(this, list)
         mBinding.viewpager.adapter = pagerAdapter
 

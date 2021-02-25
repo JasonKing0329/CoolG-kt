@@ -23,6 +23,9 @@ interface MatchDao {
     @Query("select * from `match` order by orderInPeriod")
     fun getAllMatchesByOrder(): List<Match>
 
+    @Query("select * from `match` where level=:level order by orderInPeriod")
+    fun getMatchByLevel(level: Int): List<Match>
+
     @Query("select * from `match_period` where id=:id")
     fun getMatchPeriod(id: Long): MatchPeriodWrap
 
@@ -266,5 +269,11 @@ interface MatchDao {
      */
     @Query("select r._id as recordId, (case when mrr.rank>0 then mrr.rank else 9999 end) as rank, 0 as seed from record r left join match_rank_record mrr on r._id=mrr.recordId and period=:period and orderInPeriod=:orderInPeriod join count_record cr on r._id=cr._id where cr.RANK<=:rankLimit or mrr.rank>0 order by rank")
     fun getRankRecords(rankLimit: Int, period: Int, orderInPeriod: Int): List<RankRecord>
+
+    /**
+     * record在match指定时期的结果轮次
+     */
+    @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id and mp.matchId=:matchId and mp.period=:period join match_score_record msr on mi.id=msr.matchItemId and msr.recordId=:recordId")
+    fun getResultMatchItem(recordId: Long, matchId: Long, period: Int): MatchItem?
 
 }

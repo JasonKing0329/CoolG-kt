@@ -244,3 +244,10 @@ data class ChampionLevel(
     var levelId: Int = 0,
     var count: Int = 0
 )
+
+data class RoundItem(
+    var isTitle: Boolean = false,
+    var isPeriod: Boolean = false,
+    var text: String = "",
+    var matchPeriodId: Long = 0
+)

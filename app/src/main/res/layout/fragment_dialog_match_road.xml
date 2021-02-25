@@ -7,13 +7,64 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <com.king.app.coolg_kt.view.widget.rc.RCImageView
+            android:id="@+id/iv_record"
+            android:layout_width="140dp"
+            android:layout_height="80dp"
+            android:src="@drawable/def_small"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/text_second"
+            app:layout_constraintStart_toEndOf="@+id/iv_record"
+            app:layout_constraintTop_toTopOf="@+id/iv_record"
+            tools:text="P3-W23" />
+
+        <TextView
+            android:id="@+id/tv_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/text_second"
+            app:layout_constraintStart_toEndOf="@+id/tv_date"
+            app:layout_constraintTop_toTopOf="@+id/tv_date"
+            tools:text="Grand Slam" />
+
+        <TextView
+            android:id="@+id/tv_match"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/text_second"
+            app:layout_constraintStart_toStartOf="@+id/tv_date"
+            app:layout_constraintTop_toBottomOf="@+id/tv_date"
+            tools:text="Lucas Entertainment" />
+
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/text_second"
+            app:layout_constraintStart_toStartOf="@+id/tv_date"
+            app:layout_constraintTop_toBottomOf="@+id/tv_match"
+            tools:text="[16]/254" />
+
         <TextView
             android:id="@+id/tv_result"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/red_f1303d"
+            app:layout_constraintStart_toEndOf="@+id/tv_rank"
+            app:layout_constraintTop_toTopOf="@+id/tv_rank"
             tools:text="SF" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -21,12 +72,13 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_result" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_record" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

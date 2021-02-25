@@ -71,7 +71,7 @@ class ScoreFragment: AbsDetailChildFragment<FragmentMatchDetailScoreBinding, Sco
         var dialog = DraggableDialogFragment()
         dialog.setTitle("Upgrade Road")
         dialog.contentFragment = content
-        dialog.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
+        dialog.fixedHeight = content.idealHeight
         dialog.show(childFragmentManager, "RoadDialog")
     }
 

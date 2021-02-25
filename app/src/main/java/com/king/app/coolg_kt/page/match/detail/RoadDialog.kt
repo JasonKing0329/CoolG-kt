@@ -41,8 +41,6 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
         loadRecordRoad();
     }
 
-
-
     private fun loadRecordRoad() {
         var dao = CoolApplication.instance.database!!.getMatchDao()
         var list = dao.getMatchItems(matchPeriodId, recordId).sortedByDescending { MatchConstants.getRoundSortValue(it.bean.round) }

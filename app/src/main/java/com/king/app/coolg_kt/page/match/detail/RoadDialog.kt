@@ -48,7 +48,7 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
                 , ImageProvider.getRecordRandomPath(record?.name, null), seed)
             data.add(bean)
 
-            if (index == list.size - 1) {
+            if (index == 0) {
                 val roadRecord = it.recordList.first { item -> item.recordId == recordId }
                 val result = MatchConstants.roundResultShort(it.bean.round, it.bean.winnerId == recordId)
                 var seed = if (roadRecord.recordSeed?:0 > 0) " Seed [${roadRecord.recordSeed}]" else ""

@@ -12,6 +12,7 @@ import com.king.app.coolg_kt.page.match.*
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
+import java.text.DecimalFormat
 
 /**
  * @description:
@@ -36,6 +37,9 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
     var showRankDialog = MutableLiveData<Boolean>()
 
     var basicPeriodType = 0 // 0:rank period, 1: all time, 2:specific period
+
+    var championPerTotalText = ""
+    var championRateText = ""
 
     fun loadRecord(recordId: Long) {
         mRecordId = recordId
@@ -198,5 +202,55 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
         val list = mutableListOf<String>()
         periods.forEach { list.add(it.toString()) }
         return list.toTypedArray()
+    }
+
+    fun getChampionItems(): List<ChampionItem> {
+        return getFinalItems(true)
+    }
+
+    fun getRunnerUpItems(): List<ChampionItem> {
+        return getFinalItems(false)
+    }
+
+    private fun getFinalItems(isWin: Boolean): List<ChampionItem> {
+        val list = mutableListOf<ChampionItem>()
+        val finalList = getDatabase().getMatchDao().getRecordMatchItemsByRound(mRecordId, MatchConstants.ROUND_ID_F)
+        var passCount = 0
+        finalList.forEach {
+            val isPass = if (isWin) it.bean.winnerId == mRecordId
+                else it.bean.winnerId != mRecordId
+            if (isPass) {
+                passCount ++
+                val match = getDatabase().getMatchDao().getMatchPeriod(it.bean.matchId)
+                val item = ChampionItem(mRecordId, match.bean.id!!)
+                item.date = "P${match.bean.period}-W${match.bean.orderInPeriod}"
+                item.levelId = match.match.level
+                item.level = MatchConstants.MATCH_LEVEL[match.match.level]
+                item.name = match.match.name
+                it.recordList.forEach { record ->
+                    if (record.recordId != mRecordId) {
+                        var seed = ""
+                        record.recordSeed?.let { s ->
+                            if (s > 0) {
+                                seed = "[$s]/"
+                            }
+                        }
+                        val recordBean = getDatabase().getRecordDao().getRecordBasic(record.recordId)
+                        val head = if (isWin) "d. " else "lose. "
+                        item.opponent = "$head$seed${record.recordRank} ${recordBean?.name}"
+                    }
+                }
+                list.add(item)
+            }
+        }
+        // index是倒序，开始设置
+        list.forEachIndexed { index, championItem ->
+            championItem.index = (list.size - index).toString()
+        }
+        championPerTotalText = "$passCount/${finalList.size}"
+        val rate = passCount.toFloat() / finalList.size
+        val format = DecimalFormat("#.#%")
+        championRateText = format.format(rate)
+        return list
     }
 }

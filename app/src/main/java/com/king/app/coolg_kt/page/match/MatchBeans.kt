@@ -227,3 +227,20 @@ class LineChartData {
     var lineList: MutableList<LineData> = mutableListOf()
 
 }
+
+data class ChampionItem(
+    var recordId: Long,
+    var matchPeriodId: Long,
+    var index: String = "",
+    var level: String = "",
+    var levelId: Int = 0,
+    var date: String = "",
+    var name: String = "",
+    var opponent: String = ""
+)
+
+data class ChampionLevel(
+    var level: String = "",
+    var levelId: Int = 0,
+    var count: Int = 0
+)

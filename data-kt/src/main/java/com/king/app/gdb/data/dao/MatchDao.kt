@@ -53,6 +53,9 @@ interface MatchDao {
     @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
     fun getMatchItemsByRound(round: Int): List<MatchItemWrap>
 
+    @Query("select mi.* from match_item mi join match_record mr on mi.id=mr.matchItemId and mr.recordId=:recordId join match_period mp on mi.matchId=mp.id where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
+    fun getRecordMatchItemsByRound(recordId: Long, round: Int): List<MatchItemWrap>
+
     @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id join `match` m on mp.matchId=m.id and m.level=:level where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
     fun getMatchItemsByRoundLevel(round: Int, level: Int): List<MatchItemWrap>
 

@@ -38,9 +38,6 @@ class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, Emp
             }
         }
         mBinding.tvPeriodSpecific.setOnClickListener {
-            onSelectChanged(mBinding.tvPeriodSpecific)
-            periodType = 2
-            it.isSelected = true
             selectPeriod()
         }
         mBinding.groupRankHigh.setOnClickListener { mainViewModel.showRankDialog.value = true }
@@ -57,6 +54,10 @@ class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, Emp
         val array = mainViewModel.getPeriodsToSelect()
         AlertDialogFragment()
             .setItems(array) { dialog, which ->
+                onSelectChanged(mBinding.tvPeriodSpecific)
+                periodType = 2
+                mBinding.tvPeriodSpecific.isSelected = true
+
                 mainViewModel.loadBasic(2, which + 1)
                 mBinding.tvPeriodSpecific.text = "Period ${which + 1}"
             }

@@ -71,6 +71,18 @@ interface MatchDao {
     @Query("select mi.* from match_item mi join match_record mr on mi.id=mr.matchItemId join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where mr.recordId=:recordId and mi.winnerId>0")
     fun getRecordMatchItemsRange(recordId: Long, rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<MatchItem>
 
+    /**
+     * 指定时期内的指定轮次胜利的次数
+     */
+    @Query("select count(*) from match_item mi join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where mi.winnerId=:recordId and mi.round=:round")
+    fun countRecordWinIn(recordId: Long, round: Int, rangeStart: Int, rangeEnd: Int, circleTotal: Int): Int
+
+    @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where msr.recordId=:recordId order by msr.score desc")
+    fun getRecordScoresInPeriodRange(recordId: Long, rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<MatchScoreRecord>
+
+    @Query("select msr.score from match_score_record msr join match_period mp on msr.matchId=mp.id and mp.period=:period and mp.orderInPeriod=:orderInPeriod where msr.recordId=:recordId")
+    fun getRecordScoreBy(recordId: Long, period: Int, orderInPeriod: Int): Int
+
     @Query("select * from match_record")
     fun getAllMatchRecords(): List<MatchRecord>
 
@@ -118,6 +130,9 @@ interface MatchDao {
 
     @Query("select max(msr.score) from record_star rs join match_score_record msr on rs.RECORD_ID=msr.recordId join match_period mp on msr.matchId=mp.id and mp.period=:period and mp.orderInPeriod<=:maxOrderInPeriod where rs.STAR_ID=:starId group by msr.recordId order by max(msr.score) desc limit 3")
     fun getStarTop3Records(starId: Long, period: Int, maxOrderInPeriod: Int): List<Int>
+
+    @Query("select * from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by rank limit 30")
+    fun getTop30RankRecord(period: Int, orderInPeriod: Int): List<MatchRankRecord>
 
     @Insert
     fun insertMatches(list: List<Match>)
@@ -254,6 +269,9 @@ interface MatchDao {
     @Query("select count(*) from match_rank_star where period=:period and orderInPeriod=:orderInPeriod")
     fun countStarRankItems(period: Int, orderInPeriod: Int): Int
 
+    /**
+     * 获取周期内积分，降序排列（不支持跨多周期）
+     */
     @Query("select msr.*, m.id as matchRealId from match_score_record msr join match_period mp on msr.matchId=mp.id join 'match' m on mp.matchId=m.id where ((mp.period=:startPeriod and mp.orderInPeriod>=:startPIO) or (mp.period=:endPeriod and mp.orderInPeriod<=:endPIO)) and msr.recordId=:recordId order by msr.score desc")
     fun getRecordScoresInPeriod(recordId: Long, startPeriod: Int, startPIO: Int, endPeriod: Int, endPIO: Int): List<MatchScoreRecordWrap>
 

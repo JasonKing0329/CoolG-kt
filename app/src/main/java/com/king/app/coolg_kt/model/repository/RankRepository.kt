@@ -6,6 +6,7 @@ import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchRankRecord
+import com.king.app.gdb.data.entity.match.MatchScoreRecord
 import com.king.app.gdb.data.relation.MatchRankRecordWrap
 import com.king.app.gdb.data.relation.MatchRankStarWrap
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
@@ -198,6 +199,16 @@ class RankRepository: BaseRepository() {
         return getDatabase().getMatchDao().getRecordScoresInPeriod(recordId, period, 0, period, MatchConstants.MAX_ORDER_IN_PERIOD)
     }
 
+    /**
+     * @return 按score降序排列
+     */
+    fun getRecordPeriodScoresRange(recordId: Long, pack: PeriodPack): List<MatchScoreRecord> {
+        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+        return getDatabase().getMatchDao().getRecordScoresInPeriodRange(recordId, rangeStart, rangeEnd, circleTotal)
+    }
+
     fun getRecordCurrentRank(recordId: Long): Int {
         var pack = getCompletedPeriodPack()
         pack.matchPeriod?.let {
@@ -205,6 +216,25 @@ class RankRepository: BaseRepository() {
             rankItem?.let { item -> return item.rank }
         }
         return -1
+    }
+
+    /**
+     * return [0]score [1]scoreNotCount
+     */
+    fun getRecordCurrentScore(recordId: Long): Array<Int> {
+        val list = getRecordRankPeriodScores(recordId)
+        var score = 0
+        var scoreNotCount = 0
+        list.forEachIndexed { index, wrap ->
+            val isNotCount = index >= MatchConstants.MATCH_COUNT_SCORE
+            if (isNotCount) {
+                scoreNotCount += wrap.bean.score
+            }
+            else {
+                score += wrap.bean.score
+            }
+        }
+        return arrayOf(score, scoreNotCount)
     }
 
     fun getRecordRankToDraw(recordId: Long): Int {
@@ -235,6 +265,13 @@ class RankRepository: BaseRepository() {
         val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
         val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
         return getDatabase().getMatchDao().getRecordMatchItemsRange(recordId, rangeStart, rangeEnd, circleTotal)
+    }
+
+    fun countRecordTitlesIn(recordId: Long, pack: PeriodPack): Int {
+        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+        return getDatabase().getMatchDao().countRecordWinIn(recordId, MatchConstants.ROUND_ID_F, rangeStart, rangeEnd, circleTotal)
     }
 
 }

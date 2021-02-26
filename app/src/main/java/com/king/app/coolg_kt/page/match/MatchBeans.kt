@@ -98,12 +98,18 @@ class DetailBasic: BaseObservable() {
     var name: String = ""
 
     @get:Bindable
+    var titles: String = ""
+        set(titles) {
+            field = titles
+            notifyPropertyChanged(BR.titles)
+        }
+
+    @get:Bindable
     var matchCount: String = ""
         set(matchCount) {
             field = matchCount
             notifyPropertyChanged(BR.matchCount)
         }
-
 
     @get:Bindable
     var periodMatches: String = ""

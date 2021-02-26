@@ -175,13 +175,44 @@
             app:layout_constraintTop_toTopOf="@+id/tv_period_rank"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/group_match_count"
+            android:id="@+id/group_titles"
             style="@style/GroupWhiteSecItem"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:layout_width="match_parent"
             android:layout_marginTop="10dp"
             app:layout_constraintTop_toBottomOf="@+id/tv_period_rank">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="Titles"/>
+            <TextView
+                android:id="@+id/tv_titles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{bean.titles}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="10"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/vertical_divider"
+                android:background="@color/divider"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/group_match_count"
+            style="@style/GroupWhiteSecItem"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/group_titles">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

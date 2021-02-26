@@ -3,7 +3,6 @@ package com.king.app.coolg_kt.page.match.detail
 import android.app.Application
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
-import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.image.ImageProvider
@@ -11,7 +10,6 @@ import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.*
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.RecordWrap
-import io.reactivex.rxjava3.core.Observable
 import java.text.DecimalFormat
 
 /**
@@ -58,6 +56,12 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
                 }
             }
             rankTxt?.let { text -> detailHead.rank = text }
+            // score
+            val scores = rankRepository.getRecordCurrentScore(mRecordId)
+            detailHead.score = scores[0].toString()
+            if (scores[1] > 0) {
+                detailHead.scoreNoCount = scores[1].toString()
+            }
         }
 
         headData.set(detailHead)
@@ -68,7 +72,7 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
         countRank()
         val pack = getPeriodPack(type, specificPeriod)
         countWinLose(pack)
-        countBest(pack)
+        countPeriodRelated(pack)
     }
 
     private fun getPeriodPack(type: Int, specificPeriod: Int): PeriodPack {
@@ -117,59 +121,32 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
         detailBasic.periodMatches = "${win}胜${lose}负"
     }
 
-    private fun countBest(pack: PeriodPack) {
-        val scoreList = rankRepository.getPeriodScores(mRecordId, pack)
+    /**
+     * 统计period范围内相关信息
+     */
+    private fun countPeriodRelated(pack: PeriodPack) {
+        val scoreList = rankRepository.getRecordPeriodScoresRange(mRecordId, pack)
         detailBasic.matchCount = scoreList.size.toString()
 
-        // 按level归类，统计best, score not count
-        var score = 0
-        var scoreNotCount = 0
+        // 统计best, score not count
         var best = 0
         var bestTimes = 0
         var bestMatches = mutableListOf<Match>()
-        var map = mutableMapOf<Int, MutableList<ScoreBean>?>()
 
         scoreList.forEachIndexed { index, wrap ->
-            var match = getDatabase().getMatchDao().getMatch(wrap.matchRealId)
-            var items = map[match.level]
-            if (items == null) {
-                items = mutableListOf()
-                map[match.level] = items
-            }
-            if (wrap.bean.score > best) {
-                best = wrap.bean.score
+            var match = getDatabase().getMatchDao().getMatchPeriod(wrap.matchId).match
+            if (wrap.score > best) {
+                best = wrap.score
                 bestTimes = 1
                 bestMatches.clear()
                 bestMatches.add(match)
             }
-            else if (wrap.bean.score == best) {
+            else if (wrap.score == best) {
                 bestTimes ++
                 bestMatches.add(match)
             }
-            val isWinner = wrap.matchItem.winnerId == mRecordId
-            val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.matchItem.matchId)
-            var isCompleted = false
-            pack.matchPeriod?.let { curPeriod ->
-                isCompleted = matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
-            }
-            val isChampion = isWinner && wrap.matchItem.round == MatchConstants.ROUND_ID_F
-            val isNotCount = index >= MatchConstants.MATCH_COUNT_SCORE
-            var scoreBean = ScoreBean(wrap.bean.score, match.name, MatchConstants.roundResultShort(wrap.matchItem.round, isWinner),
-                isCompleted, isChampion, isNotCount, matchPeriod.bean, wrap.matchItem, match)
-            items.add(scoreBean)
-
-            if (isNotCount) {
-                scoreNotCount += wrap.bean.score
-            }
-            else {
-                score += wrap.bean.score
-            }
         }
-        // head信息
-        detailHead.score = score.toString()
-        if (scoreNotCount > 0) {
-            detailHead.scoreNoCount = scoreNotCount.toString()
-        }
+        // best information
         if (bestTimes > 1) {
             detailBasic.best = "$best($bestTimes times)"
             val buffer = StringBuffer()
@@ -195,6 +172,8 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
                 detailBasic.bestSub = "${bestMatches[0].name}(${MatchConstants.MATCH_LEVEL[bestMatches[0].level]})"
             }
         }
+        // titles
+        detailBasic.titles = rankRepository.countRecordTitlesIn(mRecordId, pack).toString()
     }
 
     fun getPeriodsToSelect(): Array<String> {

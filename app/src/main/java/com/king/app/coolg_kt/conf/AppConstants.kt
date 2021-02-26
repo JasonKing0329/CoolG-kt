@@ -102,6 +102,6 @@ object AppConstants {
     const val VIEW_TYPE_GRID = 1
     const val VIEW_TYPE_GRID_TAB = 2
 
-    val timeParams = arrayOf("5秒", "10秒", "15秒", "20秒", "30秒", "1分钟")
-    val timeParamValues = arrayOf(5, 10, 15, 20, 30, 60)
+    val timeParams = arrayOf("5秒", "10秒", "15秒", "20秒", "30秒", "1分钟", "5分钟", "10分钟", "20分钟", "30分钟")
+    val timeParamValues = arrayOf(5, 10, 15, 20, 30, 60, 300, 600, 1200, 1800)
 }

@@ -51,6 +51,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
     private var hideControlDisposable: Disposable? = null
     private var timeDisposable: Disposable? = null
+    private var saveTimeDisposable: Disposable? = null
 
     private val TIME_DISP_CTRLBAR = 5000L
 
@@ -82,6 +83,9 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
         }
         mBinding.appVideoNext.setOnClickListener {
+            // 保持状态栏激活
+            startControlBarTimer()
+
             setVideoLoading(true)
             if (!videoController.forward()) {
                 setVideoLoading(false)
@@ -89,6 +93,9 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
         }
         mBinding.appVideoLast.setOnClickListener {
+            // 保持状态栏激活
+            startControlBarTimer()
+
             setVideoLoading(true)
             if (!videoController.backward()) {
                 setVideoLoading(false)
@@ -96,6 +103,9 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             }
         }
         mBinding.tvFromStart.setOnClickListener {
+            // 保持状态栏激活
+            startControlBarTimer()
+
             setVideoLoading(true)
             videoController.playFromStart()
         }
@@ -156,6 +166,8 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 if (mBinding.layoutBottom.visibility == View.VISIBLE) {
                     startControlBarTimer()
                 }
+                // 开始轮询更新播放时间
+                loopSaveTime()
 
                 // 搜索字幕
                 mBinding.subtitleView.bindToMediaPlayer(player)
@@ -292,13 +304,24 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
     }
 
     override fun onBackPressed() {
-        mModel.updatePlayTime(mModel.currentUrl, videoController.currentTime)
+        mModel.updatePlayTime(videoController.currentTime)
         super.onBackPressed()
+    }
+
+    private fun loopSaveTime() {
+        saveTimeDisposable = Observable.interval(0, 10, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (mBinding.videoView.isPlaying) {
+                    mModel.updatePlayTime(videoController.currentTime)
+                }
+            }
     }
 
     override fun onDestroy() {
         hideControlDisposable?.dispose()
         timeDisposable?.dispose()
+        saveTimeDisposable?.dispose()
         super.onDestroy()
     }
 
@@ -341,7 +364,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                     }
                     // 返回键，记录视频播放时间
                     KeyEvent.KEYCODE_BACK -> {
-                        mModel.updatePlayTime(mModel.currentUrl, videoController.currentTime)
+                        mModel.updatePlayTime(videoController.currentTime)
                     }
                 }
             }

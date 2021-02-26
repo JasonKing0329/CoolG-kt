@@ -110,6 +110,8 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:layout_marginStart="16dp"
+                android:focusable="true"
+                android:background="@drawable/selector_border"
                 app:layout_constraintTop_toTopOf="@+id/start"
                 app:layout_constraintStart_toEndOf="@+id/iv_setting"/>
 

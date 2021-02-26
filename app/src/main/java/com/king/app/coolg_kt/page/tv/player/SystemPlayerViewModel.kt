@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.tv.player
 
 import android.app.Application
+import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.AppHttpClient
@@ -58,24 +59,26 @@ class SystemPlayerViewModel(application: Application) : BaseViewModel(applicatio
         return beans.toTypedArray()
     }
 
-    fun updatePlayTime(url: String, time: Int) {
-        kotlin.runCatching {
-            val bean = SettingProperty.getTvRemembers()
-            val exist = bean.list.firstOrNull{ it.url == url }
-            if (exist == null) {
-                // 最多记录5个
-                if (bean.list.size == 5) {
-                    bean.list.removeAt(0)
+    fun updatePlayTime(time: Int) {
+        if (!TextUtils.isEmpty(currentUrl)) {
+            kotlin.runCatching {
+                val bean = SettingProperty.getTvRemembers()
+                val exist = bean.list.firstOrNull{ it.url == currentUrl }
+                if (exist == null) {
+                    // 最多记录5个
+                    if (bean.list.size == 5) {
+                        bean.list.removeAt(0)
+                    }
+                    bean.list.add(PlayTime(currentUrl, time))
                 }
-                bean.list.add(PlayTime(url, time))
+                else {
+                    exist.time = time
+                    // 已存在的调整到最后一个
+                    bean.list.remove(exist)
+                    bean.list.add(exist)
+                }
+                SettingProperty.setTvRemembers(bean)
             }
-            else {
-                exist.time = time
-                // 已存在的调整到最后一个
-                bean.list.remove(exist)
-                bean.list.add(exist)
-            }
-            SettingProperty.setTvRemembers(bean)
         }
     }
 

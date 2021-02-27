@@ -4,6 +4,7 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
 import com.king.app.coolg_kt.view.widget.chart.adapter.LineData
+import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -64,7 +65,6 @@ data class ScoreBean (
     var round: String,
     var isCompleted: Boolean,
     var isChampion: Boolean,
-    var isNotCount: Boolean,
     var matchPeriod: MatchPeriod,
     var matchItem: MatchItem,
     var match: Match
@@ -256,4 +256,10 @@ data class RoundItem(
     var isPeriod: Boolean = false,
     var text: String = "",
     var matchPeriodId: Long = 0
+)
+
+data class ScorePack(
+    var countBean: ScoreCount,
+    var countList: List<MatchScoreRecord>? = null,
+    var replaceList: List<MatchScoreRecord>? = null
 )

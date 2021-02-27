@@ -11,11 +11,10 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.page.match.PeriodPack
-import com.king.app.coolg_kt.page.match.ScoreBean
-import com.king.app.coolg_kt.page.match.ScoreHead
-import com.king.app.coolg_kt.page.match.ScoreTitle
+import com.king.app.coolg_kt.page.match.*
+import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.gdb.data.entity.match.Match
+import com.king.app.gdb.data.entity.match.MatchScoreRecord
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -29,6 +28,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
 
     var scoresObserver = MutableLiveData<List<Any>>()
     private var rankRepository = RankRepository()
+    private var scoreModel = ScoreModel()
 
     var recordWrap: RecordWrap? = null
     var curPeriodPack: PeriodPack? = null
@@ -39,7 +39,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
 
     fun loadRankPeriod() {
         curPeriodPack = rankRepository.getRankPeriodPack()
-        convertRecordScores(recordId, rankRepository.getRecordRankPeriodScores(recordId))
+        convertRecordScores(scoreModel.countScoreWithClassifiedResult(recordId, curPeriodPack!!))
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
                 override fun onNext(t: List<Any>) {
@@ -56,16 +56,17 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     fun loadRaceToFinal() {
         curPeriodPack = rankRepository.getRTFPeriodPack()
         var period = curPeriodPack?.startPeriod?:0
-        loadPeriodScores(recordId, period)
+        curPeriodPack = rankRepository.getSpecificPeriodPack(period)
+        loadPeriodScores(recordId)
     }
 
     fun loadPeriod(period: Int) {
         curPeriodPack = rankRepository.getSpecificPeriodPack(period)
-        loadPeriodScores(recordId, period)
+        loadPeriodScores(recordId)
     }
 
-    private fun loadPeriodScores(recordId: Long, period: Int) {
-        convertRecordScores(recordId, rankRepository.getRecordPeriodScores(recordId, period))
+    private fun loadPeriodScores(recordId: Long) {
+        convertRecordScores(scoreModel.countScoreWithClassifiedResult(recordId, curPeriodPack!!))
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
                 override fun onNext(t: List<Any>) {
@@ -79,50 +80,45 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    /**
-     * @param list list按score降序排列
-     */
-    private fun convertRecordScores(recordId: Long, list: List<MatchScoreRecordWrap>): Observable<List<Any>> {
+    data class SPack (
+        var scoreBean: ScoreBean,
+        var match: Match
+    )
+
+    private fun toScoreBean(bean: MatchScoreRecord): SPack {
+        var matchItem = getDatabase().getMatchDao().getMatchItem(bean.matchItemId)!!
+        var matchPeriod = getDatabase().getMatchDao().getMatchPeriod(bean.matchId)
+        val match = matchPeriod.match
+        val isWinner = matchItem.winnerId == recordId
+        var isCompleted = false
+        curPeriodPack?.matchPeriod?.let { curPeriod ->
+            isCompleted = matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
+        }
+        val isChampion = isWinner && matchItem.round == MatchConstants.ROUND_ID_F
+        var scoreBean = ScoreBean(bean.score, match.name, MatchConstants.roundResultShort(matchItem.round, isWinner),
+            isCompleted, isChampion, matchPeriod.bean, matchItem, match)
+        return SPack(scoreBean, match)
+    }
+
+    private fun convertRecordScores(scorePack: ScorePack): Observable<List<Any>> {
         return Observable.create {
             var result = mutableListOf<Any>()
 
-            // 按level归类
-            var score = 0
-            var scoreNotCount = 0
+            // countList按level归类
             var map = mutableMapOf<Int, MutableList<ScoreBean>?>()
-
-            list.forEachIndexed { index, wrap ->
-                var match = getDatabase().getMatchDao().getMatch(wrap.matchRealId)
-                var items = map[match.level]
+            scorePack.countList?.forEachIndexed { index, bean ->
+                var spack = toScoreBean(bean)
+                var items = map[spack.match.level]
                 if (items == null) {
                     items = mutableListOf()
-                    map[match.level] = items
+                    map[spack.match.level] = items
                 }
-                val isWinner = wrap.matchItem.winnerId == recordId
-                val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.matchItem.matchId)
-                var isCompleted = false
-                curPeriodPack?.matchPeriod?.let { curPeriod ->
-                    isCompleted = matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
-                }
-                val isChampion = isWinner && wrap.matchItem.round == MatchConstants.ROUND_ID_F
-                val isNotCount = index >= MatchConstants.MATCH_COUNT_SCORE
-                var scoreBean = ScoreBean(wrap.bean.score, match.name, MatchConstants.roundResultShort(wrap.matchItem.round, isWinner),
-                    isCompleted, isChampion, isNotCount, matchPeriod.bean, wrap.matchItem, match)
-                items.add(scoreBean)
-
-                if (isNotCount) {
-                    scoreNotCount += wrap.bean.score
-                }
-                else {
-                    score += wrap.bean.score
-                }
+                items.add(spack.scoreBean)
             }
 
-            if (scoreNotCount > 0) {
-                scoreHead.scoreText = "Total:  $score($scoreNotCount not count)"
-            }
-            else {
-                scoreHead.scoreText = "Total:  $score"
+            scoreHead.scoreText = "Total:  ${scorePack.countBean.score}"
+            scorePack.countBean.unavailableScore?.let { us ->
+                scoreHead.scoreText = "${scoreHead.scoreText}($us not count)"
             }
             scoreHead.periodSpecificText = "Period X"
             result.add(scoreHead)
@@ -141,6 +137,16 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 // item按orderInPeriod归类
                 map[level]?.sortBy { item -> item.matchPeriod.orderInPeriod }
                 result.addAll(map[level]!!)
+            }
+            // replace list
+            scorePack.replaceList?.let { list ->
+                if (list.isNotEmpty()) {
+                    result.add(ScoreTitle("Replace", getResource().getColor(R.color.match_level_low)))
+                    list.forEach { bean ->
+                        var spack = toScoreBean(bean)
+                        result.add(spack.scoreBean)
+                    }
+                }
             }
 
             it.onNext(result)

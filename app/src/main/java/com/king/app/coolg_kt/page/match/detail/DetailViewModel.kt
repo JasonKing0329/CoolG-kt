@@ -8,6 +8,7 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.*
+import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.RecordWrap
 import java.text.DecimalFormat
@@ -20,6 +21,8 @@ import java.text.DecimalFormat
 class DetailViewModel(application: Application): BaseViewModel(application) {
 
     private var rankRepository = RankRepository()
+
+    private var scoreModel = ScoreModel()
 
     var toolbarText = ObservableField<String>()
 
@@ -57,10 +60,12 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
             }
             rankTxt?.let { text -> detailHead.rank = text }
             // score
-            val scores = rankRepository.getRecordCurrentScore(mRecordId)
-            detailHead.score = scores[0].toString()
-            if (scores[1] > 0) {
-                detailHead.scoreNoCount = scores[1].toString()
+            val scoreCount = scoreModel.countScore(mRecordId, rankRepository.getRankPeriodPack())
+            detailHead.score = scoreCount.countBean.score.toString()
+            scoreCount.countBean.unavailableScore?.let {
+                if (it > 0) {
+                    detailHead.scoreNoCount = it.toString()
+                }
             }
         }
 

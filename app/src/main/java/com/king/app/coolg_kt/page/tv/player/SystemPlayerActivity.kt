@@ -339,7 +339,8 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 // 控制栏显示时，焦点不在任何有事件的控件上，点击中心键控制栏消失
                 if (mBinding.layoutBottom.visibility == View.VISIBLE) {
                     if (!mBinding.start.isFocused && !mBinding.appVideoNext.isFocused
-                        && !mBinding.appVideoLast.isFocused && !mBinding.ivBack.isFocused && !mBinding.ivSetting.isFocused) {
+                        && !mBinding.appVideoLast.isFocused && !mBinding.ivBack.isFocused && !mBinding.ivSetting.isFocused
+                        && !mBinding.tvFromStart.isFocused) {
                         videoController.performClickVideo()
                     }
                 }

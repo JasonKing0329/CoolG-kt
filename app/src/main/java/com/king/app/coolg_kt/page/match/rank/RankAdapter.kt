@@ -41,7 +41,7 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
         }
         binding.tvChange.visibility = if (bean.change.isEmpty()) View.GONE else View.VISIBLE
 
-        if (bean.unavailableScore == null) {
+        if (bean.unavailableScore == null || bean.unavailableScore == 0) {
             binding.tvScoreNo.visibility = View.GONE
         }
         else {

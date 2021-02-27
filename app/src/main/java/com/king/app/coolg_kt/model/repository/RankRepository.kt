@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.PeriodPack
+import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.MatchItem
@@ -134,21 +135,24 @@ class RankRepository: BaseRepository() {
     }
 
     /**
-     * 超过20站的取最高20站积分
+     * 根据排名情况重新确定积分
      */
     private fun defineRecordScore(list: List<ScoreCount>, pack: PeriodPack): List<ScoreCount> {
+        val scoreModel = ScoreModel()
         list.forEach {
-            if (it.matchCount > MatchConstants.MATCH_COUNT_SCORE) {
-                val scores =  if (pack.startPeriod == pack.endPeriod) {
-                    getDatabase().getMatchDao().getRecordScoreLimit(it.id, MatchConstants.MATCH_COUNT_SCORE, pack.endPeriod, pack.startPIO, pack.endPIO)
+            // topN的需要重新计算积分
+            if (scoreModel.isTopOfLastPeriod(it.id)) {
+                val bean = scoreModel.countTopScore(it.id, pack)
+                it.score = bean.score
+                it.unavailableScore = bean.unavailableScore
+            }
+            // 为提高效率，其他情况只有当matchCount大于MatchConstants.MATCH_COUNT_SCORE才需要重新计算
+            else {
+                if (it.matchCount > MatchConstants.MATCH_COUNT_SCORE) {
+                    val bean = scoreModel.countNormalScore(it.id, pack)
+                    it.score = bean.score
+                    it.unavailableScore = bean.unavailableScore
                 }
-                else {
-                    getDatabase().getMatchDao().getRecordScoreLimit(it.id, MatchConstants.MATCH_COUNT_SCORE, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
-                }
-                var sum = 0
-                scores.forEach { bean -> sum += bean.score }
-                it.unavailableScore = it.score - sum
-                it.score = sum
             }
         }
         // 重新按score降序排序

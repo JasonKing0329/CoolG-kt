@@ -85,7 +85,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
         var match: Match
     )
 
-    private fun toScoreBean(bean: MatchScoreRecord): SPack {
+    private fun toScoreBean(bean: MatchScoreRecord, levelInName: Boolean): SPack {
         var matchItem = getDatabase().getMatchDao().getMatchItem(bean.matchItemId)!!
         var matchPeriod = getDatabase().getMatchDao().getMatchPeriod(bean.matchId)
         val match = matchPeriod.match
@@ -95,7 +95,8 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
             isCompleted = matchPeriod.bean.orderInPeriod <= curPeriod.orderInPeriod
         }
         val isChampion = isWinner && matchItem.round == MatchConstants.ROUND_ID_F
-        var scoreBean = ScoreBean(bean.score, match.name, MatchConstants.roundResultShort(matchItem.round, isWinner),
+        val name = if (levelInName) "${match.name}(${MatchConstants.MATCH_LEVEL[match.level]})" else match.name
+        var scoreBean = ScoreBean(bean.score, name, MatchConstants.roundResultShort(matchItem.round, isWinner),
             isCompleted, isChampion, matchPeriod.bean, matchItem, match)
         return SPack(scoreBean, match)
     }
@@ -107,7 +108,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
             // countList按level归类
             var map = mutableMapOf<Int, MutableList<ScoreBean>?>()
             scorePack.countList?.forEachIndexed { index, bean ->
-                var spack = toScoreBean(bean)
+                var spack = toScoreBean(bean, false)
                 var items = map[spack.match.level]
                 if (items == null) {
                     items = mutableListOf()
@@ -143,7 +144,7 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
                 if (list.isNotEmpty()) {
                     result.add(ScoreTitle("Replace", getResource().getColor(R.color.match_level_low)))
                     list.forEach { bean ->
-                        var spack = toScoreBean(bean)
+                        var spack = toScoreBean(bean, true)
                         result.add(spack.scoreBean)
                     }
                 }

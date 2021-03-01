@@ -68,9 +68,11 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
         udpReceiver.observeServer()
             .flatMap { distinctServer(it) }
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<ServerBody>(getComposite()){
-                override fun onNext(t: ServerBody) {
-                    serversObserver.value = serverList
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()){
+                override fun onNext(notify: Boolean) {
+                    if (notify) {
+                        serversObserver.value = serverList
+                    }
                 }
 
                 override fun onError(e: Throwable?) {
@@ -79,37 +81,40 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    private fun distinctServer(serverBody: ServerBody): ObservableSource<ServerBody> {
+    private fun distinctServer(serverBody: ServerBody): ObservableSource<Boolean> {
         return ObservableSource {
             if (!TextUtils.isEmpty(serverBody.serverName)) {
                 serverBody.isOnline = true
                 val server = serverList.firstOrNull { server -> server.serverName == serverBody.serverName }
+                var notify = false
                 if (server == null) {
                     serverList.add(serverBody)
+                    SettingProperty.setTvServers(TvServers(serverList))
+                    notify = true
                 }
                 else {
                     // server ip发生变化，更新
                     if (server.ip != serverBody.ip) {
-                        server.isOnline = true
                         server.ip = serverBody.ip
                         server.port = serverBody.port
                         server.extraUrl = serverBody.extraUrl
+                        SettingProperty.setTvServers(TvServers(serverList))
+                        server.isOnline = true
+                        notify = true
                     }
                     else {
-                        // 已上线，不需要更新
-                        if (server.isOnline) {
-                            throw Throwable("server is existed")
-                        }
                         // 未上线，更新为已上线
-                        else {
+                        if (!server.isOnline) {
+                            notify = true
                             server.isOnline = true
                         }
                     }
                 }
-                SettingProperty.setTvServers(TvServers(serverList))
+                if (notify) {
+                    it.onNext(true)
+                    it.onComplete()
+                }
             }
-            it.onNext(serverBody)
-            it.onComplete()
         }
     }
 

@@ -155,5 +155,7 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         startActivity(intent)
+        // 经实测，小米电视中，必须结束当前应用才能安装升级包
+        finish()
     }
 }

@@ -116,6 +116,7 @@
             android:screenOrientation="landscape" />
 
         <service android:name=".service.FileService" />
+        <service android:name=".model.log.DeleteLogService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -14,11 +14,9 @@ import com.king.app.coolg_kt.databinding.ActivityTvBinding
 import com.king.app.coolg_kt.model.GlideApp
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
-import com.king.app.coolg_kt.page.download.DownloadFragment
 import com.king.app.coolg_kt.page.download.OnDownloadListener
 import com.king.app.coolg_kt.page.tv.popup.BgSelector
 import com.king.app.coolg_kt.utils.ScreenUtils
-import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.coolg_kt.view.dialog.TvDialogFragment
 import java.io.File
@@ -38,9 +36,12 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
 
     override fun initView() {
         mBinding.tvSu.visibility = View.GONE
-        mBinding.ivSetting.setOnClickListener {
+        mBinding.ivHome.setOnClickListener {
             ftContent = null
             showServerPage()
+        }
+        mBinding.ivUpload.setOnClickListener {
+            mModel.uploadLog()
         }
         mBinding.ivChangeBg.setOnClickListener {
 //            SystemPlayerActivity.startPage(this, "http://192.168.26.57:8080/JJGalleryServer/videos/d_scene/1.mp4", "")

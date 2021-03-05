@@ -2,7 +2,6 @@ package com.king.app.coolg_kt.page.tv
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
-import com.bumptech.glide.Glide
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConfig
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
@@ -10,17 +9,16 @@ import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.Command
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.model.http.bean.response.AppCheckBean
-import com.king.app.coolg_kt.model.http.bean.response.BgResponse
+import com.king.app.coolg_kt.model.http.bean.response.UploadResponse
 import com.king.app.coolg_kt.model.http.download.DownLoadFile
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
-import com.king.app.coolg_kt.model.repository.PropertyRepository
+import com.king.app.coolg_kt.model.log.UploadLogModel
 import com.king.app.coolg_kt.utils.AppUtil
 import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.coolg_kt.utils.UrlUtil
 import io.reactivex.rxjava3.core.ObservableSource
 import java.io.File
-import java.io.FileFilter
-import java.util.ArrayList
+import java.util.*
 
 /**
  * @description:
@@ -146,6 +144,24 @@ class TvViewModel(application: Application): BaseViewModel(application) {
         list.add(item)
         bean.downloadList = list
         return bean
+    }
+
+    fun uploadLog() {
+        loadingObserver.value = true
+        UploadLogModel().uploadLog()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<UploadResponse>(getComposite()) {
+                override fun onNext(t: UploadResponse?) {
+                    loadingObserver.value = false
+                    messageObserver.value = "上传成功"
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message?:""
+                }
+            })
     }
 
 }

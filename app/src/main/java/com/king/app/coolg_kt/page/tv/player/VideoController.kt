@@ -10,11 +10,9 @@ import android.view.View.OnTouchListener
 import android.widget.VideoView
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.VideoData
+import com.king.app.coolg_kt.model.log.CoolLogger
 import com.king.app.coolg_kt.model.setting.SettingProperty
-import com.king.app.coolg_kt.page.tv.player.VideoFormatter
-import com.king.app.coolg_kt.page.tv.player.VideoService
 import com.king.app.coolg_kt.utils.DebugLog
-import java.lang.Exception
 
 class VideoController(private val mContext: Context, private val videoView: VideoView) :
     MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener {
@@ -96,19 +94,19 @@ class VideoController(private val mContext: Context, private val videoView: Vide
         }
 
     override fun onCompletion(player: MediaPlayer) {
-        DebugLog.e("VideoController onCompletion")
+        CoolLogger.logTv("VideoController onCompletion")
         currentPosition = 0
         isPaused = true
         videoService?.onCompletion(videoView, player)
     }
 
     override fun onPrepared(player: MediaPlayer) {
-        DebugLog.e("VideoController OnPrepared")
+        CoolLogger.logTv("VideoController OnPrepared")
         videoService?.onPrepared(videoView, player)
     }
 
     override fun onInfo(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        DebugLog.e("VideoController onInfo what=$what extra=$extra")
+        CoolLogger.logTv("VideoController onInfo what=$what extra=$extra")
         return false
     }
 
@@ -117,7 +115,7 @@ class VideoController(private val mContext: Context, private val videoView: Vide
         framework_err: Int,
         impl_err: Int
     ): Boolean {
-        DebugLog.e("VideoController onError framework_err=$framework_err impl_err=$impl_err")
+        CoolLogger.logTv("VideoController onError framework_err=$framework_err impl_err=$impl_err")
         videoService?.onError(videoView, player, framework_err, impl_err)
         return true //if false, it'll show framework popup dialog
     }

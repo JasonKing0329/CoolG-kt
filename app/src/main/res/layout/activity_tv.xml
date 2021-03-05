@@ -17,7 +17,7 @@
             android:id="@+id/iv_change_bg"
             style="@style/TvActionIcon"
             android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_home"
             app:layout_constraintEnd_toStartOf="@+id/iv_su"
             app:srcCompat="@drawable/ic_desktop_windows_white_36dp" />
 
@@ -25,19 +25,29 @@
             android:id="@+id/iv_su"
             style="@style/TvActionIcon"
             android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_setting"
-            app:layout_constraintEnd_toStartOf="@+id/iv_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_home"
+            app:layout_constraintEnd_toStartOf="@+id/iv_home"
             app:srcCompat="@drawable/ic_favorite_border_white_36dp" />
 
         <ImageView
-            android:id="@+id/iv_setting"
+            android:id="@+id/iv_home"
+            style="@style/TvActionIcon"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_upload"
+            app:srcCompat="@drawable/ic_baseline_home_24" />
+
+        <ImageView
+            android:id="@+id/iv_upload"
             style="@style/TvActionIcon"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_settings_white_36dp" />
+            app:srcCompat="@drawable/ic_baseline_cloud_upload_24" />
 
         <FrameLayout
             android:id="@+id/fl_ft"
@@ -46,7 +56,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_home"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -62,8 +72,8 @@
             android:textSize="20dp"
             android:textStyle="bold"
             android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_upload"
             app:layout_constraintEnd_toStartOf="@+id/iv_change_bg"
-            app:layout_constraintTop_toTopOf="@+id/iv_setting" />
+            app:layout_constraintTop_toTopOf="@+id/iv_upload" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

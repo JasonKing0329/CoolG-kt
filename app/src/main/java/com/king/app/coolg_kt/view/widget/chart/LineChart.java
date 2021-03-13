@@ -133,14 +133,16 @@ public class LineChart extends AxisChart {
         Point startPoint;
         for (int i = 0; i < mAdapter.getLineCount(); i ++) {
             LineData line = mAdapter.getLineData(i);
+            int color = mLineColor;
+            if (line.getColor() != 0) {
+                color = line.getColor();
+            }
             startPoint = null;
             for (int j = line.getStartX(); j <= line.getEndX(); j ++) {
-                if (line.getColor() == 0) {
-                    mPaint.setColor(mLineColor);
+                if (line.getColors() != null && j < line.getColors().size()) {
+                    color = line.getColors().get(j);
                 }
-                else {
-                    mPaint.setColor(line.getColor());
-                }
+                mPaint.setColor(color);
                 int pointX = getDegreeX(j);
                 int linePointIndex = j - line.getStartX();
                 Integer value = line.getValues().get(linePointIndex);

@@ -31,14 +31,16 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
     companion object {
         val EXTRA_SELECT_MODE = "select_mode"
+        val EXTRA_FOCUS_TO_RANK = "focus_to_rank"
         val RESP_RECORD_ID = "record_id"
         fun startPage(context: Context) {
             var intent = Intent(context, RankActivity::class.java)
             context.startActivity(intent)
         }
-        fun startPageToSelect(context: Activity, requestCode: Int) {
+        fun startPageToSelect(context: Activity, requestCode: Int, focusToRank: Int) {
             var intent = Intent(context, RankActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_FOCUS_TO_RANK, focusToRank)
             context.startActivityForResult(intent, requestCode)
         }
     }
@@ -122,6 +124,10 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         return intent.getBooleanExtra(EXTRA_SELECT_MODE, false)
     }
 
+    private fun getFocusToRank(): Int {
+        return intent.getIntExtra(EXTRA_FOCUS_TO_RANK, 0)
+    }
+
     override fun initData() {
         mModel.isSelectMode = isSelectMode()
         mModel.recordRanksObserver.observe(this, Observer {
@@ -163,6 +169,9 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             }
             adapter.list = it
             mBinding.rvList.adapter = adapter
+            if (isSelectMode() && getFocusToRank() > 0) {
+                mBinding.rvList.scrollToPosition(getFocusToRank())
+            }
         })
         mModel.starRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Star?>()

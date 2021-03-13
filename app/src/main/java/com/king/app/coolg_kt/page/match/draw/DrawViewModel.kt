@@ -324,4 +324,25 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    fun getLowestSeedRankOfPage(): Int {
+        var result = 0
+        itemsObserver.value?.forEach {
+            val seed1 = it.matchRecord1?.bean?.recordSeed?:0
+            if (seed1 > 0) {
+                val rank = it.matchRecord1?.bean?.recordRank?:0
+                if (rank > result) {
+                    result = rank
+                }
+            }
+            val seed2 = it.matchRecord2?.bean?.recordSeed?:0
+            if (seed2 > 0) {
+                val rank = it.matchRecord2?.bean?.recordRank?:0
+                if (rank > result) {
+                    result = rank
+                }
+            }
+        }
+        return result
+    }
+
 }

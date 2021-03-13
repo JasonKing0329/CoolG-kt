@@ -14,6 +14,7 @@ public class LineData {
     private int endX;
     private List<String> valuesText;
     private List<Integer> values;
+    private List<Integer> colors;
 
     public int getColor() {
         return color;
@@ -53,5 +54,13 @@ public class LineData {
 
     public void setValuesText(List<String> valuesText) {
         this.valuesText = valuesText;
+    }
+
+    public List<Integer> getColors() {
+        return colors;
+    }
+
+    public void setColors(List<Integer> colors) {
+        this.colors = colors;
     }
 }

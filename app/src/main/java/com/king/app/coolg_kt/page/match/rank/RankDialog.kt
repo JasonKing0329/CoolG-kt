@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.match.rank
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.databinding.FragmentDialogRankBinding
@@ -72,7 +73,17 @@ class RankDialog: DraggableContentFragment<FragmentDialogRankBinding>() {
         data.endX = ranks.size - 1
         data.values = mutableListOf()
         data.valuesText = mutableListOf()
-        ranks.forEachIndexed { index, matchRankRecord ->
+        data.colors = mutableListOf()
+        // 颜色采用按周期，3色交替的方案
+        var colors = listOf(Color.parseColor("#3399ff"), Color.parseColor("#C93437"), Color.parseColor("#BDB626"))
+        var lastPeriod = -1
+        var colorPack = ColorPack(0, -1)
+        ranks.forEachIndexed { index, item ->
+            if (item.period != lastPeriod) {
+                lastPeriod = item.period
+                nextColor(colors, colorPack)
+            }
+            data.colors.add(colorPack.color)
             // 构建每一个刻度(星期)对应的value
             buildWeek(data, ranks, index, 0, chartData)
         }
@@ -234,4 +245,18 @@ class RankDialog: DraggableContentFragment<FragmentDialogRankBinding>() {
         })
         mBinding.chartRank.scrollToEnd()
     }
+
+    data class ColorPack (
+        var color: Int,
+        var index: Int
+    )
+
+    private fun nextColor(colors: List<Int>, pack: ColorPack) {
+        pack.index ++
+        if (pack.index >= colors.size) {
+            pack.index = 0
+        }
+        pack.color = colors[pack.index]
+    }
+
 }

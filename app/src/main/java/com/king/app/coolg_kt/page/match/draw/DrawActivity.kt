@@ -234,7 +234,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             ) { dialog, which ->
                 when(which) {
                     0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, REQUEST_SELECT_WILDCARD)
-                    1 -> RankActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD)
+                    1 -> RankActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD, mModel.getLowestSeedRankOfPage())
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")

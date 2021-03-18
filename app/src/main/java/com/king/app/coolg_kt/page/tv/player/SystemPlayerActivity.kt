@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.VideoView
 import androidx.lifecycle.Observer
+import com.king.app.coolg_kt.BuildConfig
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityTvPlayerSystemBinding
@@ -56,6 +57,10 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
     private val TIME_DISP_CTRLBAR = 5000L
 
     override fun getContentView(): Int = R.layout.activity_tv_player_system
+
+    override fun isFullScreen(): Boolean {
+        return "tv" != BuildConfig.DEVICE_TYPE
+    }
 
     override fun createViewModel(): SystemPlayerViewModel = generateViewModel(
         SystemPlayerViewModel::class.java)

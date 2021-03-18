@@ -34,6 +34,10 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
 
     override fun createViewModel(): TvViewModel = generateViewModel(TvViewModel::class.java)
 
+    override fun isFullScreen(): Boolean {
+        return "tv" != BuildConfig.DEVICE_TYPE
+    }
+
     override fun initView() {
         mBinding.tvSu.visibility = View.GONE
         mBinding.ivHome.setOnClickListener {

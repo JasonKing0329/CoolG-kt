@@ -7,6 +7,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.VideoView
@@ -113,6 +114,28 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
             setVideoLoading(true)
             videoController.playFromStart()
+        }
+        mBinding.tvScale.setOnClickListener {
+            val array = arrayOf("Default", "16:9", "4:3", "1:1")
+            AlertDialogFragment()
+                .setItems(array, DialogInterface.OnClickListener { dialog, which ->
+                    var scale = when(which) {
+                        1 -> 16f/9f
+                        2 -> 4f/3f
+                        3 -> 1f
+                        else -> 0f
+                    }
+                    var width = if (scale == 0f) videoController.mOriginWidth
+                        else (ScreenUtils.getScreenHeight() * scale).toInt()
+                    var height = if (scale == 0f) videoController.mOriginHeight
+                        else ScreenUtils.getScreenHeight()
+                    var param = mBinding.videoView.layoutParams
+                    param.width = width
+                    param.height = height
+                    mBinding.videoView.layoutParams = param
+                    DebugLog.e("tvScale width=$width, height=$height")
+                })
+                .show(supportFragmentManager, "AlertDialogFragment")
         }
         mBinding.ivSetting.setOnClickListener {
             val content = PlayerSetting()
@@ -345,7 +368,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 if (mBinding.layoutBottom.visibility == View.VISIBLE) {
                     if (!mBinding.start.isFocused && !mBinding.appVideoNext.isFocused
                         && !mBinding.appVideoLast.isFocused && !mBinding.ivBack.isFocused && !mBinding.ivSetting.isFocused
-                        && !mBinding.tvFromStart.isFocused) {
+                        && !mBinding.tvFromStart.isFocused && !mBinding.tvScale.isFocused) {
                         videoController.performClickVideo()
                     }
                 }

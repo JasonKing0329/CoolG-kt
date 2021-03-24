@@ -7,15 +7,22 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
-import android.widget.VideoView
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.VideoData
 import com.king.app.coolg_kt.model.log.CoolLogger
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.widget.video.TvVideoView
 
-class VideoController(private val mContext: Context, private val videoView: VideoView) :
+class VideoController(private val mContext: Context, private val videoView: TvVideoView) :
     MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener {
+
+    /**
+     * 记录视频按原始比例拉伸后的大小
+     */
+    var mOriginWidth = ScreenUtils.getScreenWidth()
+    var mOriginHeight = ScreenUtils.getScreenHeight()
 
     var videoService: VideoService? = null
     private var currentPosition = 0
@@ -102,7 +109,35 @@ class VideoController(private val mContext: Context, private val videoView: Vide
 
     override fun onPrepared(player: MediaPlayer) {
         CoolLogger.logTv("VideoController OnPrepared")
+        player.setOnVideoSizeChangedListener { mp, width, height ->
+            resetScale(player.videoWidth, player.videoHeight)
+        }
         videoService?.onPrepared(videoView, player)
+    }
+
+    /**
+     * 根据原始比例拉伸至整个控件
+     */
+    private fun resetScale(videoWidth: Int, videoHeight: Int) {
+        var maxWidth = ScreenUtils.getScreenWidth()
+        var maxHeight = ScreenUtils.getScreenHeight()
+        val scaleWidget = maxWidth.toFloat() / maxHeight.toFloat()
+        val scaleVideo = videoWidth.toFloat() / videoHeight.toFloat()
+        // 以高为基准，重新计算宽
+        if (scaleWidget > scaleVideo) {
+            val scale = maxHeight.toFloat() / videoHeight.toFloat()
+            mOriginWidth = (videoWidth * scale).toInt()
+            mOriginHeight = maxHeight
+        } else {
+            val scale = maxWidth.toFloat() / videoWidth.toFloat()
+            mOriginWidth = maxWidth
+            mOriginHeight = (videoHeight * scale).toInt()
+        }
+        DebugLog.e("width=$mOriginWidth, height=$mOriginHeight")
+        var param = videoView.layoutParams
+        param.width = mOriginWidth
+        param.height = mOriginHeight
+        videoView.layoutParams = param
     }
 
     override fun onInfo(mp: MediaPlayer?, what: Int, extra: Int): Boolean {

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/black">
         <com.king.app.coolg_kt.view.widget.video.TvVideoView
             android:id="@+id/video_view"
             android:layout_width="0dp"
@@ -139,6 +140,23 @@
                 android:layout_marginLeft="@dimen/video_player_icon_margin"
                 app:layout_constraintStart_toEndOf="@+id/start"
                 app:layout_constraintTop_toTopOf="@+id/start"/>
+
+            <TextView
+                android:id="@+id/tv_scale"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_video_player_icon_size"
+                android:text="调整比例"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:focusable="true"
+                android:background="@drawable/selector_border"
+                app:layout_constraintTop_toTopOf="@+id/start"
+                app:layout_constraintEnd_toStartOf="@+id/app_video_list"/>
 
             <ImageView
                 android:id="@+id/app_video_list"

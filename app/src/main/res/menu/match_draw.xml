@@ -7,6 +7,10 @@
         android:icon="@drawable/ic_edit_purple_3f3a71_36dp"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/menu_insert_seed"
+        android:title="Insert Seed"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/menu_create_draw"
         android:title="Create Draw"
         app:showAsAction="never"/>

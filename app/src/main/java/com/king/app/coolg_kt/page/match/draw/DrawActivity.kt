@@ -43,6 +43,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     var REQUEST_CHANGE_PLAYER = 11902
 
+    var REQUEST_INSERT_SEED = 11903
+
     companion object {
         val EXTRA_MATCH_PERIOD_ID = "match_period_id"
         fun startPage(context: Context, matchPeriodId: Long) {
@@ -69,6 +71,13 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 R.id.menu_edit -> {
                     isEditing = true
                     mBinding.actionbar.showConfirmStatus(it)
+                }
+                R.id.menu_insert_seed -> {
+                    if (!mModel.isFirstRound()) {
+                        showMessageShort("This function is only available for first round!")
+                        return@setOnMenuItemListener
+                    }
+                    selectRecord(REQUEST_INSERT_SEED)
                 }
                 R.id.menu_create_draw -> {
                     if (mModel.isDrawExist()) {
@@ -217,24 +226,25 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         mModel.mToSetWildCard = drawItem
         mModel.mToSetWildCardPosition = position
         mModel.mToSetWildCardRecord = recordWrap
-        selectRecord()
+        selectRecord(REQUEST_SELECT_WILDCARD)
     }
 
     private fun selectWildCardRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {
         mModel.mToSetWildCard = drawItem
         mModel.mToSetWildCardPosition = position
         mModel.mToSetWildCardRecord = recordWrap
-        selectRecord()
+        selectRecord(REQUEST_SELECT_WILDCARD)
     }
 
-    private fun selectRecord() {
+    private fun selectRecord(requestCode: Int) {
         AlertDialogFragment()
             .setItems(
-                arrayOf("Record List", "Rank List")
+                arrayOf("Record List", "Rank List", "Studio Records")
             ) { dialog, which ->
                 when(which) {
-                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, REQUEST_SELECT_WILDCARD)
-                    1 -> RankActivity.startPageToSelect(this@DrawActivity, REQUEST_SELECT_WILDCARD, mModel.getLowestSeedRankOfPage())
+                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode)
+                    1 -> RankActivity.startPageToSelect(this@DrawActivity, requestCode, mModel.getLowestSeedRankOfPage())
+                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, mModel.findStudioId())
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")
@@ -255,6 +265,15 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
                 if (mModel.setWildCard(recordId!!)) {
                     adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+                }
+            }
+        }
+        if (requestCode == REQUEST_INSERT_SEED) {
+            if (resultCode == Activity.RESULT_OK) {
+                val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
+                if (mModel.insertSeed(recordId!!)) {
+                    mBinding.actionbar.showConfirmStatus(R.id.menu_edit)
+                    adapter.notifyDataSetChanged()
                 }
             }
         }

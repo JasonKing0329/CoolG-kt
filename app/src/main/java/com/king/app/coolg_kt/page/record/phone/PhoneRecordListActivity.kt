@@ -46,6 +46,13 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
             intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
             context.startActivityForResult(intent, requestCode)
         }
+        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int, studioId: Long) {
+            var intent = Intent(context, PhoneRecordListActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
+            intent.putExtra(EXTRA_STUDIO_ID, studioId)
+            context.startActivityForResult(intent, requestCode)
+        }
         fun startStudioPage(context: Context, studioId: Long) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             intent.putExtra(EXTRA_STUDIO_ID, studioId)

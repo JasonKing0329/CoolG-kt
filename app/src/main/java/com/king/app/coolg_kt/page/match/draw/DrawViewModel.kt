@@ -395,6 +395,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                         wc.imageUrl = last.imageUrl
                         wc.bean.recordId = last.bean.recordId
                         wc.bean.recordRank = last.bean.recordRank
+                        canSet[0].drawItem.isChanged = true
                     }
                     // 当前位置后面一位开始，全部向后挪一位
                     for (n in seeds.size - 1 downTo i + 1) {

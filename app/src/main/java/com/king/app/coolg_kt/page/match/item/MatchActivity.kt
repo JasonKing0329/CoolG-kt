@@ -9,7 +9,9 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchDetailBinding
+import com.king.app.coolg_kt.page.match.MatchSemiItem
 import com.king.app.coolg_kt.page.match.MatchSemiPack
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
 
 /**
@@ -44,6 +46,11 @@ class MatchActivity: BaseActivity<ActivityMatchDetailBinding, MatchViewModel>() 
                 DrawActivity.startPage(this@MatchActivity, data.matchPeriodId)
             }
         })
+        adapter.onRecordListener = object : MatchSemiAdapter.OnRecordListener {
+            override fun onClickRecord(semiItem: MatchSemiItem) {
+                DetailActivity.startRecordPage(this@MatchActivity, semiItem.recordId)
+            }
+        }
     }
 
     private fun getMatchId(): Long {

@@ -68,6 +68,7 @@ public class SemiGroup extends LinearLayout {
      * @param adapter
      */
     public void setAdapter(SemiAdapter adapter) {
+        removeAllViews();
         int layoutWidth = ScreenUtils.getScreenWidth();
         int xSF = layoutWidth / 5;
         int ySF = (int) (layoutWidth / (5 * ratio));

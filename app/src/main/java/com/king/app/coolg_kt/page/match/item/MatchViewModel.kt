@@ -56,20 +56,25 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
             var list = mutableListOf<MatchSemiPack>()
             var matches = getDatabase().getMatchDao().getMatchPeriods(matchId)
             matches.forEach { mp ->
-                var records = repository.getMatchSemiItems(mp)
                 var items = mutableListOf<MatchSemiItem>()
                 var pack = MatchSemiPack(mp.id, "P${mp.period}", dateFormat.format(Date(mp.date)), items)
                 list.add(pack)
-                records.forEach { record ->
-                    var rank = if (record.recordSeed?:0 > 0) {
-                        "[${record.recordSeed}]/${record.recordRank}"
+                var records = repository.getMatchSemiItems(mp)
+                if (records.size < 4) {
+                    // 4个以内表示未完成
+                }
+                else {
+                    records.forEach { record ->
+                        var rank = if (record.recordSeed?:0 > 0) {
+                            "[${record.recordSeed}]/${record.recordRank}"
+                        }
+                        else {
+                            record.recordRank?.toString()?:""
+                        }
+                        val bean = getDatabase().getRecordDao().getRecordBasic(record.recordId)
+                        var item = MatchSemiItem(record.recordId, rank, ImageProvider.getRecordRandomPath(bean?.name, null))
+                        items.add(item)
                     }
-                    else {
-                        record.recordRank?.toString()?:""
-                    }
-                    val bean = getDatabase().getRecordDao().getRecordBasic(record.recordId)
-                    var item = MatchSemiItem(record.recordId, rank, ImageProvider.getRecordRandomPath(bean?.name, null))
-                    items.add(item)
                 }
             }
             it.onNext(list)

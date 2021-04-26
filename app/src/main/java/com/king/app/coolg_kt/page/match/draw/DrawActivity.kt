@@ -16,13 +16,13 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
-import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
+import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.utils.DebugLog
@@ -71,6 +71,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 R.id.menu_edit -> {
                     isEditing = true
                     mBinding.actionbar.showConfirmStatus(it)
+                }
+                R.id.menu_history -> {
+                    MatchActivity.startPage(this@DrawActivity, mModel.getMatchId())
                 }
                 R.id.menu_insert_seed -> {
                     if (!mModel.isFirstRound()) {

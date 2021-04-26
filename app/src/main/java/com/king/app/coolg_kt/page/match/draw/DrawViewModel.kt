@@ -59,6 +59,10 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         getMatchRound(matchPeriod.match)
     }
 
+    fun getMatchId(): Long {
+        return matchPeriod.bean.matchId
+    }
+
     fun onDrawTypeChanged() {
         getMatchRound(matchPeriod.match)
     }

@@ -20,6 +20,8 @@ import com.king.app.coolg_kt.view.widget.SemiGroup
  */
 class MatchSemiAdapter: BaseBindingAdapter<AdapterMatchDetailItemBinding, MatchSemiPack>() {
 
+    var onRecordListener: OnRecordListener? = null
+
     override fun onCreateBind(
         inflater: LayoutInflater,
         parent: ViewGroup
@@ -37,17 +39,25 @@ class MatchSemiAdapter: BaseBindingAdapter<AdapterMatchDetailItemBinding, MatchS
     }
 
     private fun createSemiAdapter(semiGroup: SemiGroup, items: List<MatchSemiItem>) {
-        val adapter = object : SemiGroup.SemiAdapter() {
-            override fun getView(position: Int): View {
-                val view = LayoutInflater.from(semiGroup.context).inflate(R.layout.layout_match_semi_item, null)
-                view.findViewById<TextView>(R.id.tv_title).text = items[position].rank
-                ImageBindingAdapter.setRecordUrl(view.findViewById<ImageView>(R.id.iv_image), items[position].imageUrl)
-                val ivCup = view.findViewById<ImageView>(R.id.iv_cup)
-                ivCup.visibility = if (position == 0) View.VISIBLE else View.GONE
-                return view
-            }
+        if (items.size < 4) {
+            semiGroup.visibility = View.GONE
         }
-        semiGroup.setAdapter(adapter)
+        else {
+            semiGroup.visibility = View.VISIBLE
+            val adapter = object : SemiGroup.SemiAdapter() {
+                override fun getView(position: Int): View {
+                    val view = LayoutInflater.from(semiGroup.context).inflate(R.layout.layout_match_semi_item, null)
+                    view.findViewById<TextView>(R.id.tv_title).text = items[position].rank
+                    val ivImage = view.findViewById<ImageView>(R.id.iv_image)
+                    ivImage.setOnClickListener { onRecordListener?.onClickRecord(items[position]) }
+                    ImageBindingAdapter.setRecordUrl(ivImage, items[position].imageUrl)
+                    val ivCup = view.findViewById<ImageView>(R.id.iv_cup)
+                    ivCup.visibility = if (position == 0) View.VISIBLE else View.GONE
+                    return view
+                }
+            }
+            semiGroup.setAdapter(adapter)
+        }
     }
 
     /**
@@ -55,5 +65,9 @@ class MatchSemiAdapter: BaseBindingAdapter<AdapterMatchDetailItemBinding, MatchS
      */
     override fun onClickItem(v: View, position: Int, bean: MatchSemiPack) {
 
+    }
+
+    interface OnRecordListener {
+        fun onClickRecord(semiItem: MatchSemiItem)
     }
 }

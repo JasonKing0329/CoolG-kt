@@ -267,4 +267,12 @@
     <dimen name="records_tag_padding">16dp</dimen>
     <dimen name="records_tag_text">20dp</dimen>
     <dimen name="records_tag_remove_size">32dp</dimen>
+
+
+    <dimen name="match_item_cha_width">480dp</dimen>
+    <dimen name="match_item_cha_height">270dp</dimen>
+    <dimen name="match_item_sf_width">160dp</dimen>
+    <dimen name="match_item_sf_height">90dp</dimen>
+    <dimen name="match_item_ru_width">320dp</dimen><!-- =2*match_item_sf_width -->
+    <dimen name="match_item_ru_height">180dp</dimen><!-- =match_item_cha_height - match_item_sf_height -->
 </resources>

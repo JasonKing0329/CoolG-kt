@@ -14,6 +14,7 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchListBinding
+import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.Match
@@ -92,6 +93,9 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                     intent.putExtra(RESP_MATCH_ID, data.id)
                     setResult(Activity.RESULT_OK, intent)
                     finish()
+                }
+                else {
+                    MatchActivity.startPage(this@MatchListActivity, data.id)
                 }
             }
         })

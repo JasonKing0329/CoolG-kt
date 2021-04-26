@@ -5,9 +5,7 @@ import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
-import com.king.app.gdb.data.entity.match.MatchItem
-import com.king.app.gdb.data.entity.match.MatchRankRecord
-import com.king.app.gdb.data.entity.match.MatchScoreRecord
+import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchRankRecordWrap
 import com.king.app.gdb.data.relation.MatchRankStarWrap
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
@@ -276,6 +274,29 @@ class RankRepository: BaseRepository() {
         val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
         val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
         return getDatabase().getMatchDao().countRecordWinIn(recordId, MatchConstants.ROUND_ID_F, rangeStart, rangeEnd, circleTotal)
+    }
+
+    fun getMatchSemiItems(matchPeriod: MatchPeriod): List<MatchRecord> {
+        var list = mutableListOf<MatchRecord>()
+        // champion and runner-up
+        var items = getDatabase().getMatchDao().getMatchItemsByRound(matchPeriod.id, MatchConstants.ROUND_ID_F)
+        items.firstOrNull()?.let { item ->
+            val winnerId = item.bean.winnerId
+            if (item.recordList.isNotEmpty()) {
+                list.addAll(item.recordList)
+                // winner排在第一个
+                if (list[0].recordId != winnerId) {
+                    list.reverse()
+                }
+            }
+        }
+        // semi-final, 找输掉的一方
+        items = getDatabase().getMatchDao().getMatchItemsByRound(matchPeriod.id, MatchConstants.ROUND_ID_SF)
+        items.forEach { item ->
+            val winnerId = item.bean.winnerId
+            item.recordList.firstOrNull { it.recordId != winnerId }?.let { list.add(it) }
+        }
+        return list
     }
 
 }

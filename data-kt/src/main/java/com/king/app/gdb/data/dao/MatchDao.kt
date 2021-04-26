@@ -26,11 +26,17 @@ interface MatchDao {
     @Query("select * from `match` where level=:level order by orderInPeriod")
     fun getMatchByLevel(level: Int): List<Match>
 
+    @Query("select * from `match_period` where matchId=:matchId and period=:period")
+    fun getMatchPeriod(matchId: Long, period: Int): MatchPeriod
+
     @Query("select * from `match_period` where id=:id")
     fun getMatchPeriod(id: Long): MatchPeriodWrap
 
     @Query("select * from `match_period` where period=:period and orderInPeriod=:orderInPeriod")
     fun getMatchPeriods(period: Int, orderInPeriod: Int): List<MatchPeriod>
+
+    @Query("select * from `match_period` where matchId=:matchId order by period desc")
+    fun getMatchPeriods(matchId: Long): List<MatchPeriod>
 
     @Query("select * from match_period")
     fun getAllMatchPeriods(): List<MatchPeriod>
@@ -55,6 +61,9 @@ interface MatchDao {
 
     @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
     fun getMatchItemsByRound(round: Int): List<MatchItemWrap>
+
+    @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id and mp.id=:matchPeriodId where mi.round=:round")
+    fun getMatchItemsByRound(matchPeriodId: Long, round: Int): List<MatchItemWrap>
 
     @Query("select mi.* from match_item mi join match_record mr on mi.id=mr.matchItemId and mr.recordId=:recordId join match_period mp on mi.matchId=mp.id where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
     fun getRecordMatchItemsByRound(recordId: Long, round: Int): List<MatchItemWrap>

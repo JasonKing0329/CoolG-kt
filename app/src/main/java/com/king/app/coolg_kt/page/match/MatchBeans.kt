@@ -10,7 +10,6 @@ import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import com.king.app.gdb.data.relation.RecordWrap
-import java.util.*
 
 /**
  * @description:
@@ -262,4 +261,17 @@ data class ScorePack(
     var countBean: ScoreCount,
     var countList: List<MatchScoreRecord>? = null,
     var replaceList: List<MatchScoreRecord>? = null
+)
+
+data class MatchSemiPack(
+    var matchPeriodId: Long,
+    var period: String,
+    var date: String,
+    var items: List<MatchSemiItem>
+)
+
+data class MatchSemiItem(
+    var recordId: Long,
+    var rank: String,
+    var imageUrl: String?
 )

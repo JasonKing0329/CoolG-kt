@@ -92,6 +92,7 @@
         <activity android:name=".page.match.h2h.H2hActivity" />
         <activity android:name=".page.match.list.FinalListActivity" />
         <activity android:name=".page.match.detail.DetailActivity" />
+        <activity android:name=".page.match.item.MatchActivity" />
         <activity
             android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

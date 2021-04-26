@@ -334,4 +334,11 @@
     <dimen name="tv_action_icon_size">50dp</dimen>
     <dimen name="tv_video_player_icon_size">50dp</dimen>
     <dimen name="tv_video_player_icon_padding">10dp</dimen>
+
+    <dimen name="match_item_cha_width">216dp</dimen>
+    <dimen name="match_item_cha_height">120dp</dimen>
+    <dimen name="match_item_sf_width">72dp</dimen>
+    <dimen name="match_item_sf_height">40dp</dimen>
+    <dimen name="match_item_ru_width">144dp</dimen><!-- =2*match_item_sf_width -->
+    <dimen name="match_item_ru_height">80dp</dimen><!-- =match_item_cha_height - match_item_sf_height -->
 </resources>

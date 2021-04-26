@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 239
-        versionName "8.2.3"
+        versionCode 240
+        versionName "8.3.0"
         flavorDimensions "1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -110,7 +110,6 @@ dependencies {
     /*rx permission*/
     implementation "com.github.tbruyelle:rxpermissions:0.12"
 
-    implementation 'com.king.lib:banner:1.0.5'
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
 
     /*compressor*/
@@ -128,4 +127,5 @@ dependencies {
     implementation 'com.belerweb:pinyin4j:2.5.0'
 
     implementation(name: 'jactionbar-release', ext: 'aar')
+    implementation(name: 'banner-release', ext: 'aar')
 }

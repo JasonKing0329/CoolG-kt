@@ -5,15 +5,20 @@ import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
+import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
 import com.king.app.gdb.data.entity.match.MatchRankRecord
@@ -30,6 +35,7 @@ import io.reactivex.rxjava3.core.ObservableSource
  */
 class RankViewModel(application: Application): BaseViewModel(application) {
 
+    var recordRankList = listOf<RankItem<Record?>>()
     var recordRanksObserver = MutableLiveData<List<RankItem<Record?>>>()
     var starRanksObserver = MutableLiveData<List<RankItem<Star?>>>()
     var imageChanged = MutableLiveData<ImageRange>()
@@ -40,6 +46,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var periodText = ObservableField<String>()
 
     private var rankRepository = RankRepository()
+    private var orderRepository = OrderRepository()
 
     // 由record/star spinner来触发初始化，recordOrStar设为-1来标识变化
     var periodOrRtf = 0 //0 period, 1 RTF
@@ -49,6 +56,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     var isSelectMode = false
 
+    var studioList = listOf<FavorRecordOrder>()
+    var studioTextList = mutableListOf<String>()
+    var studiosObserver = MutableLiveData<List<String>>()
+
     init {
         val rankPack = rankRepository.getRankPeriodPack()
         showPeriod = if (rankPack.matchPeriod == null) {
@@ -57,6 +68,21 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             ShowPeriod(rankPack.matchPeriod!!.period, rankPack.matchPeriod!!.orderInPeriod)
         }
         currentPeriod = showPeriod.copy()
+    }
+
+    fun loadStudios() {
+        getStudios()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    studiosObserver.value = studioTextList
+                }
+
+                override fun onError(e: Throwable?) {
+                    messageObserver.value = e?.message?:""
+                }
+
+            })
     }
 
     fun onPeriodOrRtfChanged(periodOrRtf: Int) {
@@ -116,9 +142,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             .flatMap { toRecordList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Record?>>>(getComposite()) {
-                override fun onNext(t: List<RankItem<Record?>>?) {
+                override fun onNext(t: List<RankItem<Record?>>) {
                     checkRecordLastNext()
                     loadingObserver.value = false
+                    recordRankList = t
                     recordRanksObserver.value = t
                     loadImages()
                 }
@@ -179,8 +206,9 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             .flatMap { toRecordList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Record?>>>(getComposite()) {
-                override fun onNext(t: List<RankItem<Record?>>?) {
+                override fun onNext(t: List<RankItem<Record?>>) {
                     loadingObserver.value = false
+                    recordRankList = t
                     recordRanksObserver.value = t
                     loadImages()
                 }
@@ -290,9 +318,9 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             }
             var result = mutableListOf<RankItem<Record?>>()
             list.forEach { bean ->
-                // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
+                // 加载图片路径,获取studioName属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
-                    , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore, true)
+                    , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore, "", true)
                 result.add(item)
 
                 // 上一站存在才加载变化
@@ -338,6 +366,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     // 是否可选
                     if (isSelectMode && samePeriodMap.contains(item.id)) {
                         item.canSelect = false
+                    }
+                    // studio
+                    orderRepository.getRecordStudio(item.bean?.id?:0)?.let { studio ->
+                        item.studioName = studio.name
                     }
 
                     count ++
@@ -496,4 +528,34 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         showPeriod = rankRepository.getLastPeriod(showPeriod)
         loadData()
     }
+
+    private fun getStudios(): Observable<Boolean> {
+        return Observable.create {
+            val studio = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
+            studio?.let { parent ->
+                var sqlBuffer = StringBuffer("select * from favor_order_record where PARENT_ID=");
+                sqlBuffer.append(parent.id).append(" order by NAME")
+                studioList = getDatabase().getFavorDao().getRecordOrdersBySql(SimpleSQLiteQuery(sqlBuffer.toString()))
+            }
+
+            studioTextList.add("All")
+            studioList.forEach { studio ->
+                studioTextList.add(studio.name?:"zzz_unknown")
+            }
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
+
+    fun filterByStudio(position: Int) {
+        if (position == -1) {
+            studiosObserver.value = studioTextList
+        }
+        else {
+            var studioName = studioList[position].name
+            var list = recordRankList?.filter { it.studioName == studioName }
+            recordRanksObserver.value = list
+        }
+    }
+
 }

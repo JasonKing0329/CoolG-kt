@@ -35,40 +35,39 @@
             app:titleColor="@color/actionbar_element" />
 
         <Spinner
-            android:id="@+id/sp_type"
-            android:layout_width="wrap_content"
+            android:id="@+id/sp_studio"
+            android:layout_width="0dp"
             android:layout_height="50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:entries="@array/rank_type"
+            android:layout_marginStart="10dp"
             app:layout_constraintTop_toBottomOf="@+id/actionbar"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ll_period"/>
 
         <TextView
             android:id="@+id/tv_period"
-            android:layout_width="70dp"
+            android:layout_width="60dp"
             android:layout_height="@dimen/tag_height"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="4dp"
             android:background="@drawable/selector_studio_tag_bg"
             android:gravity="center"
             android:text="Period"
             android:textColor="@drawable/selector_studio_tag_text"
-            app:layout_constraintBottom_toBottomOf="@+id/sp_type"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_studio"
             app:layout_constraintEnd_toStartOf="@+id/tv_rtf"
-            app:layout_constraintTop_toTopOf="@+id/sp_type" />
+            app:layout_constraintTop_toTopOf="@+id/sp_studio" />
 
         <TextView
             android:id="@+id/tv_rtf"
-            android:layout_width="50dp"
+            android:layout_width="40dp"
             android:layout_height="@dimen/tag_height"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="10dp"
             android:background="@drawable/selector_studio_tag_bg"
             android:gravity="center"
             android:text="RTF"
             android:textColor="@drawable/selector_studio_tag_text"
-            app:layout_constraintBottom_toBottomOf="@+id/sp_type"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_studio"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/sp_type" />
+            app:layout_constraintTop_toTopOf="@+id/sp_studio" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
@@ -77,24 +76,25 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sp_type"
+            app:layout_constraintTop_toBottomOf="@+id/sp_studio"
             tools:listitem="@layout/adapter_match_rank"/>
 
         <LinearLayout
+            android:id="@+id/ll_period"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:visibility="@{model.periodGroupVisibility}"
-            app:layout_constraintBottom_toBottomOf="@+id/sp_type"
-            app:layout_constraintTop_toTopOf="@+id/sp_type"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_studio"
+            app:layout_constraintTop_toTopOf="@+id/sp_studio"
             app:layout_constraintEnd_toStartOf="@id/tv_period">
             <ImageView
                 android:id="@+id/iv_previous"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:visibility="@{model.periodLastVisibility}"
-                android:padding="6dp"
+                android:padding="4dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/ic_chevron_left_black_36dp" />
             <TextView
@@ -106,10 +106,10 @@
                 tools:text="P1-W46"/>
             <ImageView
                 android:id="@+id/iv_next"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:visibility="@{model.periodNextVisibility}"
-                android:padding="6dp"
+                android:padding="4dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/ic_chevron_right_black_24dp" />
         </LinearLayout>

@@ -48,6 +48,7 @@ data class RankItem<T> (
     var score: Int,
     var matchCount: Int,
     var unavailableScore: Int? = null,
+    var studioName: String? = "",
     var canSelect: Boolean = true
 )
 

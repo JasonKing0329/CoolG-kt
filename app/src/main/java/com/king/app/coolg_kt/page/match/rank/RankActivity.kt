@@ -7,6 +7,9 @@ import android.content.Intent
 import android.graphics.Rect
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SimpleAdapter
+import android.widget.SpinnerAdapter
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -183,16 +186,23 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         })
 
         mBinding.tvPeriod.isSelected = true
-        // spinner会自动触发onItemSelected 0
-        mBinding.spType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+        mModel.onRecordOrStarChanged(0)
 
-            }
+        mModel.studiosObserver.observe(this, Observer {
+            var adapter = ArrayAdapter<String>(this@RankActivity, android.R.layout.simple_dropdown_item_1line, it)
+            mBinding.spStudio.adapter = adapter
+            // spinner会自动触发onItemSelected 0
+            mBinding.spStudio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                mModel.onRecordOrStarChanged(position)
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    mModel.filterByStudio(position - 1)
+                }
             }
-        }
+        })
+        mModel.loadStudios()
     }
 
     private fun showRankDialog(record: Record) {

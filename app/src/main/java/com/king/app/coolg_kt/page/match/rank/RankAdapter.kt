@@ -51,7 +51,7 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
         binding.tvRank.setOnClickListener { onItemListener?.onClickRank(bean) }
         binding.tvChange.setOnClickListener { onItemListener?.onClickRank(bean) }
         binding.ivHead.setOnClickListener { onItemListener?.onClickId(bean) }
-        binding.tvScore.setOnClickListener { onItemListener?.onClickScore(bean) }
+        binding.bgScore.setOnClickListener { onItemListener?.onClickScore(bean) }
         binding.tvMatchCount.setOnClickListener { onItemListener?.onClickScore(bean) }
 
         when {

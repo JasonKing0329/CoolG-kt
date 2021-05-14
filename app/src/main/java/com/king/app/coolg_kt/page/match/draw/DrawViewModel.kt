@@ -315,6 +315,9 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createScore() {
+        if (itemsObserver.value == null || itemsObserver.value!!.isEmpty()) {
+            return
+        }
         drawRepository.createScore(matchPeriod)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<Boolean>(getComposite()) {

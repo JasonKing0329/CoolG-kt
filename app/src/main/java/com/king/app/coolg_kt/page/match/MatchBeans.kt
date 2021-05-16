@@ -5,6 +5,7 @@ import androidx.databinding.Bindable
 import com.king.app.coolg_kt.BR
 import com.king.app.coolg_kt.view.widget.chart.adapter.LineData
 import com.king.app.gdb.data.bean.ScoreCount
+import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -216,6 +217,13 @@ data class FinalListItem(
     var match: MatchPeriodWrap,
     var recordWin: MatchRecordWrap,
     var recordLose: MatchRecordWrap
+)
+data class TitleCountItem(
+    var record: Record,
+    var titles: Int,
+    var rank: Int,
+    var isOnlyOne: Boolean,
+    var imageUrl: String? = null
 )
 class AxisDegree<T> {
     var text: String? = null

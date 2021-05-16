@@ -90,7 +90,7 @@
         <activity android:name=".page.match.draw.FinalDrawActivity" />
         <activity android:name=".page.match.rank.RankActivity" />
         <activity android:name=".page.match.h2h.H2hActivity" />
-        <activity android:name=".page.match.list.FinalListActivity" />
+        <activity android:name=".page.match.titles.FinalListActivity" />
         <activity android:name=".page.match.detail.DetailActivity" />
         <activity android:name=".page.match.item.MatchActivity" />
         <activity

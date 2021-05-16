@@ -6,4 +6,10 @@
         android:title="Sort"
         android:icon="@drawable/ic_filter_list_3f51b5"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_titles_count"
+        android:title="Titles count"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_date"
+        android:title="By date"
+        app:showAsAction="never"/>
 </menu>

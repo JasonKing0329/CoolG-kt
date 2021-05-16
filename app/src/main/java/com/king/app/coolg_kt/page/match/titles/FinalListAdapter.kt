@@ -1,4 +1,4 @@
-package com.king.app.coolg_kt.page.match.list
+package com.king.app.coolg_kt.page.match.titles
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

@@ -3,6 +3,7 @@ package com.king.app.gdb.data.dao
 import androidx.room.*
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.bean.ScoreCount
+import com.king.app.gdb.data.bean.TitlesCount
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.*
 
@@ -308,4 +309,7 @@ interface MatchDao {
 
     @Query("select recordId from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by rank limit :top")
     fun getTopRecordRanks(period: Int, orderInPeriod: Int, top: Int): List<Long>
+
+    @Query("select winnerId, count(winnerId) as num from match_item where round=:roundId group by winnerId order by num desc")
+    fun countGroupByRecord(roundId: Int): List<TitlesCount>
 }

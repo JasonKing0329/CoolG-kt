@@ -22,3 +22,7 @@ data class ScoreCount(
 ) {
     var unavailableScore: Int? = null
 }
+data class TitlesCount(
+    var winnerId: Long,
+    var num: Int
+)

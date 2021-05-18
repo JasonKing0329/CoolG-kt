@@ -65,8 +65,8 @@ class SystemPlayerViewModel(application: Application) : BaseViewModel(applicatio
                 val bean = SettingProperty.getTvRemembers()
                 val exist = bean.list.firstOrNull{ it.url == currentUrl }
                 if (exist == null) {
-                    // 最多记录5个
-                    if (bean.list.size == 5) {
+                    // 最多记录15个
+                    if (bean.list.size == 15) {
                         bean.list.removeAt(0)
                     }
                     bean.list.add(PlayTime(currentUrl, time))

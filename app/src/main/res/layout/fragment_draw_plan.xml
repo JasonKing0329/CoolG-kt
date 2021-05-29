@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_gm1000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp">
+            <TextView
+                android:id="@+id/tv_gm1000_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Qualify Draw"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tv_gm1000_t_s"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shuffle比例"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm1000_shuffle"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm1000_shuffle"/>
+            <EditText
+                android:id="@+id/et_gm1000_shuffle"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm1000_t_s"
+                app:layout_constraintTop_toBottomOf="@+id/tv_gm1000_title" />
+            <TextView
+                android:id="@+id/tv_gm1000_t_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最低排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm1000_min"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm1000_min"/>
+            <EditText
+                android:id="@+id/et_gm1000_min"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm1000_t_min"
+                app:layout_constraintTop_toBottomOf="@+id/et_gm1000_shuffle" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_gm500"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp">
+            <TextView
+                android:id="@+id/tv_gm500_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Main Draw"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tv_gm500_top10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top 10名额"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm500_top10"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm500_top10"/>
+            <EditText
+                android:id="@+id/et_gm500_top10"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm500_top10"
+                app:layout_constraintTop_toBottomOf="@+id/tv_gm500_main" />
+            <TextView
+                android:id="@+id/tv_gm500_top20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top11-20名额"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm500_top20"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm500_top20"/>
+            <EditText
+                android:id="@+id/et_gm500_top20"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm500_top20"
+                app:layout_constraintTop_toBottomOf="@+id/et_gm500_top10" />
+            <TextView
+                android:id="@+id/tv_gm500_top50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top21-50名额"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm500_top50"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm500_top50"/>
+            <EditText
+                android:id="@+id/et_gm500_top50"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm500_top50"
+                app:layout_constraintTop_toBottomOf="@+id/et_gm500_top20" />
+            <TextView
+                android:id="@+id/tv_gm500_main_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最低排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm500_main_min"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm500_main_min"/>
+            <EditText
+                android:id="@+id/et_gm500_main_min"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm500_main_min"
+                app:layout_constraintTop_toBottomOf="@+id/et_gm500_top50" />
+            <TextView
+                android:id="@+id/tv_gm500_qualify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Qualify Draw"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_gm500_main_min" />
+            <TextView
+                android:id="@+id/tv_gm500_qualify_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最低排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_gm500_qualify_min"
+                app:layout_constraintBottom_toBottomOf="@+id/et_gm500_qualify_min"/>
+            <EditText
+                android:id="@+id/et_gm500_qualify_min"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_gm500_qualify_min"
+                app:layout_constraintTop_toBottomOf="@+id/tv_gm500_qualify" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_low"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp">
+            <TextView
+                android:id="@+id/tv_low_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Main Draw"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tv_low_seed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seed最低排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_low_seed"
+                app:layout_constraintBottom_toBottomOf="@+id/et_low_seed"/>
+            <EditText
+                android:id="@+id/et_low_seed"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_low_seed"
+                app:layout_constraintTop_toBottomOf="@+id/tv_low_main" />
+            <TextView
+                android:id="@+id/tv_low_main_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Main最低排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_low_main_min"
+                app:layout_constraintBottom_toBottomOf="@+id/et_low_main_min"/>
+            <EditText
+                android:id="@+id/et_low_main_min"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_low_main_min"
+                app:layout_constraintTop_toBottomOf="@+id/et_low_seed" />
+            <TextView
+                android:id="@+id/tv_low_qualify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Qualify Draw"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_low_main_min" />
+            <TextView
+                android:id="@+id/tv_low_qualify_seed_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seed最低排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_low_qualify_seed_min"
+                app:layout_constraintBottom_toBottomOf="@+id/et_low_qualify_seed_min"/>
+            <EditText
+                android:id="@+id/et_low_qualify_seed_min"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_low_qualify_seed_min"
+                app:layout_constraintTop_toBottomOf="@+id/tv_low_qualify" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TvDialogConfirmBase"
+            android:layout_width="match_parent"
+            android:layout_marginTop="30dp"
+            android:text="@string/ok"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

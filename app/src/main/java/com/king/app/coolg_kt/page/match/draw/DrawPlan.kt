@@ -18,7 +18,7 @@ import kotlin.math.abs
  * @author：Jing
  * @date: 2021/1/10 17:33
  */
-abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) {
+abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap, var drawStrategy: DrawStrategy?) {
 
     val database = CoolApplication.instance.database!!
 
@@ -300,7 +300,7 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap) 
     }
 }
 
-class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
 
     override fun calcSeed() {
         seed = 32
@@ -330,7 +330,7 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(li
 /**
  * GM1000，Top30 4站128签强制，其他6站选4站强制
  */
-class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
 
     override fun calcSeed() {
         seed = if (match.match.byeDraws < 16) 16 else match.match.byeDraws
@@ -350,16 +350,26 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list,
     }
 
     /**
-     * qualify拓展1倍，后50个名额扩展3倍进行shuffle
+     * qualify设置shuffle比例
+     * shuffle比例之前的按排名直接入围，shuffle比例部分的按最低排名以内进行shuffle
      */
     override fun calcQualify() {
         qualify = match.match.qualifyDraws * 8
-        val forsure = qualify - 50
+        // 确定shuffle的数量
+        var shuffleNum = qualify / 2// 默认shuffle的数量
+        drawStrategy?.gm1000?.let { shuffleNum = (qualify * (it.shuffleRate.toFloat() / 100)).toInt() }
+        // 确定直接入围的数量
+        val forsure = qualify - shuffleNum
         val tempList = mutableListOf<RankRecord>()
+        // qualify的起始rank
         val directIn = seed + directInUnSeed
+        // 添加直接入围
         tempList.addAll(list.subList(directIn, directIn + forsure))
-        // 后50个名额扩展3倍进行shuffle
-        val extend = list.subList(directIn + forsure, directIn + forsure + 150).shuffled().take(50 - match.bean.qualifyWildcard)
+        // 在最低排名内进行shuffle
+        var lowRank = directIn + forsure + shuffleNum * 3// 默认最低，按shuffleNum的3倍扩充
+        drawStrategy?.gm1000?.let { lowRank = it.lowRank }
+        // 添加所有shuffle的数据
+        val extend = list.subList(directIn + forsure, lowRank).shuffled().take(shuffleNum - match.bean.qualifyWildcard)
         tempList.addAll(extend)
         qualifyList = tempList
     }
@@ -378,9 +388,10 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list,
 /**
  * GM500，排名300以内有条件随机
  */
-class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
 
     val random = Random()
+    var mainList = mutableListOf<RankRecord>()
 
     private fun addToResult(rankRecord: RankRecord, resultSeeds: MutableList<RankRecord>) {
         when {
@@ -411,6 +422,38 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     }
 
     override fun calcSeed() {
+        drawStrategy?.gm500?.let {
+            seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
+            directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
+            var mainSure = seed + directInUnSeed
+            if (it.top10 > 0) {
+                val result = list.filter { item -> item.rank <= 10 && !samePeriodMap.contains(item.recordId)}.shuffled().take(it.top10)
+                mainList.addAll(result)
+            }
+            if (it.top20 > 0) {
+                val result = list.filter { item -> item.rank in 11..20 && !samePeriodMap.contains(item.recordId)}.shuffled().take(it.top20)
+                mainList.addAll(result)
+            }
+            if (it.top50 > 0) {
+                val result = list.filter { item -> item.rank in 21..50 && !samePeriodMap.contains(item.recordId)}.shuffled().take(it.top50)
+                mainList.addAll(result)
+            }
+            // 超出则删去
+            if (mainList.size > mainSure) {
+                mainList = mainList.subList(0, mainSure)
+            }
+            // 不足则在最低排名内补
+            else if (mainList.size < mainSure) {
+                var limitList = list.filter { item -> item.rank in 51..it.mainLowRank && !samePeriodMap.contains(item.recordId)}
+                mainList.addAll(limitList.shuffled().take(mainSure - mainList.size))
+            }
+            // 确定种子列表
+            seedList = mainList.subList(0, seed).sortedBy { item -> item.rank }
+            // 确定直接入围列表
+            directInUnSeedList = mainList.subList(seed, mainList.size).sortedBy { item -> item.rank }
+            return
+        }
+        // 默认方式
         seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in list.indices) {
@@ -423,6 +466,10 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     }
 
     override fun calcDirectInUnSeed() {
+        drawStrategy?.gm500?.let {
+            return
+        }
+        // 默认方式
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         val seedEnd = seedList.last().rank
         var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
@@ -442,7 +489,11 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     override fun calcQualify() {
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
-        val limitList = list.filter { it.rank in (directInEnd + 1)..300 }
+        var lowRank = 300// 默认最低
+        drawStrategy?.gm500?.let {
+            lowRank = it.qualifyLowRank
+        }
+        val limitList = list.filter { it.rank in (directInEnd + 1)..lowRank }
         val result = mutableListOf<RankRecord>()
         run outside@{
             limitList.shuffled().forEach {
@@ -471,9 +522,10 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
 /**
  * GM250，排名500内有条件随机
  */
-class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
 
     val random = Random()
+    var mainList = mutableListOf<RankRecord>()
 
     private fun addToResult(rankRecord: RankRecord, resultSeeds: MutableList<RankRecord>) {
         when {
@@ -510,6 +562,37 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     }
 
     override fun calcSeed() {
+        drawStrategy?.gm250?.let {
+            seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
+            directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
+            var mainSure = seed + directInUnSeed
+            if (it.top10 > 0) {
+                val result = list.filter { item -> item.rank <= 10 && !samePeriodMap.contains(item.recordId)}.shuffled().take(it.top10)
+                mainList.addAll(result)
+            }
+            if (it.top20 > 0) {
+                val result = list.filter { item -> item.rank in 11..20 && !samePeriodMap.contains(item.recordId)}.shuffled().take(it.top20)
+                mainList.addAll(result)
+            }
+            if (it.top50 > 0) {
+                val result = list.filter { item -> item.rank in 21..50 && !samePeriodMap.contains(item.recordId)}.shuffled().take(it.top50)
+                mainList.addAll(result)
+            }
+            // 超出则删去
+            if (mainList.size > mainSure) {
+                mainList = mainList.subList(0, mainSure)
+            }
+            // 不足则在最低排名内补
+            else if (mainList.size < mainSure) {
+                var limitList = list.filter { item -> item.rank in 51..it.mainLowRank && !samePeriodMap.contains(item.recordId)}
+                mainList.addAll(limitList.shuffled().take(mainSure - mainList.size))
+            }
+            // 确定种子列表
+            seedList = mainList.subList(0, seed).sortedBy { item -> item.rank }
+            // 确定直接入围列表
+            directInUnSeedList = mainList.subList(seed, mainList.size).sortedBy { item -> item.rank }
+            return
+        }
         seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
         val resultSeeds = mutableListOf<RankRecord>()
         for (i in list.indices) {
@@ -522,6 +605,9 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     }
 
     override fun calcDirectInUnSeed() {
+        drawStrategy?.gm500?.let {
+            return
+        }
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         val seedEnd = seedList.last().rank
         var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
@@ -541,7 +627,11 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
     override fun calcQualify() {
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
-        val limitList = list.filter { it.rank in (directInEnd + 1)..500 }
+        var lowRank = 500// 默认最低
+        drawStrategy?.gm500?.let {
+            lowRank = it.qualifyLowRank
+        }
+        val limitList = list.filter { it.rank in (directInEnd + 1)..lowRank }
         val result = mutableListOf<RankRecord>()
         run outside@{
             limitList.shuffled().forEach {
@@ -566,7 +656,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, 
  * Low范围为rankLimit以后1200(MatchConstants.RANK_LIMIT_MAX)以内条件随机
  * list已经满足了1200的条件
  */
-class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, match) {
+class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
 
     val rankLimit = SettingProperty.getRankLimitForMatchLow()
     val random = Random()
@@ -575,6 +665,34 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
 
     override fun prepareSamePeriodMap() {
         super.prepareSamePeriodMap()
+        drawStrategy?.low?.let {
+            // 如果是64签，固定设16种子，32签固定设8种子。均无轮空
+            seed = if (match.match.draws == 64) {
+                16
+            } else {
+                8
+            }
+            seedList = list.filter { item -> item.rank in (rankLimit + 1)..it.mainSeedLow && !samePeriodMap.contains(item.recordId) }
+                .shuffled().take(seed).sortedBy { item -> item.rank }
+            // 直接入围
+            val seedEnd = seedList.last().rank
+            directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
+            directInUnSeedList = list.filter { item -> item.rank in (seedEnd + 1)..it.mainLow && !samePeriodMap.contains(item.recordId) }
+                .shuffled().take(directInUnSeed).sortedBy { item -> item.rank }
+            // qualify
+            val directInEnd = directInUnSeedList.last().rank
+            qualify = match.match.qualifyDraws * 8
+            val qualifySeed = match.match.qualifyDraws
+            var qualifies = mutableListOf<RankRecord>()
+            var quaSeeds = list.filter { item -> item.rank in (directInEnd + 1)..it.qualifySeedLow && !samePeriodMap.contains(item.recordId) }
+                .shuffled().take(qualifySeed).sortedBy { item -> item.rank }
+            var quaLefts = list.filter { item -> item.rank > it.qualifySeedLow && !samePeriodMap.contains(item.recordId) }
+                .shuffled().take(qualify - qualifySeed - match.bean.qualifyWildcard).sortedBy { item -> item.rank }
+            qualifies.addAll(quaSeeds)
+            qualifies.addAll(quaLefts)
+            qualifyList = qualifies
+            return
+        }
         rangeList = list.filter { it.rank>rankLimit && !samePeriodMap.contains(it.recordId) }
             .shuffled()
             .take(total)
@@ -582,6 +700,9 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
     }
 
     override fun calcSeed() {
+        drawStrategy?.low?.let {
+            return
+        }
         // 如果是64签，固定设16种子，32签固定设8种子。均无轮空
         seed = if (match.match.draws == 64) {
             16
@@ -592,11 +713,17 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap): DrawPlan(list, ma
     }
 
     override fun calcDirectInUnSeed() {
+        drawStrategy?.low?.let {
+            return
+        }
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         directInUnSeedList = rangeList.subList(seed, seed + directInUnSeed)
     }
 
     override fun calcQualify() {
+        drawStrategy?.low?.let {
+            return
+        }
         qualify = match.match.qualifyDraws * 8
         qualifyList = rangeList.takeLast(qualify - match.bean.qualifyWildcard)
     }

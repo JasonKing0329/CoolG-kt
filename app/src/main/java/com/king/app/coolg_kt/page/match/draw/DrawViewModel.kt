@@ -184,8 +184,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         return drawRepository.isDrawExist(matchPeriod.bean.id)
     }
 
-    fun createDraw() {
-        drawRepository.createDraw(matchPeriod)
+    fun createDraw(drawStrategy: DrawStrategy) {
+        drawRepository.createDraw(matchPeriod, drawStrategy)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
                 override fun onNext(t: DrawData) {

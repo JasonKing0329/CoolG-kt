@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.match.HomeUrls
+import com.king.app.coolg_kt.page.match.draw.DrawStrategy
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.star.random.RandomData
 import com.king.app.coolg_kt.page.tv.TvPlayTimes
@@ -315,6 +316,24 @@ class SettingProperty: BaseProperty() {
             setString("tv_remembers", sql)
         }
 
+
+        fun getDrawStrategy(): DrawStrategy {
+            val sql = getString("draw_strategy")
+            try {
+                return Gson().fromJson(sql, DrawStrategy::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return DrawStrategy()
+        }
+
+        fun setDrawStrategy(bean: DrawStrategy) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("draw_strategy", sql)
+        }
     }
 
 }

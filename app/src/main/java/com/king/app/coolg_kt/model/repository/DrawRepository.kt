@@ -52,7 +52,7 @@ class DrawRepository: BaseRepository() {
         return FinalDrawPlan(rankRecords, match).arrangeMainDraw()
     }
 
-    fun createDraw(bean: MatchPeriodWrap):Observable<DrawData> {
+    fun createDraw(bean: MatchPeriodWrap, drawStrategy: DrawStrategy):Observable<DrawData> {
         return Observable.create {
             var drawData = DrawData(bean.bean)
             // 第一个赛季，种子排位参考CountRecord
@@ -63,7 +63,7 @@ class DrawRepository: BaseRepository() {
             else {
                 createRankSystem()
             }
-            createNormalMainDraw(bean, rankRecords, drawData)
+            createNormalMainDraw(bean, rankRecords, drawData, drawStrategy)
             it.onNext(drawData)
             it.onComplete()
         }
@@ -81,13 +81,18 @@ class DrawRepository: BaseRepository() {
         return listOf()
     }
 
-    private fun createNormalMainDraw(match: MatchPeriodWrap, rankRecords: List<RankRecord>, drawData: DrawData) {
+    private fun createNormalMainDraw(
+        match: MatchPeriodWrap,
+        rankRecords: List<RankRecord>,
+        drawData: DrawData,
+        strategy: DrawStrategy
+    ) {
         var plan = when(match.match.level) {
-            MatchConstants.MATCH_LEVEL_GS -> GrandSlamPlan(rankRecords, match)
-            MatchConstants.MATCH_LEVEL_GM1000 -> GM1000Plan(rankRecords, match)
-            MatchConstants.MATCH_LEVEL_GM500 -> GM500Plan(rankRecords, match)
-            MatchConstants.MATCH_LEVEL_GM250 -> GM250Plan(rankRecords, match)
-            else -> LowPlan(rankRecords, match)
+            MatchConstants.MATCH_LEVEL_GS -> GrandSlamPlan(rankRecords, match, strategy)
+            MatchConstants.MATCH_LEVEL_GM1000 -> GM1000Plan(rankRecords, match, strategy)
+            MatchConstants.MATCH_LEVEL_GM500 -> GM500Plan(rankRecords, match, strategy)
+            MatchConstants.MATCH_LEVEL_GM250 -> GM250Plan(rankRecords, match, strategy)
+            else -> LowPlan(rankRecords, match, strategy)
         }
         plan.prepare()
         val mainCells = plan.arrangeMainDraw()

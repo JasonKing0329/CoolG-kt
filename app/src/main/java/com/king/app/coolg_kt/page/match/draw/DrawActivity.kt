@@ -26,7 +26,9 @@ import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -85,11 +87,11 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 R.id.menu_create_draw -> {
                     if (mModel.isDrawExist()) {
                         showConfirmCancelMessage("Current match draw is already exist, do you want clear it?",
-                            DialogInterface.OnClickListener { dialog, which -> mModel.createDraw() },
+                            DialogInterface.OnClickListener { dialog, which -> startCreateDraw() },
                             null)
                     }
                     else {
-                        mModel.createDraw()
+                        startCreateDraw()
                     }
                 }
                 R.id.menu_create_score -> {
@@ -223,6 +225,22 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             mBinding.tvMain.isSelected = false
             mBinding.tvQualify.isSelected = true
         }
+    }
+
+    private fun startCreateDraw() {
+        var content = DrawPlanDialog()
+        content.matchPeriod = mModel.matchPeriod
+        content.onDrawPlanListener = object : DrawPlanDialog.OnDrawPlanListener {
+            override fun onSetPlan(drawStrategy: DrawStrategy) {
+                mModel.createDraw(drawStrategy)
+            }
+        }
+        var dialog = DraggableDialogFragment()
+        val title = "Plan"
+        dialog.setTitle(title)
+        dialog.contentFragment = content
+        dialog.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
+        dialog.show(supportFragmentManager, "DrawPlanDialog")
     }
 
     private fun selectChangeRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {

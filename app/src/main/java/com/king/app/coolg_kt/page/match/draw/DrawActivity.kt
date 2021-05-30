@@ -19,6 +19,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
@@ -228,19 +229,24 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     }
 
     private fun startCreateDraw() {
-        var content = DrawPlanDialog()
-        content.matchPeriod = mModel.matchPeriod
-        content.onDrawPlanListener = object : DrawPlanDialog.OnDrawPlanListener {
-            override fun onSetPlan(drawStrategy: DrawStrategy) {
-                mModel.createDraw(drawStrategy)
-            }
+        if (mModel.matchPeriod.match.level == MatchConstants.MATCH_LEVEL_GS) {
+            mModel.createDraw(SettingProperty.getDrawStrategy())
         }
-        var dialog = DraggableDialogFragment()
-        val title = "Plan"
-        dialog.setTitle(title)
-        dialog.contentFragment = content
-        dialog.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
-        dialog.show(supportFragmentManager, "DrawPlanDialog")
+        else {
+            var content = DrawPlanDialog()
+            content.matchPeriod = mModel.matchPeriod
+            content.onDrawPlanListener = object : DrawPlanDialog.OnDrawPlanListener {
+                override fun onSetPlan(drawStrategy: DrawStrategy) {
+                    mModel.createDraw(drawStrategy)
+                }
+            }
+            var dialog = DraggableDialogFragment()
+            val title = "Plan"
+            dialog.setTitle(title)
+            dialog.contentFragment = content
+            dialog.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
+            dialog.show(supportFragmentManager, "DrawPlanDialog")
+        }
     }
 
     private fun selectChangeRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {

@@ -447,10 +447,11 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                 var limitList = list.filter { item -> item.rank in 51..it.mainLowRank && !samePeriodMap.contains(item.recordId)}
                 mainList.addAll(limitList.shuffled().take(mainSure - mainList.size))
             }
+            mainList.sortBy { item -> item.rank }
             // 确定种子列表
-            seedList = mainList.subList(0, seed).sortedBy { item -> item.rank }
+            seedList = mainList.subList(0, seed)
             // 确定直接入围列表
-            directInUnSeedList = mainList.subList(seed, mainList.size).sortedBy { item -> item.rank }
+            directInUnSeedList = mainList.subList(seed, mainList.size)
             return
         }
         // 默认方式
@@ -587,6 +588,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                 var limitList = list.filter { item -> item.rank in 51..it.mainLowRank && !samePeriodMap.contains(item.recordId)}
                 mainList.addAll(limitList.shuffled().take(mainSure - mainList.size))
             }
+            mainList.sortBy { item -> item.rank }
             // 确定种子列表
             seedList = mainList.subList(0, seed).sortedBy { item -> item.rank }
             // 确定直接入围列表

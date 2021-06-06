@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
@@ -55,6 +56,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var currentPeriod: ShowPeriod
 
     var isSelectMode = false
+    var mMatchSelectLevel = 0
 
     var studioList = listOf<FavorRecordOrder>()
     var studioTextList = mutableListOf<String>()
@@ -370,6 +372,19 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     // studio
                     orderRepository.getRecordStudio(item.bean?.id?:0)?.let { studio ->
                         item.studioName = studio.name
+                    }
+                    // match level
+                    if (isSelectMode) {
+                        var items = rankRepository.getRecordCurRankRangeMatches(item.bean!!.id!!)
+                        var count = 0
+                        for (item in items) {
+                            getDatabase().getMatchDao().getMatchPeriod(item)?.match?.let { match ->
+                                if (match.level == mMatchSelectLevel) {
+                                    count ++
+                                }
+                            }
+                        }
+                        item.levelMatchCount = "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
                     }
 
                     count ++

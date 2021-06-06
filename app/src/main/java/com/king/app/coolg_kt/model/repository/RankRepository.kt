@@ -250,23 +250,19 @@ class RankRepository: BaseRepository() {
         return MatchConstants.RANK_OUT_OF_SYSTEM
     }
 
-    fun getRankPeriodRecordMatchItems(recordId: Long): List<MatchItem> {
-        return getRecordMatchItems(recordId, getRankPeriodPack())
-    }
-
-    fun getRTFRecordMatchItems(recordId: Long): List<MatchItem> {
-        return getRecordMatchItems(recordId, getRTFPeriodPack())
-    }
-
-    fun getRecordMatchItems(recordId: Long, pack: PeriodPack): List<MatchItem> {
-        return getDatabase().getMatchDao().getRecordMatchItems(recordId, pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
-    }
-
     fun getRecordMatchItemsRange(recordId: Long, pack: PeriodPack): List<MatchItem> {
         val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
         val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
         val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
         return getDatabase().getMatchDao().getRecordMatchItemsRange(recordId, rangeStart, rangeEnd, circleTotal)
+    }
+
+    fun getRecordCurRankRangeMatches(recordId: Long): List<Long> {
+        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+        val pack = getRTFPeriodPack()
+        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+        return getDatabase().getMatchDao().getRecordMatchesRange(recordId, rangeStart, rangeEnd, circleTotal)
     }
 
     fun countRecordTitlesIn(recordId: Long, pack: PeriodPack): Int {

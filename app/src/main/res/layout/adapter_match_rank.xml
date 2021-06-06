@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
+        <import type="android.view.View"/>
         <variable
             name="bean"
             type="com.king.app.coolg_kt.page.match.RankItem" />
@@ -109,11 +110,27 @@
             android:maxLines="2"
             android:ellipsize="end"
             android:layout_marginStart="5dp"
+            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@+id/tv_match_count"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_level_count"
             tools:text="Lucas Entertainment"/>
+
+        <TextView
+            android:id="@+id/tv_level_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{bean.levelMatchCount}"
+            android:visibility="@{bean.levelMatchCount == null ? View.GONE:View.VISIBLE}"
+            android:textSize="10dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_match_count"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_studio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Grand Slam 4"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

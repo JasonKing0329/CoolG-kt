@@ -5,6 +5,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.databinding.FragmentSeasonEditorBinding
+import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.list.MatchListActivity
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.coolg_kt.view.DateManager
@@ -46,15 +47,22 @@ class SeasonEditor: DraggableContentFragment<FragmentSeasonEditorBinding>() {
                 }
             })
         }
-        matchPeriod?.let {
-            match = it.match
-            date = it.bean.date
-            mBinding.tvSelectMatch.text = it.match.name
+        // new
+        if (matchPeriod == null) {
+            CoolApplication.instance.database!!.getMatchDao().getLastCompletedMatchPeriod()?.let {
+                mBinding.etPeriod.setText(it.period.toString())
+            }
+        }
+        // update
+        else {
+            match = matchPeriod!!.match
+            date = matchPeriod!!.bean.date
+            mBinding.tvSelectMatch.text = matchPeriod!!.match.name
             mBinding.btnDate.text = FormatUtil.formatDate(date)
-            mBinding.etPeriod.setText(it.bean.period.toString())
-            mBinding.tvOrderInPeriod.text = "W${it.bean.orderInPeriod}"
-            mBinding.etWcMain.setText(it.bean.mainWildcard.toString())
-            mBinding.etWcQualify.setText(it.bean.qualifyWildcard.toString())
+            mBinding.etPeriod.setText(matchPeriod!!.bean.period.toString())
+            mBinding.tvOrderInPeriod.text = "W${matchPeriod!!.bean.orderInPeriod}"
+            mBinding.etWcMain.setText(matchPeriod!!.bean.mainWildcard.toString())
+            mBinding.etWcQualify.setText(matchPeriod!!.bean.qualifyWildcard.toString())
         }
         mBinding.tvSelectMatch.setOnClickListener {
             MatchListActivity.startPageToSelect(this@SeasonEditor, REQUEST_SELECT_MATCH)

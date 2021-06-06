@@ -50,7 +50,8 @@ data class RankItem<T> (
     var matchCount: Int,
     var unavailableScore: Int? = null,
     var studioName: String? = "",
-    var canSelect: Boolean = true
+    var canSelect: Boolean = true,
+    var levelMatchCount: String? = null
 )
 
 data class PeriodPack (

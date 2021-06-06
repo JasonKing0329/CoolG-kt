@@ -172,6 +172,18 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     e?.printStackTrace()
                 }
             })
+
+        loadTimeWaste1(recordRanksObserver.value)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
+                override fun onNext(t: ImageRange) {
+                    imageChanged.value = t
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                }
+            })
     }
 
     private fun recordRankPeriodRx(): Observable<List<MatchRankRecordWrap>> {
@@ -373,6 +385,31 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     orderRepository.getRecordStudio(item.bean?.id?:0)?.let { studio ->
                         item.studioName = studio.name
                     }
+
+                    count ++
+                    if (count % 30 == 0) {
+                        it.onNext(ImageRange(count - 30, count))
+                        totalNotified = count
+                    }
+                }
+                if (totalNotified != list.size) {
+                    it.onNext(ImageRange(totalNotified, list.size - totalNotified))
+                }
+            }
+            it.onComplete()
+        }
+    }
+
+    /**
+     * 给1000+条加载match level更加耗时,单列出来异步加载
+     */
+    private fun loadTimeWaste1(items: List<RankItem<Record?>>?): Observable<ImageRange> {
+        return Observable.create {
+            var count = 0
+            var totalNotified = 0
+            items?.let { list ->
+                list.forEach { item ->
+                    // 每30条通知一次
                     // match level
                     if (isSelectMode) {
                         var items = rankRepository.getRecordCurRankRangeMatches(item.bean!!.id!!)
@@ -386,7 +423,6 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                         }
                         item.levelMatchCount = "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
                     }
-
                     count ++
                     if (count % 30 == 0) {
                         it.onNext(ImageRange(count - 30, count))

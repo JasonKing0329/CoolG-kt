@@ -197,5 +197,6 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
         var starId: Long = 0
         var tagId: Long = 0
         var scene: String? = AppConstants.KEY_SCENE_ALL
+        var outOfRank: Boolean = false
     }
 }

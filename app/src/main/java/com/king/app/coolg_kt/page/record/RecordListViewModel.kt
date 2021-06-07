@@ -3,18 +3,14 @@ package com.king.app.coolg_kt.page.record
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
-import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
-import com.king.app.coolg_kt.model.repository.TagRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
-import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
-import com.king.app.gdb.data.bean.RecordScene
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -123,7 +119,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     private fun queryRecords(): Observable<List<RecordWrap>> {
         return recordRepository.getRecordFilter(mSortMode, mSortDesc, factor.recordType, factor.starId
-            , factor.orderId, factor.tagId, moreCursor, mRecommendBean, factor.keyword, factor.scene)
+            , factor.orderId, factor.tagId, moreCursor, mRecommendBean, factor.keyword, factor.scene, factor.outOfRank)
             .flatMap { filter -> recordRepository.getRecords(filter) }
             .flatMap { list ->  toViewItems(list)}
             .compose(applySchedulers());

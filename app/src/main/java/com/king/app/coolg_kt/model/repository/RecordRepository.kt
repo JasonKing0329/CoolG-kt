@@ -12,7 +12,6 @@ import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
-import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
 import com.king.app.gdb.data.relation.RecordStarWrap
@@ -53,7 +52,8 @@ class RecordRepository: BaseRepository() {
         cursor: RecordCursor,
         filterBean: RecommendBean? = null,
         like: String? = null,
-        whereScene: String? = null
+        whereScene: String? = null,
+        outOfRank: Boolean = false
     ): Observable<RecordComplexFilter> {
         return Observable.create {
             val filter = RecordComplexFilter()
@@ -71,12 +71,25 @@ class RecordRepository: BaseRepository() {
             filter.starId = starId
             filter.studioId = orderId
             filter.tagId = tagId
+            filter.outOfRank = outOfRank
             it.onNext(filter)
             it.onComplete()
         }
     }
 
-    fun getRecords(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
+    private fun getRecordsOutOfRank(): Observable<List<RecordWrap>> {
+        return Observable.create {
+            val pack = getCompletedPeriodPack()
+            var result = listOf<RecordWrap>()
+            pack.matchPeriod?.let { matchPeriod ->
+                result = getDatabase().getRecordDao().getRecordsOutOfRank(matchPeriod.period, matchPeriod.orderInPeriod)
+            }
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    private fun getRecordsByFilter(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
         return Observable.create {
             val buffer: StringBuffer = getComplexFilterBuilder(filter)
             filter.cursor?.let { cursor ->
@@ -88,6 +101,14 @@ class RecordRepository: BaseRepository() {
             val list = getDatabase().getRecordDao().getRecordsBySql(SimpleSQLiteQuery(sql))
             it.onNext(list)
             it.onComplete()
+        }
+    }
+
+    fun getRecords(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
+        return if (filter.outOfRank) {
+            getRecordsOutOfRank();
+        } else {
+            getRecordsByFilter(filter)
         }
     }
 

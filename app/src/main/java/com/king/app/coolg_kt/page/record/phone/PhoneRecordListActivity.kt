@@ -14,7 +14,9 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityRecordTagBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
-import com.king.app.coolg_kt.page.record.*
+import com.king.app.coolg_kt.page.record.NoStudioActivity
+import com.king.app.coolg_kt.page.record.RecordTag
+import com.king.app.coolg_kt.page.record.RecordsFragment
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.relation.RecordWrap
@@ -29,6 +31,7 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
         val EXTRA_SELECT_MODE = "select_mode"
+        val EXTRA_OUT_OF_RANK = "out_of_rank"
         val EXTRA_SELECT_AS_MATCH_ITEM = "select_as_match_item"
         val RESP_RECORD_ID = "record_id"
         fun startPage(context: Context) {
@@ -51,6 +54,13 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
             intent.putExtra(EXTRA_SELECT_MODE, true)
             intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
             intent.putExtra(EXTRA_STUDIO_ID, studioId)
+            context.startActivityForResult(intent, requestCode)
+        }
+        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int, outOfRank: Boolean) {
+            var intent = Intent(context, PhoneRecordListActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
+            intent.putExtra(EXTRA_OUT_OF_RANK, outOfRank)
             context.startActivityForResult(intent, requestCode)
         }
         fun startStudioPage(context: Context, studioId: Long) {
@@ -139,6 +149,10 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         return intent.getLongExtra(EXTRA_STUDIO_ID, 0)
     }
 
+    private fun isOutOfRank(): Boolean {
+        return intent.getBooleanExtra(EXTRA_OUT_OF_RANK, false)
+    }
+
     override fun initData() {
         mModel.tagsObserver.observe(this, Observer{ tags -> showTags(tags) })
         mModel.focusTagPosition.observe(this, Observer{ position -> focusOnTag(position) })
@@ -147,6 +161,7 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         }
 
         ftRecord.factor.orderId = getStudioId()
+        ftRecord.factor.outOfRank = isOutOfRank()
         supportFragmentManager.beginTransaction()
             .replace(R.id.ft_records, ftRecord, "RecordsFragment")
             .commit()

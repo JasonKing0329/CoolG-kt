@@ -88,7 +88,7 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
 
         adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<Match> {
             override fun onClickItem(view: View, position: Int, data: Match) {
-                if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
+                if (isSelectMode()) {
                     val intent = Intent()
                     intent.putExtra(RESP_MATCH_ID, data.id)
                     setResult(Activity.RESULT_OK, intent)
@@ -116,10 +116,18 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         mBinding.rvList.adapter = adapter
     }
 
+    private fun isSelectMode(): Boolean {
+        return intent.getBooleanExtra(EXTRA_SELECT_MODE, false)
+    }
+
     override fun initData() {
         mModel.matchesObserver.observe(this, Observer {
             adapter.list = it
             adapter.notifyDataSetChanged()
+
+            if (isSelectMode()) {
+                mBinding.rvList.scrollToPosition(mModel.jumpTo())
+            }
         })
 
         mModel.loadMatches()

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.gdb.data.entity.match.Match
 
@@ -24,6 +25,17 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
             }
         }
         matchesObserver.value = list
+    }
+
+    fun jumpTo(): Int {
+        RankRepository().getCompletedPeriodPack()?.matchPeriod?.let {
+            matchesObserver.value?.indexOfFirst { match -> match.orderInPeriod == it.orderInPeriod }?.let { index ->
+                if (index != -1) {
+                    return index
+                }
+            }
+        }
+        return 0
     }
 
     fun deleteMatch(bean: Match) {

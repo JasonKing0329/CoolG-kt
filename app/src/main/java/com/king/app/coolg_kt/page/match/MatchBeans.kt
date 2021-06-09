@@ -290,10 +290,12 @@ data class RecordH2hItem (
     var recordImg1: String?,
     var record2: Record,
     var recordImg2: String?,
+    var record2Rank: String,
     var win: Int,
-    var lose: Int
+    var lose: Int,
+    var sortValue: Int
 )
-data class ImageRange (
+data class TimeWasteRange (
     var start: Int,
     var count: Int
 )

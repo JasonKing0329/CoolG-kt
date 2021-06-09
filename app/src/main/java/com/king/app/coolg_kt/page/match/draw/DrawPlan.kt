@@ -2,7 +2,6 @@ package com.king.app.coolg_kt.page.match.draw
 
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.conf.MatchConstants
-import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.DrawCell
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.MatchRecord
@@ -660,7 +659,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
  */
 class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
 
-    val rankLimit = SettingProperty.getRankLimitForMatchLow()
+    var rankLimit = 180
     val random = Random()
     private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard + match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
     private lateinit var rangeList: List<RankRecord>
@@ -668,6 +667,9 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Draw
     override fun prepareSamePeriodMap() {
         super.prepareSamePeriodMap()
         drawStrategy?.low?.let {
+
+            rankLimit = it.rankTopLimit
+
             // 如果是64签，固定设16种子，32签固定设8种子。均无轮空
             seed = if (match.match.draws == 64) {
                 16

@@ -74,6 +74,7 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                     mBinding.clGm500.visibility = View.GONE
                     mBinding.clLow.visibility = View.VISIBLE
                     drawStrategy.low?.let { str ->
+                        mBinding.etHigh.setText(str.rankTopLimit.toString())
                         mBinding.etLowMainMin.setText(str.mainLow.toString())
                         mBinding.etLowSeed.setText(str.mainSeedLow.toString())
                         mBinding.etLowQualifySeedMin.setText(str.qualifySeedLow.toString())
@@ -104,6 +105,7 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         drawStrategy.gm250!!.qualifyLowRank = mBinding.etGm500QualifyMin.text.toString().toInt()
                     }
                     MatchConstants.MATCH_LEVEL_LOW -> {
+                        drawStrategy.low!!.rankTopLimit = mBinding.etHigh.text.toString().toInt()
                         drawStrategy.low!!.mainSeedLow = mBinding.etLowSeed.text.toString().toInt()
                         drawStrategy.low!!.mainLow = mBinding.etLowMainMin.text.toString().toInt()
                         drawStrategy.low!!.qualifySeedLow = mBinding.etLowQualifySeedMin.text.toString().toInt()

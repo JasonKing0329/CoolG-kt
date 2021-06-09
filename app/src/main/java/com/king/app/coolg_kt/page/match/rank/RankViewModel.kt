@@ -13,7 +13,7 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.page.match.ImageRange
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.utils.DebugLog
@@ -39,7 +39,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var recordRankList = listOf<RankItem<Record?>>()
     var recordRanksObserver = MutableLiveData<List<RankItem<Record?>>>()
     var starRanksObserver = MutableLiveData<List<RankItem<Star?>>>()
-    var imageChanged = MutableLiveData<ImageRange>()
+    var imageChanged = MutableLiveData<TimeWasteRange>()
 
     var periodGroupVisibility = ObservableInt(View.GONE)
     var periodLastVisibility = ObservableInt(View.GONE)
@@ -163,8 +163,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     private fun loadImages() {
         loadTimeWaste(recordRanksObserver.value)
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
-                override fun onNext(t: ImageRange) {
+            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
+                override fun onNext(t: TimeWasteRange) {
                     imageChanged.value = t
                 }
 
@@ -175,8 +175,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
         loadTimeWaste1(recordRanksObserver.value)
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
-                override fun onNext(t: ImageRange) {
+            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
+                override fun onNext(t: TimeWasteRange) {
                     imageChanged.value = t
                 }
 
@@ -362,7 +362,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
      * 给1000+条加载图片路径属于耗时操作（经测试1200个record耗时2秒）,改为先显示列表后陆续加载
      * 另外，将其他耗时操作也在此进行，每30条通知一次更新
      */
-    private fun loadTimeWaste(items: List<RankItem<Record?>>?): Observable<ImageRange> {
+    private fun loadTimeWaste(items: List<RankItem<Record?>>?): Observable<TimeWasteRange> {
         return Observable.create {
             var samePeriodMap = getDatabase().getMatchDao().getSamePeriodRecordIds(currentPeriod.period, currentPeriod.orderInPeriod)
             items?.let { list ->
@@ -383,12 +383,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
                     count ++
                     if (count % 30 == 0) {
-                        it.onNext(ImageRange(count - 30, count))
+                        it.onNext(TimeWasteRange(count - 30, count))
                         totalNotified = count
                     }
                 }
                 if (totalNotified != list.size) {
-                    it.onNext(ImageRange(totalNotified, list.size - totalNotified))
+                    it.onNext(TimeWasteRange(totalNotified, list.size - totalNotified))
                 }
             }
             it.onComplete()
@@ -398,7 +398,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     /**
      * 给1000+条加载match level更加耗时,单列出来异步加载
      */
-    private fun loadTimeWaste1(items: List<RankItem<Record?>>?): Observable<ImageRange> {
+    private fun loadTimeWaste1(items: List<RankItem<Record?>>?): Observable<TimeWasteRange> {
         return Observable.create {
             var count = 0
             var totalNotified = 0
@@ -420,12 +420,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     }
                     count ++
                     if (count % 30 == 0) {
-                        it.onNext(ImageRange(count - 30, count))
+                        it.onNext(TimeWasteRange(count - 30, count))
                         totalNotified = count
                     }
                 }
                 if (totalNotified != list.size) {
-                    it.onNext(ImageRange(totalNotified, list.size - totalNotified))
+                    it.onNext(TimeWasteRange(totalNotified, list.size - totalNotified))
                 }
             }
             it.onComplete()

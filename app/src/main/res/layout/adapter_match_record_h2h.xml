@@ -73,5 +73,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_player1"
             app:layout_constraintBottom_toBottomOf="@+id/iv_player1"/>
+        <TextView
+            android:id="@+id/tv_rank"
+            style="@style/TvMatchFinalSeed"
+            android:text="@{bean.record2Rank}"
+            app:layout_constraintStart_toStartOf="@+id/iv_player2"
+            app:layout_constraintTop_toTopOf="@+id/iv_player2"
+            tools:text="502" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -34,6 +34,7 @@ data class GM250Strategy(
 )
 
 data class LowStrategy(
+    var rankTopLimit: Int = 180,
     var mainSeedLow: Int = 300,
     var mainLow: Int = 450,
     var qualifySeedLow: Int = 550

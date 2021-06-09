@@ -170,6 +170,22 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
             <TextView
+                android:id="@+id/tv_high"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最高排名"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_high"
+                app:layout_constraintBottom_toBottomOf="@+id/et_high"/>
+            <EditText
+                android:id="@+id/et_high"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_high"
+                app:layout_constraintTop_toBottomOf="@+id/tv_low_main" />
+            <TextView
                 android:id="@+id/tv_low_seed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -184,7 +200,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@+id/tv_low_seed"
-                app:layout_constraintTop_toBottomOf="@+id/tv_low_main" />
+                app:layout_constraintTop_toBottomOf="@+id/et_high" />
             <TextView
                 android:id="@+id/tv_low_main_min"
                 android:layout_width="wrap_content"

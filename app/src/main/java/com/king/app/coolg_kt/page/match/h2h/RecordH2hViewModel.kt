@@ -6,10 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
-import com.king.app.coolg_kt.model.repository.H2hRepository
+import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
+import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.page.match.ImageRange
 import com.king.app.coolg_kt.page.match.RecordH2hItem
+import com.king.app.coolg_kt.page.match.TimeWasteRange
+import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 
@@ -22,7 +24,7 @@ class RecordH2hViewModel(application: Application): BaseViewModel(application) {
 
     var listObserver = MutableLiveData<List<RecordH2hItem>>()
 
-    var imageChanged = MutableLiveData<ImageRange>()
+    var imageChanged = MutableLiveData<TimeWasteRange>()
 
     var recordNameText = ObservableField<String>()
 
@@ -34,11 +36,11 @@ class RecordH2hViewModel(application: Application): BaseViewModel(application) {
 
     var cptNumText = ObservableField<String>()
 
+    var winLoseText = ObservableField<String>()
+
     var recordImage: String? = null
 
     var rankRepository = RankRepository()
-
-    var h2hRepository = H2hRepository()
 
     lateinit var recordWrap: RecordWrap
 
@@ -62,68 +64,108 @@ class RecordH2hViewModel(application: Application): BaseViewModel(application) {
             else {
                 highRankWeekText.set("$highWeeks week")
             }
+            countWinLose()
 
             // players
             loadPlayers()
         }
     }
 
-    private fun loadPlayers() {
-        h2hRepository.getRecordCompetitors(recordWrap.bean)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordH2hItem>>(getComposite()) {
-                override fun onNext(t: List<RecordH2hItem>) {
-                    cptNumText.set("${t.size} competitors")
-                    listObserver.value = t
-                    loadImages(t)
-                }
+    private fun countWinLose() {
+        var win = 0
+        var lose = 0
+        val items = rankRepository.getRecordMatchItemsRange(recordWrap.bean.id!!, rankRepository.getAllTimePeriodPack())
+        items.forEach { item ->
+            if (item.winnerId == recordWrap.bean.id!!) {
+                win ++
+            }
+            else {
+                lose ++
+            }
+        }
+        winLoseText.set("${win}胜${lose}负")
+    }
 
-                override fun onError(e: Throwable?) {
-                    messageObserver.value = e?.message?:""
+    private fun loadPlayers() {
+
+        BasicAndTimeWaste<RecordH2hItem>()
+            .basic(getRecordCompetitors(recordWrap.bean))
+            .timeWaste(timeWastTask(), 20)
+            .composite(getComposite())
+            .subscribe(
+                object : SimpleObserver<List<RecordH2hItem>>(getComposite()) {
+                    override fun onNext(t: List<RecordH2hItem>) {
+                        cptNumText.set("${t.size} competitors")
+                        listObserver.value = t
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        messageObserver.value = e?.message?:""
+                    }
+                },
+                object : SimpleObserver<TimeWasteRange>(getComposite()){
+                    override fun onNext(t: TimeWasteRange) {
+                        imageChanged.value = t
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                    }
                 }
-            })
+            )
     }
 
     /**
-     * 加载图片路径属于耗时操作，单独完成
+     * 加载所有的competitor，并按总交手次数降序排序
+     * 这里只加载record与排序权重（总交手次数）
+     * 加载图片，统计具体的win, lose属于耗时操作，后续异步加载
      */
-    private fun loadImages(list: List<RecordH2hItem>) {
-        loadTimeWaste(list)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
-                override fun onNext(t: ImageRange) {
-                    imageChanged.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-            })
-    }
-
-    private fun loadTimeWaste(items: List<RecordH2hItem>): Observable<ImageRange> {
+    private fun getRecordCompetitors(record: Record): Observable<List<RecordH2hItem>> {
         return Observable.create {
-            if (items.isNotEmpty()) {
-                var count = 0
-                var totalNotified = 0
-                items.forEach { item ->
-
-                    // 每30条通知一次
-                    item.recordImg1 = recordImage
-                    var url = ImageProvider.getRecordRandomPath(item.record2.name, null)
-                    item.recordImg2 = url
-
-                    count ++
-                    if (count % 30 == 0) {
-                        it.onNext(ImageRange(count - 30, count))
-                        totalNotified = count
-                    }
-                }
-                if (totalNotified != items.size) {
-                    it.onNext(ImageRange(totalNotified, items.size - totalNotified))
-                }
+            var result = mutableListOf<RecordH2hItem>()
+            getDatabase().getMatchDao().getRecordCompetitors(record.id!!)?.forEach { cpt ->
+                // img, win, lose属于耗时操作，不在这里加载
+                result.add(RecordH2hItem(record, null, cpt.record, null, "", 0, 0, cpt.num))
             }
+            result.sortByDescending { item -> item.sortValue }
+            it.onNext(result)
             it.onComplete()
         }
     }
+
+    /**
+     * 耗时操作
+     */
+    private fun timeWastTask(): TimeWasteTask<RecordH2hItem> {
+        return object : TimeWasteTask<RecordH2hItem> {
+            override fun handle(item: RecordH2hItem) {
+                // image
+                item.recordImg1 = recordImage
+                var url = ImageProvider.getRecordRandomPath(item.record2.name, null)
+                item.recordImg2 = url
+
+                // win, lose
+                val h2hItems = getDatabase().getMatchDao().getH2hItems(item.record1.id!!, item.record2.id!!)
+                var win = 0
+                var lose = 0
+                h2hItems.forEach { h2h ->
+                    if (h2h.bean.winnerId != null) {
+                        if (h2h.bean.winnerId == item.record1.id!!) {
+                            win ++
+                        }
+                        else {
+                            lose ++
+                        }
+                    }
+                }
+                item.win = win
+                item.lose = lose
+
+                // rank
+                val rank = rankRepository.getRecordCurrentRank(item.record2.id!!)
+                item.record2Rank = rank.toString()
+            }
+        }
+    }
+
 }

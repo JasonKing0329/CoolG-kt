@@ -45,14 +45,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Match">
-
-        <EditTextPreference
-            app:key="pref_match_low_rank_limit"
-            app:title="Rank limit for LOW(High)"
-            app:defaultValue="200"
-            app:useSimpleSummaryProvider="true" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

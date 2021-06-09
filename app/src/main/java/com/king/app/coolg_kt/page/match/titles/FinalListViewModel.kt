@@ -8,7 +8,7 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.FinalListItem
-import com.king.app.coolg_kt.page.match.ImageRange
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.match.TitleCountItem
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -21,7 +21,7 @@ import io.reactivex.rxjava3.core.Observable
 class FinalListViewModel(application: Application): BaseViewModel(application) {
 
     var dataObserver = MutableLiveData<List<FinalListItem>>()
-    var imageChanged = MutableLiveData<ImageRange>()
+    var imageChanged = MutableLiveData<TimeWasteRange>()
 
     var titlesCountObserver = MutableLiveData<List<Any>>()
 
@@ -73,8 +73,8 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     private fun loadTimeWaste(list: List<FinalListItem>) {
         finalItemsTimeWaste(list)
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
-                override fun onNext(t: ImageRange) {
+            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
+                override fun onNext(t: TimeWasteRange) {
                     imageChanged.value = t
                 }
 
@@ -87,7 +87,7 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     /**
      * 加载耗时操作
      */
-    private fun finalItemsTimeWaste(list: List<FinalListItem>): Observable<ImageRange> {
+    private fun finalItemsTimeWaste(list: List<FinalListItem>): Observable<TimeWasteRange> {
         return Observable.create {
             var count = 0
             var totalNotified = 0
@@ -97,12 +97,12 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
                 count ++
                 // 每20个通知一次
                 if (count % 20 == 0) {
-                    it.onNext(ImageRange(count - 20, count))
+                    it.onNext(TimeWasteRange(count - 20, count))
                     totalNotified = count
                 }
             }
             if (totalNotified != list.size) {
-                it.onNext(ImageRange(totalNotified, list.size - totalNotified))
+                it.onNext(TimeWasteRange(totalNotified, list.size - totalNotified))
             }
             it.onComplete()
         }
@@ -165,8 +165,8 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     private fun loadTitlesCountTimeWaste(list: List<Any>) {
         titlesCountTimeWaste(list)
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<ImageRange>(getComposite()){
-                override fun onNext(t: ImageRange) {
+            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
+                override fun onNext(t: TimeWasteRange) {
                     imageChanged.value = t
                 }
 
@@ -179,7 +179,7 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     /**
      * 加载耗时操作
      */
-    private fun titlesCountTimeWaste(list: List<Any>): Observable<ImageRange> {
+    private fun titlesCountTimeWaste(list: List<Any>): Observable<TimeWasteRange> {
         return Observable.create {
             var count = 0
             var totalNotified = 0
@@ -191,12 +191,12 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
                 count ++
                 // 每20个通知一次
                 if (count % 20 == 0) {
-                    it.onNext(ImageRange(count - 20, count))
+                    it.onNext(TimeWasteRange(count - 20, count))
                     totalNotified = count
                 }
             }
             if (totalNotified != list.size) {
-                it.onNext(ImageRange(totalNotified, list.size - totalNotified))
+                it.onNext(TimeWasteRange(totalNotified, list.size - totalNotified))
             }
             it.onComplete()
         }

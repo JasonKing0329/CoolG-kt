@@ -119,6 +119,17 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_high_title"
             tools:text="126 competitors" />
 
+        <TextView
+            android:id="@+id/tv_win_lose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{model.winLoseText}"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            app:layout_constraintEnd_toEndOf="@+id/tv_name"
+            app:layout_constraintTop_toTopOf="@+id/tv_cpt_num"
+            tools:text="224胜106负" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="0dp"

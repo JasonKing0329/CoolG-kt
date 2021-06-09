@@ -4,6 +4,7 @@ import androidx.room.*
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.bean.TitlesCount
+import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.*
 
@@ -315,4 +316,7 @@ interface MatchDao {
 
     @Query("select winnerId, count(winnerId) as num from match_item where round=:roundId group by winnerId order by num desc")
     fun countGroupByRecord(roundId: Int): List<TitlesCount>
+
+    @Query("select record.* from match_record join record on match_record.recordId=record._id where matchItemId in (select matchItemId from match_record where recordId=:recordId) and recordId!=:recordId and recordId != 0 group by recordId")// 为0是轮空的
+    fun getRecordCompetitors(recordId: Long): List<Record>
 }

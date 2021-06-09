@@ -13,7 +13,7 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.ImageRange
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.utils.DebugLog
@@ -357,11 +357,6 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             it.onComplete()
         }
     }
-
-    data class ImageRange (
-        var start: Int,
-        var count: Int
-    )
 
     /**
      * 给1000+条加载图片路径属于耗时操作（经测试1200个record耗时2秒）,改为先显示列表后陆续加载

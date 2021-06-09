@@ -2,6 +2,8 @@ package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.H2hItem
+import com.king.app.coolg_kt.page.match.RecordH2hItem
+import com.king.app.gdb.data.entity.Record
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -10,6 +12,33 @@ import io.reactivex.rxjava3.core.Observable
  * @date: 2021/1/17 11:43
  */
 class H2hRepository: BaseRepository() {
+
+    fun getRecordCompetitors(record: Record): Observable<List<RecordH2hItem>> {
+        return Observable.create {
+            var result = mutableListOf<RecordH2hItem>()
+            getDatabase().getMatchDao().getRecordCompetitors(record.id!!)?.forEach { cpt ->
+                val items = getDatabase().getMatchDao().getH2hItems(record.id!!, cpt.id!!)
+                var win = 0
+                var lose = 0
+                items.forEach { item ->
+                    if (item.bean.winnerId != null) {
+                        if (item.bean.winnerId == record.id!!) {
+                            win ++
+                        }
+                        else {
+                            lose ++
+                        }
+                    }
+                }
+                // img属于耗时操作，不在这里加载
+                result.add(RecordH2hItem(record, null, cpt, null, win, lose))
+            }
+            result.sortByDescending { item -> item.win + item.lose }
+
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
 
     fun getH2hItems(record1Id: Long, record2Id: Long): Observable<List<H2hItem>> {
         return Observable.create {

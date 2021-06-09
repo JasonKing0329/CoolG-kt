@@ -7,7 +7,10 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.page.match.*
+import com.king.app.coolg_kt.page.match.ChampionItem
+import com.king.app.coolg_kt.page.match.DetailBasic
+import com.king.app.coolg_kt.page.match.DetailHead
+import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.RecordWrap
@@ -36,6 +39,7 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
     var detailHead = DetailHead()
 
     var showRankDialog = MutableLiveData<Boolean>()
+    var showH2hPage = MutableLiveData<Boolean>()
 
     var basicPeriodType = 0 // 0:rank period, 1: all time, 2:specific period
 

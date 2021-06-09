@@ -42,6 +42,7 @@ class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, Emp
         }
         mBinding.groupRankHigh.setOnClickListener { mainViewModel.showRankDialog.value = true }
         mBinding.groupRankLow.setOnClickListener { mainViewModel.showRankDialog.value = true }
+        mBinding.groupH2h.setOnClickListener { mainViewModel.showH2hPage.value = true }
     }
 
     private fun onSelectChanged(target: View) {

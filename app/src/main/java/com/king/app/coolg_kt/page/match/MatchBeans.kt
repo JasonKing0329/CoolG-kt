@@ -285,3 +285,15 @@ data class MatchSemiItem(
     var rank: String,
     var imageUrl: String?
 )
+data class RecordH2hItem (
+    var record1: Record,
+    var recordImg1: String?,
+    var record2: Record,
+    var recordImg2: String?,
+    var win: Int,
+    var lose: Int
+)
+data class ImageRange (
+    var start: Int,
+    var count: Int
+)

@@ -3,11 +3,11 @@ package com.king.app.coolg_kt.page.match.detail
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.Observer
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchRecordDetailBinding
+import com.king.app.coolg_kt.page.match.h2h.RecordH2hActivity
 import com.king.app.coolg_kt.page.match.rank.RankDialog
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -54,6 +54,7 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
 
     override fun initData() {
         mModel.showRankDialog.observe(this, Observer { showRankDialog(getRecordId()) })
+        mModel.showH2hPage.observe(this, Observer { RecordH2hActivity.startPage(this, getRecordId()) })
         mModel.loadRecord(getRecordId())
         initTabs()
     }

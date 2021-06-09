@@ -8,6 +8,7 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.FinalListItem
+import com.king.app.coolg_kt.page.match.ImageRange
 import com.king.app.coolg_kt.page.match.TitleCountItem
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -106,11 +107,6 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
             it.onComplete()
         }
     }
-
-    data class ImageRange (
-        var start: Int,
-        var count: Int
-    )
 
     fun filterByLevel(levelIndex: Int) {
         mFilterLevel = levelIndex

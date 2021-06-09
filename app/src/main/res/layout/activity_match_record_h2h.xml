@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.h2h.RecordH2hViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.king.app.jactionbar.JActionbar
+            android:id="@+id/actionbar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/actionbar_height"
+            android:background="@color/actionbar_bg"
+            android:theme="@style/EtActionSearch"
+            app:actionTextColor="@color/actionbar_element"
+            app:iconColor="@color/actionbar_element"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxShowIcon="5"
+            app:showIconBack="true"
+            app:supportSearch="false"
+            app:iconSize="@dimen/actionbar_icon_width"
+            app:iconPadding="@dimen/actionbar_icon_padding"
+            app:titleSize="@dimen/actionbar_title_text_size"
+            app:title="Head To Head"
+            app:titleColor="@color/actionbar_element" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:textSize="@dimen/text_common_16"
+            android:textColor="@color/text_normal"
+            android:text="@{model.recordNameText}"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"
+            tools:text="Record Name" />
+
+        <TextView
+            android:id="@+id/tv_rank_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Current rank"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            android:layout_marginStart="16dp"
+            android:text="@{model.currentRankText}"
+            app:layout_constraintStart_toEndOf="@+id/tv_rank_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_rank_title"
+            tools:text="268" />
+
+        <TextView
+            android:id="@+id/tv_high_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Highest rank"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_rank_title" />
+
+        <TextView
+            android:id="@+id/tv_high"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            android:layout_marginStart="16dp"
+            android:text="@{model.highRankText}"
+            app:layout_constraintStart_toEndOf="@+id/tv_high_title"
+            app:layout_constraintTop_toTopOf="@+id/tv_high_title"
+            tools:text="203" />
+
+        <TextView
+            android:id="@+id/tv_high_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            android:layout_marginStart="16dp"
+            android:text="@{model.highRankWeekText}"
+            app:layout_constraintStart_toEndOf="@+id/tv_high"
+            app:layout_constraintTop_toTopOf="@+id/tv_high_title"
+            tools:text="96 weeks" />
+
+        <TextView
+            android:id="@+id/tv_cpt_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@{model.cptNumText}"
+            android:textSize="@dimen/text_common_14"
+            android:textColor="@color/text_sub"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_high_title"
+            tools:text="126 competitors" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_cpt_num"
+            tools:listitem="@layout/adapter_match_record_h2h"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

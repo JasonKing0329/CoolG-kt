@@ -24,4 +24,8 @@
         android:title="Create Score"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/menu_studio_map"
+        android:title="Studio map"
+        app:showAsAction="never"/>
+
 </menu>

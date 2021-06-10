@@ -105,6 +105,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                         mModel.createScore()
                     }
                 }
+                R.id.menu_studio_map -> {
+                    showStudioMap()
+                }
             }
         }
         mBinding.actionbar.setOnConfirmListener {
@@ -226,6 +229,16 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             mBinding.tvMain.isSelected = false
             mBinding.tvQualify.isSelected = true
         }
+    }
+
+    private fun showStudioMap() {
+        var content = StudioMapDialog()
+        content.drawItems = mModel.itemsObserver.value
+        var dialog = DraggableDialogFragment()
+        dialog.setTitle("Count by studio")
+        dialog.contentFragment = content
+        dialog.maxHeight = ScreenUtils.getScreenHeight() * 2 / 3
+        dialog.show(supportFragmentManager, "SeasonEditor")
     }
 
     private fun startCreateDraw() {

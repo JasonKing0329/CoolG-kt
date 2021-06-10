@@ -299,3 +299,7 @@ data class TimeWasteRange (
     var start: Int,
     var count: Int
 )
+data class StudioMapItem (
+    var studio: String,
+    var count: Int
+)

@@ -159,26 +159,4 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
             messageObserver.setValue("密码错误")
         }
     }
-
-    var socketModel = SocketClientModel()
-
-    fun testSocket() {
-        var request = ClientRequest(ClientIdentity(SocketParams.IDENTITY_APP, "phone"),
-            SocketParams.PLAY_VIDEO, Gson().toJson(PlayVideoRequest("baidu", "www.baidu.com")))
-        socketModel.sendRequest("192.168.2.114", request,
-            object : SimpleObserver<SocketResponse>(getComposite()) {
-                override fun onNext(t: SocketResponse) {
-                    messageObserver.value = t.msg
-                }
-
-                override fun onError(e: Throwable?) {
-                    messageObserver.value = e?.message?:""
-                }
-            })
-    }
-
-    override fun onDestroy() {
-        socketModel.close()
-        super.onDestroy()
-    }
 }

@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.databinding.ActivityLoginBinding
 import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.home.phone.PhoneHomeActivity
 import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
 import com.king.app.coolg_kt.page.tv.TvActivity
@@ -110,7 +111,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             mBinding.groupPass.startAnimation(appearNextStep())
             mBinding.tvHome.setOnClickListener { v ->
                 goToHome()
-//                finish()
+                finish()
             }
             mBinding.tvSetting.setOnClickListener { v -> goToSetting() }
             mBinding.tvManage.setOnClickListener { v -> goToManage() }
@@ -119,8 +120,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun goToHome() {
-        mModel.testSocket()
-//        startActivity(Intent().setClass(this, PhoneHomeActivity::class.java))
+        startActivity(Intent().setClass(this, PhoneHomeActivity::class.java))
     }
 
     private fun goToManage() {

@@ -79,6 +79,15 @@
             app:layout_constraintStart_toEndOf="@id/iv_setting"
             app:layout_constraintTop_toTopOf="parent"/>
 
+        <ImageView
+            android:id="@+id/iv_tv"
+            style="@style/IvPadActionIcon"
+            android:src="@drawable/ic_baseline_live_tv_24"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toEndOf="@id/iv_desktop"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_stars"
             android:layout_width="wrap_content"

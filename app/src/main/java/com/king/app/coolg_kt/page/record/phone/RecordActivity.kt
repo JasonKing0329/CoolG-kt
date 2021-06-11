@@ -149,8 +149,8 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             )
         }
         mBinding.ivTv.setOnClickListener {
-            SimpleDialogs().openInputDialog(this, "Ip", SettingProperty.getDemoImageVersion(), SimpleDialogs.OnDialogActionListener {
-
+            SimpleDialogs().openInputDialog(this, "Ip", SettingProperty.getSocketServerUrl(), SimpleDialogs.OnDialogActionListener {
+                mModel.playInSocketServer(it)
             })
         }
         mBinding.videoView.interceptFullScreenListener = View.OnClickListener {

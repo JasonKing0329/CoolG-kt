@@ -432,6 +432,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
     var socketListener = object : SocketListener {
         override fun onPlayVideo(bean: PlayVideoRequest) {
             runOnUiThread {
+                mBinding.tvSocket.visibility = View.GONE
                 mModel.currentUrl = bean.url
                 playVideo(mModel.currentUrl)
             }

@@ -27,6 +27,7 @@ import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.model.bean.VideoPlayList
 import com.king.app.coolg_kt.model.palette.PaletteUtil
 import com.king.app.coolg_kt.model.palette.ViewColorBound
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment.OnAnimSettingListener
@@ -48,6 +49,7 @@ import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Record
@@ -105,6 +107,7 @@ class RecordPadActivity : BaseActivity<ActivityRecordPadBinding, RecordPadViewMo
         ColorUtil.updateIconColor(mBinding.ivDelete, resources.getColor(R.color.colorPrimary))
         ColorUtil.updateIconColor(mBinding.ivSetting, resources.getColor(R.color.colorPrimary))
         ColorUtil.updateIconColor(mBinding.ivDesktop, resources.getColor(R.color.colorPrimary))
+        ColorUtil.updateIconColor(mBinding.ivTv, resources.getColor(R.color.colorPrimary))
         initRecyclerViews()
         initBanner()
         mBinding.ivBack.setOnClickListener { finish() }
@@ -138,6 +141,11 @@ class RecordPadActivity : BaseActivity<ActivityRecordPadBinding, RecordPadViewMo
                 DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mModel.openOnServer() },
                 null
             )
+        }
+        mBinding.ivTv.setOnClickListener {
+            SimpleDialogs().openInputDialog(this, "Ip", SettingProperty.getSocketServerUrl(), SimpleDialogs.OnDialogActionListener {
+                mModel.playInSocketServer(it)
+            })
         }
     }
 
@@ -486,6 +494,7 @@ class RecordPadActivity : BaseActivity<ActivityRecordPadBinding, RecordPadViewMo
         viewList.add(mBinding.ivDelete)
         viewList.add(mBinding.ivSetting)
         viewList.add(mBinding.ivDesktop)
+        viewList.add(mBinding.ivTv)
         pagerAdapter.viewList = viewList
         pagerAdapter.list = list
         mBinding.banner.addOnPageChangeListener(object : OnPageChangeListener {

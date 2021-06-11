@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PassionPoint
@@ -17,6 +18,8 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
+import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.model.socket.*
 import com.king.app.coolg_kt.page.video.player.PlayListInstance
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.UrlUtil
@@ -381,5 +384,28 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
                     messageObserver.value = e?.message
                 }
             })
+    }
+    var socketModel = SocketClientModel()
+
+    fun playInSocketServer(inputIp: String) {
+        SettingProperty.setSocketServerUrl(inputIp)
+        var request = ClientRequest(
+            ClientIdentity(SocketParams.IDENTITY_APP, "phone"),
+            SocketParams.PLAY_VIDEO, Gson().toJson(PlayVideoRequest(mRecord!!.bean!!.name!!, mPlayUrl?:"")))
+        socketModel.sendRequest(inputIp, request,
+            object : SimpleObserver<SocketResponse>(getComposite()) {
+                override fun onNext(t: SocketResponse) {
+                    messageObserver.value = t.msg
+                }
+
+                override fun onError(e: Throwable?) {
+                    messageObserver.value = e?.message?:""
+                }
+            })
+    }
+
+    override fun onDestroy() {
+        socketModel.close()
+        super.onDestroy()
     }
 }

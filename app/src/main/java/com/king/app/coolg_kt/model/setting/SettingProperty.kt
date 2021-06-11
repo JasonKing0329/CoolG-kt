@@ -182,6 +182,14 @@ class SettingProperty: BaseProperty() {
             setBoolean("tv_auto_play_next", type)
         }
 
+        fun getSocketServerUrl(): String {
+            return getString("socket_url")
+        }
+
+        fun setSocketServerUrl(version: String) {
+            setString("socket_url", version)
+        }
+
         fun setPlayList(bean: PlayList?) {
             var sql: String? = null
             try {

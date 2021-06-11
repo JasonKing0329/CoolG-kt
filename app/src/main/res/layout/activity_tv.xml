@@ -13,6 +13,27 @@
             android:scaleType="fitXY"
             android:src="@drawable/ic_tv_bg"/>
 
+        <TextView
+            android:id="@+id/tv_su"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Super User"
+            android:textColor="#eeeeee"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_upload"
+            app:layout_constraintEnd_toStartOf="@+id/iv_socket"
+            app:layout_constraintTop_toTopOf="@+id/iv_upload" />
+
+        <ImageView
+            android:id="@+id/iv_socket"
+            style="@style/TvActionIcon"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_home"
+            app:layout_constraintEnd_toStartOf="@+id/iv_change_bg"
+            app:srcCompat="@drawable/ic_baseline_ad_units_24" />
+
         <ImageView
             android:id="@+id/iv_change_bg"
             style="@style/TvActionIcon"
@@ -62,18 +83,5 @@
             app:layout_constraintTop_toTopOf="parent">
 
         </FrameLayout>
-
-        <TextView
-            android:id="@+id/tv_su"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Super User"
-            android:textColor="#eeeeee"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_upload"
-            app:layout_constraintEnd_toStartOf="@+id/iv_change_bg"
-            app:layout_constraintTop_toTopOf="@+id/iv_upload" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

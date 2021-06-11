@@ -1,13 +1,11 @@
 package com.king.app.coolg_kt.page.tv.player
 
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.IBinder
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.VideoView
@@ -17,7 +15,10 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityTvPlayerSystemBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.model.socket.PlayVideoRequest
 import com.king.app.coolg_kt.page.tv.popup.PlayerSetting
+import com.king.app.coolg_kt.page.tv.socket.ServerService
+import com.king.app.coolg_kt.page.tv.socket.SocketListener
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.utils.UrlUtil
@@ -41,10 +42,16 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
     companion object {
         val EXTRA_URL = "url"
         val EXTRA_PATH = "path"
+        val EXTRA_SOCKET = "socket_server"
         fun startPage(context: Context, url: String, pathInServer: String?) {
             var intent = Intent(context, SystemPlayerActivity::class.java)
             intent.putExtra(EXTRA_URL, url)
             intent.putExtra(EXTRA_PATH, pathInServer)
+            context.startActivity(intent)
+        }
+        fun startPageAsServer(context: Context) {
+            var intent = Intent(context, SystemPlayerActivity::class.java)
+            intent.putExtra(EXTRA_SOCKET, true)
             context.startActivity(intent)
         }
     }
@@ -57,6 +64,8 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
     private val TIME_DISP_CTRLBAR = 5000L
 
+    private var serverService: ServerService? = null
+
     override fun getContentView(): Int = R.layout.activity_tv_player_system
 
     override fun isFullScreen(): Boolean {
@@ -67,8 +76,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         SystemPlayerViewModel::class.java)
 
     override fun initView() {
-        mModel.currentUrl = intent.getStringExtra(EXTRA_URL)
-        mModel.currentPathInServer = intent.getStringExtra(EXTRA_PATH)
+
+        mBinding.model = mModel
+
+        mModel.isSocketServer = intent.getBooleanExtra(EXTRA_SOCKET, false)
+        if (!mModel.isSocketServer) {
+            mModel.currentUrl = intent.getStringExtra(EXTRA_URL)
+            mModel.currentPathInServer = intent.getStringExtra(EXTRA_PATH)
+        }
 
         videoController = VideoController(
             this,
@@ -260,7 +275,14 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 .show(supportFragmentManager, "AlertDialogFragment")
         })
         mModel.playNextVideo.observe(this, Observer { playVideo(mModel.currentUrl) })
-        playVideo(mModel.currentUrl)
+
+        // socket server
+        if (mModel.isSocketServer) {
+            bindService(Intent(this, ServerService::class.java), serviceConn, Context.BIND_AUTO_CREATE)
+        }
+        else {
+            playVideo(mModel.currentUrl)
+        }
     }
 
     private fun playVideo(url: String) {
@@ -350,6 +372,12 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         hideControlDisposable?.dispose()
         timeDisposable?.dispose()
         saveTimeDisposable?.dispose()
+
+        kotlin.runCatching {
+            serverService?.close()
+            unbindService(serviceConn)
+            stopService(Intent(this, ServerService::class.java))
+        }
         super.onDestroy()
     }
 
@@ -400,4 +428,36 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         }
         return super.dispatchKeyEvent(event)
     }
+
+    var socketListener = object : SocketListener {
+        override fun onPlayVideo(bean: PlayVideoRequest) {
+            runOnUiThread {
+                mModel.currentUrl = bean.url
+                playVideo(mModel.currentUrl)
+            }
+        }
+
+        override fun onPortOpened() {
+            runOnUiThread {
+                mModel.showIp()
+            }
+        }
+    }
+
+    private var serviceConn = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            DebugLog.e()
+            service?.let {
+                serverService = (it as ServerService.SocketBinder).service
+                it.setSocketListener(socketListener)
+                serverService!!.start()
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            DebugLog.e()
+        }
+
+    }
+
 }

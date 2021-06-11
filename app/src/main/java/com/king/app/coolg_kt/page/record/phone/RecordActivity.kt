@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.text.TextUtils
@@ -28,6 +27,7 @@ import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.model.bean.VideoPlayList
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.model.image.ImageProvider.getRecordCuPath
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
@@ -46,6 +46,7 @@ import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Tag
@@ -146,6 +147,11 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
                 DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mModel.openOnServer() },
                 null
             )
+        }
+        mBinding.ivTv.setOnClickListener {
+            SimpleDialogs().openInputDialog(this, "Ip", SettingProperty.getDemoImageVersion(), SimpleDialogs.OnDialogActionListener {
+
+            })
         }
         mBinding.videoView.interceptFullScreenListener = View.OnClickListener {
             showConfirmCancelMessage("是否在临时列表中打开，若是，视频将从上一次记录的位置开始播放？",

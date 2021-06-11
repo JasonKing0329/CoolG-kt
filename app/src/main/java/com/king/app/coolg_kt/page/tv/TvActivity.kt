@@ -15,6 +15,7 @@ import com.king.app.coolg_kt.model.GlideApp
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.download.OnDownloadListener
+import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.page.tv.popup.BgSelector
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
@@ -40,6 +41,7 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
 
     override fun initView() {
         mBinding.tvSu.visibility = View.GONE
+        mBinding.ivSocket.visibility = View.GONE
         mBinding.ivHome.setOnClickListener {
             ftContent = null
             showServerPage()
@@ -56,8 +58,12 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
                 .openPasswordDialog(this, "Code", SimpleDialogs.OnDialogActionListener {
                     mModel.checkUserCode(it)
                     mBinding.tvSu.visibility = if (mModel.isSuperUser) View.VISIBLE else View.GONE
+                    mBinding.ivSocket.visibility = if (mModel.isSuperUser) View.VISIBLE else View.GONE
                     onUserChanged()
                 })
+        }
+        mBinding.ivSocket.setOnClickListener {
+            SystemPlayerActivity.startPageAsServer(this)
         }
 
         showServerPage()

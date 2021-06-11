@@ -7,10 +7,13 @@ import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConfig
+import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.model.socket.*
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.coolg_kt.utils.MD5Util
@@ -157,4 +160,25 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
+    var socketModel = SocketClientModel()
+
+    fun testSocket() {
+        var request = ClientRequest(ClientIdentity(SocketParams.IDENTITY_APP, "phone"),
+            SocketParams.PLAY_VIDEO, Gson().toJson(PlayVideoRequest("baidu", "www.baidu.com")))
+        socketModel.sendRequest("192.168.2.114", request,
+            object : SimpleObserver<SocketResponse>(getComposite()) {
+                override fun onNext(t: SocketResponse) {
+                    messageObserver.value = t.msg
+                }
+
+                override fun onError(e: Throwable?) {
+                    messageObserver.value = e?.message?:""
+                }
+            })
+    }
+
+    override fun onDestroy() {
+        socketModel.close()
+        super.onDestroy()
+    }
 }

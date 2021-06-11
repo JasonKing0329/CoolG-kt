@@ -119,6 +119,7 @@
 
         <service android:name=".service.FileService" />
         <service android:name=".model.log.DeleteLogService" />
+        <service android:name=".page.tv.socket.ServerService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

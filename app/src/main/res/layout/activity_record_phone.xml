@@ -85,6 +85,18 @@
                         app:layout_constraintBottom_toBottomOf="parent"/>
 
                     <ImageView
+                        android:id="@+id/iv_tv"
+                        android:layout_width="@dimen/gdb_record_icon_size"
+                        android:layout_height="@dimen/gdb_record_icon_size"
+                        android:padding="@dimen/gdb_record_icon_padding"
+                        android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_baseline_live_tv_24"
+                        android:background="@drawable/shape_oval_transgrey"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_desktop"
+                        app:layout_constraintTop_toTopOf="@+id/iv_more"/>
+
+                    <ImageView
                         android:id="@+id/iv_desktop"
                         android:layout_width="@dimen/gdb_record_icon_size"
                         android:layout_height="@dimen/gdb_record_icon_size"

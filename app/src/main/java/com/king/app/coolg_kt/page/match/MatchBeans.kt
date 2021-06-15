@@ -303,3 +303,15 @@ data class StudioMapItem (
     var studio: String,
     var count: Int
 )
+
+data class RecordMatchPageItem(
+    var round: String,
+    var record: Record?,
+    var rankSeed: String,
+    var imageUrl: String?,
+    var isChampion: Boolean = false
+)
+data class RecordMatchPageTitle(
+    var period: String,
+    var isWinner: Boolean
+)

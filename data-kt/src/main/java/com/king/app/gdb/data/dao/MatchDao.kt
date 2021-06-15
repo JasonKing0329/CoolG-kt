@@ -319,4 +319,7 @@ interface MatchDao {
 
     @Query("select record.*, count(*) as num from match_record join record on match_record.recordId=record._id where matchItemId in (select matchItemId from match_record where recordId=:recordId) and recordId!=:recordId and recordId != 0 group by recordId")// 为0是轮空的
     fun getRecordCompetitors(recordId: Long): List<RecordCpt>
+
+    @Query("select * from match_record where recordId!=:recordId and recordId!=0 and matchItemId in (select mr.matchItemId from match_record mr  join match_period mp on mr.matchId=mp.id where mr.recordId=:recordId and mp.matchId=:matchId)")
+    fun getRecordCompetitorsInMatch(recordId: Long, matchId: Long): List<MatchRecord>
 }

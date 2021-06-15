@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.RecordMatchPageItem"/>
+    </data>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/v_line"
+            android:layout_width="1dp"
+            android:layout_height="84dp"
+            android:layout_marginLeft="@dimen/record_match_page_line_left"
+            android:background="@color/match_timeline"/>
+
+        <RelativeLayout
+            android:id="@+id/group_round"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/v_line">
+            <TextView
+                android:id="@+id/tv_round"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:textColor="@color/white"
+                android:text="@{bean.round}"
+                android:background="@drawable/shape_round_tag"
+                tools:text="SF"/>
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/group_round"
+            android:layout_marginLeft="15dp"
+            app:cardElevation="5dp"
+            app:cardCornerRadius="10dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/group_card">
+                <ImageView
+                    android:id="@+id/iv_record"
+                    android:layout_width="120dp"
+                    android:layout_height="70dp"
+                    android:gravity="center"
+                    android:src="@drawable/def_small"
+                    android:scaleType="fitXY"
+                    app:recordUrl="@{bean.imageUrl}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    android:id="@+id/tv_rank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14dp"
+                    android:textColor="@color/text_sub"
+                    android:layout_marginStart="@dimen/common_margin_8"
+                    android:text="@{bean.rankSeed}"
+                    tools:text="Rank 126 / [16]"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/iv_record"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_name"/>
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="11dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:textColor="@color/text_sub"
+                    android:text="@{bean.record.name}"
+                    app:layout_constraintStart_toStartOf="@id/tv_rank"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_rank"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="Record nameRecord nameRecord nameRecord nameRecord nameRecord name"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+    </RelativeLayout>
+</layout>

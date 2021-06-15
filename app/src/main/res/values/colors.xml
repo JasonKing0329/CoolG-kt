@@ -59,4 +59,7 @@
     <color name="tv_dlg_bg">#99308FC5</color>
     <color name="tv_dlg_title_text">#ffff00</color>
     <color name="tv_dlg_close">#ffffff</color>
+
+    <color name="match_timeline">@color/blue375BF1</color>
+    <color name="match_timeline_champion">#FF4081</color>
 </resources>

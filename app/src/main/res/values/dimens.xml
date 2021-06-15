@@ -340,5 +340,7 @@
     <dimen name="match_item_sf_width">72dp</dimen>
     <dimen name="match_item_sf_height">40dp</dimen>
     <dimen name="match_item_ru_width">144dp</dimen><!-- =2*match_item_sf_width -->
-    <dimen name="match_item_ru_height">80dp</dimen><!-- =match_item_cha_height - match_item_sf_height -->
+    <dimen name="match_item_ru_height">80dp</dimen>
+    <dimen name="record_match_page_line_left">20dp
+    </dimen><!-- =match_item_cha_height - match_item_sf_height -->
 </resources>

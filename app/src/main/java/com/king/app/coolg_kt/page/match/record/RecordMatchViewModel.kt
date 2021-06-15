@@ -43,7 +43,7 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
             var match = getDatabase().getMatchDao().getMatch(mMatchId)
             matchLevelText.set(MatchConstants.MATCH_LEVEL[match.level])
             matchImageUrl.set(ImageProvider.parseCoverUrl(match.imgUrl))
-            matchWeekText.set("P${match.orderInPeriod}")
+            matchWeekText.set("W${match.orderInPeriod}")
             matchNameText.set(match.name)
 
             loadItems()
@@ -72,8 +72,11 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
             var win = 0
             var lose = 0
             var lastPeriod = 0
-            //直接按倒序
-            getDatabase().getMatchDao().getRecordCompetitorsInMatch(mRecordId, mMatchId).reversed()
+            // 先按period分组，再在period中按round排序
+            val titleList = mutableListOf<RecordMatchPageTitle>()
+            var itemMap = mutableMapOf<Int, MutableList<RecordMatchPageItem>>()
+            var titleBean: RecordMatchPageTitle? = null
+            getDatabase().getMatchDao().getRecordCompetitorsInMatch(mRecordId, mMatchId)
                 .forEach { mr ->
                     getDatabase().getMatchDao().getMatchItem(mr.matchItemId)?.let { matchItem ->
                         val mp = getDatabase().getMatchDao().getMatchPeriod(matchItem.matchId)
@@ -85,10 +88,21 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
                         else if (matchItem.winnerId == mr.recordId) {
                             lose ++
                         }
+
                         if (mp.bean.period != lastPeriod) {
                             lastPeriod = mp.bean.period
                             val period = "P${mp.bean.period}"
-                            result.add(RecordMatchPageTitle(period, isWinner))
+                            val rankSeed = getDatabase().getMatchDao().getMatchRecord(matchItem.id, mRecordId)?.bean?.let { mmr ->
+                                if (mmr.recordSeed != 0) {
+                                    "(Rank ${mmr.recordRank} / [${mmr.recordSeed}])"
+                                }
+                                else {
+                                    "(Rank ${mmr.recordRank})"
+                                }
+                            }
+                            titleBean = RecordMatchPageTitle(period, rankSeed, mp.bean.period)
+                            titleList.add(titleBean!!)
+                            itemMap[mp.bean.period] = mutableListOf()
                         }
                         val round = MatchConstants.roundResultShort(matchItem.round, isWinner)
                         val rankSeed = if (mr.recordSeed != 0) {
@@ -99,10 +113,21 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
                         }
                         val record = getDatabase().getRecordDao().getRecordBasic(mr.recordId)
                         val url = ImageProvider.getRecordRandomPath(record?.name, null)
+                        val sortValue = MatchConstants.getRoundSortValue(matchItem.round)
                         val isChampion = isWinner && MatchConstants.ROUND_ID_F == matchItem.round
-                        result.add(RecordMatchPageItem(round, record, rankSeed, url, isChampion))
+                        itemMap[mp.bean.period]!!.add(RecordMatchPageItem(round, record, rankSeed, url, sortValue, isChampion))
+                        if (isChampion) {
+                            titleBean!!.isChampion = true
+                        }
                     }
                 }
+            titleList.sortByDescending { title -> title.sortValue }
+            titleList.forEach { title ->
+                result.add(title)
+                itemMap[title.sortValue]
+                    ?.sortedByDescending { item -> item.sortValue }
+                    ?.forEach { item -> result.add(item) }
+            }
             winLoseText.set("${win}胜${lose}负")
             it.onNext(result)
             it.onComplete()

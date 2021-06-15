@@ -44,8 +44,8 @@ class RecordMatchPageAdapter: HeadChildBindingAdapter<AdapterMatchRecordMatchTit
         head: RecordMatchPageTitle
     ) {
         binding.tvTitle.text = head.period
-        binding.ivCup.visibility = if (head.isWinner) View.VISIBLE else View.GONE
-
+        binding.ivCup.visibility = if (head.isChampion) View.VISIBLE else View.GONE
+        binding.tvRank.text = head.rankSeed
     }
 
     override fun onBindItem(
@@ -61,5 +61,6 @@ class RecordMatchPageAdapter: HeadChildBindingAdapter<AdapterMatchRecordMatchTit
             drawable.setColor(binding.tvRound.resources.getColor(R.color.match_timeline))
         }
         binding.tvRound.background = drawable
+        binding.groupCard.setOnClickListener { onItemClickListener?.onClickItem(it, position, item) }
     }
 }

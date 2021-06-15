@@ -309,9 +309,12 @@ data class RecordMatchPageItem(
     var record: Record?,
     var rankSeed: String,
     var imageUrl: String?,
+    var sortValue: Int,
     var isChampion: Boolean = false
 )
 data class RecordMatchPageTitle(
     var period: String,
-    var isWinner: Boolean
+    var rankSeed: String?,
+    var sortValue: Int,
+    var isChampion: Boolean = false
 )

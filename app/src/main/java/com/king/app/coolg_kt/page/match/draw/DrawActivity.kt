@@ -21,6 +21,7 @@ import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
 import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.page.match.rank.RankActivity
@@ -151,10 +152,10 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             override fun onClickPlayer(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?) {
                 bean?.let {
                     when(it.bean.type) {
-                        MatchConstants.MATCH_RECORD_NORMAL -> recordPage(it.record)
+                        MatchConstants.MATCH_RECORD_NORMAL -> recordMatchPage(it.record)
                         MatchConstants.MATCH_RECORD_QUALIFY -> {
                             if (it.bean.recordId != 0L) {
-                                recordPage(it.record)
+                                recordMatchPage(it.record)
                             }
                         }
                         MatchConstants.MATCH_RECORD_WILDCARD -> {
@@ -162,7 +163,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                                 selectWildCardRecord(position, drawItem, it)
                             }
                             else {
-                                recordPage(it.record)
+                                recordMatchPage(it.record)
                             }
                         }
                     }
@@ -322,8 +323,13 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     private fun recordPage(record: Record?) {
         record?.let {
+            DetailActivity.startRecordPage(this, it.id!!)
+        }
+    }
+
+    private fun recordMatchPage(record: Record?) {
+        record?.let {
             RecordMatchActivity.startPage(this, it.id!!, mModel.getMatchId())
-//            DetailActivity.startRecordPage(this, it.id!!)
         }
     }
 

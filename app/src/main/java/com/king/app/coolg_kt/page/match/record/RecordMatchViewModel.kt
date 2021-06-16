@@ -81,7 +81,7 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
             val titleList = mutableListOf<RecordMatchPageTitle>()
             var itemMap = mutableMapOf<Int, MutableList<RecordMatchPageItem>>()
             var titleBean: RecordMatchPageTitle? = null
-            var bestRound = 0
+            var bestRound = -9999
             var bestPeriod = mutableListOf<Int>()
             var bestIsWin = false
             getDatabase().getMatchDao().getRecordCompetitorsInMatch(mRecordId, mMatchId)
@@ -100,7 +100,7 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
                             // winner的情况下只有F才需要对比best
                             if (matchItem.round == MatchConstants.ROUND_ID_F) {
                                 // Winner肯定是best
-                                if (matchItem.round != bestRound && !bestIsWin) {
+                                if (matchItem.round != bestRound || !bestIsWin) {
                                     bestRound = matchItem.round
                                     bestPeriod.clear()
                                 }

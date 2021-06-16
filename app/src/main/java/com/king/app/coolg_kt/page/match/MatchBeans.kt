@@ -224,7 +224,8 @@ data class TitleCountItem(
     var titles: Int,
     var rank: Int,
     var isOnlyOne: Boolean,
-    var imageUrl: String? = null
+    var imageUrl: String? = null,
+    var details: String? = null
 )
 class AxisDegree<T> {
     var text: String? = null

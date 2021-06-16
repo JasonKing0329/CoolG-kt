@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match.titles
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterMatchTitlesGroupBinding
@@ -40,6 +41,13 @@ class TitlesCountAdapter:
         binding.bean = item
         binding.tvSeedWin.text = " R ${item.rank} "
         binding.tvNameWin.text = item.record.name
+        if (item.details == null || item.details!!.isEmpty()) {
+            binding.tvDetails.visibility = View.GONE
+        }
+        else {
+            binding.tvDetails.text = item.details
+            binding.tvDetails.visibility = View.VISIBLE
+        }
     }
 
     fun getSpanSize(position: Int): Int {

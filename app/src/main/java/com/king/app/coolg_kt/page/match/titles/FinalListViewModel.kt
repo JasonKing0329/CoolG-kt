@@ -195,8 +195,12 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
             var totalNotified = 0
             list.forEach { item ->
                 if (item is TitleCountItem) {
+                    // image
                     item.imageUrl = ImageProvider.getRecordRandomPath(item.record.name, null)
+                    // rank
                     item.rank = rankRepository.getRecordCurrentRank(item.record.id!!)
+                    // details
+                    titleDetails(item)
                 }
                 count ++
                 // 每20个通知一次
@@ -210,6 +214,91 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
             }
             it.onComplete()
         }
+    }
+
+    private fun titleDetails(item: TitleCountItem) {
+        val finalList = if (mFilterLevel == MatchConstants.MATCH_LEVEL_ALL) {
+            getDatabase().getMatchDao().getRecordMatchItemsByRound(item.record.id!!, MatchConstants.ROUND_ID_F)
+        }
+        else {
+            getDatabase().getMatchDao().getRecordMatchItemsByRoundLevel(item.record.id!!, MatchConstants.ROUND_ID_F, mFilterLevel)
+        }
+        val buffer = StringBuffer()
+        val countMap = mutableMapOf<String, Int>()
+        finalList.forEach {
+            if (it.bean.winnerId == item.record.id!!) {
+                val mp = getDatabase().getMatchDao().getMatchPeriod(it.bean.matchId).bean
+                val match = getDatabase().getMatchDao().getMatch(mp.matchId)
+                when(mFilterLevel) {
+                    // 按level统计
+                    MatchConstants.MATCH_LEVEL_ALL -> {
+                        countMap[match.level.toString()] = (countMap[match.level.toString()]?:0) + 1
+                    }
+                    // 按match统计
+                    MatchConstants.MATCH_LEVEL_GS, MatchConstants.MATCH_LEVEL_GM1000 -> {
+                        countMap[match.id.toString()] = (countMap[match.id.toString()]?:0) + 1
+                    }
+                    // 其他都按period统计
+                    else -> {
+                        countMap[mp.period.toString()] = (countMap[mp.period.toString()]?:0) + 1
+                    }
+                }
+            }
+        }
+        when(mFilterLevel) {
+            // 按level统计
+            MatchConstants.MATCH_LEVEL_ALL -> {
+                countMap.keys.sortedBy { it.toInt() }
+                    .forEach { buffer.append("\n").append(MatchConstants.MATCH_LEVEL[it.toInt()]).append("(").append(countMap[it]).append(")") }
+            }
+            // 按match统计
+            MatchConstants.MATCH_LEVEL_GS -> {
+                countMap.keys
+                    .map {
+                        val matchId = it.toLong()
+                        val match = getDatabase().getMatchDao().getMatch(matchId)
+                        match
+                    }
+                    .sortedBy { it.orderInPeriod }
+                    .forEach {
+                        buffer.append("\n").append(it.name).append("(").append(countMap[it.id.toString()]).append(")")
+                    }
+            }
+            // 按match统计
+            MatchConstants.MATCH_LEVEL_GM1000 -> {
+                countMap.keys
+                    .map {
+                        val matchId = it.toLong()
+                        val match = getDatabase().getMatchDao().getMatch(matchId)
+                        match
+                    }
+                    .sortedBy { it.orderInPeriod }
+                    .forEach {
+                        // 取大写字母
+                        buffer.append("  ").append(getMatchShortName(it.name)).append("(").append(countMap[it.id.toString()]).append(")")
+                    }
+            }
+            // 其他都按period统计
+            else -> {
+                countMap.keys.sortedBy { it.toInt() }
+                    .forEach { buffer.append("  P").append(it.toInt()).append("(").append(countMap[it]).append(")") }
+            }
+        }
+        var details = buffer.toString()
+        if (details.isNotEmpty()) {
+            details = details.substring(1)
+        }
+        item.details = details
+    }
+
+    private fun getMatchShortName(name: String): String {
+        val buffer = StringBuffer()
+        for (char in name) {
+            if (char in 'A'..'Z') {
+                buffer.append(char)
+            }
+        }
+        return buffer.toString()
     }
 
 }

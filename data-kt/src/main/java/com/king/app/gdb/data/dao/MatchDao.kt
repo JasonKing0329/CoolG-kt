@@ -315,7 +315,10 @@ interface MatchDao {
     fun getTopRecordRanks(period: Int, orderInPeriod: Int, top: Int): List<Long>
 
     @Query("select winnerId, count(winnerId) as num from match_item where round=:roundId group by winnerId order by num desc")
-    fun countGroupByRecord(roundId: Int): List<TitlesCount>
+    fun countRecordRound(roundId: Int): List<TitlesCount>
+
+    @Query("select mi.winnerId, count(winnerId) as num from match_item mi join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id where m.level=:level and mi.round=:roundId group by mi.winnerId order by num desc")
+    fun countRecordRoundByLevel(roundId: Int, level: Int): List<TitlesCount>
 
     @Query("select record.*, count(*) as num from match_record join record on match_record.recordId=record._id where matchItemId in (select matchItemId from match_record where recordId=:recordId) and recordId!=:recordId and recordId != 0 group by recordId")// 为0是轮空的
     fun getRecordCompetitors(recordId: Long): List<RecordCpt>

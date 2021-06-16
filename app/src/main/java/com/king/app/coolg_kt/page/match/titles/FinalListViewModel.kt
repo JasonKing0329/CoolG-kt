@@ -113,6 +113,11 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
         loadData()
     }
 
+    fun filterTitlesCountByLevel(levelIndex: Int) {
+        mFilterLevel = levelIndex
+        loadTitlesCount()
+    }
+
     fun loadTitlesCount() {
         getTitlesCount()
             .compose(applySchedulers())
@@ -133,7 +138,12 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     private fun getTitlesCount(): Observable<List<Any>> {
         return Observable.create {
             var list = mutableListOf<Any>()
-            val items = getDatabase().getMatchDao().countGroupByRecord(MatchConstants.ROUND_ID_F)
+            val items = if (mFilterLevel == MatchConstants.MATCH_LEVEL_ALL) {
+                getDatabase().getMatchDao().countRecordRound(MatchConstants.ROUND_ID_F)
+            }
+            else {
+                getDatabase().getMatchDao().countRecordRoundByLevel(MatchConstants.ROUND_ID_F, mFilterLevel)
+            }
             var lastCount = 0
             var countMap = mutableMapOf<Int, Int>()
             items.forEach { item ->

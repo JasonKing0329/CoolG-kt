@@ -37,6 +37,8 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
     val adapter = FinalListAdapter()
     val titlesAdapter = TitlesCountAdapter()
 
+    private var dataType = 0 // 0 by date; 1 titles count
+
     override fun getContentView(): Int = R.layout.activity_match_final_list
 
     override fun createViewModel(): FinalListViewModel = generateViewModel(FinalListViewModel::class.java)
@@ -46,8 +48,18 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
                 R.id.menu_filter -> filter()
-                R.id.menu_date -> mModel.loadData()
-                R.id.menu_titles_count -> mModel.loadTitlesCount()
+                R.id.menu_date -> {
+                    if (dataType != 0) {
+                        dataType = 0
+                        mModel.loadData()
+                    }
+                }
+                R.id.menu_titles_count -> {
+                    if (dataType != 1) {
+                        dataType = 1
+                        mModel.loadTitlesCount()
+                    }
+                }
             }
         }
 
@@ -101,7 +113,12 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
         elements.add("All")
         AlertDialogFragment()
             .setItems(elements.toTypedArray()) { dialogInterface, i ->
-                mModel.filterByLevel(i)
+                if (dataType == 0) {
+                    mModel.filterByLevel(i)
+                }
+                else {
+                    mModel.filterTitlesCountByLevel(i)
+                }
             }
             .show(supportFragmentManager, "AlertDialogFragment")
     }

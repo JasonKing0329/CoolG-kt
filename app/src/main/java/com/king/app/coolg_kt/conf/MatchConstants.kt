@@ -33,7 +33,7 @@ object MatchConstants {
     val MATCH_LEVEL_GM250 = 4
     val MATCH_LEVEL_LOW = 5
 
-    val MATCH_LEVEL_ALL = MATCH_LEVEL_LOW + 1 // 永远为最后一个level+1
+    val MATCH_LEVEL_ALL = MATCH_LEVEL_LOW + 1 //为方便array数组直接对应value，MATCH_LEVEL_ALL为最后一个
 
     val MATCH_LEVEL = arrayOf(
         "Grand Slam",

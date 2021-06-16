@@ -26,6 +26,9 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
     var matchLevelText = ObservableField<String>()
     var matchWeekText = ObservableField<String>()
     var winLoseText = ObservableField<String>()
+    var winLoseQualifyText = ObservableField<String>()
+    var bestText = ObservableField<String>()
+    var joinTimesText = ObservableField<String>()
 
     var itemsObserver = MutableLiveData<List<Any>>()
 
@@ -71,11 +74,16 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
             var result = mutableListOf<Any>()
             var win = 0
             var lose = 0
+            var winQ = 0
+            var loseQ = 0
             var lastPeriod = 0
             // 先按period分组，再在period中按round排序
             val titleList = mutableListOf<RecordMatchPageTitle>()
             var itemMap = mutableMapOf<Int, MutableList<RecordMatchPageItem>>()
             var titleBean: RecordMatchPageTitle? = null
+            var bestRound = 0
+            var bestPeriod = mutableListOf<Int>()
+            var bestIsWin = false
             getDatabase().getMatchDao().getRecordCompetitorsInMatch(mRecordId, mMatchId)
                 .forEach { mr ->
                     getDatabase().getMatchDao().getMatchItem(mr.matchItemId)?.let { matchItem ->
@@ -83,10 +91,41 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
                         val isWinner = matchItem.winnerId == mRecordId
                         // 要考虑未完赛的情况
                         if (matchItem.winnerId == mRecordId) {
-                            win ++
+                            if (matchItem.round in MatchConstants.ROUND_ID_Q1..MatchConstants.ROUND_ID_Q3) {
+                                winQ ++
+                            }
+                            else {
+                                win ++
+                            }
+                            // winner的情况下只有F才需要对比best
+                            if (matchItem.round == MatchConstants.ROUND_ID_F) {
+                                // Winner肯定是best
+                                if (matchItem.round != bestRound && !bestIsWin) {
+                                    bestRound = matchItem.round
+                                    bestPeriod.clear()
+                                }
+                                bestPeriod.add(mp.bean.period)
+                                bestIsWin = true
+                            }
                         }
                         else if (matchItem.winnerId == mr.recordId) {
-                            lose ++
+                            if (matchItem.round in MatchConstants.ROUND_ID_Q1..MatchConstants.ROUND_ID_Q3) {
+                                loseQ ++
+                            }
+                            else {
+                                lose ++
+                            }
+                            // 一般lose的情况才是period下最终轮次，对比best
+                            val roundVal = MatchConstants.getRoundSortValue(matchItem.round)
+                            val bestVal = MatchConstants.getRoundSortValue(bestRound)
+                            if (roundVal == bestVal && !bestIsWin) {
+                                bestPeriod.add(mp.bean.period)
+                            }
+                            else if (roundVal > bestVal) {
+                                bestRound = matchItem.round
+                                bestPeriod.clear()
+                                bestPeriod.add(mp.bean.period)
+                            }
                         }
 
                         if (mp.bean.period != lastPeriod) {
@@ -115,7 +154,7 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
                         val url = ImageProvider.getRecordRandomPath(record?.name, null)
                         val sortValue = MatchConstants.getRoundSortValue(matchItem.round)
                         val isChampion = isWinner && MatchConstants.ROUND_ID_F == matchItem.round
-                        itemMap[mp.bean.period]!!.add(RecordMatchPageItem(round, record, rankSeed, url, sortValue, isChampion))
+                        itemMap[mp.bean.period]!!.add(RecordMatchPageItem(round, record, rankSeed, url, sortValue, isWinner, isChampion))
                         if (isChampion) {
                             titleBean!!.isChampion = true
                         }
@@ -128,7 +167,34 @@ class RecordMatchViewModel(application: Application): BaseViewModel(application)
                     ?.sortedByDescending { item -> item.sortValue }
                     ?.forEach { item -> result.add(item) }
             }
+
+            val bestPeriodText = if (bestPeriod.size in 1..10) {
+                var buffer = StringBuffer("(")
+                for (i in bestPeriod.indices) {
+                    if (i == 0) {
+                        buffer.append("P").append(bestPeriod[i])
+                    }
+                    else {
+                        buffer.append(", P").append(bestPeriod[i])
+                    }
+                }
+                buffer.append(")")
+            }
+            else {
+                ""
+            }
+            val joinTimes = titleList.size
+            if (joinTimes == 1) {
+                joinTimesText.set(" $joinTimes time in")
+            }
+            else {
+                joinTimesText.set(" $joinTimes times in")
+            }
+            bestText.set("Best: ${MatchConstants.roundResultShort(bestRound, bestIsWin)}$bestPeriodText")
             winLoseText.set("${win}胜${lose}负")
+            if (winQ > 0 || loseQ > 0) {
+                winLoseQualifyText.set("Q(${winQ}胜${loseQ}负)")
+            }
             it.onNext(result)
             it.onComplete()
         }

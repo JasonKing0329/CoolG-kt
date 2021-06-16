@@ -58,7 +58,12 @@ class RecordMatchPageAdapter: HeadChildBindingAdapter<AdapterMatchRecordMatchTit
         if (item.isChampion) {
             drawable.setColor(binding.tvRound.resources.getColor(R.color.match_timeline_champion))
         } else {
-            drawable.setColor(binding.tvRound.resources.getColor(R.color.match_timeline))
+            if (item.isWinner) {
+                drawable.setColor(binding.tvRound.resources.getColor(R.color.match_timeline))
+            }
+            else {
+                drawable.setColor(binding.tvRound.resources.getColor(R.color.match_timeline_lose))
+            }
         }
         binding.tvRound.background = drawable
         binding.groupCard.setOnClickListener { onItemClickListener?.onClickItem(it, position, item) }

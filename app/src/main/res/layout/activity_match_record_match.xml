@@ -50,6 +50,20 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         tools:text=" Rank 126 "/>
+                    <TextView
+                        android:id="@+id/tv_join"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="10dp"
+                        android:textColor="@color/white"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="10"
+                        android:textSize="16dp"
+                        android:text="@{model.joinTimesText}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:text=" 3 times in "/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.appcompat.widget.Toolbar
@@ -61,7 +75,7 @@
                 </androidx.appcompat.widget.Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-            <RelativeLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#f0f0f0">
@@ -70,62 +84,89 @@
                     android:id="@+id/tv_match"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="80dp"
-                    android:paddingTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="10dp"
                     android:textColor="#DE000000"
                     android:textSize="20dp"
-                    android:text="@{model.matchNameText}"/>
+                    android:text="@{model.matchNameText}"
+                    tools:text="Match Name"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <com.king.app.coolg_kt.view.widget.rc.RCImageView
+                    android:id="@+id/iv_match_thumb"
+                    android:layout_width="40dp"
+                    android:layout_height="24dp"
+                    android:scaleType="centerCrop"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    app:recordUrl="@{model.matchImageUrl}"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_match"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/tv_match"/>
+
+                <TextView
+                    android:id="@+id/tv_level"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_below="@id/tv_match"
-                    android:padding="16dp">
+                    android:layout_marginStart="8dp"
+                    android:textColor="#89000000"
+                    android:textSize="14dp"
+                    android:text="@{model.matchLevelText}"
+                    tools:text="Grand Slam"
+                    app:layout_constraintStart_toEndOf="@+id/iv_match_thumb"
+                    app:layout_constraintTop_toTopOf="@+id/iv_match_thumb"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_match_thumb"/>
 
-                    <com.king.app.coolg_kt.view.widget.rc.RCImageView
-                        android:id="@+id/iv_match_thumb"
-                        android:layout_width="40dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center_vertical"
-                        android:scaleType="centerCrop"
-                        app:recordUrl="@{model.matchImageUrl}" />
+                <TextView
+                    android:id="@+id/tv_week"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="#61000000"
+                    android:textSize="14dp"
+                    android:text="@{model.matchWeekText}"
+                    tools:text="W21"
+                    app:layout_constraintStart_toEndOf="@+id/tv_level"
+                    app:layout_constraintTop_toTopOf="@+id/iv_match_thumb"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_match_thumb" />
 
-                    <TextView
-                        android:id="@+id/tv_level"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="8dp"
-                        android:textColor="#89000000"
-                        android:textSize="14dp"
-                        android:text="@{model.matchLevelText}" />
-
-                    <TextView
-                        android:id="@+id/tv_week"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="8dp"
-                        android:textColor="#61000000"
-                        android:textSize="14dp"
-                        android:text="@{model.matchWeekText}" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_best"
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="#89000000"
+                    android:textSize="11dp"
+                    android:text="@{model.bestText}"
+                    android:gravity="right"
+                    tools:text="Best: R128(P6, P1, P3, P7, P13, P15)"
+                    app:layout_constraintTop_toTopOf="@+id/tv_week"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_winlose"/>
 
                 <TextView
                     android:id="@+id/tv_winlose"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="16dp"
-                    android:paddingTop="16dp"
-                    android:layout_alignParentRight="true"
+                    android:layout_marginEnd="16dp"
                     android:textColor="#DE000000"
                     android:textSize="24dp"
                     android:text="@{model.winLoseText}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tv_match"
                     tools:text="55胜16负"/>
 
-            </RelativeLayout>
+                <TextView
+                    android:id="@+id/tv_winlose_qualify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#89000000"
+                    android:textSize="10dp"
+                    android:text="@{model.winLoseQualifyText}"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_winlose"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_winlose"
+                    tools:text="Q(13胜6负)"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView

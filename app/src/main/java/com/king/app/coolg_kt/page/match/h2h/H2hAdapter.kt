@@ -17,5 +17,6 @@ class H2hAdapter: BaseBindingAdapter<AdapterMatchH2hBinding, H2hItem>() {
     override fun onBindItem(binding: AdapterMatchH2hBinding, position: Int, bean: H2hItem) {
         binding.bean = bean
         binding.group.setBackgroundColor(bean.bgColor)
+        binding.tvSeq.text = "${position + 1}"
     }
 }

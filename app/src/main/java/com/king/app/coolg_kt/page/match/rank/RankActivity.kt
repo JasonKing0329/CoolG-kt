@@ -5,11 +5,10 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Handler
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SimpleAdapter
-import android.widget.SpinnerAdapter
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,6 +36,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         val EXTRA_SELECT_MATCH_LEVEL = "select_match_level"
         val EXTRA_FOCUS_TO_RANK = "focus_to_rank"
         val RESP_RECORD_ID = "record_id"
+        val EXTRA_INIT_STUDIO = "studio_id"
         fun startPage(context: Context) {
             var intent = Intent(context, RankActivity::class.java)
             context.startActivity(intent)
@@ -45,6 +45,13 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             var intent = Intent(context, RankActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)
             intent.putExtra(EXTRA_FOCUS_TO_RANK, focusToRank)
+            intent.putExtra(EXTRA_SELECT_MATCH_LEVEL, matchLevel)
+            context.startActivityForResult(intent, requestCode)
+        }
+        fun startPageToSelectStudioItem(context: Activity, requestCode: Int, studioId: Long, matchLevel: Int) {
+            var intent = Intent(context, RankActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_INIT_STUDIO, studioId)
             intent.putExtra(EXTRA_SELECT_MATCH_LEVEL, matchLevel)
             context.startActivityForResult(intent, requestCode)
         }
@@ -137,6 +144,10 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         return intent.getIntExtra(EXTRA_SELECT_MATCH_LEVEL, 0)
     }
 
+    private fun getInitStudioId(): Long {
+        return intent.getLongExtra(EXTRA_INIT_STUDIO, 0)
+    }
+
     override fun initData() {
         mModel.isSelectMode = isSelectMode()
         mModel.mMatchSelectLevel = getSelectMatchLevel()
@@ -207,6 +218,11 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     mModel.filterByStudio(position - 1)
                 }
+            }
+            if (getInitStudioId() != 0.toLong()) {
+                Handler().postDelayed(Runnable {
+                    mBinding.spStudio.setSelection(mModel.findStudioPosition(getInitStudioId()))
+                }, 1000)
             }
         })
         mModel.loadStudios()

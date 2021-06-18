@@ -6,12 +6,15 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.H2hRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.H2hItem
+import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.gdb.data.relation.RecordWrap
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 
 /**
@@ -31,6 +34,22 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     var player2WinColor = ObservableInt()
     var player1ImageUrl = ObservableField<String>()
     var player2ImageUrl = ObservableField<String>()
+    var ytdTitles1Text = ObservableField<String>()
+    var ytdTitles2Text = ObservableField<String>()
+    var ytdWinLose1Text = ObservableField<String>()
+    var ytdWinLose2Text = ObservableField<String>()
+    var ytdMatches1Text = ObservableField<String>()
+    var ytdMatches2Text = ObservableField<String>()
+    var careerTitles1Text = ObservableField<String>()
+    var careerTitles2Text = ObservableField<String>()
+    var careerWinLose1Text = ObservableField<String>()
+    var careerWinLose2Text = ObservableField<String>()
+    var debut1Text = ObservableField<String>()
+    var debut2Text = ObservableField<String>()
+    var highRank1Text = ObservableField<String>()
+    var highRank2Text = ObservableField<String>()
+    var scoreRank1Text = ObservableField<String>()
+    var scoreRank2Text = ObservableField<String>()
 
     var h2hObserver = MutableLiveData<List<H2hItem>>()
 
@@ -56,12 +75,19 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             player1ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
             var rank = rankRepository.getRecordCurrentRank(it.bean.id!!)
             if (rank == -1) {
-                player1Rank.set("R${it.countRecord?.rank}")
+                player1Rank.set("r${MatchConstants.RANK_OUT_OF_SYSTEM}")
             }
             else {
                 player1Rank.set("r$rank")
             }
             onH2hChanged()
+            loadPlayerInfo(it,
+                InfoPart(
+                    ytdTitles1Text, ytdWinLose1Text, ytdMatches1Text,
+                    careerTitles1Text, careerWinLose1Text, debut1Text,
+                    highRank1Text, scoreRank1Text
+                )
+            )
         }
     }
 
@@ -71,12 +97,19 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             player2ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
             var rank = rankRepository.getRecordCurrentRank(it.bean.id!!)
             if (rank == -1) {
-                player2Rank.set("R${it.countRecord?.rank}")
+                player2Rank.set("r${MatchConstants.RANK_OUT_OF_SYSTEM}")
             }
             else {
                 player2Rank.set("r$rank")
             }
             onH2hChanged()
+            loadPlayerInfo(it,
+                InfoPart(
+                    ytdTitles2Text, ytdWinLose2Text, ytdMatches2Text,
+                    careerTitles2Text, careerWinLose2Text, debut2Text,
+                    highRank2Text, scoreRank2Text
+                )
+            )
         }
     }
 
@@ -154,4 +187,93 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             onPlayer2Changed()
         }
     }
+
+    data class InfoPart (
+        var ytdTitles: ObservableField<String>,
+        var ytdWinLose: ObservableField<String>,
+        var ytdMatches: ObservableField<String>,
+        var careerTitles: ObservableField<String>,
+        var careerWinLose: ObservableField<String>,
+        var debut: ObservableField<String>,
+        var rankHigh: ObservableField<String>,
+        var rankScore: ObservableField<String>
+    )
+
+    private fun loadPlayerInfo(record: RecordWrap, infoPart: InfoPart) {
+        playerInfo(record, infoPart)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message?:""
+                }
+            })
+    }
+
+    private fun playerInfo(record: RecordWrap, infoPart: InfoPart): Observable<Boolean> {
+        return Observable.create {
+            // rank
+            countRank(record, infoPart)
+            // titles
+            countTitles(record, infoPart)
+            // win lose
+            countWinLose(record, infoPart.ytdWinLose, rankRepository.getRTFPeriodPack())
+            countWinLose(record, infoPart.careerWinLose, rankRepository.getAllTimePeriodPack())
+            // matches
+            val matches = rankRepository.getRecordPeriodScoresRange(record.bean.id!!, rankRepository.getRTFPeriodPack()).size
+            infoPart.ytdMatches.set(matches.toString())
+            // debut
+            val debutMatch = getDatabase().getMatchDao().getDebutMatch(record.bean.id!!)
+            if (debutMatch == null) {
+                infoPart.debut.set("--")
+            }
+            else {
+                val mp = debutMatch!!
+                infoPart.debut.set("P${mp.bean.period}-W${mp.bean.orderInPeriod} ${mp.match.name}")
+            }
+            it.onNext(true)
+            it.toString()
+        }
+    }
+
+    private fun countWinLose(record: RecordWrap, rankInfo: ObservableField<String>, periodPack: PeriodPack) {
+        val recordId = record.bean.id!!
+        var win = 0
+        var lose = 0
+        val items = rankRepository.getRecordMatchItemsRange(recordId, periodPack)
+        items.forEach { item ->
+            if (item.winnerId == recordId) {
+                win ++
+            }
+            else {
+                lose ++
+            }
+        }
+        rankInfo.set("${win}/${lose}")
+    }
+
+    private fun countTitles(record: RecordWrap, infoPart: InfoPart) {
+        val recordId = record.bean.id!!
+        val careerTitles = rankRepository.countRecordTitlesIn(recordId, rankRepository.getAllTimePeriodPack())
+        infoPart.careerTitles.set(careerTitles.toString())
+        val ytdTitles = rankRepository.countRecordTitlesIn(recordId, rankRepository.getRTFPeriodPack())
+        infoPart.ytdTitles.set(ytdTitles.toString())
+    }
+
+    private fun countRank(record: RecordWrap, infoPart: InfoPart) {
+        val recordId = record.bean.id!!
+        // rank
+        val high = getDatabase().getMatchDao().getRecordHighestRank(recordId)
+        val highWeeks = getDatabase().getMatchDao().getRecordRankWeeks(recordId, high)
+        getDatabase().getMatchDao().getRecordRankFirstTime(recordId, high)?.let {
+            infoPart.rankHigh.set("$high(P${it.period}-W${it.orderInPeriod})($highWeeks weeks)")
+        }
+        val scoreRank = record.countRecord?.rank
+        infoPart.rankScore.set("${record.bean.score}/$scoreRank")
+    }
+
 }

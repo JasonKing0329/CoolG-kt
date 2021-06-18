@@ -13,9 +13,9 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.ShowPeriod
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.ScoreCount
@@ -602,6 +602,16 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             var list = recordRankList?.filter { it.studioName == studioName }
             recordRanksObserver.value = list
         }
+    }
+
+    fun findStudioPosition(studioId: Long): Int {
+        val studio = getDatabase().getFavorDao().getFavorRecordOrderBy(studioId)
+        studiosObserver.value?.forEachIndexed { index, name ->
+            if (name == studio?.name) {
+                return index
+            }
+        }
+        return 0
     }
 
 }

@@ -4,4 +4,6 @@
         android:title="Change"/>
     <item android:id="@+id/menu_detail"
         android:title="Detail"/>
+    <item android:id="@+id/menu_history"
+        android:title="History of match"/>
 </menu>

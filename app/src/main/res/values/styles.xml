@@ -409,6 +409,13 @@
         <item name="android:textSize">@dimen/records_tag_text</item>
         <item name="android:gravity">center</item>
     </style>
+    <style name="TvH2hParams">
+        <item name="android:textColor">@color/text_second</item>
+        <item name="android:textSize">@dimen/text_common_12</item>
+    </style>
+    <style name="TvH2hParamsTitle" parent="TvH2hParams">
+        <item name="android:textStyle">bold</item>
+    </style>
 
     <dimen name="dlg_icon_size">45dp</dimen>
     <dimen name="dlg_icon_padding">10dp</dimen>

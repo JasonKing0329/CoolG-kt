@@ -182,6 +182,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                                 }
                             }
                             R.id.menu_detail -> recordPage(it.record)
+                            R.id.menu_history -> recordMatchPage(it.record)
                         }
                         false
                     }
@@ -280,13 +281,14 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     private fun selectRecord(requestCode: Int) {
         AlertDialogFragment()
             .setItems(
-                arrayOf("Record List", "Rank List", "Studio Records", "Out of rank")
+                arrayOf("Record List", "Rank List", "Studio Records", "Studio in rank", "Out of rank")
             ) { dialog, which ->
                 when(which) {
                     0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode)
                     1 -> RankActivity.startPageToSelect(this@DrawActivity, requestCode, mModel.getLowestSeedRankOfPage(), mModel.matchPeriod.match.level)
                     2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, mModel.findStudioId())
-                    3 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, true)
+                    3 -> RankActivity.startPageToSelectStudioItem(this@DrawActivity, requestCode, mModel.findStudioId(), mModel.matchPeriod.match.level)
+                    4 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, true)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")

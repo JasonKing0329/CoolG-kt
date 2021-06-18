@@ -122,6 +122,254 @@
             app:layout_constraintTop_toBottomOf="@+id/iv_record2"
             tools:text="Record2"/>
 
+        <TextView
+            android:id="@+id/tv_ytd_titles1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.ytdTitles1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_ytd_titles_title"
+            tools:text="6"/>
+        <TextView
+            android:id="@+id/tv_ytd_titles_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="YTD Titles"
+            app:layout_constraintTop_toBottomOf="@id/tv_record1"
+            app:layout_constraintStart_toEndOf="@+id/tv_ytd_titles1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_ytd_titles2"/>
+        <TextView
+            android:id="@+id/tv_ytd_titles2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.ytdTitles2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_ytd_titles_title"
+            tools:text="3"/>
+
+        <TextView
+            android:id="@+id/tv_ytd_winlose1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.ytdWinLose1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_ytd_winlose_title"
+            tools:text="72/15"/>
+        <TextView
+            android:id="@+id/tv_ytd_winlose_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="YTD W/L"
+            app:layout_constraintTop_toBottomOf="@id/tv_ytd_titles_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_ytd_winlose1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_ytd_winlose2"/>
+        <TextView
+            android:id="@+id/tv_ytd_winlose2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.ytdWinLose2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_ytd_winlose_title"
+            tools:text="62/34"/>
+
+        <TextView
+            android:id="@+id/tv_ytd_matches1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.ytdMatches1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_ytd_matches_title"
+            tools:text="21"/>
+        <TextView
+            android:id="@+id/tv_ytd_matches_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="YTD Matches"
+            app:layout_constraintTop_toBottomOf="@id/tv_ytd_winlose_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_ytd_matches1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_ytd_matches2"/>
+        <TextView
+            android:id="@+id/tv_ytd_matches2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.ytdMatches2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_ytd_matches_title"
+            tools:text="17"/>
+
+        <TextView
+            android:id="@+id/tv_career_titles1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.careerTitles1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_career_titles_title"
+            tools:text="35"/>
+        <TextView
+            android:id="@+id/tv_career_titles_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Career Titles"
+            app:layout_constraintTop_toBottomOf="@id/tv_ytd_matches_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_career_titles1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_career_titles2"/>
+        <TextView
+            android:id="@+id/tv_career_titles2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.careerTitles2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_career_titles_title"
+            tools:text="27"/>
+
+        <TextView
+            android:id="@+id/tv_career_winlose1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.careerWinLose1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_career_winlose_title"
+            tools:text="224/68"/>
+        <TextView
+            android:id="@+id/tv_career_winlose_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Career W/L"
+            app:layout_constraintTop_toBottomOf="@id/tv_career_titles_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_career_winlose1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_career_winlose2"/>
+        <TextView
+            android:id="@+id/tv_career_winlose2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.careerWinLose2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_career_winlose_title"
+            tools:text="363/208"/>
+
+        <TextView
+            android:id="@+id/tv_debut1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.debut1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_debut_title"
+            tools:text="P1-W40-MEN"/>
+        <TextView
+            android:id="@+id/tv_debut_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Debut"
+            app:layout_constraintTop_toBottomOf="@id/tv_career_winlose_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_debut1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_debut2"/>
+        <TextView
+            android:id="@+id/tv_debut2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.debut2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_debut_title"
+            tools:text="P3-W12-Falcon"/>
+
+        <TextView
+            android:id="@+id/tv_rank_h1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.highRank1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_rank_h_title"
+            tools:text="8(43 weeks)"/>
+        <TextView
+            android:id="@+id/tv_rank_h_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Highest Rank"
+            app:layout_constraintTop_toBottomOf="@id/tv_debut_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_rank_h1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_rank_h2"/>
+        <TextView
+            android:id="@+id/tv_rank_h2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.highRank2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_rank_h_title"
+            tools:text="117(2 weeks)"/>
+
+        <TextView
+            android:id="@+id/tv_rank_s1"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{model.scoreRank1Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record1"
+            app:layout_constraintEnd_toEndOf="@id/tv_record1"
+            app:layout_constraintTop_toTopOf="@id/tv_rank_s_title"
+            tools:text="645/4"/>
+        <TextView
+            android:id="@+id/tv_rank_s_title"
+            style="@style/TvH2hParamsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score/Rank"
+            app:layout_constraintTop_toBottomOf="@id/tv_rank_h_title"
+            app:layout_constraintStart_toEndOf="@+id/tv_rank_s1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_rank_s2"/>
+        <TextView
+            android:id="@+id/tv_rank_s2"
+            style="@style/TvH2hParams"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{model.scoreRank2Text}"
+            app:layout_constraintStart_toStartOf="@id/tv_record2"
+            app:layout_constraintEnd_toEndOf="@id/tv_record2"
+            app:layout_constraintTop_toTopOf="@id/tv_rank_s_title"
+            tools:text="578/369"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="0dp"
@@ -130,7 +378,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_record1"
+            app:layout_constraintTop_toBottomOf="@+id/tv_rank_s_title"
             tools:listitem="@layout/adapter_match_h2h"/>
 
         <TextView

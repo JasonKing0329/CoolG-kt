@@ -328,4 +328,7 @@ interface MatchDao {
 
     @Query("select * from match_record where recordId!=:recordId and recordId!=0 and matchItemId in (select mr.matchItemId from match_record mr  join match_period mp on mr.matchId=mp.id where mr.recordId=:recordId and mp.matchId=:matchId)")
     fun getRecordCompetitorsInMatch(recordId: Long, matchId: Long): List<MatchRecord>
+
+    @Query("select mp.* from match_period mp join match_record mr on mp.id=mr.matchId where mr.recordId=:recordId limit 1")
+    fun getDebutMatch(recordId: Long): MatchPeriodWrap?
 }

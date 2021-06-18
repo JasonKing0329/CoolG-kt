@@ -34,6 +34,11 @@ class RecordMatchActivity:BaseActivity<ActivityMatchRecordMatchBinding, RecordMa
     override fun isFullScreen(): Boolean {
         return true
     }
+
+    override fun keepNavWhenFullScreen(): Boolean {
+        return true
+    }
+
     override fun getContentView(): Int = R.layout.activity_match_record_match
 
     override fun createViewModel(): RecordMatchViewModel = generateViewModel(RecordMatchViewModel::class.java)

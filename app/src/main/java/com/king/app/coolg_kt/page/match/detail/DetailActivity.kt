@@ -36,6 +36,10 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
 
     override fun isFullScreen(): Boolean = true
 
+    override fun keepNavWhenFullScreen(): Boolean {
+        return true
+    }
+
     override fun getContentView(): Int = R.layout.activity_match_record_detail
 
     override fun createViewModel(): DetailViewModel = generateViewModel(DetailViewModel::class.java)

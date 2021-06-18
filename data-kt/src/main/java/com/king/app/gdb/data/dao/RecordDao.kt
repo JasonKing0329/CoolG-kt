@@ -50,7 +50,7 @@ interface RecordDao {
     @RawQuery
     fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
 
-    @Query("select r.* from record r left join match_rank_record mrr on r._id=mrr.recordId and mrr.period=:period and mrr.orderInPeriod=:orderInPeriod where mrr.id is null")
+    @Query("select r.* from record r left join match_rank_record mrr on r._id=mrr.recordId and mrr.period=:period and mrr.orderInPeriod=:orderInPeriod where mrr.id is null order by r.SCORE desc")
     fun getRecordsOutOfRank(period: Int, orderInPeriod: Int): List<RecordWrap>
 
     @Query("select * from record where DEPRECATED=0 order by LAST_MODIFY_TIME desc limit :start, :num")

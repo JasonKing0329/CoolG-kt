@@ -45,18 +45,21 @@ abstract class RootActivity : AppCompatActivity() {
 
     private fun setFullScreen() {
         if (AppUtil.isAndroidP()) {
-            val uiOptions = (
-                    // 底部的导航栏
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            var uiOptions = (
 //                // 顶部状态栏
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             // 当状态栏隐藏的时候，手动调出状态栏导航栏，显示一会儿随后就会隐藏掉。设置该属性后不会清除flag
                             // SYSTEM_UI_FLAG_IMMERSIVE 会在手动调出状态栏后立马清除flag
                             or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     )
+            // 底部导航栏
+            if (!keepNavWhenFullScreen()) {
+                uiOptions = uiOptions or (
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        )
+            }
             window.decorView.systemUiVisibility = uiOptions
         }
         else {
@@ -79,6 +82,13 @@ abstract class RootActivity : AppCompatActivity() {
      * 只有PlayerActivity需要全屏，覆盖方法
      */
     open fun isFullScreen(): Boolean {
+        return false
+    }
+
+    /**
+     * 全屏时保留底部栏，子类自行覆盖
+     */
+    open fun keepNavWhenFullScreen(): Boolean {
         return false
     }
 

@@ -219,12 +219,11 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                     mModel.filterByStudio(position - 1)
                 }
             }
-            if (getInitStudioId() != 0.toLong()) {
-                Handler().postDelayed(Runnable {
-                    mBinding.spStudio.setSelection(mModel.findStudioPosition(getInitStudioId()))
-                }, 1000)
-            }
         })
+        mModel.mOnlyStudioId = getInitStudioId()
+        if (getInitStudioId() > 0) {
+            mBinding.spStudio.visibility = View.INVISIBLE
+        }
         mModel.loadStudios()
     }
 

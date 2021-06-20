@@ -72,6 +72,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         currentPeriod = showPeriod.copy()
     }
 
+    var mOnlyStudioId: Long = 0
+
     fun loadStudios() {
         getStudios()
             .compose(applySchedulers())
@@ -149,7 +151,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     loadingObserver.value = false
                     recordRankList = t
                     recordRanksObserver.value = t
-                    loadImages()
+                    loadDetails()
                 }
 
                 override fun onError(e: Throwable?) {
@@ -160,7 +162,43 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    private fun loadImages() {
+    private fun loadDetails() {
+        if (mOnlyStudioId > 0) {
+            filterOnlyStudio(recordRanksObserver.value, mOnlyStudioId)
+                .compose(applySchedulers())
+                .subscribe(object : SimpleObserver<List<RankItem<Record?>>?>(getComposite()) {
+                    override fun onNext(t: List<RankItem<Record?>>?) {
+                        recordRanksObserver.value = t
+                        loadBasicDetails()
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                        messageObserver.value = e?.message?:""
+                    }
+                })
+        }
+        else {
+            loadBasicDetails()
+        }
+    }
+
+    private fun filterOnlyStudio(items: List<RankItem<Record?>>?, mOnlyStudioId: Long): Observable<List<RankItem<Record?>>?> {
+        return Observable.create {
+            val result = items?.filter { item ->
+                item.bean?.let { record ->
+                    orderRepository.getRecordStudio(record.id!!)?.let { studio ->
+                        return@filter studio.id == mOnlyStudioId
+                    }
+                }
+                false
+            }
+            it.onNext(result)
+            it.onComplete()
+        }
+    }
+
+    private fun loadBasicDetails() {
         loadTimeWaste(recordRanksObserver.value)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
@@ -224,7 +262,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     loadingObserver.value = false
                     recordRankList = t
                     recordRanksObserver.value = t
-                    loadImages()
+                    loadDetails()
                 }
 
                 override fun onError(e: Throwable?) {

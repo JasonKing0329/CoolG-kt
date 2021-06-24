@@ -24,9 +24,7 @@
             android:id="@+id/layout_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#66000000"
             app:layout_constraintTop_toTopOf="parent">
-
             <ImageView
                 android:id="@+id/iv_back"
                 style="@style/IvVideoIconTv"
@@ -34,74 +32,75 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 
-            <!-- Jzvd id, don't modify -->
             <TextView
                 android:id="@+id/title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="10dp"
+                android:layout_marginEnd="@dimen/common_margin_16"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/white"
-                android:textSize="14dp"
+                android:textSize="@dimen/text_common_16"
+                android:shadowColor="#000000"
+                android:shadowRadius="10"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/iv_back"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
+                app:layout_constraintTop_toTopOf="@+id/iv_back"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_back"
+                tools:text="Url path"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#66000000"
+            android:background="#33000000"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <!-- Jzvd id, don't modify -->
             <TextView
                 android:id="@+id/current"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/tv_video_player_icon_size"
-                android:text="00:00:00"
+                android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
-                android:textSize="14dp"
+                android:textSize="@dimen/text_common_16"
                 android:gravity="center_vertical"
-                android:layout_marginStart="@dimen/video_player_side_margin"
+                android:layout_marginStart="@dimen/common_margin_16"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="@+id/seek_progress"
+                app:layout_constraintBottom_toBottomOf="@+id/seek_progress"
+                tools:text="00:00:00"/>
 
-            <!-- Jzvd id, don't modify -->
             <SeekBar
-                android:id="@+id/bottom_seek_progress"
+                android:id="@+id/seek_progress"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:thumb="@drawable/video_seek_thumb"
-                android:layout_marginStart="@dimen/video_player_side_margin"
-                android:layout_marginEnd="@dimen/video_player_side_margin"
-                app:layout_constraintStart_toEndOf="@id/current"
+                android:layout_marginStart="@dimen/common_margin_10"
+                android:layout_marginEnd="@dimen/common_margin_10"
+                android:layout_marginTop="@dimen/common_margin_16"
+                app:layout_constraintStart_toEndOf="@+id/current"
                 app:layout_constraintEnd_toStartOf="@+id/total"
-                app:layout_constraintTop_toTopOf="@id/current"
-                app:layout_constraintBottom_toBottomOf="@id/current"/>
+                app:layout_constraintTop_toTopOf="parent"/>
 
-            <!-- Jzvd id, don't modify -->
             <TextView
                 android:id="@+id/total"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/tv_video_player_icon_size"
+                android:layout_height="wrap_content"
                 android:text="00:00:00"
                 android:textColor="@android:color/white"
-                android:textSize="14dp"
+                android:textSize="@dimen/text_common_16"
                 android:gravity="center_vertical"
-                android:layout_marginEnd="@dimen/video_player_side_margin"
+                android:layout_marginEnd="@dimen/common_margin_16"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/current"/>
+                app:layout_constraintTop_toTopOf="@+id/seek_progress"
+                app:layout_constraintBottom_toBottomOf="@+id/seek_progress"/>
 
             <ImageView
                 android:id="@+id/iv_setting"
                 style="@style/IvVideoIconTv"
                 android:src="@drawable/ic_settings_white_36dp"
+                android:layout_marginStart="@dimen/common_margin_8"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/start"/>
 
@@ -113,10 +112,10 @@
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:layout_marginStart="16dp"
+                android:textSize="@dimen/text_common_16"
+                android:paddingLeft="@dimen/common_margin_16"
+                android:paddingRight="@dimen/common_margin_16"
+                android:layout_marginStart="@dimen/common_margin_16"
                 android:focusable="true"
                 android:background="@drawable/selector_border"
                 app:layout_constraintTop_toTopOf="@+id/start"
@@ -126,7 +125,7 @@
                 android:id="@+id/app_video_last"
                 style="@style/IvVideoIconTv"
                 android:src="@drawable/video_btn_prev_mtrl"
-                android:layout_marginRight="@dimen/video_player_icon_margin"
+                android:layout_marginEnd="@dimen/common_margin_16"
                 app:layout_constraintEnd_toStartOf="@+id/start"
                 app:layout_constraintTop_toTopOf="@+id/start"/>
 
@@ -134,16 +133,18 @@
                 android:id="@+id/start"
                 style="@style/IvVideoIconTv"
                 android:src="@drawable/ic_play_arrow_white_24dp"
+                android:layout_marginTop="@dimen/common_margin_10"
+                android:layout_marginBottom="@dimen/common_margin_8"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/current"/>
+                app:layout_constraintTop_toBottomOf="@id/seek_progress"/>
 
             <ImageView
                 android:id="@+id/app_video_next"
                 style="@style/IvVideoIconTv"
                 android:src="@drawable/video_btn_next_mtrl"
-                android:layout_marginLeft="@dimen/video_player_icon_margin"
+                android:layout_marginStart="@dimen/common_margin_16"
                 app:layout_constraintStart_toEndOf="@+id/start"
                 app:layout_constraintTop_toTopOf="@+id/start"/>
 
@@ -155,10 +156,10 @@
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:layout_marginEnd="16dp"
+                android:textSize="@dimen/text_common_16"
+                android:paddingLeft="@dimen/common_margin_16"
+                android:paddingRight="@dimen/common_margin_16"
+                android:layout_marginEnd="@dimen/common_margin_16"
                 android:focusable="true"
                 android:background="@drawable/selector_border"
                 app:layout_constraintTop_toTopOf="@+id/start"
@@ -168,7 +169,7 @@
                 android:id="@+id/app_video_list"
                 style="@style/IvVideoIconTv"
                 android:src="@drawable/ic_playlist_play_white_24dp"
-                android:layout_marginEnd="@dimen/video_player_icon_size"
+                android:layout_marginEnd="@dimen/common_margin_8"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/start" />
 
@@ -201,7 +202,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:textSize="20dp"
+            android:textSize="@dimen/text_common_16"
             android:visibility="@{model.ipInfoVisibility}"
             android:text="@{model.ipInfoText}"
             app:layout_constraintStart_toStartOf="parent"

@@ -141,9 +141,9 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                         else -> 0f
                     }
                     var width = if (scale == 0f) videoController.mOriginWidth
-                        else (ScreenUtils.getScreenHeight() * scale).toInt()
+                    else (ScreenUtils.getScreenHeight() * scale).toInt()
                     var height = if (scale == 0f) videoController.mOriginHeight
-                        else ScreenUtils.getScreenHeight()
+                    else ScreenUtils.getScreenHeight()
                     var param = mBinding.videoView.layoutParams
                     param.width = width
                     param.height = height
@@ -160,7 +160,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             dialog.setSize((ScreenUtils.getScreenWidth() * 0.4).toInt(), ScreenUtils.getScreenHeight() / 2)
             dialog.show(supportFragmentManager, "PlayerSetting")
         }
-        mBinding.bottomSeekProgress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        mBinding.seekProgress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
             }
@@ -193,7 +193,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
                 // 获取并显示总时间
                 mBinding.total.text = videoController.duration
                 mBinding.current.text = "00:00:00"
-                mBinding.bottomSeekProgress.max = videoController.durationTime
+                mBinding.seekProgress.max = videoController.durationTime
 
                 // 取消loading进度，并设置seekTo监听，结束时停止loading进度
                 setVideoLoading(false)
@@ -343,7 +343,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
 
     fun changeProgress() {
         mBinding.current.text = videoController.currentTimeString
-        mBinding.bottomSeekProgress.progress = videoController.currentTime
+        mBinding.seekProgress.progress = videoController.currentTime
     }
 
     private fun loopCurrentTime() {

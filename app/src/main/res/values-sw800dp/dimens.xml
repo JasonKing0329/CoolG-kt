@@ -275,4 +275,7 @@
     <dimen name="match_item_sf_height">90dp</dimen>
     <dimen name="match_item_ru_width">320dp</dimen><!-- =2*match_item_sf_width -->
     <dimen name="match_item_ru_height">180dp</dimen><!-- =match_item_cha_height - match_item_sf_height -->
+
+    <dimen name="tv_video_player_icon_size">70dp</dimen>
+    <dimen name="tv_video_player_icon_padding">10dp</dimen>
 </resources>

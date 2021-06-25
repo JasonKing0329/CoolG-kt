@@ -80,6 +80,11 @@
         <attr name="axisYTextWidth" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="BarChart">
+        <attr name="barWidth" format="dimension" />
+        <attr name="barGap" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="PageIndicator">
         <attr name="pi_textSize" format="dimension" />
         <attr name="pi_textColor" format="color" />

@@ -145,6 +145,10 @@ abstract class BaseRepository {
         return ShowPeriod(period, orderInPeriod)
     }
 
+    fun getNextPeriodFinal(periodFinal: ShowPeriod): ShowPeriod {
+        return ShowPeriod(periodFinal.period + 1, periodFinal.orderInPeriod)
+    }
+
     fun getLastPeriod(showPeriod: ShowPeriod): ShowPeriod {
         var period = showPeriod.period
         var orderInPeriod = showPeriod.orderInPeriod - 1
@@ -153,6 +157,10 @@ abstract class BaseRepository {
             orderInPeriod = MatchConstants.MAX_ORDER_IN_PERIOD
         }
         return ShowPeriod(period, orderInPeriod)
+    }
+
+    fun getLastPeriodFinal(periodFinal: ShowPeriod): ShowPeriod {
+        return ShowPeriod(periodFinal.period - 1, periodFinal.orderInPeriod)
     }
 
     fun getAllPeriods(): List<Int> {
@@ -166,5 +174,4 @@ abstract class BaseRepository {
         }
         return list
     }
-
 }

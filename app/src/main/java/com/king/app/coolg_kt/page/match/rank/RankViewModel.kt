@@ -62,6 +62,9 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var studioTextList = mutableListOf<String>()
     var studiosObserver = MutableLiveData<List<String>>()
 
+    var rtfNextVisibility = ObservableInt(View.VISIBLE)
+    var isPeriodFinalRank = false
+
     init {
         val rankPack = rankRepository.getRankPeriodPack()
         showPeriod = if (rankPack.matchPeriod == null) {
@@ -501,7 +504,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 
     private fun checkRecordLastNext() {
         // last
-        val last = rankRepository.getLastPeriod(showPeriod)
+        val last = if (isPeriodFinalRank) {
+            rankRepository.getLastPeriodFinal(showPeriod)
+        }
+        else {
+            rankRepository.getLastPeriod(showPeriod)
+        }
         if (last.period > 0 && getDatabase().getMatchDao().countRecordRankItems(last.period, last.orderInPeriod) > 0) {
             periodLastVisibility.set(View.VISIBLE)
         }
@@ -509,7 +517,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             periodLastVisibility.set(View.INVISIBLE)
         }
         // next
-        val next = rankRepository.getNextPeriod(showPeriod)
+        val next = if (isPeriodFinalRank) {
+            rankRepository.getNextPeriodFinal(showPeriod)
+        }
+        else {
+            rankRepository.getNextPeriod(showPeriod)
+        }
         if (next.period == currentPeriod.period && next.orderInPeriod == currentPeriod.orderInPeriod ||
             getDatabase().getMatchDao().countRecordRankItems(next.period, next.orderInPeriod) > 0) {
             periodNextVisibility.set(View.VISIBLE)
@@ -604,12 +617,22 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun nextPeriod() {
-        showPeriod = rankRepository.getNextPeriod(showPeriod)
+        showPeriod = if (isPeriodFinalRank) {
+            rankRepository.getNextPeriodFinal(showPeriod)
+        }
+        else {
+            rankRepository.getNextPeriod(showPeriod)
+        }
         loadData()
     }
 
     fun lastPeriod() {
-        showPeriod = rankRepository.getLastPeriod(showPeriod)
+        showPeriod = if (isPeriodFinalRank) {
+            rankRepository.getLastPeriodFinal(showPeriod)
+        }
+        else {
+            rankRepository.getLastPeriod(showPeriod)
+        }
         loadData()
     }
 
@@ -650,6 +673,22 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             }
         }
         return 0
+    }
+
+    fun loadPeriodFinalRank() {
+        isPeriodFinalRank = true
+        rtfNextVisibility.set(View.INVISIBLE)
+        showPeriod = findLastPeriodFinal()
+        loadData()
+    }
+
+    private fun findLastPeriodFinal(): ShowPeriod {
+        val pack = rankRepository.getCompletedPeriodPack()
+        return if (pack.endPIO == MatchConstants.MAX_ORDER_IN_PERIOD) {
+            ShowPeriod(pack.endPeriod, pack.endPIO)
+        } else {
+            ShowPeriod(pack.endPeriod - 1, MatchConstants.MAX_ORDER_IN_PERIOD)
+        }
     }
 
 }

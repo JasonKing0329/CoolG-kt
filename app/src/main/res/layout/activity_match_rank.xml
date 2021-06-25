@@ -66,6 +66,7 @@
             android:gravity="center"
             android:text="RTF"
             android:textColor="@drawable/selector_studio_tag_text"
+            android:visibility="@{model.rtfNextVisibility}"
             app:layout_constraintBottom_toBottomOf="@+id/sp_studio"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/sp_studio" />

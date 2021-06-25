@@ -13,6 +13,7 @@ import com.king.app.coolg_kt.page.match.DetailHead
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.gdb.data.entity.match.Match
+import com.king.app.gdb.data.entity.match.MatchRankRecord
 import com.king.app.gdb.data.relation.RecordWrap
 import java.text.DecimalFormat
 
@@ -240,5 +241,9 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
         val format = DecimalFormat("#.#%")
         championRateText = format.format(rate)
         return list
+    }
+
+    fun loadFinalRanks(): List<MatchRankRecord> {
+        return rankRepository.getRecordFinalRanks(mRecordId)
     }
 }

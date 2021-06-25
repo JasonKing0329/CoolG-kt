@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
-import android.os.Handler
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -68,6 +67,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
                 R.id.menu_create_rank -> createRank()
+                R.id.menu_p_end -> mModel.loadPeriodFinalRank()
             }
         }
 

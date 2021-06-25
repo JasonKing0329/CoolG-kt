@@ -331,4 +331,8 @@ interface MatchDao {
 
     @Query("select mp.* from match_period mp join match_record mr on mp.id=mr.matchId where mr.recordId=:recordId limit 1")
     fun getDebutMatch(recordId: Long): MatchPeriodWrap?
+
+    @Query("select period from match_rank_record where recordId=:recordId order by period limit 1")
+    fun getRecordStartPeriod(recordId: Long): Int?
+
 }

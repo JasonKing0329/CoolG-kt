@@ -478,6 +478,8 @@ public abstract class AxisChart extends View implements View.OnTouchListener {
                 if (!scroller.isFinished()) {
                     scroller.abortAnimation();
                 }
+                // 按下时禁用父控件的滑动
+                getParent().requestDisallowInterceptTouchEvent(true);
                 break;
 //
             case MotionEvent.ACTION_MOVE:
@@ -485,12 +487,17 @@ public abstract class AxisChart extends View implements View.OnTouchListener {
                 int scrolledX = (int) (lastX - mXMove);
                 setScroll(scrolledX);
                 lastX = mXMove;
+
+                // 移动过程中：
+                // 1.如果本身没有达到滑动的条件，恢复父控件的滑动
+                // 2.如果滑动到了边界，恢复父控件的滑动
+                // 3.其他情况，禁止父控件抢夺滑动事件
+                getParent().requestDisallowInterceptTouchEvent(disallowParentScroll(scrolledX));
                 break;
-//            case MotionEvent.ACTION_UP:
-//                // 调用startScroll()方法来初始化滚动数据并刷新界面
-//                scroller.startScroll(getScrollX(), 0, 250, 0);
-//                invalidate();
-//                break;
+            case MotionEvent.ACTION_UP:
+                // 抬起后恢复父控件的滑动
+                getParent().requestDisallowInterceptTouchEvent(false);
+                break;
         }
 
         return gestureDetector.onTouchEvent(event);
@@ -499,11 +506,38 @@ public abstract class AxisChart extends View implements View.OnTouchListener {
     /**
      *
      * @param scrolledX
+     * @return 实际滑动的距离
      */
     private void setScroll(int scrolledX) {
         scrolledX = checkScrollEdge(scrolledX);
         DebugLog.scroll("move scrollX=" + scrolledX);
         scrollBy(scrolledX, 0);
+    }
+
+    /**
+     * 本身宽度没有达到滑动的条件，或已滑动到边界才允许父控件滑动
+     * @return
+     */
+    private boolean disallowParentScroll(int scrolledX) {
+        // 还没充满父控件
+        if (getWidth() < getParentWidth()) {
+            return false;
+        }
+        // 向右滑动
+        if (scrolledX > 0) {
+            // 已达到右边界
+            if (getScrollX() + getParentWidth() >= getWidth()) {
+                return false;
+            }
+        }
+        // 向左滑动
+        else if (scrolledX < 0) {
+            // 已达到左边界
+            if (getScrollX() <= 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

@@ -10,4 +10,8 @@
     <item android:id="@+id/menu_create_rank"
         android:title="Create Rank"
         app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_p_end"
+        android:title="Period Final"
+        app:showAsAction="never"/>
 </menu>

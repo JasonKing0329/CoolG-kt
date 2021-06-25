@@ -295,4 +295,22 @@ class RankRepository: BaseRepository() {
         return list
     }
 
+    fun getRecordFinalRanks(recordId: Long): List<MatchRankRecord> {
+        val list = mutableListOf<MatchRankRecord>()
+        var cp = getCompletedPeriodPack()
+        val endPeriod = if (cp.endPIO == MatchConstants.MAX_ORDER_IN_PERIOD) {
+            cp.endPeriod
+        }
+        else {
+            cp.endPeriod - 1
+        }
+        val startPeriod = getDatabase().getMatchDao().getRecordStartPeriod(recordId)?:endPeriod
+        for (i in startPeriod..endPeriod) {
+            val rank:MatchRankRecord = getDatabase().getMatchDao().getRecordRank(recordId, i, MatchConstants.MAX_ORDER_IN_PERIOD)
+                ?: MatchRankRecord(0, i, MatchConstants.MAX_ORDER_IN_PERIOD, recordId, 9999, 0, 0)
+            list.add(rank)
+
+        }
+        return list
+    }
 }

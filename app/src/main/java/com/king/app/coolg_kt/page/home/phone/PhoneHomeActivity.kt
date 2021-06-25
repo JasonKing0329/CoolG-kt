@@ -10,6 +10,8 @@ import android.view.animation.TranslateAnimation
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.gyf.immersionbar.BarHide
+import com.gyf.immersionbar.ktx.immersionBar
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityHomeBinding
@@ -43,13 +45,18 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
 
     var adapter = HomeAdapter()
 
-    override fun isFullScreen(): Boolean = true
+    override fun isFullScreen(): Boolean = false
 
     override fun getContentView(): Int = R.layout.activity_home
 
     override fun createViewModel(): HomeViewModel = generateViewModel(HomeViewModel::class.java)
 
     override fun initView() {
+        immersionBar {
+            fullScreen(true)
+            hideBar(BarHide.FLAG_HIDE_BAR)
+        }
+
         mBinding.model = mModel
 
         setupBlurView()

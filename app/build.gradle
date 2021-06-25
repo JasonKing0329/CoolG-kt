@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 267
-        versionName "8.6.0"
+        versionCode 268
+        versionName "8.6.1"
         flavorDimensions "1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -128,4 +128,9 @@ dependencies {
 
     implementation(name: 'jactionbar-release', ext: 'aar')
     implementation(name: 'banner', ext: 'aar')
+
+    // 基础依赖包，必须要依赖
+    implementation 'com.gyf.immersionbar:immersionbar:3.0.0'
+// kotlin扩展（可选）
+    implementation 'com.gyf.immersionbar:immersionbar-ktx:3.0.0'
 }

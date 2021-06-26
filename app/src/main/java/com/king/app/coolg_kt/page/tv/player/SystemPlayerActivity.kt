@@ -248,6 +248,12 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
             ) {
                 showMessageShort("Error")
             }
+
+            override fun onUnexpectedTerminate(progress: Int) {
+                // 意外中断，立即更新当前播放进度，重新播放
+                mModel.updatePlayTime(progress)
+                playVideo(mModel.currentUrl)
+            }
         }
     }
 

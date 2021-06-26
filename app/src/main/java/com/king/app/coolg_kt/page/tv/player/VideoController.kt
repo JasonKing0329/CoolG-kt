@@ -101,10 +101,18 @@ class VideoController(private val mContext: Context, private val videoView: TvVi
         }
 
     override fun onCompletion(player: MediaPlayer) {
-        CoolLogger.logTv("VideoController onCompletion")
-        currentPosition = 0
-        isPaused = true
-        videoService?.onCompletion(videoView, player)
+
+        CoolLogger.logTv("VideoController onCompletion currentPosition=$currentPosition, total=${videoView.duration}")
+        // 在tv端经常能碰到中途突然onCompletion，这种情况下进行重新加载
+        if (videoView.duration - currentPosition > 5000) {// 以5秒作为判断阈值
+            CoolLogger.logTv("onUnexpectedTerminate $currentPosition")
+            videoService?.onUnexpectedTerminate(currentPosition)
+        }
+        else {
+            currentPosition = 0
+            isPaused = true
+            videoService?.onCompletion(videoView, player)
+        }
     }
 
     override fun onPrepared(player: MediaPlayer) {

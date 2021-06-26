@@ -15,4 +15,6 @@ interface VideoService {
         fwError: Int,
         impError: Int
     )
+
+    fun onUnexpectedTerminate(progress: Int)
 }

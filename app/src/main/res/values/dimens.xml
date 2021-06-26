@@ -6,7 +6,7 @@
 
     <dimen name="common_margin_8">8dp</dimen>
     <dimen name="common_margin_10">10dp</dimen>
-    <dimen name="common_margin_16">8dp</dimen>
+    <dimen name="common_margin_16">16dp</dimen>
     <dimen name="text_common_8">8dp</dimen>
     <dimen name="text_common_10">10dp</dimen>
     <dimen name="text_common_12">12dp</dimen>

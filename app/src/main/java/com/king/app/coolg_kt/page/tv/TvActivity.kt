@@ -17,6 +17,7 @@ import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.download.OnDownloadListener
 import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.page.tv.popup.BgSelector
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.coolg_kt.view.dialog.TvDialogFragment
@@ -66,7 +67,15 @@ class TvActivity: BaseActivity<ActivityTvBinding, TvViewModel>() {
             SystemPlayerActivity.startPageAsServer(this)
         }
 
+        showScreenInfo()
+
         showServerPage()
+    }
+
+    private fun showScreenInfo() {
+        val small = resources.configuration.smallestScreenWidthDp
+        DebugLog.e("screenWidth=" + ScreenUtils.getScreenWidth() + ", screenHeight=" + ScreenUtils.getScreenHeight())
+        mBinding.tvScreen.text = "sw${small}dp"
     }
 
     private fun showServerPage() {

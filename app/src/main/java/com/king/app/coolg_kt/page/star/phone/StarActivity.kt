@@ -57,11 +57,9 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
 
     override fun getContentView(): Int = R.layout.activity_star_phone
 
-    override fun isFullScreen(): Boolean {
-        return true
-    }
-
     override fun initView() {
+        immersiveTopDarkFont(mBinding.toolbar)
+
         mBinding.actionbar.setOnBackListener { finish() }
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.addItemDecoration(object : ItemDecoration() {
@@ -78,6 +76,7 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
                 }
             }
         })
+
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
             when (menuId) {
                 R.id.menu_banner_setting -> showSettings()

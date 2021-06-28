@@ -36,9 +36,7 @@ import com.king.app.coolg_kt.page.video.server.VideoServerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
-import com.king.app.coolg_kt.view.widget.video.EmbedJzvd
 import com.king.app.coolg_kt.view.widget.video.OnPlayEmptyUrlListener
-import com.king.app.gdb.data.entity.Record
 
 /**
  * Desc:
@@ -66,9 +64,9 @@ class VideoHomePhoneActivity : BaseActivity<ActivityVideoPhoneBinding, VideoHome
     
     override fun getContentView(): Int = R.layout.activity_video_phone
 
-    override fun isFullScreen(): Boolean = true
-
     override fun initView() {
+        immersiveTopDarkFont(mBinding.toolbar)
+
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
             when (menuId) {
                 R.id.menu_refresh -> if (mBinding.banner.isEnableSwitch) {

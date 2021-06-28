@@ -286,8 +286,8 @@
     <dimen name="home_star_height_cell1">@dimen/img_height_in_full_screen_std</dimen>
     <dimen name="home_star_height_cell2">135dp</dimen>
     <dimen name="home_record_height">@dimen/img_height_in_full_screen_std</dimen>
-    <dimen name="home_record_radius">3dp</dimen>
-    <dimen name="home_item_margin">1dp</dimen>
+    <dimen name="home_record_radius">0dp</dimen>
+    <dimen name="home_item_margin">0dp</dimen>
     <dimen name="home_menu_height">60dp</dimen>
     <dimen name="home_menu_radius">30dp</dimen>
     <dimen name="home_menu_icon_height">56dp</dimen>

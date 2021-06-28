@@ -31,10 +31,6 @@ class RecordMatchActivity:BaseActivity<ActivityMatchRecordMatchBinding, RecordMa
         }
     }
 
-    override fun isFullScreen(): Boolean {
-        return true
-    }
-
     override fun keepNavWhenFullScreen(): Boolean {
         return true
     }
@@ -44,6 +40,8 @@ class RecordMatchActivity:BaseActivity<ActivityMatchRecordMatchBinding, RecordMa
     override fun createViewModel(): RecordMatchViewModel = generateViewModel(RecordMatchViewModel::class.java)
 
     override fun initView() {
+        fullscreenTop()
+
         mBinding.model = mModel
         mBinding.rvRecords.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 

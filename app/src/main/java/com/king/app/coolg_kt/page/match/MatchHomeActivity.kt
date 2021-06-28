@@ -31,8 +31,6 @@ class MatchHomeActivity: BaseActivity<ActivityMatchHomeBinding, MatchHomeViewMod
         }
     }
 
-    override fun isFullScreen(): Boolean = true
-
     override fun keepNavWhenFullScreen(): Boolean {
         return true
     }
@@ -42,6 +40,8 @@ class MatchHomeActivity: BaseActivity<ActivityMatchHomeBinding, MatchHomeViewMod
     override fun createViewModel(): MatchHomeViewModel = generateViewModel(MatchHomeViewModel::class.java)
 
     override fun initView() {
+        immersiveTop(mBinding.ivBack)
+
         mBinding.model = mModel
 
         mBinding.ivBack.setOnClickListener { onBackPressed() }

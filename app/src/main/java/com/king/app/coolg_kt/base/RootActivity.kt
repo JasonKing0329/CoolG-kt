@@ -2,13 +2,17 @@ package com.king.app.coolg_kt.base
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.graphics.Rect
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import com.gyf.immersionbar.BarHide
+import com.gyf.immersionbar.ImmersionBar
+import com.gyf.immersionbar.ktx.immersionBar
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.utils.AppUtil
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -189,6 +193,77 @@ abstract class RootActivity : AppCompatActivity() {
 
     fun showMessageLong(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    /**
+     * 完全全屏，隐藏状态栏与导航栏
+     */
+    fun fullscreen() {
+        immersionBar {
+            fullScreen(true)
+            hideBar(BarHide.FLAG_HIDE_BAR)
+        }
+    }
+
+    /**
+     * 只全屏上半部分，隐藏状态栏，显示导航栏
+     */
+    fun fullscreenTop() {
+        immersionBar {
+            fullScreen(true)
+            hideBar(BarHide.FLAG_HIDE_STATUS_BAR)
+            navigationBarColor(R.color.actionbar_bg_trans)
+        }
+    }
+
+    /**
+     * 上班部分沉浸式，显示状态栏，显示导航栏
+     * @param marginTopView 需要显示在状态栏下方的view
+     */
+    fun immersiveTop(marginTopView: View) {
+        immersionBar {
+            fullScreen(true)
+            titleBarMarginTop(marginTopView)
+            navigationBarColor(R.color.actionbar_bg_trans)
+        }
+    }
+
+    /**
+     * 上班部分沉浸式，显示状态栏，显示导航栏。状态栏字体颜色为深色（appbar收起时，适配其白色的背景）
+     * @param marginTopView 需要显示在状态栏下方的view
+     */
+    fun immersiveTopDarkFont(marginTopView: View) {
+        immersionBar {
+            fullScreen(true)
+            titleBarMarginTop(marginTopView)
+            statusBarDarkFont(true)
+            navigationBarColor(R.color.actionbar_bg_trans)
+        }
+    }
+
+    /**
+     * ImmersiveTopXX模式下，由于设置了titleBarMarginTop，会导致滚动视图页面滑不到最底部
+     * 对于RecyclerView的处理方案如下：将statusBar的高度作为最后一个item进行填充，保证数据展示完整
+     */
+    @Deprecated("暂时废弃，采用将导航栏背景颜色设置为透明色处理")
+    fun immersiveDecoration(recyclerView: RecyclerView) {
+        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                val count = recyclerView.adapter?.itemCount?:0
+                val position = parent.getChildLayoutPosition(view)
+                if (count - 1 == position) {
+                    outRect.bottom = ImmersionBar.getStatusBarHeight(this@RootActivity)
+                }
+                else {
+                    outRect.bottom = 0
+                }
+            }
+        })
     }
 
 }

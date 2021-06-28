@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.databinding.FragmentMatchDetailScoreBinding
 import com.king.app.coolg_kt.page.match.ScoreBean
 import com.king.app.coolg_kt.page.match.ScoreHead
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 

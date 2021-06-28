@@ -21,6 +21,7 @@
     <color name="text_sub">#999999</color>
     <color name="text_second">#666666</color>
     <color name="actionbar_bg">#ffffff</color>
+    <color name="actionbar_bg_trans">#33ffffff</color>
     <color name="actionbar_bk_blue">#00a5c4</color>
     <color name="actionbar_element">@color/text_normal</color>
     <color name="playlist_bg_focus">#9900a5c4</color>

@@ -34,8 +34,6 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
         }
     }
 
-    override fun isFullScreen(): Boolean = true
-
     override fun keepNavWhenFullScreen(): Boolean {
         return true
     }
@@ -45,6 +43,8 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
     override fun createViewModel(): DetailViewModel = generateViewModel(DetailViewModel::class.java)
 
     override fun initView() {
+        immersiveTopDarkFont(mBinding.toolbar)
+
         mBinding.model = mModel
         mBinding.actionbar.setOnBackListener { onBackPressed() }
 

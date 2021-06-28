@@ -26,3 +26,7 @@ data class TitlesCount(
     var winnerId: Long,
     var num: Int
 )
+data class RecordHighestRank(
+    var recordId: Long,
+    var high: Int
+)

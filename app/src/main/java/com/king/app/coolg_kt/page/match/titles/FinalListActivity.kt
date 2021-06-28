@@ -37,7 +37,7 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
     val adapter = FinalListAdapter()
     val titlesAdapter = TitlesCountAdapter()
 
-    private var dataType = 0 // 0 by date; 1 titles count
+    private var dataType = 0 // 0 by date; 1 titles count; 2 highest rank
 
     override fun getContentView(): Int = R.layout.activity_match_final_list
 

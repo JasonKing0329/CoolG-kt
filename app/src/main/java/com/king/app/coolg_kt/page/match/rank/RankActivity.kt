@@ -68,6 +68,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             when(it) {
                 R.id.menu_create_rank -> createRank()
                 R.id.menu_p_end -> mModel.loadPeriodFinalRank()
+                R.id.menu_high_rank -> highRank()
             }
         }
 
@@ -96,6 +97,10 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         }
         mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
         mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
+    }
+
+    private fun highRank() {
+        HighRankActivity.startPage(this)
     }
 
     /**

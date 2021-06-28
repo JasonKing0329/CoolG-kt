@@ -8,7 +8,6 @@ import android.view.View;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.king.app.coolg_kt.R;
-import com.king.app.coolg_kt.utils.DebugLog;
 
 /**
  * Desc:固定比例的imageView，支持自定义比例、以高为基准或以宽为基准
@@ -100,7 +99,7 @@ public class ScaleImageView extends AppCompatImageView {
                 mHeight = mWidth * mRatioHeight / mRatioWidth;
             }
         }
-        DebugLog.e("mBaseOnHeight " + mBaseOnHeight + ", mWidth=" + mWidth + ", mHeight=" + mHeight);
+//        DebugLog.e("mBaseOnHeight " + mBaseOnHeight + ", mWidth=" + mWidth + ", mHeight=" + mHeight);
         setMeasuredDimension(mWidth, mHeight);
     }
 }

@@ -320,3 +320,43 @@ data class RecordMatchPageTitle(
     var sortValue: Int,
     var isChampion: Boolean = false
 )
+data class HighRankRecord(
+    var record: Record,
+    var rank: Int,
+    var weeks: Int,
+    var highestScore: Int,
+    var highestScoreTime: String,
+    var firstTime: String,
+    var lastTime: String,
+    var firstPeriod: Int,
+    var firstPIO: Int
+)
+data class HighRankTitle (
+    var rank: Int,
+    var items: MutableList<HighRankItem>
+)
+data class HighRankItem (
+    var bean: HighRankRecord,
+    var parent: HighRankTitle,
+    var curRank: String? = null,
+    var imageUrl: String? = null,
+    var details: String? = null
+): Comparable<HighRankItem> {
+    override fun compareTo(other: HighRankItem): Int {
+        return if (this.bean.rank == other.bean.rank) {
+            if (this.bean.weeks == other.bean.weeks) {
+                // 第三关键字score，降序
+                other.bean.highestScore - this.bean.highestScore
+            }
+            // 第二关键字week，降序
+            else {
+                other.bean.weeks - this.bean.weeks
+            }
+        }
+        // 第一关键字rank，升序
+        else {
+            this.bean.rank - other.bean.rank
+        }
+    }
+
+}

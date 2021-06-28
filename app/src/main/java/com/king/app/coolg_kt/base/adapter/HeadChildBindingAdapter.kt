@@ -20,7 +20,7 @@ abstract class HeadChildBindingAdapter<VH : ViewDataBinding, VI : ViewDataBindin
     protected val TYPE_HEAD = 0
     protected val TYPE_ITEM = 1
 
-    var list: List<Any>? = null
+    open var list: List<Any>? = null
 
     var onHeadClickListener: OnHeadClickListener<H>? = null
 

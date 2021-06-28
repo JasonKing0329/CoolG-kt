@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterMatchTitlesGroupBinding
 import com.king.app.coolg_kt.databinding.AdapterMatchTitlesItemBinding
+import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.page.match.TitleCountItem
 
 /**
@@ -38,9 +39,8 @@ class TitlesCountAdapter:
         position: Int,
         item: TitleCountItem
     ) {
-        binding.bean = item
-        binding.tvSeedWin.text = " R ${item.rank} "
-        binding.tvNameWin.text = item.record.name
+        binding.tvRank.text = " R ${item.rank} "
+        binding.tvName.text = item.record.name
         if (item.details == null || item.details!!.isEmpty()) {
             binding.tvDetails.visibility = View.GONE
         }
@@ -48,6 +48,7 @@ class TitlesCountAdapter:
             binding.tvDetails.text = item.details
             binding.tvDetails.visibility = View.VISIBLE
         }
+        ImageBindingAdapter.setRecordUrl(binding.ivRecord, item.imageUrl)
     }
 
     fun getSpanSize(position: Int): Int {

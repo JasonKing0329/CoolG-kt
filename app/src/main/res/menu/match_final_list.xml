@@ -10,6 +10,6 @@
         android:title="Titles count"
         app:showAsAction="never"/>
     <item android:id="@+id/menu_date"
-        android:title="By date"
+        android:title="Titles by date"
         app:showAsAction="never"/>
 </menu>

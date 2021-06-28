@@ -1,10 +1,7 @@
 package com.king.app.gdb.data.dao
 
 import androidx.room.*
-import com.king.app.gdb.data.bean.RankRecord
-import com.king.app.gdb.data.bean.RecordCpt
-import com.king.app.gdb.data.bean.ScoreCount
-import com.king.app.gdb.data.bean.TitlesCount
+import com.king.app.gdb.data.bean.*
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.*
 
@@ -298,6 +295,9 @@ interface MatchDao {
     @Query("select * from match_rank_record where recordId=:recordId and period=:period and orderInPeriod=:orderInPeriod")
     fun getRecordRank(recordId: Long, period: Int, orderInPeriod: Int): MatchRankRecord?
 
+    @Query("select * from match_rank_record where recordId=:recordId and rank=:rank order by period, orderInPeriod")
+    fun getRecordRanks(recordId: Long, rank: Int): List<MatchRankRecord>
+
     @Query("select * from match_rank_record where recordId=:recordId order by period, orderInPeriod")
     fun getRecordRanks(recordId: Long): List<MatchRankRecord>
 
@@ -334,5 +334,8 @@ interface MatchDao {
 
     @Query("select period from match_rank_record where recordId=:recordId order by period limit 1")
     fun getRecordStartPeriod(recordId: Long): Int?
+
+    @Query("select recordId, min(rank) as high from match_rank_record where rank<=:lessEqThan group by recordId order by high")
+    fun groupRecordsRank(lessEqThan: Int): List<RecordHighestRank>
 
 }

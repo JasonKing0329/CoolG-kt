@@ -14,4 +14,8 @@
     <item android:id="@+id/menu_p_end"
         android:title="Period Final"
         app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_high_rank"
+        android:title="Highest rank"
+        app:showAsAction="never"/>
 </menu>

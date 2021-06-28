@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.page.match.HighRankRecord
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.coolg_kt.utils.TimeCostUtil
@@ -312,5 +313,41 @@ class RankRepository: BaseRepository() {
 
         }
         return list
+    }
+
+    fun getHighestRankGroup(): List<HighRankRecord> {
+        val list = mutableListOf<HighRankRecord>()
+        // 只取最高排名100以内的，已按最高排名排序
+        val groups = getDatabase().getMatchDao().groupRecordsRank(100)
+        groups.forEach { item ->
+            getDatabase().getRecordDao().getRecordBasic(item.recordId)?.let { record ->
+                list.add(
+                    // week, score, first, last属于耗时操作，后续加载
+                    HighRankRecord(
+                        record, item.high, 0, 0, "", "", "", 0, 0
+                    )
+                )
+            }
+        }
+        return list
+    }
+
+    fun getHighRankDetail(item: HighRankRecord) {
+        val rankList = getDatabase().getMatchDao().getRecordRanks(item.record.id!!, item.rank)
+        var maxScore = 0
+        var maxBean: MatchRankRecord? = null
+        rankList.forEach { bean ->
+            if (bean.score > maxScore) {
+                maxScore = bean.score
+                maxBean = bean
+            }
+        }
+        item.weeks = rankList.size
+        item.highestScore = maxScore
+        item.highestScoreTime = "P${maxBean!!.period}-W${maxBean!!.orderInPeriod}"
+        item.firstPeriod = rankList.first().period
+        item.firstPIO = rankList.first().orderInPeriod
+        item.firstTime = "P${item.firstPeriod}-W${item.firstPIO}"
+        item.lastTime = "P${rankList.last().period}-W${rankList.last().orderInPeriod}"
     }
 }

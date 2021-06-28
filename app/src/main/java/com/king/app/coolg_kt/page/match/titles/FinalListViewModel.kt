@@ -300,5 +300,4 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
         }
         return buffer.toString()
     }
-
 }

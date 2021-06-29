@@ -431,7 +431,8 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
                 getDatabase().getMatchDao().getAllMatchScoreStars(),
                 getDatabase().getMatchDao().getAllMatchScoreRecords(),
                 getDatabase().getMatchDao().getAllMatchRankStars(),
-                getDatabase().getMatchDao().getAllMatchRankRecords()
+                getDatabase().getMatchDao().getAllMatchRankRecords(),
+                getDatabase().getMatchDao().getAllMatchRankDetails()
             )
             // 保存star的favor字段
             // 保存star的favor字段
@@ -587,6 +588,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         getDatabase().getMatchDao().insertMatchScoreRecords(mLocalData!!.matchScoreRecordList)
         getDatabase().getMatchDao().insertMatchRankStars(mLocalData!!.matchRankStarList)
         getDatabase().getMatchDao().insertMatchRankRecords(mLocalData!!.matchRankRecordList)
+        getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(mLocalData!!.matchRankDetailList)
     }
 
     /**
@@ -632,6 +634,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         var matchScoreRecordList: List<MatchScoreRecord>,
         var matchRankStarList: List<MatchRankStar>,
         var matchRankRecordList: List<MatchRankRecord>,
+        var matchRankDetailList: List<MatchRankDetail>,
         var favorMap: MutableMap<String, Int> = mutableMapOf()
     )
 }

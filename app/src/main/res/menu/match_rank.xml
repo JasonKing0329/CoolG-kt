@@ -11,6 +11,10 @@
         android:title="Create Rank"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/menu_create_rank_detail"
+        android:title="Create rank detail"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/menu_p_end"
         android:title="Period Final"
         app:showAsAction="never"/>

@@ -20,6 +20,7 @@ import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.dialog.ProgressDialogFragment
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
 
@@ -56,6 +57,8 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         }
     }
 
+    private var detailProgress = ProgressDialogFragment()
+
     override fun getContentView(): Int = R.layout.activity_match_rank
 
     override fun createViewModel(): RankViewModel = generateViewModel(RankViewModel::class.java)
@@ -67,6 +70,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
                 R.id.menu_create_rank -> createRank()
+                R.id.menu_create_rank_detail -> mModel.createRankDetails()
                 R.id.menu_p_end -> mModel.loadPeriodFinalRank()
                 R.id.menu_high_rank -> highRank()
             }
@@ -156,6 +160,8 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     override fun initData() {
         mModel.isSelectMode = isSelectMode()
         mModel.mMatchSelectLevel = getSelectMatchLevel()
+        mModel.initPeriod()
+
         mModel.recordRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Record?>()
             adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{
@@ -206,6 +212,23 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         })
         mModel.imageChanged.observe(this, Observer {
             mBinding.rvList.adapter?.notifyItemRangeChanged(it.start, it.count)
+        })
+        mModel.detailProgressError.observe(this, Observer { detailProgress.dismissAllowingStateLoss() })
+        mModel.detailProgressing.observe(this, Observer {
+            when(it) {
+                0 -> {
+                    if (!detailProgress.isVisible) {
+                        detailProgress.setMessage("Creating rank details...")
+                        detailProgress.showAsNumProgress(0, supportFragmentManager, "DetailProgress")
+                    }
+                }
+                100 -> {
+                    detailProgress.setProgress(it)
+                    detailProgress.dismissAllowingStateLoss()
+                    showMessageShort("success")
+                }
+                else -> detailProgress.setProgress(it)
+            }
         })
 
         mBinding.tvPeriod.isSelected = true

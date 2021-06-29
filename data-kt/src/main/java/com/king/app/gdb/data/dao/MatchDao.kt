@@ -115,6 +115,12 @@ interface MatchDao {
     @Query("select * from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
     fun getMatchRankRecordsBy(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap>
 
+    @Query("select * from match_rank_detail where recordId=:recordId")
+    fun getMatchRankDetail(recordId: Long): MatchRankDetail?
+
+    @Query("select * from match_rank_detail")
+    fun getAllMatchRankDetails(): List<MatchRankDetail>
+
     @Query("select min(rank) from match_rank_record where recordId=:recordId")
     fun getRecordHighestRank(recordId: Long): Int
 
@@ -178,6 +184,9 @@ interface MatchDao {
     @Insert
     fun insertMatchScoreRecords(list: List<MatchScoreRecord>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrReplaceMatchRankDetails(list: List<MatchRankDetail>)
+
     @Update
     fun updateMatchItems(list: List<MatchItem>)
 
@@ -222,6 +231,9 @@ interface MatchDao {
 
     @Query("delete from match_rank_record where period=:period and orderInPeriod=:orderInPeriod")
     fun deleteMatchRankRecords(period: Int, orderInPeriod: Int)
+
+    @Query("delete from match_rank_detail")
+    fun clearMatchRankDetail()
 
     @Query("delete from match_score_star")
     fun deleteMatchScoreStars()

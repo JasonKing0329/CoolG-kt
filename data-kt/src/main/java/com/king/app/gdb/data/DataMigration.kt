@@ -154,6 +154,15 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_15_16: Migration = object : Migration(15, 16) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_15_16")
+            database.execSQL(
+                "CREATE TABLE `match_rank_detail` (`recordId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `studioId` INTEGER NOT NULL, 'studioName' TEXT, `gsCount` INTEGER NOT NULL, `gm1000Count` INTEGER NOT NULL, `gm500Count` INTEGER NOT NULL, `gm250Count` INTEGER NOT NULL, `lowCount` INTEGER NOT NULL)"
+            )
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

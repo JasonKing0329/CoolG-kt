@@ -22,12 +22,15 @@ import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.Star
+import com.king.app.gdb.data.entity.match.MatchRankDetail
 import com.king.app.gdb.data.entity.match.MatchRankRecord
 import com.king.app.gdb.data.entity.match.MatchRankStar
 import com.king.app.gdb.data.relation.MatchRankRecordWrap
 import com.king.app.gdb.data.relation.MatchRankStarWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * Desc:
@@ -40,6 +43,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var recordRanksObserver = MutableLiveData<List<RankItem<Record?>>>()
     var starRanksObserver = MutableLiveData<List<RankItem<Star?>>>()
     var imageChanged = MutableLiveData<TimeWasteRange>()
+    var detailProgressing = MutableLiveData<Int>()
+    var detailProgressError = MutableLiveData<Boolean>()
 
     var periodGroupVisibility = ObservableInt(View.GONE)
     var periodLastVisibility = ObservableInt(View.GONE)
@@ -52,10 +57,11 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     // 由record/star spinner来触发初始化，recordOrStar设为-1来标识变化
     var periodOrRtf = 0 //0 period, 1 RTF
     var recordOrStar = -1 // 0 record, 1 star
-    var showPeriod : ShowPeriod
-    var currentPeriod: ShowPeriod
+    lateinit var showPeriod : ShowPeriod
+    lateinit var currentPeriod: ShowPeriod
 
     var isSelectMode = false
+    // select模式下显示match level对应的参加次数(current period)
     var mMatchSelectLevel = 0
 
     var studioList = listOf<FavorRecordOrder>()
@@ -65,17 +71,28 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     var rtfNextVisibility = ObservableInt(View.VISIBLE)
     var isPeriodFinalRank = false
 
-    init {
-        val rankPack = rankRepository.getRankPeriodPack()
-        showPeriod = if (rankPack.matchPeriod == null) {
+    var mOnlyStudioId: Long = 0
+
+    fun initPeriod() {
+        val curPack = rankRepository.getRankPeriodPack()
+        currentPeriod = if (curPack.matchPeriod == null) {
             ShowPeriod(0, 0)
         } else {
-            ShowPeriod(rankPack.matchPeriod!!.period, rankPack.matchPeriod!!.orderInPeriod)
+            ShowPeriod(curPack.matchPeriod!!.period, curPack.matchPeriod!!.orderInPeriod)
         }
-        currentPeriod = showPeriod.copy()
+        val completedPack = rankRepository.getCompletedPeriodPack()
+        val showPack = if (isSelectMode) {
+            completedPack
+        }
+        else {
+            curPack
+        }
+        showPeriod = if (showPack.matchPeriod == null) {
+            ShowPeriod(0, 0)
+        } else {
+            ShowPeriod(showPack.matchPeriod!!.period, showPack.matchPeriod!!.orderInPeriod)
+        }
     }
-
-    var mOnlyStudioId: Long = 0
 
     fun loadStudios() {
         getStudios()
@@ -189,12 +206,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     private fun filterOnlyStudio(items: List<RankItem<Record?>>?, mOnlyStudioId: Long): Observable<List<RankItem<Record?>>?> {
         return Observable.create {
             val result = items?.filter { item ->
-                item.bean?.let { record ->
-                    orderRepository.getRecordStudio(record.id!!)?.let { studio ->
-                        return@filter studio.id == mOnlyStudioId
-                    }
-                }
-                false
+                item.studioId == mOnlyStudioId
             }
             it.onNext(result)
             it.onComplete()
@@ -214,17 +226,17 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 }
             })
 
-        loadTimeWaste1(recordRanksObserver.value)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
-                override fun onNext(t: TimeWasteRange) {
-                    imageChanged.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-            })
+//        loadTimeWaste1(recordRanksObserver.value)
+//            .compose(applySchedulers())
+//            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
+//                override fun onNext(t: TimeWasteRange) {
+//                    imageChanged.value = t
+//                }
+//
+//                override fun onError(e: Throwable?) {
+//                    e?.printStackTrace()
+//                }
+//            })
     }
 
     private fun recordRankPeriodRx(): Observable<List<MatchRankRecordWrap>> {
@@ -240,7 +252,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             else {
                 DebugLog.e("record rank from score")
                 rankRepository.getRankPeriodRecordScores()
-                    .flatMap { toMatchRankRecords(it) }
+                    .flatMap { toMatchRankRecords(it, false) }
             }
         }
         else {
@@ -257,7 +269,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     private fun loadRecordRaceToFinal() {
         loadingObserver.value = true
         rankRepository.getRTFRecordScores()
-            .flatMap { toMatchRankRecords(it) }
+            .flatMap { toMatchRankRecords(it, isSelectMode) }
             .flatMap { toRecordList(it) }
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RankItem<Record?>>>(getComposite()) {
@@ -342,15 +354,22 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    private fun toMatchRankRecords(list: List<ScoreCount>): ObservableSource<List<MatchRankRecordWrap>> {
+    private fun toMatchRankRecords(list: List<ScoreCount>, loadDetail: Boolean): ObservableSource<List<MatchRankRecordWrap>> {
         return ObservableSource {
             TimeCostUtil.start()
             var result = mutableListOf<MatchRankRecordWrap>()
             list.forEachIndexed { index, scoreCount ->
                 var record = getDatabase().getRecordDao().getRecordBasic(scoreCount.id)
+                // 只有在select模式下需要使用
+                var detail = if (loadDetail) {
+                    getDatabase().getMatchDao().getMatchRankDetail(scoreCount.id)
+                }
+                else {
+                    null
+                }
                 var wrap = MatchRankRecordWrap(
                     MatchRankRecord(0, 0, 0,
-                    scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount), record
+                    scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount), record, detail
                 )
                 wrap.unAvailableScore = scoreCount.unavailableScore
                 result.add(wrap)
@@ -373,9 +392,28 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             }
             var result = mutableListOf<RankItem<Record?>>()
             list.forEach { bean ->
-                // 加载图片路径,获取studioName属于耗时操作，不在这里进行，由后续异步加载
-                var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, ""
-                    , null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore, "", true)
+                // studioName, levelMatchCount从detail表里取（该表的数据在create rank时生成）
+                val studioName = bean.details?.studioName
+                val studioId = bean.details?.studioId?:0
+                // 只有select模式显示levelMatchCount
+                val levelMatchCount = if (isSelectMode) {
+                    bean.details?.let { detail ->
+                        val count = when(mMatchSelectLevel) {
+                            MatchConstants.MATCH_LEVEL_GS -> detail.gsCount
+                            MatchConstants.MATCH_LEVEL_GM1000 -> detail.gm1000Count
+                            MatchConstants.MATCH_LEVEL_GM500 -> detail.gm500Count
+                            MatchConstants.MATCH_LEVEL_GM250 -> detail.gm250Count
+                            MatchConstants.MATCH_LEVEL_LOW -> detail.lowCount
+                            else -> 0
+                        }
+                        "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
+                    }
+                }
+                else ""
+                // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
+                var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, "",
+                    null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore,
+                    studioId, studioName, true, levelMatchCount)
                 result.add(item)
 
                 // 上一站存在才加载变化
@@ -417,9 +455,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     if (isSelectMode && samePeriodMap.contains(item.id)) {
                         item.canSelect = false
                     }
-                    // studio
-                    orderRepository.getRecordStudio(item.bean?.id?:0)?.let { studio ->
-                        item.studioName = studio.name
+                    // 未完成match期间，采用的是实时统计积分排名，这种情况下detail未加载，在这里加载一次
+                    if (item.studioId == 0.toLong()) {
+                        orderRepository.getRecordStudio(item.bean?.id?:0)?.let { studio ->
+                            item.studioId = studio.id!!
+                            item.studioName = studio.name
+                        }
                     }
 
                     count ++
@@ -436,9 +477,34 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    private fun createDetail(recordId: Long): MatchRankDetail {
+        var detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0)
+        // studio
+        orderRepository.getRecordStudio(recordId)?.let { studio ->
+            detail.studioId = studio.id!!
+            detail.studioName = studio.name
+        }
+        // count
+        var items = rankRepository.getRecordCurRankRangeMatches(recordId)
+        for (item in items) {
+            getDatabase().getMatchDao().getMatchPeriod(item)?.match?.let { match ->
+                when(match.level) {
+                    MatchConstants.MATCH_LEVEL_GS -> detail.gsCount++
+                    MatchConstants.MATCH_LEVEL_GM1000 -> detail.gm1000Count++
+                    MatchConstants.MATCH_LEVEL_GM500 -> detail.gm500Count++
+                    MatchConstants.MATCH_LEVEL_GM250 -> detail.gm250Count++
+                    MatchConstants.MATCH_LEVEL_LOW -> detail.lowCount++
+                    else -> {}
+                }
+            }
+        }
+        return detail
+    }
+
     /**
      * 给1000+条加载match level更加耗时,单列出来异步加载
      */
+    @Deprecated("实时统计当前参加level数量的情况。属于非常耗时的操作，改为create rank时创建新表，加载的时候从新表中连接查询")
     private fun loadTimeWaste1(items: List<RankItem<Record?>>?): Observable<TimeWasteRange> {
         return Observable.create {
             var count = 0
@@ -557,7 +623,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
                 override fun onNext(t: Boolean?) {
-                    messageObserver.value = "success"
+                    messageObserver.value = "create rank success"
+                    createRankDetails()
                 }
 
                 override fun onError(e: Throwable?) {
@@ -595,6 +662,54 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 getDatabase().getMatchDao().insertMatchRankRecords(insertList)
             }
             it.onNext(true)
+            it.onComplete()
+        }
+    }
+
+    fun createRankDetails() {
+        detailProgressing.value = 0
+        insertDetailsProgress()
+            .compose(applySchedulers())
+            .subscribe(object : Observer<Int> {
+                override fun onSubscribe(d: Disposable) {
+                    addDisposable(d)
+                }
+
+                override fun onNext(t: Int) {
+                    detailProgressing.value = t
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    detailProgressError.value = true
+                    messageObserver.value = e?.message?:""
+                }
+
+                override fun onComplete() {
+                    detailProgressing.value = 100
+                    // 刷新列表
+                    initPeriod()
+                    loadData()
+                }
+            })
+    }
+
+    private fun insertDetailsProgress(): Observable<Int> {
+        return Observable.create {
+            var insertDetailList = mutableListOf<MatchRankDetail>()
+            val total = recordRanksObserver.value?.size?:0
+            val insertPart = 1// insert预留1%作为最后一步
+            var progress = 0
+            recordRanksObserver.value?.forEachIndexed { index, rankItem ->
+                val detail = createDetail(rankItem.id)
+                insertDetailList.add(detail)
+                val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
+                if (curProgress != progress) {
+                    progress = curProgress
+                    it.onNext(progress)
+                }
+            }
+            getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
             it.onComplete()
         }
     }

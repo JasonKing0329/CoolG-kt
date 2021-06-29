@@ -61,7 +61,11 @@ data class MatchRankRecordWrap (
 
     @Relation(parentColumn = "recordId",
         entityColumn = "_id")
-    var record: Record?
+    var record: Record?,
+
+    @Relation(parentColumn = "recordId",
+        entityColumn = "recordId")
+    var details: MatchRankDetail?
 
 ) {
     var unAvailableScore: Int? = null

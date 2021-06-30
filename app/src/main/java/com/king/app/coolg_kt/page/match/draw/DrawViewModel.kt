@@ -14,6 +14,7 @@ import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.entity.match.MatchRecord
@@ -53,6 +54,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var mToSetWildCard: DrawItem? = null
     var mToSetWildCardRecord: MatchRecordWrap? = null
     var mToSetWildCardPosition: Int? = null
+    var availableWildcard = MutableLiveData<WildcardBean>()
 
     fun loadMatch(matchPeriodId: Long) {
         matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
@@ -225,7 +227,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         reloadRound()
     }
 
-    fun setWildCard(recordId: Long): Boolean {
+    fun setChangedRecord(recordId: Long): Boolean {
         // 先查询是否已存在当前period的签表中
         val existCount = getDatabase().getMatchDao().countMatchRecord(matchPeriod.bean.period, matchPeriod.bean.orderInPeriod, recordId)
         return if (existCount > 0) {
@@ -239,6 +241,21 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
             mToSetWildCardRecord?.imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
             mToSetWildCard?.isChanged = true
             true
+        }
+    }
+
+    fun setWildCard(recordId: Long): WildcardBean? {
+        // 先查询是否已存在当前period的签表中
+        val existCount = getDatabase().getMatchDao().countMatchRecord(matchPeriod.bean.period, matchPeriod.bean.orderInPeriod, recordId)
+        return if (existCount > 0) {
+            messageObserver.value = "This record is already in current period"
+            null
+        } else {
+            val wrap = getDatabase().getRecordDao().getRecord(recordId)
+            // 查询排名
+            val rank = rankRepository.getRecordRankToDraw(recordId)
+            val imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
+            WildcardBean(recordId, rank, imageUrl)
         }
     }
 
@@ -440,5 +457,42 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
 
     private fun isWildcard(matchRecord: MatchRecordWrap?): Boolean {
         return matchRecord?.bean?.type == MatchConstants.MATCH_RECORD_WILDCARD
+    }
+
+    fun getWildcardList(): MutableList<WildcardBean> {
+        var wildcards = mutableListOf<WildcardBean>()
+        itemsObserver.value?.forEach {
+            if (isWildcard(it.matchRecord1)) {
+                val recordId = it.matchRecord1?.bean?.recordId?:0
+                val rank = it.matchRecord1?.bean?.recordRank?:0
+                wildcards.add(WildcardBean(recordId, rank, it.matchRecord1?.imageUrl))
+            }
+            if (isWildcard(it.matchRecord2)) {
+                val recordId = it.matchRecord2?.bean?.recordId?:0
+                val rank = it.matchRecord2?.bean?.recordRank?:0
+                wildcards.add(WildcardBean(recordId, rank, it.matchRecord2?.imageUrl))
+            }
+        }
+        return wildcards
+    }
+
+    fun arrangeWildcards(dataList: List<WildcardBean>) {
+        var index = 0
+        itemsObserver.value?.forEach {
+            if (isWildcard(it.matchRecord1)) {
+                it.matchRecord1?.imageUrl = dataList[index].imageUrl
+                it.matchRecord1?.bean?.recordId = dataList[index].recordId
+                it.matchRecord1?.bean?.recordRank = dataList[index].rank
+                it.isChanged = true
+                index ++
+            }
+            if (isWildcard(it.matchRecord2)) {
+                it.matchRecord2?.imageUrl = dataList[index].imageUrl
+                it.matchRecord2?.bean?.recordId = dataList[index].recordId
+                it.matchRecord2?.bean?.recordRank = dataList[index].rank
+                it.isChanged = true
+                index ++
+            }
+        }
     }
 }

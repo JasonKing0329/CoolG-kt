@@ -361,3 +361,8 @@ data class HighRankItem (
     }
 
 }
+data class WildcardBean (
+    var recordId: Long,
+    var rank: Int,
+    var imageUrl: String? = null
+)

@@ -21,6 +21,7 @@ import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.databinding.ActivityMatchDrawBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
 import com.king.app.coolg_kt.page.match.item.MatchActivity
@@ -61,6 +62,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     val adapter = DrawAdapter()
 
     var isEditing = false
+
+    private var wildcardDialog: WildcardDialog? = null
 
     override fun getContentView(): Int = R.layout.activity_match_draw
 
@@ -160,7 +163,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                         }
                         MatchConstants.MATCH_RECORD_WILDCARD -> {
                             if (isEditing && mModel.isFirstRound()) {
-                                selectWildCardRecord(position, drawItem, it)
+                                showWildcardDialog()
                             }
                             else {
                                 recordMatchPage(it.record)
@@ -268,14 +271,27 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         mModel.mToSetWildCard = drawItem
         mModel.mToSetWildCardPosition = position
         mModel.mToSetWildCardRecord = recordWrap
-        selectRecord(REQUEST_SELECT_WILDCARD)
+        selectRecord(REQUEST_CHANGE_PLAYER)
     }
 
-    private fun selectWildCardRecord(position: Int, drawItem: DrawItem, recordWrap: MatchRecordWrap) {
-        mModel.mToSetWildCard = drawItem
-        mModel.mToSetWildCardPosition = position
-        mModel.mToSetWildCardRecord = recordWrap
-        selectRecord(REQUEST_SELECT_WILDCARD)
+    private fun showWildcardDialog() {
+        wildcardDialog = WildcardDialog()
+        wildcardDialog!!.dataList = mModel.getWildcardList()
+        wildcardDialog!!.wildcardListener = object : WildcardDialog.WildCardListener {
+            override fun selectRecord() {
+                selectRecord(REQUEST_SELECT_WILDCARD)
+            }
+
+            override fun confirm(dataList: List<WildcardBean>) {
+                mModel.arrangeWildcards(dataList)
+                adapter.notifyDataSetChanged()
+            }
+        }
+        var dialog = DraggableDialogFragment()
+        dialog.setTitle("Wildcards")
+        dialog.contentFragment = wildcardDialog
+        dialog.fixedHeight = wildcardDialog!!.idealHeight
+        dialog.show(supportFragmentManager, "WildcardDialog")
     }
 
     private fun selectRecord(requestCode: Int) {
@@ -299,15 +315,16 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         if (requestCode == REQUEST_SELECT_WILDCARD) {
             if (resultCode == Activity.RESULT_OK) {
                 val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
-                if (mModel.setWildCard(recordId!!)) {
-                    adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+                val bean = mModel.setWildCard(recordId!!)
+                bean?.let {
+                    wildcardDialog?.setSelectedRecord(it)
                 }
             }
         }
         else if (requestCode == REQUEST_CHANGE_PLAYER) {
             if (resultCode == Activity.RESULT_OK) {
                 val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
-                if (mModel.setWildCard(recordId!!)) {
+                if (mModel.setChangedRecord(recordId!!)) {
                     adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
                 }
             }

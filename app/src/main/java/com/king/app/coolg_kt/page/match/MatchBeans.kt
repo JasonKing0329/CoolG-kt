@@ -169,6 +169,7 @@ class ScoreHead: BaseObservable() {
 data class RoadBean (
     var round: String,
     var rank: String,
+    var isLose: Boolean,
     var imageUrl: String? = null,
     var seed: String? = null
 )

@@ -18,6 +18,16 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="R128" />
 
+        <TextView
+            android:id="@+id/tv_win"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="W" />
+
         <ImageView
             android:id="@+id/iv_record"
             android:layout_width="160dp"

@@ -54,8 +54,9 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
                 MatchConstants.MATCH_RECORD_WILDCARD -> seed = "[WC]"
                 else -> if (matchRecord.recordSeed?:0 > 0) seed = "[${matchRecord.recordSeed}]"
             }
+            val isLose = it.bean.winnerId != recordId
             val rank = if (it.bean.isBye) "Bye" else matchRecord.recordRank.toString()
-            var bean = RoadBean(MatchConstants.roundResultShort(it.bean.round, false), rank
+            var bean = RoadBean(MatchConstants.roundResultShort(it.bean.round, false), rank, isLose
                 , ImageProvider.getRecordRandomPath(record?.name, null), seed)
             data.add(bean)
 

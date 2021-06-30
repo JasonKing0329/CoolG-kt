@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.page.match.detail
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterMatchRoundRoadBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
@@ -27,6 +28,14 @@ class RoadAdapter: BaseBindingAdapter<AdapterMatchRoundRoadBinding, RoadBean>() 
         }
         else {
             "${bean.rank}"
+        }
+        if (bean.isLose) {
+            binding.tvWin.text = "L"
+            binding.tvWin.setTextColor(binding.tvWin.resources.getColor(R.color.text_second))
+        }
+        else {
+            binding.tvWin.text = "W"
+            binding.tvWin.setTextColor(binding.tvWin.resources.getColor(R.color.redC93437))
         }
     }
 }

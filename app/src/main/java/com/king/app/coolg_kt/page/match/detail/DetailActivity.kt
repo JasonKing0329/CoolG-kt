@@ -59,6 +59,7 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
     override fun initData() {
         mModel.showRankDialog.observe(this, Observer { showRankDialog(getRecordId()) })
         mModel.showH2hPage.observe(this, Observer { RecordH2hActivity.startPage(this, getRecordId()) })
+        mModel.showCareerPage.observe(this, Observer { CareerActivity.startPage(this, getRecordId()) })
         mModel.loadRecord(getRecordId())
         initTabs()
     }

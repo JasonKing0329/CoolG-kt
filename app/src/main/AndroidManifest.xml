@@ -96,6 +96,7 @@
         <activity android:name=".page.match.h2h.RecordH2hActivity" />
         <activity android:name=".page.match.record.RecordMatchActivity" />
         <activity android:name=".page.match.rank.HighRankActivity" />
+        <activity android:name=".page.match.detail.CareerActivity" />
         <activity
             android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

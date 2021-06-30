@@ -76,8 +76,11 @@ interface MatchDao {
     @Query("select r.* from match_record rp join match_item r on rp.matchItemId=r.id where rp.recordId=:recordId1 and r.winnerId!=0 and rp.matchItemId in (select matchItemId from match_record where recordId=:recordId2)")
     fun getH2hItems(recordId1: Long, recordId2: Long): List<MatchItemWrap>
 
-    @Query("select mi.* from match_item mi join match_record mr on mi.id=mr.matchItemId join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where mr.recordId=:recordId and mi.winnerId>0")
+    @Query("select mi.*, mp.period, mp.orderInPeriod from match_item mi join match_record mr on mi.id=mr.matchItemId join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where mr.recordId=:recordId and mi.winnerId>0")
     fun getRecordMatchItemsRange(recordId: Long, rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<MatchItem>
+
+    @Query("select mr.*, mi.round, mi.winnerId, mp.period, mp.orderInPeriod from match_record mr join match_item mi on mr.matchItemId=mi.id join match_period mp on mr.matchId=mp.id where mr.recordId!=:recordId and mr.recordId!=0 and mr.matchItemId in (select mr.matchItemId from match_record mr  join match_period mp on mr.matchId=mp.id where mr.recordId=:recordId)")
+    fun getAllTimeMatchRecordsCompetitor(recordId: Long): List<MatchRecordDetailWrap>
 
     /**
      * range范围内的matchPeriodId

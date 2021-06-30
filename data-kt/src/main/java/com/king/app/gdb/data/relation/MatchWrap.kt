@@ -33,6 +33,19 @@ data class MatchRecordWrap (
 ) {
     var imageUrl: String? = null
 }
+data class MatchRecordDetailWrap (
+
+    @Embedded
+    var bean: MatchRecord,
+
+    var round: Int,
+
+    var winnerId: Long,
+
+    var period: Int,
+
+    var orderInPeriod: Int
+)
 data class MatchItemWrap (
 
     @Embedded

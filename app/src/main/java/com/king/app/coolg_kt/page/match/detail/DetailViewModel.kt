@@ -41,6 +41,7 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
 
     var showRankDialog = MutableLiveData<Boolean>()
     var showH2hPage = MutableLiveData<Boolean>()
+    var showCareerPage = MutableLiveData<Boolean>()
 
     var basicPeriodType = 0 // 0:rank period, 1: all time, 2:specific period
 

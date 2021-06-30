@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.CareerRecord" />
+    </data>
+
+    <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_margin="8dp"
+        app:round_corner="8dp">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"/>
+        <ImageView
+            android:id="@+id/iv_record"
+            android:layout_width="120dp"
+            android:layout_height="70dp"
+            android:gravity="center"
+            android:src="@drawable/def_small"
+            android:scaleType="fitXY"
+            app:recordUrl="@{bean.imageUrl}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub"
+            android:layout_marginStart="@dimen/common_margin_8"
+            android:text="@{bean.rankSeed}"
+            tools:text="Rank 126 / [16]"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/iv_record"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_name"/>
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="11dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="@color/text_sub"
+            android:text="@{bean.record.name}"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="@id/tv_rank"
+            app:layout_constraintTop_toBottomOf="@+id/tv_rank"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_round"
+            tools:text="Record nameRecord nameRecord nameRecord nameRecord nameRecord name"/>
+        <TextView
+            android:id="@+id/tv_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:textSize="16dp"
+            android:textColor="@color/text_second"
+            android:textStyle="bold"
+            android:text="@{bean.round}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="R128"/>
+    </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
+</layout>

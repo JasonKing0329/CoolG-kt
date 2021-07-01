@@ -15,24 +15,13 @@
 
         <com.king.app.jactionbar.JActionbar
             android:id="@+id/actionbar"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/actionbar_height"
-            android:background="@color/actionbar_bg"
-            android:theme="@style/EtActionSearch"
-            app:actionTextColor="@color/actionbar_element"
-            app:iconColor="@color/actionbar_element"
+            style="@style/PhoneJActionBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:menu="@menu/match_rank"
-            app:maxShowIcon="5"
-            app:showIconBack="true"
-            app:supportSearch="false"
-            app:iconSize="@dimen/actionbar_icon_width"
-            app:iconPadding="@dimen/actionbar_icon_padding"
-            app:titleSize="@dimen/actionbar_title_text_size"
             app:title="Rank"
-            app:titleColor="@color/actionbar_element" />
+            app:popupMenuWidth="200dp" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/sp_studio"

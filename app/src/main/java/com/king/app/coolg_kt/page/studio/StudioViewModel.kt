@@ -220,4 +220,12 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
             loadStudios()
         }
     }
+
+    fun updateStudioName(order: FavorRecordOrder, name: String) {
+        getDatabase().runInTransaction {
+            order.name = name
+            getDatabase().getFavorDao().updateFavorRecordOrder(order)
+            messageObserver.value = "success"
+        }
+    }
 }

@@ -16,6 +16,8 @@ class StudioSimpleAdapter: BaseBindingAdapter<AdapterStudioSimpleBinding, Studio
 
     private var colorMap = mutableMapOf<String, Int>()
 
+    var onEditListener: OnEditListener? = null
+
     init {
         createCharColors()
     }
@@ -45,5 +47,11 @@ class StudioSimpleAdapter: BaseBindingAdapter<AdapterStudioSimpleBinding, Studio
             drawable.setColor(it)
             binding.tvChar.background = drawable
         }
+
+        binding.ivEdit.setOnClickListener { onEditListener?.onEditItem(position, bean) }
+    }
+
+    interface OnEditListener {
+        fun onEditItem(position: Int, bean: StudioSimpleItem)
     }
 }

@@ -59,6 +59,11 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
 
         initMenu()
 
+        simpleAdapter.onEditListener = object : StudioSimpleAdapter.OnEditListener {
+            override fun onEditItem(position: Int, bean: StudioSimpleItem) {
+                modifyStudioName(position, bean)
+            }
+        }
         simpleAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StudioSimpleItem>{
             override fun onClickItem(view: View, position: Int, data: StudioSimpleItem) {
                 if (isDeleting) {
@@ -113,6 +118,23 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
                 R.id.menu_sort -> return@setPopupMenuProvider getSortPopup(anchorView)
             }
             null
+        }
+    }
+
+    private fun modifyStudioName(position: Int, simpleItem: StudioSimpleItem) {
+        SimpleDialogs().openInputDialog(
+            requireContext(),
+            "Modify studio's name",
+            simpleItem.name
+        ) {
+            if (it.trim().isEmpty()) {
+                showMessageShort("Empty words")
+            }
+            else {
+                mModel.updateStudioName(simpleItem.order, it)
+                simpleItem.name = it
+                simpleAdapter.notifyItemChanged(position)
+            }
         }
     }
 

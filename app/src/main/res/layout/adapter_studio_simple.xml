@@ -16,12 +16,12 @@
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="199"
             android:textColor="@color/text_normal"
             android:textSize="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="199" />
 
         <TextView
             android:id="@+id/tv_char"
@@ -37,7 +37,8 @@
             android:background="@drawable/shape_oval_index"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_index"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="A"/>
 
         <TextView
             android:id="@+id/tv_name"
@@ -49,16 +50,30 @@
             android:textSize="18dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_char"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Lucas Entertainment" />
 
         <TextView
             android:id="@+id/tv_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
+            android:layout_marginEnd="8dp"
             android:text="@{bean.number}"
             android:textColor="@color/text_normal"
             android:textSize="18dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_edit"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="420" />
+
+        <ImageView
+            android:id="@+id/iv_edit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_edit_purple_3f3a71_36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -369,43 +369,38 @@ data class WildcardBean (
 )
 
 data class CareerPeriod (
-    var period: String,
+    var period: Int,
     var detail: String,
+    var titles: Int,
     var matches: MutableList<CareerMatch>
-): Comparable<CareerPeriod> {
+){
 
     var winCount = 0
     var loseCount = 0
+    var isExpand = true
 
-    override fun compareTo(other: CareerPeriod): Int {
-        // 倒序
-        return other.period.compareTo(this.period)
-    }
 }
 data class CareerMatch (
+    var parent: CareerPeriod,
     var matchPeriodId: Long,
     var name: String,
-    var week: String,
-    var level: String,
+    var week: Int,
+    var levelStr: String,
+    var levelColor: Int,
     var draws: String,
+    var rankSeed: String,
     var result: String,
+    var championVisibility: Int,
     var records: MutableList<CareerRecord>
-): Comparable<CareerMatch> {
-    override fun compareTo(other: CareerMatch): Int {
-        // 倒序
-        return other.week.compareTo(this.week)
-    }
+) {
+    var isExpand = true
 }
 data class CareerRecord (
+    var parent: CareerMatch,
     var round: String,
     var record: Record?,
     var rankSeed: String,
     var imageUrl: String?,
     var isWinner: Boolean,
     var sortValue: Int
-): Comparable<CareerRecord> {
-    override fun compareTo(other: CareerRecord): Int {
-        // 轮次倒序
-        return other.sortValue.compareTo(this.sortValue)
-    }
-}
+)

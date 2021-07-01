@@ -350,4 +350,8 @@ class RankRepository: BaseRepository() {
         item.firstTime = "P${item.firstPeriod}-W${item.firstPIO}"
         item.lastTime = "P${rankList.last().period}-W${rankList.last().orderInPeriod}"
     }
+
+    fun getRecordRankInMatch(recordId: Long, matchPeriodId: Long): MatchRecord? {
+        return getDatabase().getMatchDao().getMatchRecords(matchPeriodId, recordId).firstOrNull()
+    }
 }

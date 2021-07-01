@@ -9,7 +9,10 @@
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white_dim"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
         <TextView
             android:id="@+id/tv_period"
             android:layout_width="wrap_content"
@@ -19,7 +22,6 @@
             android:textColor="@color/text_normal"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:text="@{bean.period}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -29,11 +31,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textSize="16dp"
+            android:textSize="14dp"
             android:textColor="@color/text_second"
             android:text="@{bean.detail}"
+            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@+id/tv_period"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_period"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_titles"
             tools:text="21 matches, 67胜15负"/>
+        <TextView
+            android:id="@+id/tv_titles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub"
+            app:layout_constraintTop_toBottomOf="@+id/tv_detail"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_detail"
+            tools:text="3 titles"/>
+        <ImageView
+            android:id="@+id/iv_expand"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_keyboard_arrow_down_grey_700_24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

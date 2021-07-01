@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.databinding.AdapterMatchCareerMatchBinding
 import com.king.app.coolg_kt.databinding.AdapterMatchCareerPeriodBinding
 import com.king.app.coolg_kt.databinding.AdapterMatchCareerRecordBinding
@@ -24,20 +25,33 @@ class CareerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val TYPE_MATCH = 1
     private val TYPE_RECORD = 2
 
+    var onRecordListener: OnRecordListener? = null
+
+    var onMatchListener: OnMatchListener? = null
+
     var itemList = mutableListOf<Any>()
     var list: List<CareerPeriod>? = null
         set(value) {
             field = value
-            value?.forEach { period ->
-                itemList.add(period)
+            createItemList()
+        }
+
+    private fun createItemList() {
+        itemList.clear()
+        list?.forEach { period ->
+            itemList.add(period)
+            if (period.isExpand) {
                 period.matches.forEach { match ->
                     itemList.add(match)
-                    match.records.forEach { record ->
-                        itemList.add(record)
+                    if (match.isExpand) {
+                        match.records.forEach { record ->
+                            itemList.add(record)
+                        }
                     }
                 }
             }
         }
+    }
 
     override fun getItemViewType(position: Int): Int {
         return when(itemList[position].javaClass) {
@@ -105,11 +119,11 @@ class CareerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     fun onClickMatch(view: View, position: Int, data: CareerMatch) {
-//        onItemClickListener?.onClickItem(view, position, data)
+        onMatchListener?.onClickMatch(position, data)
     }
 
     fun onClickRecord(view: View, position: Int, data: CareerRecord) {
-//        onItemClickListener?.onClickItem(view, position, data)
+        onRecordListener?.onClickRecord(position, data)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -134,10 +148,54 @@ class CareerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun onBindPeriod(binding: AdapterMatchCareerPeriodBinding, position: Int, bean: CareerPeriod) {
         binding.bean = bean
+        binding.tvPeriod.text = "P${bean.period}"
+        binding.tvTitles.text = if (bean.titles > 1) "${bean.titles} titles"
+        else "${bean.titles} title"
+        binding.tvTitles.visibility = if (bean.titles > 0) View.VISIBLE else View.GONE
+        if (bean.isExpand) {
+            binding.ivExpand.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
+        }
+        else {
+            binding.ivExpand.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
+        }
+        binding.ivExpand.setOnClickListener {
+            bean.isExpand = !bean.isExpand
+            createItemList()
+            // period的收起和展开，涉及嵌套的处理，这里就不麻烦了，直接通知全部刷新，摒弃动画
+            notifyDataSetChanged()
+        }
     }
 
     private fun onBindMatch(binding: AdapterMatchCareerMatchBinding, position: Int, bean: CareerMatch) {
         binding.bean = bean
+        binding.tvWeek.text = "W${bean.week}"
+        binding.tvLevel.setTextColor(bean.levelColor)
+        if (bean.isExpand) {
+            binding.ivExpand.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
+        }
+        else {
+            binding.ivExpand.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
+        }
+        binding.ivExpand.setOnClickListener {
+            bean.isExpand = !bean.isExpand
+            createItemList()
+            if (bean.isExpand) {
+                // 为使用动画，采用notifyItemRangeInserted
+                notifyItemRangeInserted(position + 1, bean.records.size)
+                // insert与remove一样，后面挪动的位置也需要刷新
+                notifyItemRangeChanged(position + 1 + bean.records.size, bean.records.size)
+                // 当前位置也要刷新，改变箭头方向
+                notifyItemChanged(position)
+            }
+            else {
+                // 为使用动画，采用notifyItemRangeRemoved
+                notifyItemRangeRemoved(position + 1, bean.records.size)
+                // remove后必须刷新变化后的位置，不然会引起混乱（比如删除后，有CareerMatch顶上来了，不刷新的话，它的ivExpand还保留上次的监听事件，点它再收起，positionStart就是上次的值了）
+                notifyItemRangeChanged(position + 1, bean.records.size)
+                // 当前位置也要刷新，改变箭头方向
+                notifyItemChanged(position)
+            }
+        }
     }
 
     private fun onBindRecord(binding: AdapterMatchCareerRecordBinding, position: Int, bean: CareerRecord) {
@@ -153,6 +211,29 @@ class CareerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun expandAllPeriod(expand: Boolean) {
+        list?.forEach {
+            it.isExpand = expand
+        }
+        createItemList()
+        notifyDataSetChanged()
+    }
+
+    fun expandAllMatches(expand: Boolean) {
+        list?.forEach {
+            it.matches.forEach { match -> match.isExpand = expand }
+        }
+        createItemList()
+        notifyDataSetChanged()
+    }
+
     class BindingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
+    interface OnRecordListener {
+        fun onClickRecord(position: Int, record: CareerRecord)
+    }
+
+    interface OnMatchListener {
+        fun onClickMatch(position: Int, record: CareerMatch)
+    }
 }

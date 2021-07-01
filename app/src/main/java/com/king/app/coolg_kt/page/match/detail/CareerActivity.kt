@@ -7,6 +7,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchCareerBinding
+import com.king.app.coolg_kt.page.match.CareerMatch
+import com.king.app.coolg_kt.page.match.CareerRecord
+import com.king.app.coolg_kt.page.match.draw.DrawActivity
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 
 /**
  * Desc:
@@ -32,7 +36,29 @@ class CareerActivity: BaseActivity<ActivityMatchCareerBinding, CareerViewModel>(
 
     override fun initView() {
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        adapter.onRecordListener = object : CareerAdapter.OnRecordListener {
+            override fun onClickRecord(position: Int, record: CareerRecord) {
+                record.record?.let {
+                    showRoadDialog(it.id!!, record.parent.matchPeriodId)
+                }
+            }
+        }
+        adapter.onMatchListener = object : CareerAdapter.OnMatchListener {
+            override fun onClickMatch(position: Int, record: CareerMatch) {
+                DrawActivity.startPage(this@CareerActivity, record.matchPeriodId)
+            }
+        }
         mBinding.rvList.adapter = adapter
+
+        mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnMenuItemListener {
+            when(it) {
+                R.id.menu_collapse_period -> adapter.expandAllPeriod(false)
+                R.id.menu_collapse_match -> adapter.expandAllMatches(false)
+                R.id.menu_expand_period -> adapter.expandAllPeriod(true)
+                R.id.menu_expand_match -> adapter.expandAllMatches(true)
+            }
+        }
     }
 
     private fun getRecordId(): Long {
@@ -49,4 +75,16 @@ class CareerActivity: BaseActivity<ActivityMatchCareerBinding, CareerViewModel>(
         })
         mModel.loadData(getRecordId())
     }
+
+    private fun showRoadDialog(recordId: Long, matchPeriodId: Long) {
+        var content = RoadDialog()
+        content.matchPeriodId = matchPeriodId
+        content.recordId = recordId
+        var dialog = DraggableDialogFragment()
+        dialog.setTitle("Upgrade Road")
+        dialog.contentFragment = content
+        dialog.fixedHeight = content.idealHeight
+        dialog.show(supportFragmentManager, "RoadDialog")
+    }
+
 }

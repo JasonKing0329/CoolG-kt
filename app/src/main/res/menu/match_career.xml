@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/menu_collapse_period"
+        android:title="Collapse all periods"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_expand_period"
+        android:title="Expand all periods"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_collapse_match"
+        android:title="Collapse all matches"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_expand_match"
+        android:title="Expand all matches"
+        app:showAsAction="never"/>
+</menu>

@@ -109,6 +109,9 @@ interface MatchDao {
     @Query("select * from match_record where matchItemId=:matchItemId and `order`=:order")
     fun getMatchRecord(matchItemId: Long, order: Int): MatchRecordWrap?
 
+    @Query("select * from match_record where matchId=:matchPeriodId and recordId=:recordId")
+    fun getMatchRecords(matchPeriodId: Long, recordId:Long): List<MatchRecord>
+
     @Query("select count(*) from match_record mr join match_period mp on mr.matchId=mp.id where mp.period=:period and mp.orderInPeriod=:orderInPeriod and recordId=:recordId")
     fun countMatchRecord(period: Int, orderInPeriod: Int, recordId:Long): Int
 

@@ -9,7 +9,9 @@
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:layout_marginTop="8dp">
         <TextView
             android:id="@+id/tv_week"
             android:layout_width="wrap_content"
@@ -18,7 +20,6 @@
             android:textSize="16dp"
             android:textColor="@color/text_normal"
             android:layout_marginTop="8dp"
-            android:text="@{bean.week}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="W35"/>
@@ -27,9 +28,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@{bean.level}"
+            android:text="@{bean.levelStr}"
             android:textSize="16dp"
-            android:textColor="@color/match_level_gs"
+            android:textColor="@{bean.levelColor}"
             app:layout_constraintStart_toEndOf="@+id/tv_week"
             app:layout_constraintTop_toTopOf="@+id/tv_week"
             tools:text="GM1000"/>
@@ -58,17 +59,49 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="Lucas Entertainment"/>
         <TextView
+            android:id="@+id/tv_seed_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub"
+            android:text="@{bean.rankSeed}"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_name"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+            tools:text="R 328/[4]"/>
+        <ImageView
+            android:id="@+id/iv_cup"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_cup"
+            android:visibility="@{bean.championVisibility}"
+            app:layout_constraintEnd_toStartOf="@+id/tv_result"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+        <TextView
             android:id="@+id/tv_result"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="10dp"
             android:textSize="20dp"
             android:textColor="@color/text_second"
             android:textStyle="bold"
             android:text="@{bean.result}"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_expand"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="Final"/>
+        <ImageView
+            android:id="@+id/iv_expand"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_keyboard_arrow_down_grey_700_24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

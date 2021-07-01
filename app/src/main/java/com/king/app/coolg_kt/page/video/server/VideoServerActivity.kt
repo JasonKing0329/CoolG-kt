@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.view.MenuItem
 import android.view.View
-import android.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
@@ -49,20 +48,10 @@ class VideoServerActivity : BaseActivity<ActivityVideoServerBinding, VideoServer
                 R.id.menu_refresh -> mModel.refresh()
             }
         }
-        mBinding.actionbar.registerPopupMenu(R.id.menu_sort)
-        mBinding.actionbar.setPopupMenuProvider { iconMenuId: Int, anchorView: View ->
-            when (iconMenuId) {
-                R.id.menu_sort -> return@setPopupMenuProvider getSortPopup(anchorView)
-            }
-            null
-        }
-        mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-    }
-
-    private fun getSortPopup(anchorView: View): PopupMenu {
-        val menu = PopupMenu(this, anchorView)
-        menu.menuInflater.inflate(R.menu.sort_video_server, menu.menu)
-        menu.setOnMenuItemClickListener { item: MenuItem ->
+        mBinding.actionbar.registerPopupMenuOn(
+            R.id.menu_sort,
+            R.menu.sort_video_server
+        ) { item: MenuItem ->
             when (item.itemId) {
                 R.id.menu_sort_by_name -> mModel.onSortTypeChanged(PreferenceValue.VIDEO_SERVER_SORT_NAME)
                 R.id.menu_sort_by_date -> mModel.onSortTypeChanged(PreferenceValue.VIDEO_SERVER_SORT_DATE)
@@ -70,7 +59,7 @@ class VideoServerActivity : BaseActivity<ActivityVideoServerBinding, VideoServer
             }
             true
         }
-        return menu
+        mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
 
     override fun onBackPressed() {

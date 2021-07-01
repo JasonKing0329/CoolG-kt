@@ -1,13 +1,9 @@
 package com.king.app.coolg_kt.page.star.phone
 
-import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
@@ -110,12 +106,23 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
     private fun initActionbar() {
         mBinding.actionbar.setOnBackListener { requireActivity().onBackPressed() }
         mBinding.actionbar.setOnSearchListener { currentPage.filterStar(it) }
-        mBinding.actionbar.registerPopupMenu(R.id.menu_sort)
-        mBinding.actionbar.setPopupMenuProvider { iconMenuId: Int, anchorView: View ->
-            if (iconMenuId == R.id.menu_sort) {
-                return@setPopupMenuProvider createSortPopup(anchorView)
+        mBinding.actionbar.registerPopupMenuOn(
+            R.id.menu_sort,
+            R.menu.player_sort
+        ) {
+            when (it.itemId) {
+                R.id.menu_sort_name -> mModel.sortMode = AppConstants.STAR_SORT_NAME
+                R.id.menu_sort_records -> mModel.sortMode = AppConstants.STAR_SORT_RECORDS
+                R.id.menu_sort_rating -> mModel.sortMode = AppConstants.STAR_SORT_RATING
+                R.id.menu_sort_rating_face -> mModel.sortMode = AppConstants.STAR_SORT_RATING_FACE
+                R.id.menu_sort_rating_body -> mModel.sortMode = AppConstants.STAR_SORT_RATING_BODY
+                R.id.menu_sort_rating_dk -> mModel.sortMode = AppConstants.STAR_SORT_RATING_DK
+                R.id.menu_sort_rating_sexuality -> mModel.sortMode = AppConstants.STAR_SORT_RATING_SEXUALITY
+                R.id.menu_sort_rating_passion -> mModel.sortMode = AppConstants.STAR_SORT_RATING_PASSION
+                R.id.menu_sort_rating_video -> mModel.sortMode = AppConstants.STAR_SORT_RATING_VIDEO
+                R.id.menu_sort_random -> mModel.sortMode = AppConstants.STAR_SORT_RANDOM
             }
-            null
+            false
         }
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
             when (menuId) {
@@ -135,27 +142,6 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
 //        Router.build("Category")
 //            .go(this)
         TODO()
-    }
-
-    private fun createSortPopup(anchorView: View): PopupMenu {
-        val menu = PopupMenu(requireContext(), anchorView)
-        menu.menuInflater.inflate(R.menu.player_sort, menu.menu)
-        menu.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.menu_sort_name -> mModel.sortMode = AppConstants.STAR_SORT_NAME
-                R.id.menu_sort_records -> mModel.sortMode = AppConstants.STAR_SORT_RECORDS
-                R.id.menu_sort_rating -> mModel.sortMode = AppConstants.STAR_SORT_RATING
-                R.id.menu_sort_rating_face -> mModel.sortMode = AppConstants.STAR_SORT_RATING_FACE
-                R.id.menu_sort_rating_body -> mModel.sortMode = AppConstants.STAR_SORT_RATING_BODY
-                R.id.menu_sort_rating_dk -> mModel.sortMode = AppConstants.STAR_SORT_RATING_DK
-                R.id.menu_sort_rating_sexuality -> mModel.sortMode = AppConstants.STAR_SORT_RATING_SEXUALITY
-                R.id.menu_sort_rating_passion -> mModel.sortMode = AppConstants.STAR_SORT_RATING_PASSION
-                R.id.menu_sort_rating_video -> mModel.sortMode = AppConstants.STAR_SORT_RATING_VIDEO
-                R.id.menu_sort_random -> mModel.sortMode = AppConstants.STAR_SORT_RANDOM
-            }
-            false
-        }
-        return menu
     }
 
     private fun changeSideBarVisible() {

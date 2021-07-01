@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_group_by_level"
+        android:title="By level"/>
+    <item android:id="@+id/menu_group_by_week"
+        android:title="By week"/>
+</menu>

@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
-import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
+import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityMatchListBinding
 import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -45,7 +45,7 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         }
     }
 
-    val adapter = MatchAdapter()
+    val adapter = MatchItemAdapter()
 
     override fun getContentView(): Int = R.layout.activity_match_list
 
@@ -55,7 +55,6 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
-                R.id.menu_sort -> {}
                 R.id.menu_add -> editMatch(null, -1)
                 R.id.menu_delete -> {
                     adapter.isDeleteMode = true
@@ -63,6 +62,16 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                     mBinding.actionbar.showConfirmStatus(it)
                 }
             }
+        }
+        mBinding.actionbar.registerPopupMenuOn(
+            R.id.menu_sort,
+            R.menu.match_groupby
+        ) {
+            when(it.itemId) {
+                R.id.menu_group_by_level -> mModel.groupByLevel()
+                R.id.menu_group_by_week -> mModel.groupByWeek()
+            }
+            true
         }
         mBinding.actionbar.setOnConfirmListener {
             adapter.isDeleteMode = false
@@ -86,7 +95,7 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
             }
         })
 
-        adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<Match> {
+        adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<Match> {
             override fun onClickItem(view: View, position: Int, data: Match) {
                 if (isSelectMode()) {
                     val intent = Intent()
@@ -98,8 +107,8 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                     MatchActivity.startPage(this@MatchListActivity, data.id)
                 }
             }
-        })
-        adapter.onMatchItemListener = object : MatchAdapter.OnMatchItemListener {
+        }
+        adapter.onMatchItemListener = object : MatchItemAdapter.OnMatchItemListener {
             override fun onEdit(position: Int, bean: Match) {
                 editMatch(bean, position)
             }

@@ -3,9 +3,7 @@ package com.king.app.coolg_kt.page.studio
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
-import android.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -112,12 +110,18 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
             isDeleting = false
             true
         }
-        holder?.getJActionBar()?.registerPopupMenu(R.id.menu_sort)
-        holder?.getJActionBar()?.setPopupMenuProvider { iconMenuId, anchorView ->
-            when (iconMenuId) {
-                R.id.menu_sort -> return@setPopupMenuProvider getSortPopup(anchorView)
+
+        holder?.getJActionBar()?.registerPopupMenuOn(
+            R.id.menu_sort,
+            R.menu.studios_sort
+        ) {
+            when (it.itemId) {
+                R.id.menu_sort_name -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_NAME)
+                R.id.menu_sort_items -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_NUM)
+                R.id.menu_sort_create_time -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_CREATE_TIME)
+                R.id.menu_sort_update_time -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_UPDATE_TIME)
             }
-            null
+            true
         }
     }
 
@@ -161,21 +165,6 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
     fun resetMenu() {
         holder?.getJActionBar()?.setMenu(R.menu.studios)
         initMenu()
-    }
-
-    private fun getSortPopup(anchorView: View): PopupMenu? {
-        val menu = PopupMenu(activity, anchorView)
-        menu.menuInflater.inflate(R.menu.studios_sort, menu.menu)
-        menu.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.menu_sort_name -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_NAME)
-                R.id.menu_sort_items -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_NUM)
-                R.id.menu_sort_create_time -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_CREATE_TIME)
-                R.id.menu_sort_update_time -> mModel.onSortTypeChanged(AppConstants.STUDIO_LIST_SORT_UPDATE_TIME)
-            }
-            true
-        }
-        return menu
     }
 
     private fun showSimpleList(list: List<StudioSimpleItem>) {

@@ -3,7 +3,6 @@ package com.king.app.coolg_kt.page.star
 import android.content.DialogInterface
 import android.view.MenuItem
 import android.view.View
-import android.widget.PopupMenu
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -79,23 +78,10 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
                 R.id.menu_tag_random -> showRandomPage()
             }
         }
-        actionbar.registerPopupMenu(R.id.menu_sort)
-        actionbar.setPopupMenuProvider { iconMenuId: Int, anchorView: View ->
-            if (iconMenuId == R.id.menu_sort) {
-                return@setPopupMenuProvider createSortPopup(anchorView)
-            }
-            null
-        }
-    }
-
-    private fun showRandomPage() {
-        StarRandomActivity.startPage(this)
-    }
-
-    private fun createSortPopup(anchorView: View): PopupMenu {
-        val menu = PopupMenu(this, anchorView)
-        menu.menuInflater.inflate(R.menu.player_sort, menu.menu)
-        menu.setOnMenuItemClickListener { item: MenuItem ->
+        actionbar.registerPopupMenuOn(
+            R.id.menu_sort,
+            R.menu.player_sort
+        ) {  item: MenuItem ->
             when (item.itemId) {
                 R.id.menu_sort_name -> {
                     mModel.sortList(AppConstants.STAR_SORT_NAME)
@@ -133,7 +119,10 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
             }
             false
         }
-        return menu
+    }
+
+    private fun showRandomPage() {
+        StarRandomActivity.startPage(this)
     }
 
     private fun setTagSortMode() {

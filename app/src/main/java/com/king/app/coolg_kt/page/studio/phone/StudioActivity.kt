@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.page.studio.phone
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.fragment.app.Fragment
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.EmptyViewModel
@@ -21,6 +22,7 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
 
     companion object {
         val EXTRA_SELECT_MODE = "select_mode"
+        val EXTRA_SELECT_AS_MATCH = "select_as_match"
         fun startPage(context: Context) {
             var intent = Intent(context, StudioActivity::class.java)
             context.startActivity(intent)
@@ -29,6 +31,12 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
             var intent = Intent(activity, StudioActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)
             activity.startActivityForResult(intent, requestCode)
+        }
+        fun startPageToSelectAsMatch(fragment: Fragment, requestCode: Int) {
+            var intent = Intent(fragment.context, StudioActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_SELECT_AS_MATCH, true)
+            fragment.startActivityForResult(intent, requestCode)
         }
     }
 
@@ -44,7 +52,10 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
 
         mBinding.actionbar.setOnBackListener { onBackPressed() }
 
-        ftList = StudioListFragment.newInstance(intent.getBooleanExtra(EXTRA_SELECT_MODE, false))
+        ftList = StudioListFragment.newInstance(
+            intent.getBooleanExtra(EXTRA_SELECT_MODE, false),
+            intent.getBooleanExtra(EXTRA_SELECT_AS_MATCH, false)
+        )
         ftList!!.holder = this
         supportFragmentManager.beginTransaction()
             .replace(R.id.fl_ft, ftList!!, "StudioListFragment")

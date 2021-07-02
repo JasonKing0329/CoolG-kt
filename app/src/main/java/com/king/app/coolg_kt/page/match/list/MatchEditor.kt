@@ -1,10 +1,14 @@
 package com.king.app.coolg_kt.page.match.list
 
+import android.app.Activity
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import com.king.app.coolg_kt.CoolApplication
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.FragmentMatchEditorBinding
+import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 import com.king.app.gdb.data.entity.match.Match
 
@@ -17,6 +21,8 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
 
     var match: Match? = null
 
+    var initLevel = 0
+
     var onMatchListener: OnMatchListener? = null
 
     override fun getBinding(inflater: LayoutInflater): FragmentMatchEditorBinding = FragmentMatchEditorBinding.inflate(inflater)
@@ -24,6 +30,9 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
     override fun initData() {
         mBinding.tvOk.setOnClickListener { saveMatch() }
 
+        match.let {
+            mBinding.spLevel.setSelection(initLevel)
+        }
         match?.let {
             mBinding.etOrder.setText(it.orderInPeriod.toString())
             mBinding.etDraw.setText(it.draws.toString())
@@ -45,6 +54,8 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
 //                mBinding.etQualifyDraw.setText(stdDraw.qualifyDraw.toString())
             }
         }
+
+        mBinding.btnStudio.setOnClickListener { StudioActivity.startPageToSelectAsMatch(this, 0) }
     }
 
     private fun saveMatch() {
@@ -72,6 +83,15 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
         }
         onMatchListener?.onUpdated(match!!)
         dismissAllowingStateLoss()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
+            CoolApplication.instance.database!!.getFavorDao().getFavorRecordOrderBy(orderId)?.let {
+                mBinding.etName.setText(it.name)
+            }
+        }
     }
 
     interface OnMatchListener {

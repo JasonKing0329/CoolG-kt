@@ -30,11 +30,13 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
     companion object {
 
         val ARG_SELECT_MODE = "select_mode"
+        val ARG_SELECT_AS_MATCH = "select_as_match"
 
-        fun newInstance(selectMode: Boolean): StudioListFragment {
+        fun newInstance(selectMode: Boolean, selectAsMatch: Boolean): StudioListFragment {
             val fragment = StudioListFragment()
             val bundle = Bundle()
             bundle.putBoolean(ARG_SELECT_MODE, selectMode)
+            bundle.putBoolean(ARG_SELECT_AS_MATCH, selectAsMatch)
             fragment.arguments = bundle
             return fragment
         }
@@ -155,11 +157,16 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
         mModel.simpleObserver.observe(this, Observer{ list -> showSimpleList(list) })
         mModel.richObserver.observe(this, Observer{ list -> showRichList(list) })
 
+        mModel.isSelectAsMatch = isSelectAsMatch()
         mModel.loadStudios()
     }
 
     private fun isSelectMode(): Boolean {
         return requireArguments().getBoolean(ARG_SELECT_MODE)
+    }
+
+    private fun isSelectAsMatch(): Boolean {
+        return requireArguments().getBoolean(ARG_SELECT_AS_MATCH)
     }
 
     fun resetMenu() {

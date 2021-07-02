@@ -29,6 +29,8 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
      */
     private var isCountCorrected = false
 
+    var isSelectAsMatch = false
+
     fun toggleListType() {
         if (AppConstants.STUDIO_LIST_TYPE_RICH === SettingProperty.getStudioListType()) {
             SettingProperty.setStudioListType(AppConstants.STUDIO_LIST_TYPE_SIMPLE)
@@ -48,10 +50,10 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
 
     fun loadStudios() {
         if (AppConstants.STUDIO_LIST_TYPE_RICH === SettingProperty.getStudioListType()) {
-            listTypeMenuObserver.setValue("Simple List")
+            listTypeMenuObserver.value = "Simple List"
             loadRichItems()
         } else {
-            listTypeMenuObserver.setValue("Rich List")
+            listTypeMenuObserver.value = "Rich List"
             loadSimpleItems()
         }
     }
@@ -142,6 +144,10 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
                     else -> sqlBuffer.append(" order by NAME")
                 }
                 list = getDatabase().getFavorDao().getRecordOrdersBySql(SimpleSQLiteQuery(sqlBuffer.toString()))
+            }
+            // 过滤掉已经是match的
+            if (isSelectAsMatch) {
+                list = list.filter { item -> getDatabase().getMatchDao().getMatchByName(item.name?:"") == null }
             }
             it.onNext(list)
             it.onComplete()

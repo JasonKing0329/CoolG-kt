@@ -404,3 +404,7 @@ data class CareerRecord (
     var isWinner: Boolean,
     var sortValue: Int
 )
+data class MatchItemGroup (
+    var text: String,
+    var level: Int
+)

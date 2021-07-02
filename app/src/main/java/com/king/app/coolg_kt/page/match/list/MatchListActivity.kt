@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivityMatchListBinding
 import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -55,7 +56,7 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
-                R.id.menu_add -> editMatch(null, -1)
+                R.id.menu_add -> newMatch(MatchConstants.MATCH_LEVEL_GS)
                 R.id.menu_delete -> {
                     adapter.isDeleteMode = true
                     adapter.notifyDataSetChanged()
@@ -91,7 +92,9 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                 parent: RecyclerView,
                 state: RecyclerView.State
             ) {
-                outRect.top = ScreenUtils.dp2px(8f)
+                val position = parent.getChildLayoutPosition(view)
+                outRect.top = if (position == 0) 0
+                    else ScreenUtils.dp2px(8f)
             }
         })
 
@@ -106,6 +109,11 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                 else {
                     MatchActivity.startPage(this@MatchListActivity, data.id)
                 }
+            }
+        }
+        adapter.onMatchGroupListener = object : MatchItemAdapter.OnMatchGroupListener {
+            override fun onAddGroupItem(level: Int) {
+                newMatch(level)
             }
         }
         adapter.onMatchItemListener = object : MatchItemAdapter.OnMatchItemListener {
@@ -142,9 +150,18 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         mModel.loadMatches()
     }
 
+    private fun newMatch(initLevel: Int) {
+        matchEditor(null, -1, initLevel)
+    }
+
     private fun editMatch(editMatch: Match?, position: Int) {
+        matchEditor(editMatch, position, -1)
+    }
+
+    private fun matchEditor(editMatch: Match?, position: Int, initLevel: Int) {
         val content = MatchEditor()
         content.match = editMatch
+        content.initLevel = initLevel
         content.onMatchListener = object : MatchEditor.OnMatchListener {
             override fun onUpdated(match: Match) {
                 if (editMatch == null) {

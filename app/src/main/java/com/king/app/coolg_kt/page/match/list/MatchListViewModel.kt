@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.MatchItemGroup
 import com.king.app.gdb.data.entity.match.Match
 
 /**
@@ -58,7 +59,8 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
         val levels = levelMap.keys.sorted()
         levels.forEach {
             val title = "${MatchConstants.MATCH_LEVEL[it]}(${levelMap[it]!!.size})"
-            result.add(title)
+            val head = MatchItemGroup(title, it)
+            result.add(head)
             levelMap[it]!!.forEach { item ->
                 result.add(item)
             }

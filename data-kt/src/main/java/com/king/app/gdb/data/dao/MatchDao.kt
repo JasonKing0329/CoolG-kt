@@ -16,6 +16,9 @@ interface MatchDao {
     @Query("select * from `match` where id=:matchId")
     fun getMatch(matchId: Long): Match
 
+    @Query("select * from `match` where name=:name")
+    fun getMatchByName(name: String): Match?
+
     @Query("select * from `match`")
     fun getAllMatches(): List<Match>
 

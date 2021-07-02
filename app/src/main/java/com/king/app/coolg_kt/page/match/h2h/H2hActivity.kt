@@ -3,12 +3,16 @@ package com.king.app.coolg_kt.page.match.h2h
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchH2hBinding
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
+import com.king.app.coolg_kt.utils.ScreenUtils
 
 /**
  * @description:
@@ -45,6 +49,16 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
 
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.adapter = adapter
+        mBinding.rvList.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                outRect.top = ScreenUtils.dp2px(1f)
+            }
+        })
 
         mBinding.ivRecord1.setOnClickListener { selectPlayer(1) }
 

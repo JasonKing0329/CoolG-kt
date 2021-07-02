@@ -4,11 +4,13 @@ import android.app.Application
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
-import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConfig
 import com.king.app.coolg_kt.model.bean.CheckDownloadBean
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
+import com.king.app.coolg_kt.model.db.LocalData
+import com.king.app.coolg_kt.model.db.LocalToServerEngine
+import com.king.app.coolg_kt.model.db.ServerToLocalEngine
 import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.Command
 import com.king.app.coolg_kt.model.http.HttpConstants
@@ -21,15 +23,10 @@ import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.http.upload.UploadClient
 import com.king.app.coolg_kt.model.repository.PropertyRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
-import com.king.app.coolg_kt.utils.FileUtil
-import com.king.app.gdb.data.entity.*
-import com.king.app.gdb.data.entity.match.*
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -41,14 +38,16 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
 
     var dbVersionText: ObservableField<String> = ObservableField()
 
-    private var mLocalData: LocalData? = null
-
     var imagesObserver: MutableLiveData<DownloadDialogBean> = MutableLiveData()
     var gdbCheckObserver: MutableLiveData<AppCheckBean> = MutableLiveData()
     var readyToDownloadObserver: MutableLiveData<Long> = MutableLiveData()
 
     var warningSync: MutableLiveData<Boolean> = MutableLiveData()
     var warningUpload: MutableLiveData<String> = MutableLiveData()
+
+    private var useLocalToServer = false
+    var localToServerEngine = LocalToServerEngine()
+    var serverToLocalEngine = ServerToLocalEngine()
 
     init {
         dbVersionText.set("Local v" + PropertyRepository().getVersion())
@@ -371,20 +370,25 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    fun closeDatabase() {
-        getDatabase().destroy()
+    fun prepareUpgrade(bean: AppCheckBean) {
+        if (useLocalToServer) {
+            saveDataFromLocal(bean)
+        }
+        else {
+            localToServerEngine.closeDatabase()
+            readyToDownloadObserver.value = bean.appSize
+        }
     }
 
     fun saveDataFromLocal(bean: AppCheckBean) {
         loadingObserver.value = true
-        saveLocalData()
+        localToServerEngine.saveLocalData()
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<LocalData>(getComposite()) {
                 override fun onNext(t: LocalData) {
                     loadingObserver.value = false
-                    mLocalData = t
                     // 下载前一定要先关闭当前数据库，否则下载直接替换文件后新的数据库文件会有问题（database disk image is malformed）
-                    closeDatabase()
+                    localToServerEngine.closeDatabase()
                     readyToDownloadObserver.value = bean.appSize
                 }
 
@@ -397,67 +401,21 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    private fun saveLocalData(): Observable<LocalData> {
-        return Observable.create{
-
-            // 将数据库备份至History文件夹
-            val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
-            FileUtil.copyFile(
-                File("${AppConfig.APP_DIR_CONF}/${AppConfig.DB_NAME}"),
-                File("${AppConfig.APP_DIR_DB_HISTORY}/${sdf.format(Date())}.db")
-            )
-
-            // 额外的数据表
-            var data = LocalData(
-                getDatabase().getFavorDao().getAllFavorRecords(),
-                getDatabase().getFavorDao().getAllFavorStars(),
-                getDatabase().getFavorDao().getAllFavorRecordOrders(),
-                getDatabase().getFavorDao().getAllFavorStarOrders(),
-                getDatabase().getStarDao().getAllStarRatings(),
-                getDatabase().getPlayOrderDao().getAllPlayOrders(),
-                getDatabase().getPlayOrderDao().getAllPlayItems(),
-                getDatabase().getPlayOrderDao().getAllPlayDurations(),
-                getDatabase().getPlayOrderDao().getVideoCoverOrders(),
-                getDatabase().getPlayOrderDao().getVideoCoverStars(),
-                getDatabase().getStarDao().getAllTopStarCategory(),
-                getDatabase().getStarDao().getAllTopStar(),
-                getDatabase().getTagDao().getAllTags(),
-                getDatabase().getTagDao().getAllTagRecords(),
-                getDatabase().getTagDao().getAllTagStars(),
-                getDatabase().getMatchDao().getAllMatches(),
-                getDatabase().getMatchDao().getAllMatchPeriods(),
-                getDatabase().getMatchDao().getAllMatchItems(),
-                getDatabase().getMatchDao().getAllMatchRecords(),
-                getDatabase().getMatchDao().getAllMatchScoreStars(),
-                getDatabase().getMatchDao().getAllMatchScoreRecords(),
-                getDatabase().getMatchDao().getAllMatchRankStars(),
-                getDatabase().getMatchDao().getAllMatchRankRecords(),
-                getDatabase().getMatchDao().getAllMatchRankDetails()
-            )
-            // 保存star的favor字段
-            // 保存star的favor字段
-            var stars = getDatabase().getStarDao().getAllBasicStars()
-            stars.forEach {star ->
-                if (star.favor > 0) {
-                    star.name?.let { name ->
-                        data.favorMap[name] = star.favor
-                    }
-                }
-            }
-            it.onNext(data)
-            it.onComplete()
-        }
-    }
-
     fun getDownloadDatabaseBean(size: Long, isUploadedDb: Boolean): DownloadDialogBean? {
         val bean = DownloadDialogBean()
         bean.isShowPreview = false
-        bean.savePath = AppConfig.APP_DIR_CONF
         val item = DownloadItem()
         if (isUploadedDb) {
             item.flag = Command.TYPE_GDB_DATABASE_UPLOAD
+            bean.savePath = AppConfig.APP_DIR_CONF
         } else {
             item.flag = Command.TYPE_GDB_DATABASE
+            if (useLocalToServer) {
+                bean.savePath = AppConfig.APP_DIR_CONF
+            }
+            else {
+                bean.savePath = AppConfig.APP_DIR_CONF_TEMP
+            }
         }
         if (size != 0L) {
             item.size = size
@@ -470,8 +428,21 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun databaseDownloaded(uploadedDb: Boolean) {
+        if (useLocalToServer) {
+            insertLocalToServer(uploadedDb)
+        }
+        else {
+            transformServerData(uploadedDb)
+        }
+    }
+
+    fun transformServerData(uploadedDb: Boolean) {
+        if (uploadedDb) {
+            messageObserver.value = "Update successfully"
+            return
+        }
         loadingObserver.value = true
-        updateLocalData(uploadedDb)
+        serverToLocalEngine.transformData()
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
                 override fun onNext(t: Boolean?) {
@@ -487,154 +458,22 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    /**
-     * 如果是更新的upload数据库，直接替换后就完成了；下载的是默认database，保存本地的其他表单
-     * @param isUploadedDb
-     * @return
-     */
-    private fun updateLocalData(isUploadedDb: Boolean): Observable<Boolean> {
-        return Observable.create {
-            File(AppConfig.GDB_DB_JOURNAL).delete()
-            // 重新加载数据库
-            CoolApplication.instance.reCreateDatabase()
-            if (!isUploadedDb) {
-                updateStarFavorFiled()
-                updateFavorTables()
-                updateStarRelated()
-                updatePlayList()
-                updateTags()
-                updateMatches()
-                createCountData()
-                // 数据插入完毕后务必先关闭数据库
-                // 根据调试发现，数据库onOpen后，部分数据可能会写入到gdata.db-wal这个文件中，如果没有执行close，-wal文件会一直存在
-                // 而主数据库文件gdata.db中就会缺少部分数据
-                closeDatabase()
-            }
-            it.onNext(true)
-            it.onComplete()
-        }
+    fun insertLocalToServer(uploadedDb: Boolean) {
+        loadingObserver.value = true
+        localToServerEngine.updateLocalData(uploadedDb)
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    loadingObserver.value = false
+                    messageObserver.value = "Update successfully"
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                    messageObserver.value = e?.message
+                }
+            })
     }
 
-    /**
-     * star favor
-     */
-    private fun updateStarFavorFiled() {
-        var stars = getDatabase().getStarDao().getAllBasicStars()
-        stars.forEach { star ->
-            var favor = mLocalData!!.favorMap[star.name]
-            favor?.let {
-                star.favor = favor
-                getDatabase().getStarDao().updateStar(star)
-            }
-        }
-    }
-
-    private fun updateFavorTables() {
-        getDatabase().getFavorDao().deleteFavorRecordOrders()
-        getDatabase().getFavorDao().deleteFavorRecords()
-        getDatabase().getFavorDao().deleteFavorStarOrders()
-        getDatabase().getFavorDao().deleteFavorStars()
-        getDatabase().getFavorDao().insertFavorRecordOrders(mLocalData!!.favorRecordOrderList)
-        getDatabase().getFavorDao().insertFavorRecords(mLocalData!!.favorRecordList)
-        getDatabase().getFavorDao().insertFavorStarOrders(mLocalData!!.favorStarOrderList)
-        getDatabase().getFavorDao().insertFavorStars(mLocalData!!.favorStarList)
-    }
-
-    private fun updateStarRelated() {
-        getDatabase().getStarDao().deleteStarRatings()
-        getDatabase().getStarDao().deleteTopStarCategories()
-        getDatabase().getStarDao().deleteTopStars()
-        getDatabase().getStarDao().insertStarRatings(mLocalData!!.starRatingList)
-        getDatabase().getStarDao().insertTopStarCategories(mLocalData!!.categoryList)
-        getDatabase().getStarDao().insertTopStars(mLocalData!!.categoryStarList)
-    }
-
-    private fun updatePlayList() {
-        getDatabase().getPlayOrderDao().deletePlayDurations()
-        getDatabase().getPlayOrderDao().deletePlayItems()
-        getDatabase().getPlayOrderDao().deletePlayOrders()
-        getDatabase().getPlayOrderDao().deleteVideoCoverPlayOrders()
-        getDatabase().getPlayOrderDao().deleteVideoCoverStars()
-        getDatabase().getPlayOrderDao().insertPlayDurations(mLocalData!!.playDurationList)
-        getDatabase().getPlayOrderDao().insertPlayItems(mLocalData!!.playItemList)
-        getDatabase().getPlayOrderDao().insertPlayOrders(mLocalData!!.playOrderList)
-        getDatabase().getPlayOrderDao().insertVideoCoverPlayOrders(mLocalData!!.videoCoverPlayOrders)
-        getDatabase().getPlayOrderDao().insertVideoCoverStars(mLocalData!!.videoCoverStars)
-    }
-
-    private fun updateTags() {
-        getDatabase().getTagDao().deleteTags()
-        getDatabase().getTagDao().deleteTagStars()
-        getDatabase().getTagDao().deleteTagRecords()
-        getDatabase().getTagDao().insertTags(mLocalData!!.tagList)
-        getDatabase().getTagDao().insertTagStars(mLocalData!!.tagStarList)
-        getDatabase().getTagDao().insertTagRecords(mLocalData!!.tagRecordList)
-    }
-
-    private fun updateMatches() {
-        getDatabase().getMatchDao().deleteMatches()
-        getDatabase().getMatchDao().deleteMatchItems()
-        getDatabase().getMatchDao().deleteMatchPeriods()
-        getDatabase().getMatchDao().deleteMatchRecords()
-        getDatabase().getMatchDao().deleteMatchRankRecords()
-        getDatabase().getMatchDao().deleteMatchRankStars()
-        getDatabase().getMatchDao().deleteMatchScoreRecords()
-        getDatabase().getMatchDao().deleteMatchScoreStars()
-        getDatabase().getMatchDao().insertMatches(mLocalData!!.matchList)
-        getDatabase().getMatchDao().insertMatchPeriods(mLocalData!!.matchPeriodList)
-        getDatabase().getMatchDao().insertMatchItems(mLocalData!!.matchItemList)
-        getDatabase().getMatchDao().insertMatchRecords(mLocalData!!.matchRecordList)
-        getDatabase().getMatchDao().insertMatchScoreStars(mLocalData!!.matchScoreStarList)
-        getDatabase().getMatchDao().insertMatchScoreRecords(mLocalData!!.matchScoreRecordList)
-        getDatabase().getMatchDao().insertMatchRankStars(mLocalData!!.matchRankStarList)
-        getDatabase().getMatchDao().insertMatchRankRecords(mLocalData!!.matchRankRecordList)
-        getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(mLocalData!!.matchRankDetailList)
-    }
-
-    /**
-     * CountStar and CountRecord
-     */
-    private fun createCountData() {
-        var ratings = getDatabase().getStarDao().getAllStarRatingsDesc()
-        var countStars = mutableListOf<CountStar>()
-        ratings.forEachIndexed { index, starRating ->
-            countStars.add(CountStar(starRating.starId, index + 1))
-        }
-        getDatabase().getStarDao().insertCountStars(countStars)
-
-        var records = getDatabase().getRecordDao().getAllBasicRecordsOrderByScore()
-        var countRecords = mutableListOf<CountRecord>()
-        records.forEachIndexed { index, record ->
-            countRecords.add(CountRecord(record.id, index + 1))
-        }
-        getDatabase().getRecordDao().insertCountRecords(countRecords)
-    }
-
-    data class LocalData (
-        var favorRecordList: List<FavorRecord>,
-        var favorStarList: List<FavorStar>,
-        var favorRecordOrderList: List<FavorRecordOrder>,
-        var favorStarOrderList: List<FavorStarOrder>,
-        var starRatingList: List<StarRating>,
-        var playOrderList: List<PlayOrder>,
-        var playItemList: List<PlayItem>,
-        var playDurationList: List<PlayDuration>,
-        var videoCoverPlayOrders: List<VideoCoverPlayOrder>,
-        var videoCoverStars: List<VideoCoverStar>,
-        var categoryList: List<TopStarCategory>,
-        var categoryStarList: List<TopStar>,
-        var tagList: List<Tag>,
-        var tagRecordList: List<TagRecord>,
-        var tagStarList: List<TagStar>,
-        var matchList: List<Match>,
-        var matchPeriodList: List<MatchPeriod>,
-        var matchItemList: List<MatchItem>,
-        var matchRecordList: List<MatchRecord>,
-        var matchScoreStarList: List<MatchScoreStar>,
-        var matchScoreRecordList: List<MatchScoreRecord>,
-        var matchRankStarList: List<MatchRankStar>,
-        var matchRankRecordList: List<MatchRankRecord>,
-        var matchRankDetailList: List<MatchRankDetail>,
-        var favorMap: MutableMap<String, Int> = mutableMapOf()
-    )
 }

@@ -40,6 +40,9 @@ interface StarDao {
     @Query("select * from star_category_details")
     fun getAllTopStar(): List<TopStar>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertStars(list: List<Star>)
+
     @Insert
     fun insertStarRatings(list: List<StarRating>)
 
@@ -54,6 +57,9 @@ interface StarDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCountStars(list: List<CountStar>)
+
+    @Query("delete from stars")
+    fun deleteStars()
 
     @Query("delete from star_rating")
     fun deleteStarRatings()

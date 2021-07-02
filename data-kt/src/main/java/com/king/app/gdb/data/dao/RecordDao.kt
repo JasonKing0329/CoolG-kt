@@ -4,8 +4,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.bean.RecordScene
-import com.king.app.gdb.data.entity.CountRecord
-import com.king.app.gdb.data.entity.Record
+import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 
@@ -35,11 +34,32 @@ interface RecordDao {
     @Query("select * from record order by SCORE desc")
     fun getAllBasicRecordsOrderByScore(): List<Record>
 
+    @Query("select * from record_type1")
+    fun getAllRecordType1v1(): List<RecordType1v1>
+
+    @Query("select * from record_type3")
+    fun getAllRecordType3w(): List<RecordType3w>
+
+    @Query("select * from record_star")
+    fun getAllRecordStars(): List<RecordStar>
+
     @Query("select count(*) from count_record")
     fun countRecordCountSize(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCountRecords(list: List<CountRecord>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertRecords(list: List<Record>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertRecordType1v1(list: List<RecordType1v1>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertRecordType3w(list: List<RecordType3w>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertRecordStars(list: List<RecordStar>)
 
     @Query("select * from record_star where RECORD_ID=:recordId")
     fun getRecordStars(recordId: Long): List<RecordStarWrap>
@@ -73,5 +93,17 @@ interface RecordDao {
 
     @Query("select * from record where _id not in (select r._id from record r join favor_record fr on fr.RECORD_ID=r._id join favor_order_record fo ON fr.ORDER_ID=fo._id AND fo.PARENT_ID=1)")
     fun getRecordsWithoutStudio(): List<RecordWrap>
+
+    @Query("delete from record")
+    fun deleteRecords()
+
+    @Query("delete from record_type1")
+    fun deleteRecordType1v1()
+
+    @Query("delete from record_type3")
+    fun deleteRecordType3w()
+
+    @Query("delete from record_star")
+    fun deleteRecordStars()
 
 }

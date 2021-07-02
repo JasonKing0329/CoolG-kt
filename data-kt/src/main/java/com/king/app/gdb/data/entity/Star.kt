@@ -2,7 +2,6 @@ package com.king.app.gdb.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
@@ -38,5 +37,5 @@ data class Star (
     @ColumnInfo(name = "CMIN")
     var cmin: Int = 0,
     @ColumnInfo(name = "FAVOR")
-    var favor: Int = 0
+    var favor: Int = 0// 已废弃
 )

@@ -32,6 +32,7 @@ object AppConfig {
     val EXTEND_RES_DIR = "$APP_ROOT/res"
     val EXTEND_RES_COLOR = "$EXTEND_RES_DIR/color.xml"
     val APP_DIR_CONF = "$APP_ROOT/conf"
+    val APP_DIR_CONF_TEMP = "$APP_DIR_CONF/temp"
     val APP_DIR_CONF_PREF = "$APP_DIR_CONF/shared_prefs"
     val APP_DIR_CONF_PREF_DEF = "$APP_DIR_CONF_PREF/default"
     val APP_DIR_CONF_CRASH = "$APP_DIR_CONF/crash"
@@ -43,6 +44,7 @@ object AppConfig {
     // 采用自动更新替代gdata.db的方法，因为jornal的存在，会使重新使用这个db出现问题
     var GDB_DB_JOURNAL = "$APP_DIR_CONF/gdata.db-journal"
     var GDB_DB_FULL_PATH = "$APP_DIR_CONF/$DB_NAME"
+    var GDB_DB_TEMP_FULL_PATH = "$APP_DIR_CONF_TEMP/$DB_NAME"
     var PREF_NAME = "com.jing.app.jjgallery_preferences"
     var DISK_PREF_DEFAULT_PATH: String? = null
 
@@ -68,6 +70,7 @@ object AppConfig {
         APP_DIR_CONF_PREF_DEF,
         APP_DIR_CONF_CRASH,
         APP_DIR_CONF_APP,
+        APP_DIR_CONF_TEMP,
         APP_DIR_TV,
         APP_DIR_TV_BG,
         APP_DIR_LOG

@@ -117,7 +117,7 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
         SimpleDialogs().showWarningActionDialog(this, msg
             , resources.getString(R.string.yes), { dialog, which ->
                 if (which === DialogInterface.BUTTON_POSITIVE) {
-                    mModel.saveDataFromLocal(bean)
+                    mModel.prepareUpgrade(bean)
                 }
             }
             , resources.getString(R.string.no), null

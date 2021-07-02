@@ -36,7 +36,7 @@ class DateManager {
             val calendar = Calendar.getInstance()
             nYearStart = calendar[Calendar.YEAR]
             nMonthStart = calendar[Calendar.MONTH]
-            nDayStart = 1
+            nDayStart = calendar[Calendar.DAY_OF_MONTH]
         }
         val startDlg = DatePickerDialog(
             context,

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.view.LayoutInflater
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.databinding.FragmentSeasonEditorBinding
-import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.list.MatchListActivity
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.coolg_kt.view.DateManager
@@ -52,6 +51,8 @@ class SeasonEditor: DraggableContentFragment<FragmentSeasonEditorBinding>() {
             CoolApplication.instance.database!!.getMatchDao().getLastCompletedMatchPeriod()?.let {
                 mBinding.etPeriod.setText(it.period.toString())
             }
+            date = System.currentTimeMillis()
+            mBinding.btnDate.text = FormatUtil.formatDate(date)
         }
         // update
         else {

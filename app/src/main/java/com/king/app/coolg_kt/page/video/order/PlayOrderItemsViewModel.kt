@@ -150,6 +150,8 @@ class PlayOrderItemsViewModel(application: Application): BaseViewModel(applicati
     fun deleteItem(position: Int) {
         itemsObserver.value?.get(position)?.playItem?.let {
             getDatabase().getPlayOrderDao().deletePlayItem(it)
+            // 发生删除肯定是order
+            getOrderItems(mOrderId)
         }
     }
 

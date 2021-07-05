@@ -193,6 +193,12 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 }
             }
 
+            override fun onPlayerDetail(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?) {
+                bean?.record?.let {
+                    recordPage(it)
+                }
+            }
+
             override fun onPlayerWin(position: Int, drawItem: DrawItem, bean: MatchRecordWrap?) {
                 if (isEditing) {
                     drawItem.winner = bean

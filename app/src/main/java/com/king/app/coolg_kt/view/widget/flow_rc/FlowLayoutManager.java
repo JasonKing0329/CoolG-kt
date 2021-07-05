@@ -23,8 +23,14 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
     private int mOffset;
     private boolean mIsFullyLayout;
 
+    private CustomFlow customFlow;
+
     public FlowLayoutManager(Context context, boolean isFullyLayout) {
         mIsFullyLayout = isFullyLayout;
+    }
+
+    public void setCustomFlow(CustomFlow customFlow) {
+        this.customFlow = customFlow;
     }
 
     @Override
@@ -135,7 +141,16 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
             int w = getDecoratedMeasuredWidth(v);
             int h = getDecoratedMeasuredHeight(v);
 
-            if (w > totalWidth - left) {
+            // 超出剩余空间
+            boolean isOver = w > totalWidth - left;
+            // 指定占满整行
+            boolean isWholeLine = customFlow != null && customFlow.occupyWholeLine(i);
+            // 左边已布局item
+            boolean isLeftArranged = left > getPaddingLeft();
+
+            // 超出剩余空间，换行
+            // 未超出剩余空间，且指定了占满整行，但左边已布局了其他item，也要换行
+            if (isOver || (isWholeLine && isLeftArranged)) {
                 left = getPaddingLeft();
                 top = maxTop;
             }
@@ -171,5 +186,9 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
         totalHeight = height - getPaddingTop() - getPaddingBottom();
 
         setMeasuredDimension(widthSize, height);
+    }
+
+    public interface CustomFlow {
+        boolean occupyWholeLine(int position);
     }
 }

@@ -12,5 +12,6 @@ data class Tag (
     @ColumnInfo(name = "NAME")
     var name: String? = null,
     @ColumnInfo(name = "TYPE")
-    var type:Int = 0
+    var type:Int = 0,
+    var nameForSort: String
 )

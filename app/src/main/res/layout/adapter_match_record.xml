@@ -40,6 +40,16 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/def_small"/>
         <ImageView
+            android:id="@+id/iv_detail1"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_baseline_article_24"
+            android:scaleType="fitCenter"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toStartOf="@+id/iv_edit1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player1"/>
+        <ImageView
             android:id="@+id/iv_edit1"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -95,6 +105,16 @@
             app:layout_constraintStart_toEndOf="@+id/group_index2"
             app:layout_constraintTop_toBottomOf="@+id/iv_player1"
             tools:src="@drawable/def_small"/>
+        <ImageView
+            android:id="@+id/iv_detail2"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_baseline_article_24"
+            android:scaleType="fitCenter"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toStartOf="@+id/iv_edit2"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player2"/>
         <ImageView
             android:id="@+id/iv_edit2"
             android:layout_width="30dp"

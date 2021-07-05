@@ -21,10 +21,10 @@ import com.king.app.gdb.data.entity.match.*
         , FavorRecordOrder::class, FavorRecord::class, FavorStarOrder::class, FavorStar::class
         , GProperties::class, TopStar::class, TopStarCategory::class
         , PlayDuration::class, PlayItem::class, PlayOrder::class, VideoCoverPlayOrder::class, VideoCoverStar::class
-        , Tag::class, TagRecord::class, TagStar::class
+        , Tag::class, TagRecord::class, TagStar::class, TagClass::class, TagClassItem::class
         , Match::class, MatchPeriod::class, MatchItem::class, MatchRecord::class
         , MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class, MatchRankDetail::class],
-    version = 16,
+    version = 17,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -72,6 +72,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .addMigrations(DataMigration.MIGRATION_13_14)
                 .addMigrations(DataMigration.MIGRATION_14_15)
                 .addMigrations(DataMigration.MIGRATION_15_16)
+                .addMigrations(DataMigration.MIGRATION_16_17)
                 .build()
         }
     }

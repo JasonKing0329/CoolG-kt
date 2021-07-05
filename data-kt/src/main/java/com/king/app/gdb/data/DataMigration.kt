@@ -163,6 +163,21 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_16_17: Migration = object : Migration(16, 17) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_16_17")
+            database.execSQL(
+                "CREATE TABLE `tag_class` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)"
+            )
+            database.execSQL(
+                "CREATE TABLE `tag_class_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `classId` INTEGER NOT NULL, `tagId` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "ALTER TABLE 'tag' ADD COLUMN `nameForSort` TEXT NOT NULL DEFAULT \"\""
+            )
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

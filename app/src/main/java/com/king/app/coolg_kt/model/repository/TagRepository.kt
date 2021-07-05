@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.AppConstants
+import com.king.app.coolg_kt.utils.PinyinUtil
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.Tag
 import io.reactivex.rxjava3.core.Observable
@@ -44,7 +45,7 @@ class TagRepository : BaseRepository() {
     fun addTag(name: String, tagType: Int): Boolean {
         val count = getDatabase().getTagDao().getTagCountBy(name, tagType)
         if (count == 0) {
-            val tag = Tag(null, name, tagType)
+            val tag = Tag(null, name, tagType, PinyinUtil.toPinyinConcat(name))
             var list = mutableListOf<Tag>()
             list.add(tag)
             getDatabase().getTagDao().insertTags(list)

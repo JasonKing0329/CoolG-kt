@@ -103,7 +103,7 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
 
     private fun addTagAll(tagList: List<Tag>): List<Tag> {
         val tags: MutableList<Tag> = mutableListOf()
-        val all = Tag(null, "All")
+        val all = Tag(null, "All", 0, "all")
         tags.add(all)
         tags.addAll(tagList)
         return tags

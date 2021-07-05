@@ -3,9 +3,8 @@ package com.king.app.gdb.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.king.app.gdb.data.entity.Tag
-import com.king.app.gdb.data.entity.TagRecord
-import com.king.app.gdb.data.entity.TagStar
+import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.relation.TagClassWrap
 
 /**
  * @description:
@@ -16,6 +15,15 @@ import com.king.app.gdb.data.entity.TagStar
 interface TagDao {
     @Query("select * from tag")
     fun getAllTags(): List<Tag>
+
+    @Query("select * from tag_class order by nameForSort")
+    fun getAllTagClasses(): List<TagClassWrap>
+
+    @Query("select count(*) from tag_class where name=:name")
+    fun countTagClass(name: String): Int
+
+    @Query("select count(*) from tag_class_item where classId=:classId and tagId=:tagId")
+    fun countTagClassItem(classId: Long, tagId: Long): Int
 
     @Query("select * from tag where TYPE=:type")
     fun getTagsByType(type:Int): List<Tag>
@@ -30,6 +38,12 @@ interface TagDao {
     fun insertTags(list: List<Tag>)
 
     @Insert
+    fun insertTagClass(bean: TagClass)
+
+    @Insert
+    fun insertTagClassItem(bean: TagClassItem)
+
+    @Insert
     fun insertTagStars(list: List<TagStar>)
 
     @Insert
@@ -37,6 +51,15 @@ interface TagDao {
 
     @Query("delete from tag")
     fun deleteTags()
+
+    @Query("delete from tag_class where id=:classId")
+    fun deleteTagClass(classId: TagClass)
+
+    @Query("delete from tag_class_item where classId=:classId")
+    fun deleteTagClassItems(classId: TagClass)
+
+    @Query("delete from tag_class_item where classId=:classId and tagId=:tagId")
+    fun deleteTagClassItem(classId: TagClass, tagId: Long)
 
     @Query("delete from tag_star")
     fun deleteTagStars()

@@ -229,12 +229,18 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
         mBinding.tvMain.isSelected = true
         mBinding.tvMain.setOnClickListener {
+            if (mModel.warningIfModified()) {
+                return@setOnClickListener
+            }
             mModel.drawType = MatchConstants.DRAW_MAIN
             mModel.onDrawTypeChanged()
             mBinding.tvMain.isSelected = true
             mBinding.tvQualify.isSelected = false
         }
         mBinding.tvQualify.setOnClickListener {
+            if (mModel.warningIfModified()) {
+                return@setOnClickListener
+            }
             mModel.drawType = MatchConstants.DRAW_QUALIFY
             mModel.onDrawTypeChanged()
             mBinding.tvMain.isSelected = false

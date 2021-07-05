@@ -77,7 +77,18 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         roundList.value = rounds
     }
 
+    fun warningIfModified(): Boolean {
+        if (isModified()) {
+            messageObserver.value = "Please save or drop current edit first"
+            return true
+        }
+        return false
+    }
+
     fun onClickNext() {
+        if (warningIfModified()) {
+            return
+        }
         roundList.value?.let {
             var target = roundPosition + 1
             if (target < it.size) {
@@ -93,6 +104,9 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun onClickPrevious() {
+        if (warningIfModified()) {
+            return
+        }
         roundList.value?.let {
             var target = roundPosition - 1
             if (roundPosition >= 0) {
@@ -128,6 +142,9 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun onRoundPositionChanged(position: Int) {
+        if (warningIfModified()) {
+            return
+        }
         roundPosition = position
         checkNextLast()
         reloadRound()

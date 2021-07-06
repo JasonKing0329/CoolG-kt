@@ -17,10 +17,14 @@ class TagRepository : BaseRepository() {
         return getDatabase().getTagDao().getTagsByType(type)
     }
 
+    fun loadUnClassifiedTags(type: Int): List<Tag> {
+        return getDatabase().getTagDao().getUnClassifiedTags(type)
+    }
+
     fun sortTags(sortType: Int, list: List<Tag>): Observable<List<Tag>> {
         return Observable.create {
             var result = when(sortType) {
-                AppConstants.TAG_SORT_NAME -> list.sortedBy { tag -> tag.name }
+                AppConstants.TAG_SORT_NAME -> list.sortedBy { tag -> tag.nameForSort.toLowerCase() }
                 AppConstants.TAG_SORT_RANDOM -> list.shuffled()
                 else -> list
             }
@@ -30,16 +34,20 @@ class TagRepository : BaseRepository() {
     }
 
     fun deleteTagAndRelations(data: Tag) {
-        when(data.type) {
-            DataConstants.TAG_TYPE_RECORD -> getDatabase().getTagDao().deleteTagRecordsByTag(data.id!!)
-            DataConstants.TAG_TYPE_STAR -> getDatabase().getTagDao().deleteTagStarsByTag(data.id!!)
+        getDatabase().runInTransaction {
+            when(data.type) {
+                DataConstants.TAG_TYPE_RECORD -> getDatabase().getTagDao().deleteTagRecordsByTag(data.id!!)
+                DataConstants.TAG_TYPE_STAR -> getDatabase().getTagDao().deleteTagStarsByTag(data.id!!)
+            }
+            // delete tag
+            deleteTag(data)
         }
-        // delete tag
-        deleteTag(data)
     }
 
     fun deleteTag(data: Tag) {
         getDatabase().getTagDao().deleteTagById(data.id!!)
+        // 从分类中删除
+        getDatabase().getTagDao().deleteTagClassItemByTag(data.id!!)
     }
 
     fun addTag(name: String, tagType: Int): Boolean {
@@ -49,6 +57,17 @@ class TagRepository : BaseRepository() {
             var list = mutableListOf<Tag>()
             list.add(tag)
             getDatabase().getTagDao().insertTags(list)
+            return true
+        }
+        return false
+    }
+
+    fun editTag(tag: Tag, newName: String): Boolean {
+        val count = getDatabase().getTagDao().getTagCountBy(newName, tag.type)
+        if (count == 0) {
+            tag.name = newName
+            tag.nameForSort = PinyinUtil.toPinyinConcat(newName)
+            getDatabase().getTagDao().updateTag(tag)
             return true
         }
         return false

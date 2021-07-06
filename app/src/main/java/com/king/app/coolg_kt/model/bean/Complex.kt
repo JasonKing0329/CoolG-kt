@@ -9,6 +9,8 @@ import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
+import com.king.app.gdb.data.entity.Tag
+import com.king.app.gdb.data.entity.TagClass
 
 /**
  * @description:
@@ -203,3 +205,9 @@ class VideoData {
         get() = Uri.parse("file://$path")
 
 }
+
+data class TagGroupItem (
+    var item: Tag,
+    var parent:TagClass,
+    var isEditing: Boolean
+)

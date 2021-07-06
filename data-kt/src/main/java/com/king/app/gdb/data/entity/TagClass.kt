@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class TagClass (
     @PrimaryKey(autoGenerate = true)
     var id: Long,
+    var type: Int,
     var name: String,
     var nameForSort: String
 )

@@ -32,7 +32,7 @@ import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagAdapter
-import com.king.app.coolg_kt.page.pub.TagFragment
+import com.king.app.coolg_kt.page.pub.TagManagerFragment
 import com.king.app.coolg_kt.page.record.PassionPointAdapter
 import com.king.app.coolg_kt.page.record.RecordOrdersAdapter
 import com.king.app.coolg_kt.page.record.RecordPlayOrdersAdapter
@@ -193,19 +193,20 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun addTag() {
-        val fragment = TagFragment()
-        fragment.onTagSelectListener = object : TagFragment.OnTagSelectListener{
+        val fragment = TagManagerFragment()
+        fragment.tagType = DataConstants.TAG_TYPE_RECORD
+        fragment.onTagSelectListener = object : TagManagerFragment.OnTagSelectListener{
             override fun onSelectTag(tag: Tag) {
                 mModel.addTag(tag)
             }
         }
-        fragment.tagType = DataConstants.TAG_TYPE_RECORD
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = fragment
         dialogFragment.setTitle("Select tag")
-        dialogFragment.maxHeight = ScreenUtils.dp2px(450f)
+        dialogFragment.fixedHeight = fragment.idealHeight
+        dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
         dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.refreshTags() }
-        dialogFragment.show(supportFragmentManager, "TagFragment")
+        dialogFragment.show(supportFragmentManager, "TagManagerFragment")
     }
 
     private var tinySwitchControl: Long = 0

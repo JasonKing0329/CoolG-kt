@@ -11,7 +11,6 @@ import android.view.View
 import android.view.animation.*
 import android.widget.ImageView
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,13 +31,11 @@ import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment.OnAnimSettingListener
 import com.king.app.coolg_kt.page.pub.TagAdapter
-import com.king.app.coolg_kt.page.pub.TagFragment
-import com.king.app.coolg_kt.page.pub.TagFragment.OnTagSelectListener
+import com.king.app.coolg_kt.page.pub.TagManagerFragment
 import com.king.app.coolg_kt.page.record.RecordOrdersAdapter
 import com.king.app.coolg_kt.page.record.RecordPlayOrdersAdapter
 import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
 import com.king.app.coolg_kt.page.record.pad.RecordPagerAdapter.OnHolderListener
-import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
@@ -52,8 +49,6 @@ import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.FavorRecordOrder
-import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.entity.RecordStar
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
@@ -257,23 +252,20 @@ class RecordPadActivity : BaseActivity<ActivityRecordPadBinding, RecordPadViewMo
     }
 
     private fun addTag() {
-        val fragment = TagFragment()
-        fragment.onTagSelectListener = object : OnTagSelectListener {
+        val fragment = TagManagerFragment()
+        fragment.tagType = DataConstants.TAG_TYPE_RECORD
+        fragment.onTagSelectListener = object : TagManagerFragment.OnTagSelectListener{
             override fun onSelectTag(tag: Tag) {
                 mModel.addTag(tag)
             }
         }
-        fragment.tagType = DataConstants.TAG_TYPE_RECORD
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = fragment
         dialogFragment.setTitle("Select tag")
-        dialogFragment.maxHeight = ScreenUtils.dp2px(450f)
-        dialogFragment.dismissListener = object : DialogInterface.OnDismissListener{
-            override fun onDismiss(dialog: DialogInterface?) {
-                mModel.refreshTags()
-            }
-        }
-        dialogFragment.show(supportFragmentManager, "TagFragment")
+        dialogFragment.fixedHeight = fragment.idealHeight
+        dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
+        dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.refreshTags() }
+        dialogFragment.show(supportFragmentManager, "TagManagerFragment")
     }
 
     override fun createViewModel(): RecordPadViewModel = generateViewModel(RecordPadViewModel::class.java)

@@ -1,29 +1,38 @@
 package com.king.app.coolg_kt.page.pub
 
 import android.content.DialogInterface
+import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.FragmentTagBinding
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.repository.TagRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
-import com.king.app.coolg_kt.page.pub.BaseTagAdapter.OnItemSelectListener
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
+import com.king.app.coolg_kt.view.widget.flow_rc.FlowLayoutManager
 import com.king.app.gdb.data.entity.Tag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class TagFragment : DraggableContentFragment<FragmentTagBinding>() {
 
-    private var adapter: BaseTagAdapter<Tag>? = null
+    private var adapter = TagAdapter()
     private var tagList: List<Tag> = listOf()
     var tagType = 0
     private var repository = TagRepository()
     var onTagSelectListener: OnTagSelectListener? = null
+
+    var idealHeight = ScreenUtils.getScreenHeight() * 3 / 5
+
+    var isOnlyShowUnClassified = false
+
+    private var isEditMode = false
 
     override fun getBinding(inflater: LayoutInflater): FragmentTagBinding = FragmentTagBinding.inflate(inflater)
     override fun initData() {
@@ -35,32 +44,44 @@ class TagFragment : DraggableContentFragment<FragmentTagBinding>() {
             view.findViewById<View>(R.id.iv_edit)
                 .setOnClickListener { editMode() }
         }
-        adapter = object : BaseTagAdapter<Tag>() {
-            override fun getText(data: Tag): String {
-                return data.name?:""
-            }
-
-            override fun getId(data: Tag): Long {
-                return data.id!!
-            }
-
-            override fun isDisabled(item: Tag): Boolean {
-                return false
+        adapter.onDeleteListener = object : TagAdapter.OnDeleteListener {
+            override fun onDelete(position: Int, bean: Tag) {
+                preDelete(bean)
             }
         }
-        adapter!!.setOnItemSelectListener(object : OnItemSelectListener<Tag> {
-            override fun onSelectItem(data: Tag) {
-                onTagSelectListener?.onSelectTag(data)
-                dismissAllowingStateLoss()
-            }
+        adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<Tag> {
 
-            override fun onUnSelectItem(tag: Tag) {}
+            override fun onClickItem(view: View, position: Int, data: Tag) {
+                if (isEditMode) {
+                    editTagItem(position, data)
+                }
+                else {
+                    onTagSelectListener?.onSelectTag(data)
+                    dismissAllowingStateLoss()
+                }
+            }
         })
-        adapter!!.setOnItemLongClickListener { data: Tag -> preDelete(data) }
+        mBinding.rvList.layoutManager = FlowLayoutManager(context, false)
+        mBinding.rvList.addItemDecoration(object : RecyclerView.ItemDecoration(){
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                outRect.top = ScreenUtils.dp2px(8f)
+                outRect.left = ScreenUtils.dp2px(8f)
+            }
+        })
+        mBinding.rvList.adapter = adapter
         refreshTags()
     }
 
-    private fun editMode() {}
+    private fun editMode() {
+        isEditMode = !isEditMode
+        adapter.showDelete = isEditMode
+        adapter.notifyDataSetChanged()
+    }
 
     private fun preDelete(data: Tag) {
         var count = repository.getTagItemCount(tagType, data.id)
@@ -85,14 +106,42 @@ class TagFragment : DraggableContentFragment<FragmentTagBinding>() {
     }
 
     private fun loadTags(): Observable<List<Tag>> {
-        tagList = repository.loadTags(tagType)
+        tagList = if (isOnlyShowUnClassified) {
+            repository.loadUnClassifiedTags(tagType)
+        }
+        else {
+            repository.loadTags(tagType)
+        }
         return repository.sortTags(SettingProperty.getTagSortType(), tagList)
     }
 
     private fun addTag() {
         SimpleDialogs().openInputDialog(context, "Tag name") { name: String? ->
-            if (repository!!.addTag(name!!, tagType)) {
-                refreshTags()
+            name?.let {
+                if (repository.addTag(it, tagType)) {
+                    refreshTags()
+                }
+                else {
+                    showMessageShort("Name is already existed")
+                }
+            }
+        }
+    }
+
+    fun editTagItem(position: Int, tag: Tag) {
+        SimpleDialogs().openInputDialog(
+            context,
+            "Edit Tag",
+            tag.name
+        ) { name ->
+            name?.let {
+                if (repository.editTag(tag, it)) {
+                    showMessageShort("success")
+                    adapter.notifyItemChanged(position)
+                }
+                else {
+                    showMessageShort("Target name is already existed")
+                }
             }
         }
     }
@@ -102,16 +151,16 @@ class TagFragment : DraggableContentFragment<FragmentTagBinding>() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
             .subscribe(object :
-                SimpleObserver<List<Tag>>(CompositeDisposable()) {
+                SimpleObserver<List<Tag>>(compositeDisposable) {
 
                 override fun onNext(tagList: List<Tag>) {
-                    adapter?.setData(tagList)
-                    adapter?.bindFlowLayout(mBinding.flowTags)
+                    adapter.list = tagList
+                    adapter.notifyDataSetChanged()
                 }
 
                 override fun onError(e: Throwable?) {
                     e?.printStackTrace()
-                    showMessageShort(e?.message!!)
+                    showMessageShort(e?.message?:"")
                 }
             })
     }

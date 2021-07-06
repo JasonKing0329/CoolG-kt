@@ -64,4 +64,7 @@
     <color name="match_timeline">#FF375BF1</color>
     <color name="match_timeline_champion">#FFA51F</color>
     <color name="match_timeline_lose">#ACACAC</color>
+
+    <color name="dlg_base_bg">#eeeeee</color>
+    <color name="dlg_tag_bg">#dddddd</color>
 </resources>

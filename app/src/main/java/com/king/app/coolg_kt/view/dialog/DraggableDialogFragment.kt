@@ -2,12 +2,10 @@ package com.king.app.coolg_kt.view.dialog
 
 import android.content.DialogInterface
 import android.graphics.drawable.GradientDrawable
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
-import android.view.ViewGroup
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BindingDialogFragment
 import com.king.app.coolg_kt.databinding.DialogBaseBinding
@@ -60,10 +58,13 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
         if (title != null) {
             mBinding.tvTitle.text = title
         }
-        if (backgroundColor != 0) {
-            val drawable = mBinding.groupDialog.background as GradientDrawable
-            drawable.setColor(backgroundColor)
+
+        if (backgroundColor == 0) {
+            backgroundColor = resources.getColor(R.color.dlg_base_bg)
         }
+        val drawable = mBinding.groupDialog.background as GradientDrawable
+        drawable.setColor(backgroundColor)
+
         if (hideClose) {
             mBinding.ivClose.visibility = View.GONE
         }

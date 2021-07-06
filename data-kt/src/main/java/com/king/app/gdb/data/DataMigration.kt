@@ -167,7 +167,7 @@ object DataMigration {
         override fun migrate(database: SupportSQLiteDatabase) {
             logMessage("MIGRATION_16_17")
             database.execSQL(
-                "CREATE TABLE `tag_class` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)"
+                "CREATE TABLE `tag_class` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'type' INTEGER NOT NULL, `name` TEXT NOT NULL, 'nameForSort' TEXT NOT NULL)"
             )
             database.execSQL(
                 "CREATE TABLE `tag_class_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `classId` INTEGER NOT NULL, `tagId` INTEGER NOT NULL)"

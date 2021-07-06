@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.view.View
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.king.app.coolg_kt.R
@@ -19,6 +20,7 @@ import com.king.app.coolg_kt.page.record.RecordTag
 import com.king.app.coolg_kt.page.record.RecordsFragment
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
+import com.king.app.gdb.data.entity.TagClass
 import com.king.app.gdb.data.relation.RecordWrap
 
 /**
@@ -72,6 +74,8 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
 
     var tagAdapter = HeadTagAdapter()
 
+    var tagClassAdapter = TagClassAdapter()
+
     val ftRecord = RecordsFragment()
 
     override fun getContentView(): Int = R.layout.activity_record_tag
@@ -84,9 +88,8 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
     }
 
     private fun initPhone() {
-        val manager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL)
-        mBinding.rvTags.layoutManager = manager
-        mBinding.rvTags.addItemDecoration(object : RecyclerView.ItemDecoration() {
+        mBinding.rvTagClass.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        mBinding.rvTagClass.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                 outRect: Rect,
                 view: View,
@@ -98,6 +101,7 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
                 outRect.bottom = ScreenUtils.dp2px(5f)
             }
         })
+        mBinding.rvTagClass.adapter = tagClassAdapter
     }
 
     open fun initPub() {
@@ -113,6 +117,12 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
                     ftRecord.factor.tagId = 0
                 }
                 ftRecord.onDataChanged()
+            }
+        })
+        tagClassAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<TagClass>{
+            override fun onClickItem(view: View, position: Int, data: TagClass) {
+                mModel.mCurTagClassId = data.id
+                mModel.loadTags()
             }
         })
         mBinding.rvTags.adapter = tagAdapter
@@ -155,9 +165,11 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
 
     override fun initData() {
         mModel.tagsObserver.observe(this, Observer{ tags -> showTags(tags) })
+        mModel.tagClassesObserver.observe(this, Observer{ tags -> showTagClasses(tags) })
         mModel.focusTagPosition.observe(this, Observer{ position -> focusOnTag(position) })
         if (getStudioId() == 0L) {
             mModel.loadHead()
+            tagClassVisibility()
         }
 
         ftRecord.factor.orderId = getStudioId()
@@ -165,6 +177,15 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         supportFragmentManager.beginTransaction()
             .replace(R.id.ft_records, ftRecord, "RecordsFragment")
             .commit()
+    }
+
+    private fun tagClassVisibility() {
+        mBinding.rvTagClass.visibility = if (mModel.isHeadScene()) {
+            View.GONE
+        }
+        else {
+            View.VISIBLE
+        }
     }
 
     private fun initActionBar() {
@@ -186,9 +207,40 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         mBinding.actionbar.setOnSearchListener { onSearch(it) }
     }
 
+    private fun showTagClasses(tagClasses: List<TagClass>) {
+        tagClassAdapter.list = tagClasses
+        tagClassAdapter.notifyDataSetChanged()
+    }
+
     private fun showTags(tags: List<RecordTag>) {
         tagAdapter.list = tags
+        decorateTagList(tags)
         tagAdapter.notifyDataSetChanged()
+    }
+
+    fun decorateTagList(tags: List<RecordTag>) {
+        val spanCount = when {
+            tags.size < 5 -> 1
+            tags.size < 20 -> 2
+            else -> 3
+        }
+        mBinding.rvTags.removeItemDecoration(tagDecoration)
+        val manager = StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.HORIZONTAL)
+        mBinding.rvTags.layoutManager = manager
+        mBinding.rvTags.addItemDecoration(tagDecoration)
+    }
+
+    private var tagDecoration = object : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            outRect.left = ScreenUtils.dp2px(10f)
+            outRect.top = ScreenUtils.dp2px(5f)
+            outRect.bottom = ScreenUtils.dp2px(5f)
+        }
     }
 
     private fun focusOnTag(position: Int) {
@@ -228,6 +280,7 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
                 SettingProperty.setRecordListTagType(which)
                 mModel.onTagTypeChanged()
                 mModel.loadHead()
+                tagClassVisibility()
             }.show(supportFragmentManager, "AlertDialogFragment")
     }
 

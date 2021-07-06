@@ -20,17 +20,23 @@ interface TagDao {
     @Query("select * from tag_class where type=:type order by nameForSort COLLATE NOCASE")
     fun getAllTagClasses(type: Int): List<TagClassWrap>
 
+    @Query("select * from tag_class where type=:type order by nameForSort COLLATE NOCASE")
+    fun getAllTagClassesBasic(type: Int): List<TagClass>
+
     @Query("select count(*) from tag_class where name=:name COLLATE NOCASE")
     fun countTagClass(name: String): Int
 
     @Query("select count(*) from tag_class_item where classId=:classId and tagId=:tagId")
     fun countTagClassItem(classId: Long, tagId: Long): Int
 
-    @Query("select * from tag where TYPE=:type")
+    @Query("select * from tag where TYPE=:type order by nameForSort COLLATE NOCASE")
     fun getTagsByType(type:Int): List<Tag>
 
-    @Query("select t.* from tag t left join tag_class_item tci on t._id = tci.tagId where tci.id is null and t.TYPE=:type")
+    @Query("select t.* from tag t left join tag_class_item tci on t._id = tci.tagId where tci.id is null and t.TYPE=:type order by t.nameForSort COLLATE NOCASE")
     fun getUnClassifiedTags(type:Int): List<Tag>
+
+    @Query("select t.* from tag_class_item tci join tag t on tci.tagId=t._id where tci.classId=:classId order by t.nameForSort COLLATE NOCASE")
+    fun getTagClassItems(classId: Long): List<Tag>
 
     @Query("select * from tag_star")
     fun getAllTagStars(): List<TagStar>

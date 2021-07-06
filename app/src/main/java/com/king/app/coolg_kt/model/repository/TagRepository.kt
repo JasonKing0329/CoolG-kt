@@ -21,6 +21,10 @@ class TagRepository : BaseRepository() {
         return getDatabase().getTagDao().getUnClassifiedTags(type)
     }
 
+    fun loadTagClassItems(classId: Long): List<Tag> {
+        return getDatabase().getTagDao().getTagClassItems(classId)
+    }
+
     fun sortTags(sortType: Int, list: List<Tag>): Observable<List<Tag>> {
         return Observable.create {
             var result = when(sortType) {

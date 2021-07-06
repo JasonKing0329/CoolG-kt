@@ -10,6 +10,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.record.RecordTag
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.bean.RecordScene
+import com.king.app.gdb.data.entity.TagClass
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -20,9 +21,15 @@ import io.reactivex.rxjava3.core.Observable
 class PhoneRecordListViewModel(application: Application): BaseViewModel(application) {
 
     var tagsObserver: MutableLiveData<List<RecordTag>> = MutableLiveData()
+    var tagClassesObserver: MutableLiveData<List<TagClass>> = MutableLiveData()
     var focusTagPosition: MutableLiveData<Int> = MutableLiveData()
 
+    val TAG_CLASS_ALL_ID: Long = 0
+    var mCurTagClassId = TAG_CLASS_ALL_ID
+
     private var tagRepository = TagRepository()
+
+    private var tagClassList: List<TagClass> = mutableListOf()
 
     private var dataTagList: List<RecordTag> = mutableListOf()
 
@@ -40,17 +47,38 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
         return title?:"Records"
     }
 
-    fun loadHead() {
+    fun isHeadTag(): Boolean {
         var type = SettingProperty.getRecordListTagType()
-        if (type == 1) {
+        return type != 1
+    }
+
+    fun isHeadScene(): Boolean {
+        var type = SettingProperty.getRecordListTagType()
+        return type == 1
+    }
+
+    fun loadHead() {
+        if (isHeadScene()) {
             loadScenes()
         }
         else {
+            getTagClasses()
+            mCurTagClassId = TAG_CLASS_ALL_ID
+            tagClassesObserver.value = tagClassList
             loadTags()
         }
     }
 
-    private fun loadTags() {
+    private fun getTagClasses() {
+        val list = getDatabase().getTagDao().getAllTagClassesBasic(DataConstants.TAG_TYPE_RECORD)
+        val result = list.toMutableList();
+        result.add(0, TagClass(TAG_CLASS_ALL_ID, DataConstants.TAG_TYPE_RECORD, "All", "all"))
+        tagClassList = result
+    }
+
+    var isFirstTimeLoadTag = true
+
+    fun loadTags() {
         convertTags()
             .flatMap {
                 dataTagList = it
@@ -61,7 +89,13 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
                 override fun onNext(t: List<RecordTag>) {
                     val allList: List<RecordTag> = addTagAll(t)
                     tagsObserver.value = allList
-                    focusTagPosition.value = 0
+                    // 只有第一次才定位到第一个item，其他情况下，因为不重新加载tag下的items，所以让focus position消失
+                    focusTagPosition.value = if (isFirstTimeLoadTag) {
+                        isFirstTimeLoadTag = false
+                        0
+                    } else {
+                        -1
+                    }
                 }
 
                 override fun onError(e: Throwable?) {
@@ -101,7 +135,12 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
 
     private fun convertTags(): Observable<List<RecordTag>> {
         return Observable.create {
-            var list = tagRepository.loadTags(DataConstants.TAG_TYPE_RECORD)
+            var list = if (mCurTagClassId == TAG_CLASS_ALL_ID) {
+                tagRepository.loadTags(DataConstants.TAG_TYPE_RECORD)
+            }
+            else {
+                tagRepository.loadTagClassItems(mCurTagClassId)
+            }
             var result = mutableListOf<RecordTag>()
             list.forEach { tag ->
                 var recordTag = RecordTag(0, tag.name?:"", tag.id!!)
@@ -145,12 +184,14 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
     }
 
     private fun addTagAll(tagList: List<RecordTag>): List<RecordTag> {
-        val tags = mutableListOf<RecordTag>()
-        tags.add(tagAll)
-        if (tagList.isNotEmpty()) {
-            tags.addAll(tagList)
+        return if (isHeadTag() && mCurTagClassId != TAG_CLASS_ALL_ID) {
+            tagList
         }
-        return tags
+        else {
+            val list =  tagList.toMutableList();
+            list.add(0, tagAll)
+            list
+        }
     }
 
     private fun focusToCurrentTag(allList: List<RecordTag>) {

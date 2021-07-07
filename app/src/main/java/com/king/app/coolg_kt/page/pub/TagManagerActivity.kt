@@ -1,49 +1,56 @@
 package com.king.app.coolg_kt.page.pub
 
+import android.app.Activity
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Rect
-import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.R
-import com.king.app.coolg_kt.base.ViewModelFactory
+import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityTagManagerBinding
 import com.king.app.coolg_kt.model.bean.TagGroupItem
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
-import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.coolg_kt.view.widget.flow_rc.FlowLayoutManager
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.entity.TagClass
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import java.util.concurrent.TimeUnit
 
 /**
  * Desc:
  * @author：Jing Yang
- * @date: 2021/7/5 16:03
+ * @date: 2021/7/7 9:14
  */
-@Deprecated("replace with TagManagerActivity")
-class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() {
+class TagManagerActivity: BaseActivity<ActivityTagManagerBinding, TagViewModel>() {
 
-    private lateinit var mModel: TagViewModel
     private var adapter = TagManagerAdapter()
     var tagType = 0
 
-    var onTagSelectListener: OnTagSelectListener? = null
+    companion object {
+        val RESP_TAG_ID = "tag_id"
+        val EXTRA_TAG_TYPE = "tag_type"
+        fun startPage(context: Activity, requestCode: Int, tagType: Int) {
+            var intent = Intent(context, TagManagerActivity::class.java)
+            intent.putExtra(EXTRA_TAG_TYPE, tagType)
+            context.startActivityForResult(intent, requestCode)
+        }
+    }
 
-    var idealHeight = ScreenUtils.getScreenHeight() * 3 / 4
+    override fun getContentView(): Int = R.layout.activity_tag_manager
 
-    override fun getBinding(inflater: LayoutInflater): ActivityTagManagerBinding = ActivityTagManagerBinding.inflate(inflater)
+    override fun createViewModel(): TagViewModel = generateViewModel(TagViewModel::class.java)
 
-    override fun initData() {
-        mModel = ViewModelProvider(this, ViewModelFactory(CoolApplication.instance)).get(TagViewModel::class.java)
+    override fun initView() {
         mModel.tagType = tagType
 
-        var manager = FlowLayoutManager(context, false)
+        var manager = FlowLayoutManager(this, false)
         manager.setCustomFlow {
             adapter.isHead(it)
         }
@@ -71,7 +78,7 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
                         mModel.deleteTagClass(bean)
                         mModel.loadTags()
                     },
-                null)
+                    null)
             }
         }
         adapter.onTagItemListener = object : TagManagerAdapter.OnTagItemListener {
@@ -86,7 +93,10 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
                     editTagItem(position, data.item)
                 }
                 else {
-                    onTagSelectListener?.onSelectTag(data.item)
+                    val intent = Intent()
+                    intent.putExtra(RESP_TAG_ID, data.item.id!!)
+                    setResult(RESULT_OK, intent)
+                    finish()
                 }
             }
         }
@@ -97,18 +107,33 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
         }
         mBinding.rvList.adapter = adapter
 
-//        mBinding.tvAddClass.setOnClickListener { newTag() }
+        mBinding.actionbar.setOnBackListener { onBackPressed() }
+        mBinding.actionbar.setOnMenuItemListener {
+            when(it) {
+                R.id.menu_add -> newTag()
+            }
+        }
 
+    }
+
+    override fun initData() {
         mModel.tagList.observe(this, Observer {
             adapter.list = it
             adapter.notifyDataSetChanged()
         })
         mModel.loadTags()
+
+        Observable.interval(3, 3, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                DebugLog.e("paddingTop = ${mBinding.rvList.paddingTop}")
+                DebugLog.e("child 0 top = ${mBinding.rvList.getChildAt(0).top}")
+            }
     }
 
     private fun newTag() {
         SimpleDialogs().openInputDialog(
-            context,
+            this,
             "New Tag Class"
         ) { name ->
             name?.let {
@@ -120,7 +145,7 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
 
     private fun editTagClass(position: Int, bean: TagClass) {
         SimpleDialogs().openInputDialog(
-            context,
+            this,
             "Edit Tag Class",
             bean.name
         ) { name ->
@@ -133,7 +158,7 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
 
     private fun editTagItem(position: Int, tag: Tag) {
         SimpleDialogs().openInputDialog(
-            context,
+            this,
             "Edit Tag",
             tag.name
         ) { name ->
@@ -159,10 +184,7 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
         dialogFragment.fixedHeight = fragment.idealHeight
         dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
         dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.loadTags() }
-        dialogFragment.show(childFragmentManager, "TagFragment")
+        dialogFragment.show(supportFragmentManager, "TagFragment")
     }
 
-    interface OnTagSelectListener {
-        fun onSelectTag(tag: Tag)
-    }
 }

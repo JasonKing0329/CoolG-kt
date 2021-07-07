@@ -32,7 +32,7 @@ import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagAdapter
-import com.king.app.coolg_kt.page.pub.TagManagerFragment
+import com.king.app.coolg_kt.page.pub.TagManagerActivity
 import com.king.app.coolg_kt.page.record.PassionPointAdapter
 import com.king.app.coolg_kt.page.record.RecordOrdersAdapter
 import com.king.app.coolg_kt.page.record.RecordPlayOrdersAdapter
@@ -75,6 +75,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     private val REQUEST_ADD_ORDER = 1602
     private val REQUEST_SELECT_STUDIO = 1603
     private val REQUEST_VIDEO_ORDER = 1604
+    private val REQUEST_ADD_TAG = 1605
 
     private var starAdapter = RecordStarAdapter()
     private var orderAdapter = RecordOrdersAdapter()
@@ -193,20 +194,21 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun addTag() {
-        val fragment = TagManagerFragment()
-        fragment.tagType = DataConstants.TAG_TYPE_RECORD
-        fragment.onTagSelectListener = object : TagManagerFragment.OnTagSelectListener{
-            override fun onSelectTag(tag: Tag) {
-                mModel.addTag(tag)
-            }
-        }
-        val dialogFragment = DraggableDialogFragment()
-        dialogFragment.contentFragment = fragment
-        dialogFragment.setTitle("Select tag")
-        dialogFragment.fixedHeight = fragment.idealHeight
-        dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
-        dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.refreshTags() }
-        dialogFragment.show(supportFragmentManager, "TagManagerFragment")
+        TagManagerActivity.startPage(this, REQUEST_ADD_TAG, DataConstants.TAG_TYPE_RECORD)
+//        val fragment = TagManagerFragment()
+//        fragment.tagType = DataConstants.TAG_TYPE_RECORD
+//        fragment.onTagSelectListener = object : TagManagerFragment.OnTagSelectListener{
+//            override fun onSelectTag(tag: Tag) {
+//                mModel.addTag(tag)
+//            }
+//        }
+//        val dialogFragment = DraggableDialogFragment()
+//        dialogFragment.contentFragment = fragment
+//        dialogFragment.setTitle("Select tag")
+//        dialogFragment.fixedHeight = fragment.idealHeight
+//        dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
+//        dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.refreshTags() }
+//        dialogFragment.show(supportFragmentManager, "TagManagerFragment")
     }
 
     private var tinySwitchControl: Long = 0
@@ -532,20 +534,32 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         data: Intent?
     ) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_ADD_ORDER) {
-            if (resultCode == Activity.RESULT_OK) {
-                val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
-                mModel.addToOrder(orderId)
+        when(requestCode) {
+            REQUEST_ADD_ORDER -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
+                    mModel.addToOrder(orderId)
+                }
             }
-        } else if (requestCode == REQUEST_SELECT_STUDIO) {
-            if (resultCode == Activity.RESULT_OK) {
-                val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
-                mModel.addToStudio(orderId)
+            REQUEST_SELECT_STUDIO -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
+                    mModel.addToStudio(orderId)
+                }
             }
-        } else if (requestCode == REQUEST_VIDEO_ORDER) {
-            if (resultCode == Activity.RESULT_OK) {
-                val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
-                mModel.addToPlay(list)
+            REQUEST_VIDEO_ORDER -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                    mModel.addToPlay(list)
+                }
+            }
+            REQUEST_ADD_TAG -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val tagId = data?.getLongExtra(TagManagerActivity.RESP_TAG_ID, -1)
+                    tagId?.let {
+                        mModel.addTag(it)
+                    }
+                }
             }
         }
     }

@@ -232,10 +232,14 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     }
 
     fun addTag(tag: Tag) {
-        var count = getDatabase().getTagDao().countRecordTag(mRecord.bean.id!!, tag.id!!)
+        addTag(tag.id!!)
+    }
+
+    fun addTag(tagId: Long) {
+        var count = getDatabase().getTagDao().countRecordTag(mRecord.bean.id!!, tagId)
         if (count == 0) {
             var list = mutableListOf<TagRecord>()
-            list.add(TagRecord(null, tag.id!!, mRecord.bean.id!!))
+            list.add(TagRecord(null, tagId, mRecord.bean.id!!))
             getDatabase().getTagDao().insertTagRecords(list)
             refreshTags()
         }

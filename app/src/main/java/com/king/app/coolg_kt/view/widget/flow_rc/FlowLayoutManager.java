@@ -124,7 +124,7 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
         totalWidth = widthSize - getPaddingRight() - getPaddingLeft();
 
         int left = getPaddingLeft();
-        int top = getPaddingTop();
+        int top = getPaddingTop() - mOffset;
 
         int maxTop = top;
 
@@ -166,7 +166,7 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
 
         }
 
-        mContentHeight = maxTop - getPaddingTop();
+        mContentHeight = maxTop - getPaddingTop() + mOffset;
 
         height = mContentHeight + getPaddingTop() + getPaddingBottom();
 

@@ -80,6 +80,9 @@
         <activity
             android:name=".page.star.random.StarRandomActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".page.pub.TagManagerActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".page.video.server.VideoServerActivity" />
         <activity android:name=".page.video.order.PopularStarActivity" />
         <activity android:name=".page.star.list.StarSelectorActivity" />

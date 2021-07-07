@@ -20,7 +20,7 @@ class GrandSlamScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
         return when(round) {
-            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 5 else 0
+            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 5 else 1
             MatchConstants.ROUND_ID_Q2 -> if (isWinner) 10 else 5
             MatchConstants.ROUND_ID_Q3 -> if (isWinner) 25 else 10
             MatchConstants.ROUND_ID_128 -> {
@@ -42,26 +42,11 @@ class GrandSlamScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
     }
 }
 
-/**
- * Final所有轮次都是累加积分方案，SF与F要在前序轮次的基础上再累计计算
- */
-class FinalScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
-
-    override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        return when(round) {
-            MatchConstants.ROUND_ID_GROUP -> if (isWinner) 200 else 100
-            MatchConstants.ROUND_ID_SF -> if (isWinner) 400 else 0
-            MatchConstants.ROUND_ID_F -> if (isWinner) 500 else 0
-            else -> 0
-        }
-    }
-}
-
 class GM1000ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
         return when(round) {
-            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 5 else 0
+            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 5 else 1
             MatchConstants.ROUND_ID_Q2 -> if (isWinner) 10 else 5
             MatchConstants.ROUND_ID_Q3 -> if (isWinner) 25 else 10
             MatchConstants.ROUND_ID_128 -> {
@@ -69,7 +54,7 @@ class GM1000ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
                     if (isQualify) 35 else 10
                 }
                 else {
-                    if (isQualify) 25 else 0
+                    if (isQualify) 25 else 5
                 }
             }
             MatchConstants.ROUND_ID_64 -> if (isWinner) 45 else {
@@ -94,7 +79,7 @@ class GM500ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
         return when(round) {
-            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 4 else 0
+            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 4 else 1
             MatchConstants.ROUND_ID_Q2 -> if (isWinner) 8 else 4
             MatchConstants.ROUND_ID_Q3 -> if (isWinner) 20 else 8
             MatchConstants.ROUND_ID_64 -> {
@@ -179,7 +164,7 @@ class FinalDrawScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
         return when(round) {
-            MatchConstants.ROUND_ID_GROUP -> if (isWinner) 150 else 30
+            MatchConstants.ROUND_ID_GROUP -> if (isWinner) 150 else 50
             MatchConstants.ROUND_ID_SF -> if (isWinner) 400 else 0
             MatchConstants.ROUND_ID_F -> if (isWinner) 500 else 0
             else -> 0

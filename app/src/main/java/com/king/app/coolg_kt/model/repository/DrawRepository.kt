@@ -469,7 +469,6 @@ class DrawRepository: BaseRepository() {
 
             var plan = when(match.match.level) {
                 MatchConstants.MATCH_LEVEL_GS -> GrandSlamScorePlan(match)
-                MatchConstants.MATCH_LEVEL_FINAL -> FinalScorePlan(match)
                 MatchConstants.MATCH_LEVEL_GM1000 -> GM1000ScorePlan(match)
                 MatchConstants.MATCH_LEVEL_GM500 -> GM500ScorePlan(match)
                 MatchConstants.MATCH_LEVEL_GM250 -> GM250ScorePlan(match)

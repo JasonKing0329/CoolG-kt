@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterStarOrdersBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.gdb.data.entity.FavorRecordOrder
 
 /**
@@ -45,7 +46,7 @@ class RecordOrdersAdapter: BaseBindingAdapter<AdapterStarOrdersBinding, FavorRec
         bean: FavorRecordOrder
     ) {
         binding.tvName.text = bean.name
-        ImageBindingAdapter.setRecordUrl(binding.ivHead, bean.coverUrl)
+        ImageBindingAdapter.setRecordUrl(binding.ivHead, ImageProvider.parseCoverUrl(bean.coverUrl))
         mTextColor?.let {
             binding.tvName.setTextColor(it)
         }

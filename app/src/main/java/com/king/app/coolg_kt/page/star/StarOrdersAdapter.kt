@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.AdapterStarOrdersBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.gdb.data.entity.FavorStarOrder
 
 /**
@@ -43,7 +44,7 @@ class StarOrdersAdapter: BaseBindingAdapter<AdapterStarOrdersBinding, FavorStarO
         bean: FavorStarOrder
     ) {
         binding.tvName.text = bean.name
-        ImageBindingAdapter.setStarUrl(binding.ivHead, bean.coverUrl)
+        ImageBindingAdapter.setStarUrl(binding.ivHead, ImageProvider.parseCoverUrl(bean.coverUrl))
         if (deleteMode) {
             binding.ivDelete.visibility = View.VISIBLE
             binding.ivDelete.setOnClickListener {

@@ -12,6 +12,15 @@ import io.reactivex.rxjava3.schedulers.Schedulers
  * Desc: 封装加载包含复杂内容的List数据
  * List本体先加载通知界面显示基本信息
  * 再异加载耗时内容并在指定的条数内通知更新
+ * 使用示例模板：
+ * BasicAndTimeWaste<Any>()
+        .basic(basicMatches())
+        .timeWaste(timeWaste(), 10)
+        .composite(getComposite())
+        .subscribe(
+            object : SimpleObserver<List<Any>>(getComposite()) {},
+            object : SimpleObserver<TimeWasteRange>(getComposite()) {}
+    )
  * @author：Jing Yang
  * @date: 2021/6/9 14:05
  */

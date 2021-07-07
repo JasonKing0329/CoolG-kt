@@ -408,3 +408,9 @@ data class MatchItemGroup (
     var text: String,
     var level: Int
 )
+data class CareerCategoryMatch (
+    var match: Match,
+    var times: Int,
+    var best: String,
+    var winLose: String
+)

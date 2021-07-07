@@ -6,7 +6,6 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.MatchItemGroup
 import com.king.app.gdb.data.entity.match.Match
 
@@ -23,9 +22,7 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
     fun loadMatches() {
         var list = getDatabase().getMatchDao().getAllMatchesByOrder()
         list.forEach {
-            if (SettingProperty.isDemoImageMode()) {
-                it.imgUrl = ImageProvider.getRandomDemoImage(-1, null)?:""
-            }
+            it.imgUrl = ImageProvider.parseCoverUrl(it.imgUrl)?:""
         }
         originList = list
         matchesObserver.value = list

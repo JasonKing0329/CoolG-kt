@@ -271,6 +271,9 @@ interface MatchDao {
     @Query("select * from match_item where id=:id")
     fun getMatchItem(id: Long): MatchItem?
 
+    @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id join `match` m on mp.matchId=m.id and m.id=:matchId join match_record mr on mi.id=mr.matchItemId and mr.recordId=:recordId where mi.isBye=0")
+    fun getRecordMatchItems(recordId: Long, matchId: Long): List<MatchItem>
+
     @Query("select * from match_record where matchId=:matchPeriodId and type=3 and recordId=0")
     fun getUndefinedQualifies(matchPeriodId: Long): List<MatchRecord>
 

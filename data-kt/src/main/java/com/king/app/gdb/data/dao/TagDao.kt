@@ -23,8 +23,8 @@ interface TagDao {
     @Query("select * from tag_class where type=:type order by nameForSort COLLATE NOCASE")
     fun getAllTagClassesBasic(type: Int): List<TagClass>
 
-    @Query("select count(*) from tag_class where name=:name COLLATE NOCASE")
-    fun countTagClass(name: String): Int
+    @Query("select count(*) from tag_class where type=:type and name=:name COLLATE NOCASE")
+    fun countTagClass(name: String, type: Int): Int
 
     @Query("select count(*) from tag_class_item where classId=:classId and tagId=:tagId")
     fun countTagClassItem(classId: Long, tagId: Long): Int

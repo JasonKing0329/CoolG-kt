@@ -2,7 +2,6 @@ package com.king.app.coolg_kt.page.star.phone
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
@@ -19,7 +18,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.image.ImageManagerActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
-import com.king.app.coolg_kt.page.pub.TagManagerFragment
+import com.king.app.coolg_kt.page.pub.TagManagerActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.record.popup.RecommendFragment
@@ -52,6 +51,8 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
     }
 
     private val REQUEST_ADD_ORDER = 1602
+    private val REQUEST_ADD_TAG = 1603
+
     private var adapter = StarAdapter()
     private var mFilter: RecommendBean? = null
 
@@ -197,20 +198,7 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
     }
 
     private fun addTag() {
-        val fragment = TagManagerFragment()
-        fragment.tagType = DataConstants.TAG_TYPE_STAR
-        fragment.onTagSelectListener = object : TagManagerFragment.OnTagSelectListener{
-            override fun onSelectTag(tag: Tag) {
-                mModel.addTag(tag)
-            }
-        }
-        val dialogFragment = DraggableDialogFragment()
-        dialogFragment.contentFragment = fragment
-        dialogFragment.setTitle("Select tag")
-        dialogFragment.fixedHeight = fragment.idealHeight
-        dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
-        dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.refreshTags() }
-        dialogFragment.show(supportFragmentManager, "TagManagerFragment")
+        TagManagerActivity.startPage(this, REQUEST_ADD_TAG, DataConstants.TAG_TYPE_STAR)
     }
 
     private fun showSettings() {
@@ -289,11 +277,21 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_ADD_ORDER) {
-            if (resultCode == Activity.RESULT_OK) {
+        when(requestCode) {
+            REQUEST_ADD_ORDER -> {
+                if (resultCode == Activity.RESULT_OK) {
 //                val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
 //                mModel.addToOrder(orderId)
-                TODO()
+                    TODO()
+                }
+            }
+            REQUEST_ADD_TAG -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val tagId = data?.getLongExtra(TagManagerActivity.RESP_TAG_ID, -1)
+                    tagId?.let {
+                        mModel.addTag(it)
+                    }
+                }
             }
         }
     }

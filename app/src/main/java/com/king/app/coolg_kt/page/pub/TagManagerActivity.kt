@@ -12,16 +12,12 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.databinding.ActivityTagManagerBinding
 import com.king.app.coolg_kt.model.bean.TagGroupItem
-import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.coolg_kt.view.widget.flow_rc.FlowLayoutManager
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.entity.TagClass
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
-import java.util.concurrent.TimeUnit
 
 /**
  * Desc:
@@ -31,7 +27,6 @@ import java.util.concurrent.TimeUnit
 class TagManagerActivity: BaseActivity<ActivityTagManagerBinding, TagViewModel>() {
 
     private var adapter = TagManagerAdapter()
-    var tagType = 0
 
     companion object {
         val RESP_TAG_ID = "tag_id"
@@ -47,8 +42,12 @@ class TagManagerActivity: BaseActivity<ActivityTagManagerBinding, TagViewModel>(
 
     override fun createViewModel(): TagViewModel = generateViewModel(TagViewModel::class.java)
 
+    private fun getTagType(): Int {
+        return intent.getIntExtra(EXTRA_TAG_TYPE, 0)
+    }
+
     override fun initView() {
-        mModel.tagType = tagType
+        mModel.tagType = getTagType()
 
         var manager = FlowLayoutManager(this, false)
         manager.setCustomFlow {
@@ -122,13 +121,6 @@ class TagManagerActivity: BaseActivity<ActivityTagManagerBinding, TagViewModel>(
             adapter.notifyDataSetChanged()
         })
         mModel.loadTags()
-
-        Observable.interval(3, 3, TimeUnit.SECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                DebugLog.e("paddingTop = ${mBinding.rvList.paddingTop}")
-                DebugLog.e("child 0 top = ${mBinding.rvList.getChildAt(0).top}")
-            }
     }
 
     private fun newTag() {
@@ -177,7 +169,7 @@ class TagManagerActivity: BaseActivity<ActivityTagManagerBinding, TagViewModel>(
             }
         }
         fragment.isOnlyShowUnClassified = true
-        fragment.tagType = tagType
+        fragment.tagType = getTagType()
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = fragment
         dialogFragment.setTitle("Select tag")

@@ -22,13 +22,21 @@
             app:titleColor="@color/actionbar_element"
             app:actionTextColor="@color/actionbar_element"/>
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_tags"
+            android:id="@+id/rv_tag_class"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/actionbar"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rv_tag_class"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_stars"
             android:layout_width="0dp"

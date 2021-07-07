@@ -18,6 +18,7 @@ import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.Tag
+import com.king.app.gdb.data.entity.TagClass
 import com.king.app.gdb.data.relation.StarWrap
 
 /**
@@ -28,6 +29,7 @@ import com.king.app.gdb.data.relation.StarWrap
  */
 class TagStarViewModel(application: Application) : BaseViewModel(application) {
     var tagsObserver = MutableLiveData<List<Tag>>()
+    var tagClassesObserver: MutableLiveData<List<TagClass>> = MutableLiveData()
     var starsObserver = MutableLiveData<List<StarWrap>>()
     var lazyLoadObserver = MutableLiveData<LazyData<StarWrap>>()
     var focusTagPosition = MutableLiveData<Int>()
@@ -37,6 +39,8 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
     private var dataTagList: List<Tag> = listOf()
     private val tagRepository = TagRepository()
     private val starRepository = StarRepository()
+
+    private var tagClassList: List<TagClass> = mutableListOf()
 
     // see AppConstants.STAR_SORT_XXX
     var mSortType = AppConstants.STAR_SORT_RATING
@@ -50,6 +54,9 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
 
     var indexBarVisibility = ObservableInt()
     var indexEmitter = StarIndexEmitter()
+
+    val TAG_CLASS_ALL_ID: Long = 0
+    var mCurTagClassId = TAG_CLASS_ALL_ID
 
     fun setListViewType(type: Int, column: Int) {
         viewType = type
@@ -65,9 +72,31 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
+    fun loadHead() {
+        getTagClasses()
+        mCurTagClassId = TAG_CLASS_ALL_ID
+        tagClassesObserver.value = tagClassList
+        loadTags()
+    }
+
+    private fun getTagClasses() {
+        val list = getDatabase().getTagDao().getAllTagClassesBasic(DataConstants.TAG_TYPE_STAR)
+        val result = list.toMutableList();
+        result.add(0, TagClass(TAG_CLASS_ALL_ID, DataConstants.TAG_TYPE_RECORD, "All", "all"))
+        tagClassList = result
+    }
+
+    var isFirstLoadAllTags = true
+
     fun loadTags() {
-        dataTagList = tagRepository.loadTags(DataConstants.TAG_TYPE_STAR)
-        startSortTag(true)
+        dataTagList = if (mCurTagClassId == TAG_CLASS_ALL_ID) {
+            tagRepository.loadTags(DataConstants.TAG_TYPE_STAR)
+        }
+        else {
+            tagRepository.loadTagClassItems(mCurTagClassId)
+        }
+        startSortTag(isFirstLoadAllTags)
+        isFirstLoadAllTags = false
     }
 
     fun startSortTag(loadAll: Boolean) {
@@ -95,7 +124,7 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
     private fun focusToCurrentTag(allList: List<Tag>) {
         for (i in allList.indices) {
             if (mTagId === allList[i].id) {
-                focusTagPosition.setValue(i)
+                focusTagPosition.value = i
                 break
             }
         }
@@ -103,10 +132,15 @@ class TagStarViewModel(application: Application) : BaseViewModel(application) {
 
     private fun addTagAll(tagList: List<Tag>): List<Tag> {
         val tags: MutableList<Tag> = mutableListOf()
-        val all = Tag(null, "All", 0, "all")
-        tags.add(all)
-        tags.addAll(tagList)
-        return tags
+        return if (mCurTagClassId == TAG_CLASS_ALL_ID) {
+            val all = Tag(null, "All", 0, "all")
+            tags.add(all)
+            tags.addAll(tagList)
+            tags
+        }
+        else {
+            tagList
+        }
     }
 
     private fun loadTagStars() {

@@ -55,7 +55,7 @@ class TagViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun newTagClass(it: String) {
-        if (getDatabase().getTagDao().countTagClass(it) > 0) {
+        if (getDatabase().getTagDao().countTagClass(it, tagType) > 0) {
             messageObserver.value = "Target tag class is already existed"
             return
         }
@@ -65,7 +65,7 @@ class TagViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun editTagClass(tagClass: TagClass, newName: String) {
-        if (getDatabase().getTagDao().countTagClass(newName) > 0) {
+        if (getDatabase().getTagDao().countTagClass(newName, tagType) > 0) {
             messageObserver.value = "Target tag class is already existed"
             return
         }

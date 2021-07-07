@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.star
 
 import android.content.DialogInterface
+import android.graphics.Rect
 import android.view.MenuItem
 import android.view.View
 import androidx.databinding.ViewDataBinding
@@ -15,8 +16,10 @@ import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.LazyData
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.star.random.StarRandomActivity
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.entity.Tag
+import com.king.app.gdb.data.entity.TagClass
 import com.king.app.gdb.data.relation.StarWrap
 import com.king.app.jactionbar.JActionbar
 
@@ -36,6 +39,7 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
 
     override fun initData() {
         mModel.tagsObserver.observe(this, Observer { tags -> showTags(tags) })
+        mModel.tagClassesObserver.observe(this, Observer { tags -> showTagClasses(tags) })
         mModel.lazyLoadObserver.observe(this,
             Observer { params ->
                 if (mModel.viewType == AppConstants.TAG_STAR_STAGGER) {
@@ -55,7 +59,20 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
             }
         )
         mModel.focusTagPosition.observe(this, Observer { position: Int -> focusOnTag(position) })
-        mModel.loadTags()
+        mModel.loadHead()
+    }
+
+    var tagDecoration = object : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            outRect.left = ScreenUtils.dp2px(10f)
+            outRect.top = ScreenUtils.dp2px(5f)
+            outRect.bottom = ScreenUtils.dp2px(5f)
+        }
     }
 
     protected fun defineStarList(view: RecyclerView, type: Int, column: Int) {
@@ -137,6 +154,7 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
 
     protected abstract val starRecyclerView: RecyclerView
     protected abstract fun showTags(tags: List<Tag>)
+    protected abstract fun showTagClasses(tags: List<TagClass>)
     protected abstract fun focusOnTag(position: Int)
     protected abstract fun goToClassicPage()
     protected abstract fun goToStarPage(starId: Long)

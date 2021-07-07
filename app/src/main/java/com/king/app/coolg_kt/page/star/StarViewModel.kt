@@ -209,11 +209,11 @@ class StarViewModel(application: Application): BaseViewModel(application) {
         getDatabase().getFavorDao().deleteStarFromOrder(starId, orderId)
     }
 
-    fun addTag(tag: Tag) {
-        var count = getDatabase().getTagDao().countStarTag(mStar.bean.id!!, tag.id!!)
+    fun addTag(tagId: Long) {
+        var count = getDatabase().getTagDao().countStarTag(mStar.bean.id!!, tagId)
         if (count == 0) {
             var list = mutableListOf<TagStar>()
-            list.add(TagStar(null, tag.id!!, mStar.bean.id!!))
+            list.add(TagStar(null, tagId, mStar.bean.id!!))
             getDatabase().getTagDao().insertTagStars(list)
             refreshTags()
         }

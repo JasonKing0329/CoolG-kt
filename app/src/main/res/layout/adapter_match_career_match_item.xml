@@ -3,9 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:round_corner="10dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/tv_name"
@@ -49,10 +60,10 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginEnd="8dp"
-            android:textColor="@color/white"
+            android:textColor="@color/red_f1303d"
             android:textSize="14dp"
             android:gravity="center"
-            android:background="@drawable/shape_oval_index"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/tv_times"
             app:layout_constraintTop_toTopOf="@+id/tv_times"
             app:layout_constraintBottom_toBottomOf="@+id/tv_times"
@@ -64,10 +75,10 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_second"
             android:textSize="14dp"
+            android:text="times in"
             app:layout_constraintEnd_toEndOf="@+id/tv_week"
             app:layout_constraintTop_toTopOf="@+id/tv_level"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_level"
-            tools:text="times in" />
+            app:layout_constraintBottom_toBottomOf="@+id/tv_level" />
 
         <TextView
             android:id="@+id/tv_win_lose"
@@ -92,9 +103,11 @@
             android:ellipsize="end"
             android:layout_marginTop="5dp"
             android:layout_marginStart="50dp"
+            android:layout_marginBottom="8dp"
             app:layout_constraintEnd_toEndOf="@+id/tv_week"
             app:layout_constraintStart_toEndOf="@+id/tv_win_lose"
             app:layout_constraintTop_toBottomOf="@+id/tv_times_num"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="Win(P3,P5), SF(P4,P6), R128(P1,P2,P7,P9)" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
 </layout>

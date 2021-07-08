@@ -21,7 +21,7 @@ import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewModel>() {
 
     val MATCH_RECORD_DETAIL_TAB = arrayOf(
-        "Basic", "Score", "Champions", "Grand Slam", "GM1000"
+        "Basic", "Score", "Champions", "Grand Slam", "GM1000", "Matches"
     )
     lateinit var pagerAdapter: DetailPagerAdapter
 
@@ -72,6 +72,7 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
         list.add(ChampionFragment())
         list.add(GsFragment())
         list.add(Gm1000Fragment())
+        list.add(CareerMatchFragment())
         pagerAdapter = DetailPagerAdapter(this, list)
         mBinding.viewpager.adapter = pagerAdapter
 

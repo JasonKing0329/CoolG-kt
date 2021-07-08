@@ -47,4 +47,10 @@
         <item>Star</item>
     </string-array>
 
+    <string-array name="match_career_sort" translatable="false">
+        <item>By Week</item>
+        <item>By Times</item>
+        <item>By Level</item>
+    </string-array>
+
 </resources>

@@ -1,7 +1,7 @@
 package com.king.app.coolg_kt.page.match.detail
 
-import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
@@ -10,7 +10,6 @@ import com.king.app.coolg_kt.databinding.AdapterMatchCareerMatchItemBinding
 import com.king.app.coolg_kt.databinding.AdapterMatchItemGroupBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.CareerCategoryMatch
-import com.king.app.coolg_kt.page.match.MatchItemGroup
 import com.king.app.gdb.data.entity.match.Match
 
 /**
@@ -18,7 +17,7 @@ import com.king.app.gdb.data.entity.match.Match
  * @author：Jing
  * @date: 2021/1/9 22:03
  */
-class CareerMatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBinding, AdapterMatchCareerMatchItemBinding, MatchItemGroup, CareerCategoryMatch>() {
+class CareerMatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBinding, AdapterMatchCareerMatchItemBinding, String, CareerCategoryMatch>() {
 
     var isDeleteMode = false
 
@@ -28,7 +27,7 @@ class CareerMatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBindi
     var isDemoImage = SettingProperty.isDemoImageMode()
 
     override val itemClass: Class<*>
-        get() = Match::class.java
+        get() = CareerCategoryMatch::class.java
 
     override fun onCreateHeadBind(
         from: LayoutInflater,
@@ -40,20 +39,18 @@ class CareerMatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBindi
         parent: ViewGroup
     ): AdapterMatchCareerMatchItemBinding = AdapterMatchCareerMatchItemBinding.inflate(from, parent, false)
 
-    override fun onBindHead(binding: AdapterMatchItemGroupBinding, position: Int, head: MatchItemGroup) {
-        binding.title = head.text
-        binding.ivAdd.setOnClickListener { onMatchGroupListener?.onAddGroupItem(head.level) }
+    override fun onBindHead(binding: AdapterMatchItemGroupBinding, position: Int, head: String) {
+        binding.title = head
+        binding.ivAdd.visibility = View.GONE
     }
 
     override fun onBindItem(binding: AdapterMatchCareerMatchItemBinding, position: Int, bean: CareerCategoryMatch) {
 
         binding.tvTimesNum.text = bean.times.toString()
-        val drawable = binding.tvTimesNum.background as GradientDrawable
-        drawable.setColor(binding.tvTimesNum.resources.getColor(R.color.redC93437))
-        binding.tvTimesNum.background = drawable
 
-        binding.tvWinLose.text = bean.winLose
-        binding.tvBest.text = " ${bean.best} "
+        binding.tvWeek.text = "W${bean.match.orderInPeriod}"
+        binding.tvWinLose.text = " ${bean.winLose} "
+        binding.tvBest.text = bean.best
         binding.tvName.text = " ${bean.match.name} "
         binding.tvLevel.text = " ${MatchConstants.MATCH_LEVEL[bean.match.level]} "
         val color = when(bean.match.level) {

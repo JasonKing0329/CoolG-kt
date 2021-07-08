@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * Desc:
@@ -27,8 +25,8 @@ abstract class BindingFragment<T : ViewDataBinding>: RootFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initData()
         super.onViewCreated(view, savedInstanceState)
+        initData()
     }
 
     protected abstract fun getBinding(inflater: LayoutInflater): T

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:round_corner="10dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/text_second"
+            android:textSize="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="P7-W16" />
+
+        <TextView
+            android:id="@+id/tv_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/red_f1303d"
+            android:textSize="16dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_week"
+            app:layout_constraintTop_toTopOf="@+id/tv_week"
+            tools:text="GM1000" />
+
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/text_second"
+            android:textSize="16dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_level"
+            app:layout_constraintTop_toTopOf="@+id/tv_week"
+            tools:text="R 121/[3]" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text_normal"
+            android:textSize="16dp"
+            app:layout_constraintStart_toStartOf="@+id/tv_week"
+            app:layout_constraintTop_toBottomOf="@+id/tv_week"
+            tools:text="Lucas Entertainment" />
+
+        <TextView
+            android:id="@+id/tv_index"
+            android:layout_width="70dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/white"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/shape_round_red_radius_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_week"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+            tools:text="1000胜" />
+
+        <TextView
+            android:id="@+id/tv_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_second"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_name"
+            app:layout_constraintTop_toTopOf="@+id/tv_name"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+            tools:text="Final" />
+
+        <com.king.app.coolg_kt.view.widget.rc.RCImageView
+            android:id="@+id/iv_record"
+            android:layout_width="160dp"
+            android:layout_height="90dp"
+            android:src="@drawable/def_small"
+            android:scaleType="fitXY"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintEnd_toEndOf="@+id/tv_index"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:round_corner="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_defeat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_second"
+            android:textSize="16dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toStartOf="@+id/iv_record"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintBottom_toTopOf="@+id/tv_name_cpt"
+            tools:text="defeat R 164/[15]"/>
+
+        <TextView
+            android:id="@+id/tv_name_cpt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_second"
+            android:textSize="12dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintEnd_toEndOf="@+id/tv_defeat"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record"
+            tools:text="Record name Record name Record name Record name Record name" />
+
+    </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
+</layout>

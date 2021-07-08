@@ -414,3 +414,13 @@ data class CareerCategoryMatch (
     var best: String,
     var winLose: String
 )
+data class MilestoneBean (
+    var match: Match,
+    var matchItem: MatchItem,
+    var winIndex: String,
+    var rankSeed: String,
+    var period: String,
+    var cptName: String,
+    var cptRankSeed: String,
+    var cptImageUrl: String? = null
+)

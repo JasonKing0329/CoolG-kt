@@ -56,6 +56,16 @@ data class MatchItemWrap (
     var recordList: List<MatchRecord>
 
 )
+data class MatchItemPeriodWrap (
+
+    @Embedded
+    var bean: MatchItem,
+
+    var period: Int,
+
+    var orderInPeriod: Int
+
+)
 data class MatchScoreRecordWrap (
 
     @Embedded

@@ -86,7 +86,7 @@ class BasicAndTimeWaste<T> {
             var totalNotified = 0
             list.forEach { item ->
 
-                timeWasteTask.handle(item)
+                timeWasteTask.handle(count, item)
                 // 每30条通知一次
                 count ++
                 if (count % notifyCount == 0) {
@@ -103,5 +103,5 @@ class BasicAndTimeWaste<T> {
 }
 
 interface TimeWasteTask<T> {
-    fun handle(data: T)
+    fun handle(index: Int, data: T)
 }

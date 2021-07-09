@@ -138,7 +138,7 @@ class RecordH2hViewModel(application: Application): BaseViewModel(application) {
      */
     private fun timeWastTask(): TimeWasteTask<RecordH2hItem> {
         return object : TimeWasteTask<RecordH2hItem> {
-            override fun handle(item: RecordH2hItem) {
+            override fun handle(index: Int, item: RecordH2hItem) {
                 // image
                 item.recordImg1 = recordImage
                 var url = ImageProvider.getRecordRandomPath(item.record2.name, null)

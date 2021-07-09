@@ -424,3 +424,11 @@ data class MilestoneBean (
     var cptRankSeed: String,
     var cptImageUrl: String? = null
 )
+
+data class WallItem(
+    var isTitle: Boolean = false,
+    var text: String? = null,
+    var recordId: Long? = null,
+    var matchPeriodId: Long? = null,
+    var imageUrl: String? = null
+)

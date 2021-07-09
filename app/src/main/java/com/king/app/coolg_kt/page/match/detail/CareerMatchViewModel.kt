@@ -129,7 +129,7 @@ class CareerMatchViewModel(application: Application): BaseViewModel(application)
 
     private fun timeWaste(): TimeWasteTask<Any> {
         return object : TimeWasteTask<Any> {
-            override fun handle(data: Any) {
+            override fun handle(index: Int, data: Any) {
                 if (data is CareerCategoryMatch)  {
                     loadDetails(data)
                 }

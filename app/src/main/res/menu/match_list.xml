@@ -17,4 +17,12 @@
         android:icon="@drawable/ic_delete_3f51b5_24dp"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/menu_wall_gs"
+        android:title="GS wall"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_wall_gm1000"
+        android:title="GM1000 wall"
+        app:showAsAction="never"/>
+
 </menu>

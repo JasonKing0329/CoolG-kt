@@ -374,4 +374,7 @@ interface MatchDao {
     @Query("select recordId, min(rank) as high from match_rank_record where rank<=:lessEqThan group by recordId order by high")
     fun groupRecordsRank(lessEqThan: Int): List<RecordHighestRank>
 
+    @Query("select mi.winnerId, mp.period, m.id as levelMatchId, mi.matchId as matchPeriodId from match_item mi join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id and m.level=:level where mi.round=:finalRoundId order by mp.period, mp.orderInPeriod")
+    fun getMatchChampionsByLevel(level: Int, finalRoundId: Int): List<LevelChampion>
+
 }

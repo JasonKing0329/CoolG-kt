@@ -76,7 +76,7 @@ class HighViewModel(application: Application): BaseViewModel(application) {
      */
     private fun timeWaste(): TimeWasteTask<HighRankTitle> {
         return object : TimeWasteTask<HighRankTitle> {
-            override fun handle(data: HighRankTitle) {
+            override fun handle(index: Int, data: HighRankTitle) {
                 data.items.forEach { item ->
                     item.curRank = " R ${rankRepository.getRecordCurrentRank(item.bean.record.id!!)} "
                     item.imageUrl = ImageProvider.getRecordRandomPath(item.bean.record.name, null)

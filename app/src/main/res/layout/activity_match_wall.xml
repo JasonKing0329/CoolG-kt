@@ -13,18 +13,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:menu="@menu/match_list"
             app:title="Matches" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_titles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"/>
+
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/actionbar"
-            tools:listitem="@layout/adapter_match_item"/>
+            app:layout_constraintTop_toBottomOf="@+id/rv_titles"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

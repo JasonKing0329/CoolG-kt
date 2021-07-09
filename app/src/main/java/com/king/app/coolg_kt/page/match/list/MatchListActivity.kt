@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivityMatchListBinding
 import com.king.app.coolg_kt.page.match.item.MatchActivity
+import com.king.app.coolg_kt.page.match.item.WallActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.Match
@@ -62,6 +63,8 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                     adapter.notifyDataSetChanged()
                     mBinding.actionbar.showConfirmStatus(it)
                 }
+                R.id.menu_wall_gs -> WallActivity.startPageGs(this)
+                R.id.menu_wall_gm1000 -> WallActivity.startPageGM1000(this)
             }
         }
         mBinding.actionbar.registerPopupMenuOn(

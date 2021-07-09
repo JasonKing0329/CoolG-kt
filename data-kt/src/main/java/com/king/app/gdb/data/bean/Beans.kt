@@ -30,3 +30,9 @@ data class RecordHighestRank(
     var recordId: Long,
     var high: Int
 )
+data class LevelChampion(
+    var winnerId: Long,
+    var period: Int,
+    var levelMatchId: Long,
+    var matchPeriodId: Long
+)

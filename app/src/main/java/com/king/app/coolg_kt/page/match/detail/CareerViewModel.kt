@@ -145,7 +145,7 @@ class CareerViewModel(application: Application): BaseViewModel(application) {
      */
     private fun timeWaste(): TimeWasteTask<CareerPeriod> {
         return object : TimeWasteTask<CareerPeriod> {
-            override fun handle(data: CareerPeriod) {
+            override fun handle(index: Int, data: CareerPeriod) {
                 data.matches.forEach { match ->
                     match.records.forEach { record ->
                         // image url

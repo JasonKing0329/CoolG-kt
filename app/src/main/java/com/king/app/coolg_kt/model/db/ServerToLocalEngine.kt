@@ -51,6 +51,8 @@ class ServerToLocalEngine:DbUpgradeEngine() {
                 dao.deleteProperties()
                 dao.insertProperties(serverData.properties)
             }
+            // 重新计算star rank and record rank(score)
+            createCountData()
             it.onNext(true)
             it.onComplete()
         }

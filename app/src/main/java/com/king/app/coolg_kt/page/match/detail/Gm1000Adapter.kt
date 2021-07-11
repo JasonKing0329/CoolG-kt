@@ -23,8 +23,6 @@ class Gm1000Adapter: BaseBindingAdapter<AdapterMatchDetailGmBinding, RoundItem>(
     override fun onBindItem(binding: AdapterMatchDetailGmBinding, position: Int, bean: RoundItem) {
         if (bean.isTitle || bean.isPeriod) {
             binding.tvRound.background = null
-            val params = binding.tvRound.layoutParams
-            params.width = ScreenUtils.dp2px(10f)
         }
         else {
             binding.tvRound.setBackgroundResource(R.drawable.selector_match_gs_bg)

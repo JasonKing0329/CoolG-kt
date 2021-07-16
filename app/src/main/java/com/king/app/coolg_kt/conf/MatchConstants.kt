@@ -9,7 +9,7 @@ object MatchConstants {
     
     val MAX_ORDER_IN_PERIOD = 46
     val RANK_OUT_OF_SYSTEM = 9999 // 不在match_rank_record中的record第一次参与赋值9999
-    val RANK_LIMIT_MAX = 1200 // 满足入围match条件是，count_record中的rank小于等于该值
+    val RANK_LIMIT_MAX = 1300 // 满足入围match条件是，count_record中的rank小于等于该值
     val MATCH_COUNT_SCORE = 20 // 超过20站只取20站最高积分
 
     val DRAW_QUALIFY = 0

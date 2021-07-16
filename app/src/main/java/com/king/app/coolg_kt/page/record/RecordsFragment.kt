@@ -74,6 +74,7 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
 
         mModel.selectAsMatchItem = selectAsMatchItem
         mModel.recordsObserver.observe(this, Observer{ list -> showRecords(list) })
+        mModel.rangeChangedObserver.observe(this, Observer{ recordAdapter.notifyItemRangeChanged(it.start, it.count) })
         mModel.moreObserver.observe(this, Observer{ offset -> showMoreList(offset) })
         mModel.scrollPositionObserver.observe(this, Observer{ offset -> scrollTo(offset) })
         onDataChanged()

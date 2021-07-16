@@ -5,10 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
+import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.gdb.data.RecordCursor
 import com.king.app.gdb.data.entity.Record
@@ -28,6 +31,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     var recordsObserver: MutableLiveData<List<RecordWrap>> = MutableLiveData()
     var moreObserver: MutableLiveData<Int> = MutableLiveData()
     var scrollPositionObserver: MutableLiveData<Int> = MutableLiveData()
+    var rangeChangedObserver: MutableLiveData<TimeWasteRange> = MutableLiveData()
 
     private var mRecordList = mutableListOf<RecordWrap>()
 
@@ -52,6 +56,8 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
         onSortTypeChanged()
     }
 
+    var samePeriodItems: List<Long>? = null
+
     fun getNotNullRecommendBean(): RecommendBean {
         return if (mRecommendBean == null) RecommendBean()
         else mRecommendBean!!
@@ -75,6 +81,45 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     }
 
     private fun loadRecords() {
+        if (factor.outOfRank) {
+            loadRecordsOutOfRank()
+        }
+        else {
+            loadRecordsByFilter()
+        }
+    }
+
+    private fun loadRecordsOutOfRank() {
+        BasicAndTimeWaste<RecordWrap>()
+            .basic(recordRepository.getRecordsOutOfRank())
+            .timeWaste(outOfRankWaste(), 20)
+            .composite(getComposite())
+            .subscribe(
+                object : SimpleObserver<List<RecordWrap>>(getComposite()) {
+                    override fun onNext(t: List<RecordWrap>) {
+                        mRecordList.addAll(t)
+                        recordsObserver.value = mRecordList
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                        messageObserver.value = e?.message?:""
+                    }
+                },
+                object : SimpleObserver<TimeWasteRange>(getComposite()) {
+                    override fun onNext(t: TimeWasteRange) {
+                        rangeChangedObserver.value = t
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                        messageObserver.value = e?.message?:""
+                    }
+                }
+            )
+    }
+
+    private fun loadRecordsByFilter() {
         queryRecords()
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RecordWrap>>(getComposite()) {
@@ -89,6 +134,19 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
                     messageObserver.value = "Load records error: " + e?.message
                 }
             })
+    }
+
+    private fun outOfRankWaste(): TimeWasteTask<RecordWrap> {
+        return object : TimeWasteTask<RecordWrap> {
+            override fun handle(index: Int, data: RecordWrap) {
+                // match选择模式下，标记已在draw下的item
+                // samePeriodItems只加载一次
+                if (selectAsMatchItem && samePeriodItems == null) {
+                    loadSamePeriodItems()
+                }
+                itemDetail(data)
+            }
+        }
     }
 
     fun loadMoreRecords() {
@@ -121,27 +179,50 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
         return recordRepository.getRecordFilter(mSortMode, mSortDesc, factor.recordType, factor.starId
             , factor.orderId, factor.tagId, moreCursor, mRecommendBean, factor.keyword, factor.scene, factor.outOfRank)
             .flatMap { filter -> recordRepository.getRecords(filter) }
-            .flatMap { list ->  toViewItems(list)}
-            .compose(applySchedulers());
+            .flatMap { list ->  toFilterViewItems(list)};
     }
 
-    private fun toViewItems(list: List<RecordWrap>): ObservableSource<List<RecordWrap>> {
+    /**
+     * item details, 耗时操作
+     */
+    private fun itemDetail(record: RecordWrap) {
+        var name = record.bean.name?:""
+        record.imageUrl = ImageProvider.getRecordRandomPath(name, null)
+        // 默认都可选
+        record.canSelect = true
+        // match选择模式下，标记已在draw下的item
+        samePeriodItems?.let {
+            record.canSelect = !it.contains(record.bean.id)
+        }
+    }
+
+    /**
+     * match选择模式下，标记已在draw下的item
+     */
+    private fun loadSamePeriodItems() {
+        var rankPack = RankRepository().getRankPeriodPack()
+        rankPack.matchPeriod?.let { matchPeriod ->
+            samePeriodItems = getDatabase().getMatchDao().getSamePeriodRecordIds(matchPeriod.period, matchPeriod.orderInPeriod)
+        }
+        // 保证只被加载一次
+        if (samePeriodItems == null) {
+            samePeriodItems = mutableListOf()
+        }
+    }
+
+    /**
+     * 通过filter模式一次只加载N个items，所以，耗时操作可以直接一次flatmap
+     */
+    private fun toFilterViewItems(list: List<RecordWrap>): ObservableSource<List<RecordWrap>> {
         moreCursor.offset += list.size
         return ObservableSource {
-            list.forEach { record ->
-                var name = record.bean.name?:""
-                record.imageUrl = ImageProvider.getRecordRandomPath(name, null)
-                // 默认都可选
-                record.canSelect = true
-            }
+            // match选择模式下，标记已在draw下的item
             if (selectAsMatchItem) {
-                var rankPack = RankRepository().getRankPeriodPack()
-                rankPack.matchPeriod?.let { matchPeriod ->
-                    var samePeriodMap = getDatabase().getMatchDao().getSamePeriodRecordIds(matchPeriod.period, matchPeriod.orderInPeriod)
-                    list.forEach { record ->
-                        record.canSelect = !samePeriodMap.contains(record.bean.id)
-                    }
-                }
+                loadSamePeriodItems()
+            }
+
+            list.forEach { record ->
+                itemDetail(record)
             }
             it.onNext(list)
             it.onComplete()

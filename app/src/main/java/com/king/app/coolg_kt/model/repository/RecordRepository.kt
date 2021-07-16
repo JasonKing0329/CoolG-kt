@@ -77,7 +77,7 @@ class RecordRepository: BaseRepository() {
         }
     }
 
-    private fun getRecordsOutOfRank(): Observable<List<RecordWrap>> {
+    fun getRecordsOutOfRank(): Observable<List<RecordWrap>> {
         return Observable.create {
             val pack = getCompletedPeriodPack()
             var result = listOf<RecordWrap>()
@@ -105,11 +105,7 @@ class RecordRepository: BaseRepository() {
     }
 
     fun getRecords(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
-        return if (filter.outOfRank) {
-            getRecordsOutOfRank();
-        } else {
-            getRecordsByFilter(filter)
-        }
+        return getRecordsByFilter(filter)
     }
 
     fun getRecordsImage(list: List<RecordWrap>): Observable<List<RecordWrap>> {

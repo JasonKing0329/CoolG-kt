@@ -73,6 +73,9 @@ interface MatchDao {
     @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id join `match` m on mp.matchId=m.id and m.level=:level where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
     fun getMatchItemsByRoundLevel(round: Int, level: Int): List<MatchItemWrap>
 
+    @Query("select mr.recordId, mi.winnerId, mp.period from match_record mr join match_item mi on mr.matchItemId=mi.id join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id and m.id=:matchId where mi.round=:round")
+    fun getMatchRoundItems(matchId: Long, round: Int): List<DataForRoundCount>
+
     @Query("select mi.* from match_item mi join match_record mr on mi.id=mr.matchItemId and mr.recordId=:recordId join match_period mp on mi.matchId=mp.id where mi.round=:round order by mp.period desc, mp.orderInPeriod desc")
     fun getRecordMatchItemsByRound(recordId: Long, round: Int): List<MatchItemWrap>
 
@@ -376,5 +379,8 @@ interface MatchDao {
 
     @Query("select mi.winnerId, mp.period, m.id as levelMatchId, mi.matchId as matchPeriodId from match_item mi join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id and m.level=:level where mi.round=:finalRoundId order by mp.period, mp.orderInPeriod")
     fun getMatchChampionsByLevel(level: Int, finalRoundId: Int): List<LevelChampion>
+
+    @Query("select mr.* from match_record mr join match_period mp on mr.matchId=mp.id where mp.matchId=:matchId and mr.recordId!=0 group by mr.matchId, mr.recordId")
+    fun getMatchParticipates(matchId: Long): List<MatchRecord>
 
 }

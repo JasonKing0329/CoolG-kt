@@ -48,6 +48,10 @@ class FinalDrawViewModel(application: Application): BaseViewModel(application) {
         loadMatch()
     }
 
+    fun getMatchId(): Long {
+        return matchPeriod.bean.matchId
+    }
+
     private fun loadMatch() {
         loadingObserver.value = true
         drawRepository.getFinalDrawData(matchPeriod)

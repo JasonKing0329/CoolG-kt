@@ -36,3 +36,8 @@ data class LevelChampion(
     var levelMatchId: Long,
     var matchPeriodId: Long
 )
+data class DataForRoundCount(
+    var recordId: Long,
+    var winnerId: Long?,
+    var period: Int
+)

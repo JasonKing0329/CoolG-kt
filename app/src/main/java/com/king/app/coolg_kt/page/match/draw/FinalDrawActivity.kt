@@ -11,6 +11,7 @@ import com.king.app.coolg_kt.databinding.ActivityMatchDrawFinalBinding
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.h2h.H2hActivity
+import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -48,6 +49,9 @@ class FinalDrawActivity: BaseActivity<ActivityMatchDrawFinalBinding, FinalDrawVi
                 R.id.menu_edit -> {
                     isEditing = true
                     mBinding.actionbar.showConfirmStatus(it)
+                }
+                R.id.menu_history -> {
+                    MatchActivity.startPage(this, mModel.getMatchId())
                 }
                 R.id.menu_create_draw -> {
                     if (mModel.isDrawExist()) {
@@ -154,6 +158,10 @@ class FinalDrawActivity: BaseActivity<ActivityMatchDrawFinalBinding, FinalDrawVi
             mBinding.actionbar.cancelConfirmStatus()
             isEditing = false
         })
-        mModel.loadMatch(intent.getLongExtra(DrawActivity.EXTRA_MATCH_PERIOD_ID, -1))
+        mModel.loadMatch(getMatchPeriodId())
+    }
+
+    private fun getMatchPeriodId(): Long {
+        return intent.getLongExtra(DrawActivity.EXTRA_MATCH_PERIOD_ID, -1)
     }
 }

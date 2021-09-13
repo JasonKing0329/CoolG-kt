@@ -606,7 +606,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
     }
 
     override fun calcDirectInUnSeed() {
-        drawStrategy?.gm500?.let {
+        drawStrategy?.gm250?.let {
             return
         }
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
@@ -629,7 +629,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         var lowRank = 500// 默认最低
-        drawStrategy?.gm500?.let {
+        drawStrategy?.gm250?.let {
             lowRank = it.qualifyLowRank
         }
         val limitList = list.filter { it.rank in (directInEnd + 1)..lowRank }

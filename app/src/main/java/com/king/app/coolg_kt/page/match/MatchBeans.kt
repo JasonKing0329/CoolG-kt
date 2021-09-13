@@ -432,3 +432,26 @@ data class WallItem(
     var matchPeriodId: Long? = null,
     var imageUrl: String? = null
 )
+
+data class MatchCountTitle(
+    var times: String
+)
+
+data class MatchCountRecord(
+    var recordId: Long,
+    var imgUrl: String? = null,
+    var rankSeed: String = "",
+    var winLose: String = "",
+    var best: String = "",
+    var second: String = "",
+    var count: Int = 0
+)
+
+data class MatchRoundRecord(
+    var recordId: Long,
+    var imgUrl: String? = null,
+    var rankSeed: String = "",
+    var times: String = "",
+    var periods: String = "",
+    var periodList: MutableList<Int> = mutableListOf()
+)

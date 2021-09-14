@@ -61,6 +61,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     lateinit var currentPeriod: ShowPeriod
 
     var isSelectMode = false
+    var isSelectAllValid = false
     // select模式下显示match level对应的参加次数(current period)
     var mMatchSelectLevel = 0
 
@@ -443,7 +444,12 @@ class RankViewModel(application: Application): BaseViewModel(application) {
      */
     private fun loadTimeWaste(items: List<RankItem<Record?>>?): Observable<TimeWasteRange> {
         return Observable.create {
-            var samePeriodMap = getDatabase().getMatchDao().getSamePeriodRecordIds(currentPeriod.period, currentPeriod.orderInPeriod)
+            var samePeriodMap = if (isSelectAllValid) {
+                listOf()
+            }
+            else {
+                getDatabase().getMatchDao().getSamePeriodRecordIds(currentPeriod.period, currentPeriod.orderInPeriod)
+            }
             items?.let { list ->
                 var count = 0
                 var totalNotified = 0

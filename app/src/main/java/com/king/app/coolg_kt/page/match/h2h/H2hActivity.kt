@@ -5,14 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
+import android.widget.AdapterView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchH2hBinding
+import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 
 /**
  * @description:
@@ -63,6 +66,21 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
         mBinding.ivRecord1.setOnClickListener { selectPlayer(1) }
 
         mBinding.ivRecord2.setOnClickListener { selectPlayer(2) }
+
+        mBinding.spLevel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                mModel.filterByLevel(position - 1)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
     }
 
     override fun initData() {
@@ -80,7 +98,18 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
 
     private fun selectPlayer(i: Int) {
         mModel.indexToReceivePlayer = i
-        PhoneRecordListActivity.startPageToSelect(this, REQUEST_PLAYER)
+        AlertDialogFragment()
+            .setItems(
+                arrayOf("Record List", "Rank List", "Studio Records", "Out of rank")
+            ) { dialog, which ->
+                when(which) {
+                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@H2hActivity, REQUEST_PLAYER)
+                    1 -> RankActivity.startPageToSelect(this@H2hActivity, REQUEST_PLAYER)
+                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@H2hActivity, REQUEST_PLAYER)
+                    3 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@H2hActivity, REQUEST_PLAYER, true)
+                }
+            }
+            .show(supportFragmentManager, "AlertDialogFragment")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

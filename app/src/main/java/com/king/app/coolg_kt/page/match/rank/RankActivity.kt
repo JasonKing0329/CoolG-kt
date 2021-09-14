@@ -33,6 +33,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
     companion object {
         val EXTRA_SELECT_MODE = "select_mode"
+        val EXTRA_SELECT_ALL_VALID = "select_all_valid"
         val EXTRA_SELECT_MATCH_LEVEL = "select_match_level"
         val EXTRA_FOCUS_TO_RANK = "focus_to_rank"
         val RESP_RECORD_ID = "record_id"
@@ -40,6 +41,12 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         fun startPage(context: Context) {
             var intent = Intent(context, RankActivity::class.java)
             context.startActivity(intent)
+        }
+        fun startPageToSelect(context: Activity, requestCode: Int) {
+            var intent = Intent(context, RankActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_SELECT_ALL_VALID, true)
+            context.startActivityForResult(intent, requestCode)
         }
         fun startPageToSelect(context: Activity, requestCode: Int, focusToRank: Int, matchLevel: Int) {
             var intent = Intent(context, RankActivity::class.java)
@@ -145,6 +152,10 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         return intent.getBooleanExtra(EXTRA_SELECT_MODE, false)
     }
 
+    private fun isSelectAllValid(): Boolean {
+        return intent.getBooleanExtra(EXTRA_SELECT_ALL_VALID, false)
+    }
+
     private fun getFocusToRank(): Int {
         return intent.getIntExtra(EXTRA_FOCUS_TO_RANK, 0)
     }
@@ -159,6 +170,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
     override fun initData() {
         mModel.isSelectMode = isSelectMode()
+        mModel.isSelectAllValid = isSelectAllValid()
         mModel.mMatchSelectLevel = getSelectMatchLevel()
         mModel.initPeriod()
 

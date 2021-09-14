@@ -30,6 +30,8 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     var player2Rank = ObservableField<String>()
     var player1Win = ObservableField<String>()
     var player2Win = ObservableField<String>()
+    var player1FilterWin = ObservableField<String>()
+    var player2FilterWin = ObservableField<String>()
     var player1WinColor = ObservableInt()
     var player2WinColor = ObservableInt()
     var player1ImageUrl = ObservableField<String>()
@@ -52,6 +54,8 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     var scoreRank2Text = ObservableField<String>()
 
     var h2hObserver = MutableLiveData<List<H2hItem>>()
+    private var h2hList = listOf<H2hItem>()
+    private var mLevelId = -1
 
     val h2hRepository = H2hRepository()
     val rankRepository = RankRepository()
@@ -60,7 +64,23 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
 
     var player2: RecordWrap? = null
 
+    var player1Color: Int = 0
+    var player2Color: Int = 0
+
     var indexToReceivePlayer = -1
+
+    init {
+        val colors = listOf(
+            getResource().getColor(R.color.h2h_bg_1),
+            getResource().getColor(R.color.h2h_bg_2),
+            getResource().getColor(R.color.h2h_bg_3),
+            getResource().getColor(R.color.h2h_bg_4),
+            getResource().getColor(R.color.h2h_bg_5)
+        ).shuffled().take(2)
+
+        player1WinColor.set(colors[0])
+        player2WinColor.set(colors[1])
+    }
 
     fun loadH2h(id1: Long, id2: Long) {
         player1 = getDatabase().getRecordDao().getRecord(id1)
@@ -117,9 +137,11 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         if (player1 != null && player2 != null) {
             h2hRepository.getH2hItems(player1!!.bean.id!!, player2!!.bean.id!!)
                 .flatMap { calculateWin(it, player1!!.bean.id!!, player2!!.bean.id!!) }
+                .flatMap { filterByLevel(it) }
                 .compose(applySchedulers())
                 .subscribe(object : SimpleObserver<List<H2hItem>>(getComposite()){
                     override fun onNext(t: List<H2hItem>) {
+                        h2hList = t
                         h2hObserver.value = t
                     }
 
@@ -133,8 +155,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
 
     private fun calculateWin(list: List<H2hItem>, player1Id: Long, player2Id: Long): ObservableSource<List<H2hItem>> {
         return ObservableSource {
-            var player1ItemBg: Int = getResource().getColor(R.color.h2h_bg_more)
-            var player2ItemBg: Int = getResource().getColor(R.color.h2h_bg_less)
+
             var win1 = 0
             var win2 = 0
             list.forEach { item ->
@@ -145,33 +166,44 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
                     win2 ++
                 }
             }
-            when {
-                win1 > win2 -> {
-                    player1WinColor.set(getResource().getColor(R.color.redC93437))
-                    player2WinColor.set(getResource().getColor(R.color.text_sub))
-                }
-                win2 > win1 -> {
-                    player2WinColor.set(getResource().getColor(R.color.redC93437))
-                    player1WinColor.set(getResource().getColor(R.color.text_sub))
-                    player2ItemBg = getResource().getColor(R.color.h2h_bg_more);
-                    player1ItemBg = getResource().getColor(R.color.h2h_bg_less);
-                }
-                else -> {
-                    player1WinColor.set(getResource().getColor(R.color.text_sub))
-                    player2WinColor.set(getResource().getColor(R.color.text_sub))
-                }
-            }
             player1Win.set(win1.toString())
             player2Win.set(win2.toString())
             list.forEach { item ->
                 item.bgColor = if (item.matchItem.bean.winnerId == player1Id) {
-                    player1ItemBg
+                    player1WinColor.get()
                 }
                 else {
-                    player2ItemBg
+                    player2WinColor.get()
                 }
             }
             it.onNext(list)
+            it.onComplete()
+        }
+    }
+
+    private fun filterByLevel(list: List<H2hItem>): ObservableSource<List<H2hItem>> {
+        return ObservableSource {
+            if (mLevelId == -1) {
+                player1FilterWin.set(player1Win.get())
+                player2FilterWin.set(player2Win.get())
+                it.onNext(list)
+            }
+            else {
+                val result = list.filter { item -> item.levelId == mLevelId }
+                var win1 = 0
+                var win2 = 0
+                result.forEach { item ->
+                    if (item.winnerId == player1?.bean?.id) {
+                        win1 ++
+                    }
+                    else if (item.winnerId == player2?.bean?.id) {
+                        win2 ++
+                    }
+                }
+                player1FilterWin.set("$win1")
+                player2FilterWin.set("$win2")
+                it.onNext(result)
+            }
             it.onComplete()
         }
     }
@@ -274,6 +306,11 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         }
         val scoreRank = record.countRecord?.rank
         infoPart.rankScore.set("${record.bean.score}/$scoreRank")
+    }
+
+    fun filterByLevel(levelId: Int) {
+        mLevelId = levelId
+        onH2hChanged()
     }
 
 }

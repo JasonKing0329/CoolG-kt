@@ -181,7 +181,9 @@ data class H2hItem (
     var matchName: String,
     var round: String,
     var winner: String,
-    var loser: String
+    var loser: String,
+    var levelId: Int = 0,// 用于过滤
+    var winnerId: Long = 0
 )
 
 data class ShowPeriod(

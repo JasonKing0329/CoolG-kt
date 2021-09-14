@@ -374,6 +374,54 @@
             app:layout_constraintTop_toTopOf="@id/tv_rank_s_title"
             tools:text="578/369"/>
 
+        <TextView
+            android:id="@+id/tv_filter_win1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:text="@{model.player1FilterWin}"
+            android:textSize="20dp"
+            android:textColor="@{model.player1WinColor}"
+            android:textStyle="bold|italic"
+            app:layout_constraintTop_toTopOf="@+id/sp_level"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_level"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="12"/>
+        <TextView
+            android:id="@+id/tv_filter_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:textSize="20dp"
+            android:textColor="@color/text_normal"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@+id/sp_level"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_level"
+            app:layout_constraintStart_toEndOf="@+id/tv_filter_win1"
+            android:text=" : "/>
+        <TextView
+            android:id="@+id/tv_filter_win2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:text="@{model.player2FilterWin}"
+            android:textSize="20dp"
+            android:textColor="@{model.player2WinColor}"
+            android:textStyle="bold|italic"
+            app:layout_constraintTop_toTopOf="@+id/sp_level"
+            app:layout_constraintBottom_toBottomOf="@+id/sp_level"
+            app:layout_constraintStart_toEndOf="@+id/tv_filter_dot"
+            tools:text="7"/>
+        <Spinner
+            android:id="@+id/sp_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/match_level_with_all"
+            android:layout_marginEnd="@dimen/common_margin_16"
+            android:layout_marginTop="@dimen/common_margin_8"
+            app:layout_constraintTop_toBottomOf="@+id/tv_rank_s_title"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="0dp"
@@ -382,7 +430,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_rank_s_title"
+            app:layout_constraintTop_toBottomOf="@+id/sp_level"
             tools:listitem="@layout/adapter_match_h2h"/>
 
         <TextView

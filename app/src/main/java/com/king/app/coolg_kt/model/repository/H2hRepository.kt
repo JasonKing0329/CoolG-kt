@@ -29,6 +29,8 @@ class H2hRepository: BaseRepository() {
                 val lose = if (loser.recordSeed != 0) "[${loser.recordSeed}]/(${loser.recordRank}) $loserName"
                 else "(${loser.recordRank}) $loserName"
                 val item = H2hItem(0, wrap, index, level, matchPeriod.match.name, round, win, lose)
+                item.levelId = matchPeriod.match.level
+                item.winnerId = wrap.bean.winnerId?:0
                 result.add(item)
             }
             it.onNext(result)

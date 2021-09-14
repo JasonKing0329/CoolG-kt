@@ -54,8 +54,11 @@
 
     <color name="tab_actionbar_text_focus">#FFD600</color>
 
-    <color name="h2h_bg_more">#34495e</color>
-    <color name="h2h_bg_less">#3b9dd4</color>
+    <color name="h2h_bg_1">#4E80B3</color>
+    <color name="h2h_bg_2">#7C58BD</color>
+    <color name="h2h_bg_3">#406E43</color>
+    <color name="h2h_bg_4">#FD8C13</color>
+    <color name="h2h_bg_5">#D53636</color>
 
     <color name="tv_dlg_bg">#99308FC5</color>
     <color name="tv_dlg_title_text">#ffff00</color>

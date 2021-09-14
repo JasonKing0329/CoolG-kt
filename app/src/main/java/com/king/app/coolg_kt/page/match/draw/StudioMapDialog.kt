@@ -61,6 +61,7 @@ class StudioMapDialog: DraggableContentFragment<FragmentDialogStudioMapBinding>(
             drawItems?.forEach { drawItem ->
                 drawItem.matchRecord1?.let { record -> checkRecord(record, items) }
                 drawItem.matchRecord2?.let { record -> checkRecord(record, items) }
+                drawItem.winner?.let { record -> checkWinner(record, items) }
             }
             items.sortByDescending { item -> item.count }
             it.onNext(items)
@@ -76,10 +77,22 @@ class StudioMapDialog: DraggableContentFragment<FragmentDialogStudioMapBinding>(
             }
             var item = findStudio(studio, items)
             if (item == null) {
-                items.add(StudioMapItem(studio, 1))
+                items.add(StudioMapItem(studio, 1, 0))
             }
             else {
                 item.count ++
+            }
+        }
+    }
+
+    private fun checkWinner(record: MatchRecordWrap, items: MutableList<StudioMapItem>) {
+        if (record.bean.recordId != 0.toLong()) {
+            var studio = orderRepository.getRecordStudio(record.bean.recordId)?.name
+            if (studio == null) {
+                studio = UNKNOWN
+            }
+            findStudio(studio, items)?.apply {
+                winCount ++
             }
         }
     }

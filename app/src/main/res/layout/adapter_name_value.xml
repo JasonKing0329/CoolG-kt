@@ -21,7 +21,25 @@
             android:id="@+id/tv_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Value"
+            tools:text="28"
+            android:layout_marginEnd="@dimen/common_margin_16"
+            app:layout_constraintEnd_toStartOf="@+id/tv_arrow"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+        <TextView
+            android:id="@+id/tv_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="->"
+            android:layout_marginEnd="@dimen/common_margin_16"
+            app:layout_constraintEnd_toStartOf="@+id/tv_win"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+        <TextView
+            android:id="@+id/tv_win"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="16"
             android:layout_marginEnd="@dimen/common_margin_16"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

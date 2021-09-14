@@ -304,7 +304,8 @@ data class TimeWasteRange (
 )
 data class StudioMapItem (
     var studio: String,
-    var count: Int
+    var count: Int,
+    var winCount: Int
 )
 
 data class RecordMatchPageItem(

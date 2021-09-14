@@ -21,5 +21,6 @@ class StudioMapAdapter: BaseBindingAdapter<AdapterNameValueBinding, StudioMapIte
     override fun onBindItem(binding: AdapterNameValueBinding, position: Int, bean: StudioMapItem) {
         binding.tvName.text = bean.studio
         binding.tvValue.text = bean.count.toString()
+        binding.tvWin.text = bean.winCount.toString()
     }
 }

@@ -19,18 +19,11 @@ abstract class DrawScorePlan(var match: MatchPeriodWrap) {
 class GrandSlamScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        return when(round) {
-            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 5 else 1
-            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 10 else 5
-            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 25 else 10
-            MatchConstants.ROUND_ID_128 -> {
-                if (isWinner) {
-                    if (isQualify) 45 else 10
-                }
-                else {
-                    if (isQualify) 25 else 10
-                }
-            }
+        var score = when(round) {
+            MatchConstants.ROUND_ID_Q1 -> if (isWinner) 10 else 5
+            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 25 else 10
+            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 40 else 25
+            MatchConstants.ROUND_ID_128 -> if (isWinner) 45 else 10
             MatchConstants.ROUND_ID_64 -> if (isWinner) 90 else 45
             MatchConstants.ROUND_ID_32 -> if (isWinner) 180 else 90
             MatchConstants.ROUND_ID_16 -> if (isWinner) 360 else 180
@@ -39,31 +32,23 @@ class GrandSlamScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
             MatchConstants.ROUND_ID_F -> if (isWinner) 2000 else 1200
             else -> 0
         }
+        if (isQualify && round >= MatchConstants.ROUND_ID_128 && round <= MatchConstants.ROUND_ID_F) {
+            score += 40
+        }
+        return score
     }
 }
 
 class GM1000ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        return when(round) {
+        var score = when(round) {
             MatchConstants.ROUND_ID_Q1 -> if (isWinner) 5 else 1
-            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 10 else 5
-            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 25 else 10
-            MatchConstants.ROUND_ID_128 -> {
-                if (isWinner) {
-                    if (isQualify) 35 else 10
-                }
-                else {
-                    if (isQualify) 25 else 5
-                }
-            }
+            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 15 else 5
+            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 30 else 15
+            MatchConstants.ROUND_ID_128 -> if (isWinner) 10 else 5
             MatchConstants.ROUND_ID_64 -> if (isWinner) 45 else {
-                if (match.match.draws == 128) {
-                    if (isQualify) 35 else 10
-                }
-                else {
-                    if (isQualify) 25 else 5
-                }
+                if (match.match.draws == 128) 10 else 5
             }
             MatchConstants.ROUND_ID_32 -> if (isWinner) 90 else 45
             MatchConstants.ROUND_ID_16 -> if (isWinner) 180 else 90
@@ -72,31 +57,23 @@ class GM1000ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
             MatchConstants.ROUND_ID_F -> if (isWinner) 1000 else 600
             else -> 0
         }
+        if (isQualify && round >= MatchConstants.ROUND_ID_128 && round <= MatchConstants.ROUND_ID_F) {
+            score += 30
+        }
+        return score
     }
 }
 
 class GM500ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        return when(round) {
+        var score = when(round) {
             MatchConstants.ROUND_ID_Q1 -> if (isWinner) 4 else 1
-            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 8 else 4
-            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 20 else 8
-            MatchConstants.ROUND_ID_64 -> {
-                if (isWinner) {
-                    if (isQualify) 25 else 10
-                }
-                else {
-                    if (isQualify) 20 else 5
-                }
-            }
+            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 12 else 4
+            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 20 else 12
+            MatchConstants.ROUND_ID_64 -> if (isWinner) 10 else 5
             MatchConstants.ROUND_ID_32 -> if (isWinner) 45 else {
-                if (match.match.draws == 64) {
-                    if (isQualify) 25 else 10
-                }
-                else {
-                    if (isQualify) 20 else 5
-                }
+                if (match.match.draws == 64) 10 else 5
             }
             MatchConstants.ROUND_ID_16 -> if (isWinner) 90 else 45
             MatchConstants.ROUND_ID_QF -> if (isWinner) 180 else 90
@@ -104,31 +81,39 @@ class GM500ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
             MatchConstants.ROUND_ID_F -> if (isWinner) 500 else 300
             else -> 0
         }
+        if (isQualify && round >= MatchConstants.ROUND_ID_128 && round <= MatchConstants.ROUND_ID_F) {
+            score += 20
+        }
+        return score
     }
 }
 
 class GM250ScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        return when(round) {
+        var score = when(round) {
             MatchConstants.ROUND_ID_Q1 -> if (isWinner) 2 else 0
-            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 5 else 2
-            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 12 else 5
-            MatchConstants.ROUND_ID_32 -> if (isWinner) 20 else { if (isQualify) 12 else 5 }
+            MatchConstants.ROUND_ID_Q2 -> if (isWinner) 7 else 2
+            MatchConstants.ROUND_ID_Q3 -> if (isWinner) 12 else 7
+            MatchConstants.ROUND_ID_32 -> if (isWinner) 20 else 5
             MatchConstants.ROUND_ID_16 -> if (isWinner) 45 else 20
             MatchConstants.ROUND_ID_QF -> if (isWinner) 90 else 45
             MatchConstants.ROUND_ID_SF -> if (isWinner) 150 else 90
             MatchConstants.ROUND_ID_F -> if (isWinner) 250 else 150
             else -> 0
         }
+        if (isQualify && round >= MatchConstants.ROUND_ID_128 && round <= MatchConstants.ROUND_ID_F) {
+            score += 12
+        }
+        return score
     }
 }
 
 class LowScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        if (match.match.draws == 64) {
-            return when(round) {
+        var score = if (match.match.draws == 64) {
+            when(round) {
                 MatchConstants.ROUND_ID_Q1 -> if (isWinner) 1 else 0
                 MatchConstants.ROUND_ID_Q2 -> if (isWinner) 2 else 1
                 MatchConstants.ROUND_ID_Q3 -> if (isWinner) 5 else 2
@@ -142,7 +127,7 @@ class LowScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
             }
         }
         else {
-            return when(round) {
+            when(round) {
                 MatchConstants.ROUND_ID_Q1 -> if (isWinner) 1 else 0
                 MatchConstants.ROUND_ID_Q2 -> if (isWinner) 2 else 1
                 MatchConstants.ROUND_ID_Q3 -> if (isWinner) 3 else 2
@@ -154,6 +139,10 @@ class LowScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
                 else -> 0
             }
         }
+        if (isQualify && round >= MatchConstants.ROUND_ID_128 && round <= MatchConstants.ROUND_ID_F) {
+            score += if (match.match.draws == 64) 5 else 3
+        }
+        return score
     }
 }
 

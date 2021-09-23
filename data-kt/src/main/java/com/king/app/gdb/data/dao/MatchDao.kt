@@ -383,4 +383,6 @@ interface MatchDao {
     @Query("select mr.* from match_record mr join match_period mp on mr.matchId=mp.id where mp.matchId=:matchId and mr.recordId!=0 group by mr.matchId, mr.recordId")
     fun getMatchParticipates(matchId: Long): List<MatchRecord>
 
+    @Query("select count(*) from match_record mr join match_item mi on mr.matchItemId=mi.id where mr.matchId=:matchId and mr.recordId=:recordId and mi.isQualify=1")
+    fun isQualifyRecord(matchId: Long, recordId: Long): Int
 }

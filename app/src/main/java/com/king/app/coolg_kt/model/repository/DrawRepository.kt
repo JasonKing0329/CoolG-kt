@@ -483,11 +483,12 @@ class DrawRepository: BaseRepository() {
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
                     if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
+                        val isQualify = getDatabase().getMatchDao().isQualifyRecord(matchRecord.matchId, matchRecord.recordId) > 0
                         var singleScore: Int? = null
                         // win，只有F计分
                         if (matchRecord.recordId == item.bean.winnerId) {
                             if (item.bean.round == MatchConstants.ROUND_ID_F) {
-                                singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = false)
+                                singleScore = plan.getRoundScore(item.bean.round, isWinner = true, isQualify = isQualify)
                             }
                         }
                         // lose，其他所有轮次都计分
@@ -495,7 +496,7 @@ class DrawRepository: BaseRepository() {
                             singleScore = plan.getRoundScore(
                                 item.bean.round,
                                 isWinner = false,
-                                isQualify = matchRecord.type == MatchConstants.MATCH_RECORD_QUALIFY
+                                isQualify = isQualify
                             )
                         }
 

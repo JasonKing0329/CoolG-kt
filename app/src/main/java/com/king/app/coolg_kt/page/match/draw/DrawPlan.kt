@@ -356,7 +356,7 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: D
         qualify = match.match.qualifyDraws * 8
         // 确定shuffle的数量
         var shuffleNum = qualify / 2// 默认shuffle的数量
-        drawStrategy?.gm1000?.let { shuffleNum = (qualify * (it.shuffleRate.toFloat() / 100)).toInt() }
+        drawStrategy?.gm1000?.let { shuffleNum = (qualify * (it.shuffleRate.toFloat() / 100.0)).toInt() }
         // 确定直接入围的数量
         val forsure = qualify - shuffleNum
         val tempList = mutableListOf<RankRecord>()

@@ -198,6 +198,18 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         return intent.getLongExtra(EXTRA_INIT_STUDIO, 0)
     }
 
+    private fun onSelectItem(data: RankItem<Record?>) {
+        if (data.canSelect) {
+            val intent = Intent()
+            intent.putExtra(RESP_RECORD_ID, data.bean?.id)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+        else {
+            showMessageShort("This record is already in draws of current week")
+        }
+    }
+
     override fun initData() {
         mModel.isSelectMode = isSelectMode()
         mModel.isSelectAllValid = isSelectAllValid()
@@ -209,15 +221,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{
                 override fun onClickItem(view: View, position: Int, data: RankItem<Record?>) {
                     if (isSelectMode()) {
-                        if (data.canSelect) {
-                            val intent = Intent()
-                            intent.putExtra(RESP_RECORD_ID, data.bean?.id)
-                            setResult(Activity.RESULT_OK, intent)
-                            finish()
-                        }
-                        else {
-                            showMessageShort("This record is already in draws of current week")
-                        }
+                        onSelectItem(data)
                     }
                 }
             })
@@ -230,7 +234,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
                 override fun onClickImage(bean: RankItem<Record?>) {
                     bean.bean?.let { record ->
-                        RecordActivity.startPage(this@RankActivity, record.id!!)
+                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
                     }
                 }
 
@@ -241,14 +245,24 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                 }
 
                 override fun onClickMatchCount(bean: RankItem<Record?>) {
-                    bean.bean?.let { record ->
-                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
+                    if (isSelectMode()) {
+                        onSelectItem(bean)
+                    }
+                    else {
+                        bean.bean?.let { record ->
+                            RecordActivity.startPage(this@RankActivity, record.id!!)
+                        }
                     }
                 }
 
                 override fun onClickStudio(bean: RankItem<Record?>) {
-                    bean.bean?.let { record ->
-                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
+                    if (isSelectMode()) {
+                        onSelectItem(bean)
+                    }
+                    else {
+                        bean.bean?.let { record ->
+                            RecordActivity.startPage(this@RankActivity, record.id!!)
+                        }
                     }
                 }
             }
@@ -314,6 +328,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = content
         dialogFragment.setTitle("Rank")
+        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() * 4 / 5;
         dialogFragment.show(supportFragmentManager, "RankDialog")
     }
 }

@@ -43,11 +43,11 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_periods"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginTop="@dimen/common_margin_10"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="@dimen/common_margin_8"
+            android:layout_marginEnd="@dimen/common_margin_8"
             app:layout_constraintTop_toBottomOf="@+id/ll_period"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

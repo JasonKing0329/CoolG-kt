@@ -25,14 +25,14 @@
     <style name="CustomActionBarTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
     </style>
 
-    <!--透明Dialog-->
-    <style name="BaseDialogFragment" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
-        <item name="android:windowFrame">@null</item>
+    <!-- 实现可以wrap_content高度，并且限制最大高度 -->
+    <style name="BaseDialogFragment" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">true</item>
     </style>
+
 
     <style name="BASEDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>

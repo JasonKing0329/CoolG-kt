@@ -4,11 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
-import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.FragmentMatchDetailGsBinding
 import com.king.app.coolg_kt.page.match.RoundItem
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 
 /**
@@ -52,7 +50,6 @@ class GsFragment: AbsDetailChildFragment<FragmentMatchDetailGsBinding, LevelView
         var dialog = DraggableDialogFragment()
         dialog.setTitle("Upgrade Road")
         dialog.contentFragment = content
-        dialog.fixedHeight = content.idealHeight
         dialog.show(childFragmentManager, "RoadDialog")
     }
 

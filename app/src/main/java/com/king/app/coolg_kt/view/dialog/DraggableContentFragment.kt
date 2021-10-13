@@ -20,5 +20,4 @@ abstract class DraggableContentFragment<T : ViewDataBinding> : BindingFragment<T
     protected fun dismissAllowingStateLoss() {
         dialogHolder?.dismissAllowingStateLoss()
     }
-
 }

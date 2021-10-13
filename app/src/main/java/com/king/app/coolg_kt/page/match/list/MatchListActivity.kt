@@ -179,7 +179,6 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         val title = if (editMatch == null) "New match" else "Edit match"
         dialogFragment.setTitle(title)
         dialogFragment.contentFragment = content
-        dialogFragment.maxHeight = ScreenUtils.getScreenHeight() * 2 / 3
         dialogFragment.show(supportFragmentManager, "MatchEditor")
     }
 

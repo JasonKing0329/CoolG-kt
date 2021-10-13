@@ -156,7 +156,6 @@ class TagManagerFragment: DraggableContentFragment<ActivityTagManagerBinding>() 
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = fragment
         dialogFragment.setTitle("Select tag")
-        dialogFragment.fixedHeight = fragment.idealHeight
         dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
         dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.loadTags() }
         dialogFragment.show(childFragmentManager, "TagFragment")

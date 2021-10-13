@@ -8,7 +8,6 @@ import com.king.app.coolg_kt.databinding.FragmentDialogMatchRoadBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.match.RoadBean
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 
 /**
@@ -22,8 +21,6 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
 
     var matchPeriodId: Long = 0
     var recordId: Long = 0
-
-    var idealHeight = ScreenUtils.getScreenHeight() * 3 / 4
 
     override fun getBinding(inflater: LayoutInflater): FragmentDialogMatchRoadBinding = FragmentDialogMatchRoadBinding.inflate(inflater)
 

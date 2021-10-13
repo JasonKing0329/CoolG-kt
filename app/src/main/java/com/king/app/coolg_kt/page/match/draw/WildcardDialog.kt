@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.GridLayoutManager
 import com.king.app.coolg_kt.databinding.FragmentDialogMatchWildcardBinding
 import com.king.app.coolg_kt.page.match.WildcardBean
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 
 /**
@@ -19,8 +18,6 @@ class WildcardDialog: DraggableContentFragment<FragmentDialogMatchWildcardBindin
     var dataList = mutableListOf<WildcardBean>()
 
     var wildcardListener: WildCardListener? = null
-
-    var idealHeight = ScreenUtils.getScreenHeight() * 2 / 3
 
     var mEditPosition = -1
 

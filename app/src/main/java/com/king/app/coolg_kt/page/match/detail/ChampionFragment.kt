@@ -8,8 +8,6 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.databinding.FragmentMatchDetailChampionBinding
 import com.king.app.coolg_kt.page.match.ChampionItem
 import com.king.app.coolg_kt.page.match.ChampionLevel
-import com.king.app.coolg_kt.page.match.ScoreBean
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.widget.flow_rc.FlowLayoutManager
 
@@ -83,7 +81,6 @@ class ChampionFragment: AbsDetailChildFragment<FragmentMatchDetailChampionBindin
         var dialog = DraggableDialogFragment()
         dialog.setTitle("Upgrade Road")
         dialog.contentFragment = content
-        dialog.fixedHeight = content.idealHeight
         dialog.show(childFragmentManager, "RoadDialog")
     }
 

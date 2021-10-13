@@ -87,7 +87,6 @@ class WallActivity: BaseActivity<ActivityMatchWallBinding, ChampionWallViewModel
         var dialog = DraggableDialogFragment()
         dialog.setTitle("Upgrade Road")
         dialog.contentFragment = content
-        dialog.fixedHeight = content.idealHeight
         dialog.show(supportFragmentManager, "RoadDialog")
     }
 

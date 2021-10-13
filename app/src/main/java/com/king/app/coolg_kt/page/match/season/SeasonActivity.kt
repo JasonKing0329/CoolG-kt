@@ -75,7 +75,6 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
         val title = if (editMatch == null) "Add" else "Edit"
         dialog.setTitle(title)
         dialog.contentFragment = content
-        dialog.maxHeight = ScreenUtils.getScreenHeight() * 2 / 3
         dialog.show(supportFragmentManager, "SeasonEditor")
     }
 

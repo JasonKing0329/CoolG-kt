@@ -1,11 +1,11 @@
 package com.king.app.coolg_kt.view.dialog
 
 import android.content.DialogInterface
-import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.ViewGroup
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BindingDialogFragment
 import com.king.app.coolg_kt.databinding.DialogBaseBinding
@@ -28,15 +28,15 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
     var contentFragment: DraggableContentFragment<*>? = null
 
     /**
-     * 子类可选择覆盖
+     * 最大高度
      * @return
      */
-    var maxHeight = 0
-        get() = if (field != 0) {
-            field
-        } else {
-            ScreenUtils.getScreenHeight() * 3 / 5
-        }
+    var maxHeight = ScreenUtils.getScreenHeight() * 4 / 5
+
+    /**
+     * 最小高度
+     */
+    var minHeight = 0
 
     /**
      * 固定高度
@@ -62,8 +62,7 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
         if (backgroundColor == 0) {
             backgroundColor = resources.getColor(R.color.dlg_base_bg)
         }
-        val drawable = mBinding.groupDialog.background as GradientDrawable
-        drawable.setColor(backgroundColor)
+        mBinding.viewBg.setBackgroundColor(backgroundColor)
 
         if (hideClose) {
             mBinding.ivClose.visibility = View.GONE
@@ -73,11 +72,17 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
             it.dialogHolder = this
             replaceContentFragment(it, "ContentView")
         }
-        limitFixedSize()
-        mBinding.flFt.post {
-            DebugLog.e("groupFtContent height=" + mBinding.flFt.height)
-            limitMaxHeight()
+
+        // 固定宽高
+        if (fixedWidth > 0 || fixedHeight > 0) {
+            limitFixedSize()
         }
+        else {
+            // 限制最大最小宽高
+            mBinding.flFt.viewTreeObserver
+                .addOnGlobalLayoutListener { limitMaxMinHeight() }
+        }
+
         mBinding.ivClose.setOnClickListener { v: View? -> dismissAllowingStateLoss() }
     }
 
@@ -99,51 +104,38 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
     }
 
     /**
-     * 固定宽高
-     */
-    override fun onResume() {
-        super.onResume()
-//        if (fixedHeight > 0 || fixedWidth > 0) {
-//            var dm = DisplayMetrics()
-//            requireActivity().windowManager.defaultDisplay.getMetrics(dm)
-//            // 按比例可以这样设置：(int) (dm.widthPixels * 0.75)
-//            var height = if (fixedHeight > 0) fixedHeight
-//            else ViewGroup.LayoutParams.WRAP_CONTENT
-//            var width = if (fixedWidth > 0) fixedWidth
-//            else ViewGroup.LayoutParams.MATCH_PARENT
-//            dialog?.window?.setLayout(width, height)
-//        }
-    }
-
-    /**
      * 当dialog固定了宽高,contentFragment也需要固定高度
      */
     private fun limitFixedSize() {
-        if (fixedHeight > 0 || fixedWidth > 0) {
-            val params = mBinding.flFt.layoutParams
-            if (fixedHeight > 0) {
-                params.height = fixedHeight
-            }
-            if (fixedWidth > 0) {
-                params.width = fixedWidth
-            }
-            mBinding.flFt.layoutParams = params
-            mBinding.flFt.invalidate()
-            mBinding.flFt.requestLayout()
+        val params = mBinding.flFt.layoutParams
+        if (fixedHeight > 0) {
+            params.height = fixedHeight
         }
+        if (fixedWidth > 0) {
+            params.width = fixedWidth
+        }
+        mBinding.flFt.layoutParams = params
+        mBinding.flFt.invalidate()
+        mBinding.flFt.requestLayout()
     }
 
     /**
-     * 限制最大高度，fixedHeight > 0时不起作用
+     * 限制最大最小高度
      */
-    private fun limitMaxHeight() {
-        if (fixedHeight == 0) {
-            val maxContentHeight = maxHeight
-            if (mBinding.flFt.height > maxContentHeight) {
-                val params = mBinding.flFt.layoutParams
-                params.height = maxContentHeight
-                mBinding.flFt.layoutParams = params
-            }
+    private fun limitMaxMinHeight() {
+        val contentHeight: Int = mBinding.flFt.height
+        DebugLog.e("contentHeight=$contentHeight")
+        // 最大高度
+        if (maxHeight in 1 until contentHeight) {
+            val params: ViewGroup.LayoutParams = mBinding.flFt.layoutParams
+            params.height = maxHeight
+            mBinding.flFt.layoutParams = params
+        }
+        // 最小高度
+        else if (contentHeight < minHeight) {
+            val params: ViewGroup.LayoutParams = mBinding.flFt.layoutParams
+            params.height = minHeight
+            mBinding.flFt.layoutParams = params
         }
     }
 

@@ -10,7 +10,6 @@ import com.king.app.coolg_kt.databinding.ActivityMatchRecordDetailBinding
 import com.king.app.coolg_kt.page.match.h2h.RecordH2hActivity
 import com.king.app.coolg_kt.page.match.rank.RankDialog
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 
 /**
@@ -92,7 +91,6 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = content
         dialogFragment.setTitle("Rank")
-        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() *2 / 3
         dialogFragment.show(supportFragmentManager, "RankDialog")
     }
 

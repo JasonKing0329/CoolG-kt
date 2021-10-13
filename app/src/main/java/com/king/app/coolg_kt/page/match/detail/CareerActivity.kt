@@ -83,7 +83,6 @@ class CareerActivity: BaseActivity<ActivityMatchCareerBinding, CareerViewModel>(
         var dialog = DraggableDialogFragment()
         dialog.setTitle("Upgrade Road")
         dialog.contentFragment = content
-        dialog.fixedHeight = content.idealHeight
         dialog.show(supportFragmentManager, "RoadDialog")
     }
 

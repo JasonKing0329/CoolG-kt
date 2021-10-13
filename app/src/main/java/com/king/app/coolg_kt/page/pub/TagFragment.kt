@@ -28,8 +28,6 @@ class TagFragment : DraggableContentFragment<FragmentTagBinding>() {
     private var repository = TagRepository()
     var onTagSelectListener: OnTagSelectListener? = null
 
-    var idealHeight = ScreenUtils.getScreenHeight() * 3 / 5
-
     var isOnlyShowUnClassified = false
 
     private var isEditMode = false

@@ -274,7 +274,6 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             val title = "Plan"
             dialog.setTitle(title)
             dialog.contentFragment = content
-            dialog.fixedHeight = ScreenUtils.getScreenHeight() * 2 / 3
             dialog.show(supportFragmentManager, "DrawPlanDialog")
         }
     }
@@ -288,21 +287,22 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     private fun showWildcardDialog() {
         wildcardDialog = WildcardDialog()
-        wildcardDialog!!.dataList = mModel.getWildcardList()
-        wildcardDialog!!.wildcardListener = object : WildcardDialog.WildCardListener {
-            override fun selectRecord() {
-                selectRecord(REQUEST_SELECT_WILDCARD)
-            }
+        wildcardDialog?.apply {
+            dataList = mModel.getWildcardList()
+            wildcardListener = object : WildcardDialog.WildCardListener {
+                override fun selectRecord() {
+                    selectRecord(REQUEST_SELECT_WILDCARD)
+                }
 
-            override fun confirm(dataList: List<WildcardBean>) {
-                mModel.arrangeWildcards(dataList)
-                adapter.notifyDataSetChanged()
+                override fun confirm(dataList: List<WildcardBean>) {
+                    mModel.arrangeWildcards(dataList)
+                    adapter.notifyDataSetChanged()
+                }
             }
         }
         var dialog = DraggableDialogFragment()
         dialog.setTitle("Wildcards")
         dialog.contentFragment = wildcardDialog
-        dialog.fixedHeight = wildcardDialog!!.idealHeight
         dialog.show(supportFragmentManager, "WildcardDialog")
     }
 

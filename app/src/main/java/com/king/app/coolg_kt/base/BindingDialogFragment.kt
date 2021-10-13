@@ -11,6 +11,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.utils.ScreenUtils
 
 /**
  * 描述:DialogFragment基类
@@ -37,7 +38,14 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState)
+        var dialog = super.onCreateDialog(savedInstanceState)
+
+        windowParams = dialog.window?.attributes
+        windowParams?.apply {
+            width = ScreenUtils.getScreenWidth() - ScreenUtils.dp2px(16f) * 2
+            height = WindowManager.LayoutParams.WRAP_CONTENT
+        }
+        return dialog
     }
 
     override fun onCreateView(
@@ -45,7 +53,6 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        windowParams = dialog!!.window!!.attributes
         mBinding = getBinding(inflater)
         val view = mBinding.root
         initView(view)
@@ -60,14 +67,18 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
         super.onActivityCreated(savedInstanceState)
     }
 
-    fun setWidth(width: Int) {
-        windowParams!!.width = width
-        dialog!!.window!!.attributes = windowParams
+    fun setWidth(w: Int) {
+        windowParams?.apply {
+            width = w
+            dialog?.window?.attributes = this
+        }
     }
 
-    fun setHeight(height: Int) {
-        windowParams!!.height = height
-        dialog!!.window!!.attributes = windowParams
+    fun setHeight(h: Int) {
+        windowParams?.apply {
+            height = h
+            dialog?.window?.attributes = this
+        }
     }
 
     /**
@@ -77,10 +88,11 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
      * @param y 负数向上，正数向下
      */
     fun setPositionOffset(x: Int, y: Int) {
-
-        windowParams!!.x = x
-        windowParams!!.y = y
-        dialog!!.window!!.attributes = windowParams
+        windowParams?.apply {
+            this.x = x
+            this.y = y
+            dialog?.window?.attributes = this
+        }
     }
 
     /**
@@ -91,9 +103,11 @@ abstract class BindingDialogFragment<T : ViewDataBinding> : DialogFragment() {
      */
     protected fun move(x: Int, y: Int) {
 
-        windowParams!!.x += x
-        windowParams!!.y += y
-        dialog!!.window!!.attributes = windowParams//must have
+        windowParams?.apply {
+            this.x += x
+            this.y += y
+            dialog?.window?.attributes = this
+        }
     }
 
     fun<VM: BaseViewModel> generateViewModel(vm: Class<VM>) = ViewModelProvider(this, ViewModelFactory(CoolApplication.instance)).get(vm)

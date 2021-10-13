@@ -92,6 +92,28 @@ abstract class BaseRepository {
     }
 
     /**
+     * 确认指定日期为截止日期的，排名的积分周期
+     */
+    fun getRankPeriodPack(endPeriod: Int, endPIO: Int): PeriodPack {
+        var bean = PeriodPack()
+        bean.endPeriod = endPeriod
+        bean.endPIO = endPIO
+        // 确认起始站有3种情况
+        // 当前结束的orderInPeriod等于45或46（46为Final）,计分周期为 1 to orderInPeriod
+        // 当前结束的orderInPeriod小于45，计分周期为 last(orderInPeriod + 1) to orderInPeriod
+        bean.startPeriod = 0
+        bean.startPIO = 0
+        if (endPIO == MatchConstants.MAX_ORDER_IN_PERIOD - 1 || endPIO == MatchConstants.MAX_ORDER_IN_PERIOD) {
+            bean.startPeriod = endPeriod
+            bean.startPIO = 1
+        } else {
+            bean.startPeriod = endPeriod - 1
+            bean.startPIO = endPIO + 1
+        }
+        return bean
+    }
+
+    /**
      * 确认RaceToFinal的积分周期
      */
     fun getRTFPeriodPack(): PeriodPack {

@@ -50,9 +50,10 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
         }
         binding.tvRank.setOnClickListener { onItemListener?.onClickRank(bean) }
         binding.tvChange.setOnClickListener { onItemListener?.onClickRank(bean) }
-        binding.ivHead.setOnClickListener { onItemListener?.onClickId(bean) }
+        binding.ivHead.setOnClickListener { onItemListener?.onClickImage(bean) }
         binding.bgScore.setOnClickListener { onItemListener?.onClickScore(bean) }
-        binding.tvMatchCount.setOnClickListener { onItemListener?.onClickScore(bean) }
+        binding.tvMatchCount.setOnClickListener { onItemListener?.onClickMatchCount(bean) }
+        binding.tvStudio.setOnClickListener { onItemListener?.onClickStudio(bean) }
 
         when {
             bean.change.startsWith("+") -> {
@@ -70,6 +71,8 @@ class RankAdapter<T>: BaseBindingAdapter<AdapterMatchRankBinding, RankItem<T>>()
     interface OnItemListener<T> {
         fun onClickRank(bean: RankItem<T>)
         fun onClickScore(bean: RankItem<T>)
-        fun onClickId(bean: RankItem<T>)
+        fun onClickImage(bean: RankItem<T>)
+        fun onClickStudio(bean: RankItem<T>)
+        fun onClickMatchCount(bean: RankItem<T>)
     }
 }

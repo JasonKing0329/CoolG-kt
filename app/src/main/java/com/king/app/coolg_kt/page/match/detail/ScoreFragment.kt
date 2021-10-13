@@ -75,7 +75,7 @@ class ScoreFragment: AbsDetailChildFragment<FragmentMatchDetailScoreBinding, Sco
     }
 
     override fun initData() {
-        mModel.recordWrap = mainViewModel.recordWrap
+        mModel.recordId = mainViewModel.recordWrap!!.bean.id!!
         mModel.scoresObserver.observe(this, Observer {
             adapter.list = it
             adapter.notifyDataSetChanged()

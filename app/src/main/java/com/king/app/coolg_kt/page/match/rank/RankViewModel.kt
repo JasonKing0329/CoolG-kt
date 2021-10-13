@@ -737,6 +737,16 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    fun targetPeriod(period: Int, orderInPeriod: Int) {
+        showPeriod = if (isPeriodFinalRank) {
+            ShowPeriod(period, showPeriod.orderInPeriod)
+        }
+        else {
+            ShowPeriod(period, orderInPeriod)
+        }
+        loadData()
+    }
+
     fun nextPeriod() {
         showPeriod = if (isPeriodFinalRank) {
             rankRepository.getNextPeriodFinal(showPeriod)

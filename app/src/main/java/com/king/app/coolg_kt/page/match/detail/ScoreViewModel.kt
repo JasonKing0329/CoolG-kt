@@ -1,22 +1,16 @@
 package com.king.app.coolg_kt.page.match.detail
 
 import android.app.Application
-import android.view.View
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
-import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.*
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchScoreRecord
-import com.king.app.gdb.data.relation.MatchScoreRecordWrap
-import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -30,27 +24,19 @@ class ScoreViewModel(application: Application): BaseViewModel(application) {
     private var rankRepository = RankRepository()
     private var scoreModel = ScoreModel()
 
-    var recordWrap: RecordWrap? = null
     var curPeriodPack: PeriodPack? = null
     var scoreHead = ScoreHead()
 
-    private val recordId: Long
-        get() = recordWrap?.bean?.id?:0
+    var recordId: Long = 0
 
     fun loadRankPeriod() {
         curPeriodPack = rankRepository.getRankPeriodPack()
-        convertRecordScores(scoreModel.countScoreWithClassifiedResult(recordId, curPeriodPack!!))
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
-                override fun onNext(t: List<Any>) {
-                    scoresObserver.value = t
-                }
+        loadPeriodScores(recordId)
+    }
 
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
+    fun loadRankPeriod(period: Int, orderInPeriod: Int) {
+        curPeriodPack = rankRepository.getRankPeriodPack(period, orderInPeriod)
+        loadPeriodScores(recordId)
     }
 
     fun loadRaceToFinal() {

@@ -108,6 +108,36 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         }
         mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
         mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
+        mBinding.tvWeek.setOnClickListener { selectWeek() }
+    }
+
+    private fun selectWeek() {
+        var content = PeriodFragment()
+        content.period = mModel.showPeriod.period
+        content.onPeriodSelectListener = object : PeriodFragment.OnPeriodSelectListener {
+            override fun onSelectPeriod(period: Int, orderInPeriod: Int) {
+                mModel.targetPeriod(period, orderInPeriod)
+            }
+        }
+        var dialog = DraggableDialogFragment()
+        val title = "Select week"
+        dialog.setTitle(title)
+        dialog.contentFragment = content
+        dialog.maxHeight = ScreenUtils.getScreenHeight() * 2 / 3
+        dialog.show(supportFragmentManager, "PeriodFragment")
+    }
+
+    private fun showScoreStructure(recordId: Long) {
+        var content = RankScoresFragment()
+        content.recordId = recordId
+        content.period = mModel.showPeriod.period
+        content.orderInPeriod = mModel.showPeriod.orderInPeriod
+        var dialog = DraggableDialogFragment()
+        val title = "Score Structure"
+        dialog.setTitle(title)
+        dialog.contentFragment = content
+        dialog.maxHeight = ScreenUtils.getScreenHeight() * 4 / 5
+        dialog.show(supportFragmentManager, "RankScoresFragment")
     }
 
     private fun highRank() {
@@ -194,12 +224,11 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             adapter.onItemListener = object : RankAdapter.OnItemListener<Record?> {
                 override fun onClickScore(bean: RankItem<Record?>) {
                     bean.bean?.let { record ->
-                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
-//                        ScoreActivity.startRecordPage(this@RankActivity, record.id!!)
+                        showScoreStructure(record.id!!)
                     }
                 }
 
-                override fun onClickId(bean: RankItem<Record?>) {
+                override fun onClickImage(bean: RankItem<Record?>) {
                     bean.bean?.let { record ->
                         RecordActivity.startPage(this@RankActivity, record.id!!)
                     }
@@ -208,6 +237,18 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
                 override fun onClickRank(bean: RankItem<Record?>) {
                     bean.bean?.let { record ->
                         showRankDialog(record)
+                    }
+                }
+
+                override fun onClickMatchCount(bean: RankItem<Record?>) {
+                    bean.bean?.let { record ->
+                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
+                    }
+                }
+
+                override fun onClickStudio(bean: RankItem<Record?>) {
+                    bean.bean?.let { record ->
+                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
                     }
                 }
             }

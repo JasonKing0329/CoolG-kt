@@ -38,6 +38,13 @@ class RankDialog: DraggableContentFragment<FragmentDialogRankBinding>() {
 
     var recordId: Long = 0L
 
+    /**
+     * 根布局是match_parent，需要覆盖为true
+     */
+    override fun fixHeightAsMaxHeight(): Boolean {
+        return true
+    }
+
     override fun getBinding(inflater: LayoutInflater): FragmentDialogRankBinding = FragmentDialogRankBinding.inflate(inflater)
 
     override fun initData() {

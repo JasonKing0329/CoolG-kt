@@ -28,6 +28,13 @@ class DownloadFragment: DraggableContentFragment<FragmentDownloadBinding>() {
 
     private var ftList: ListFragment? = null
 
+    /**
+     * 根布局是match_parent，需要覆盖为true
+     */
+    override fun fixHeightAsMaxHeight(): Boolean {
+        return true
+    }
+
     override fun getBinding(inflater: LayoutInflater): FragmentDownloadBinding = FragmentDownloadBinding.inflate(inflater)
 
     override fun initData() {

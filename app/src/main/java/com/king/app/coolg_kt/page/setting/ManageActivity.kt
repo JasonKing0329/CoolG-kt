@@ -12,7 +12,6 @@ import com.king.app.coolg_kt.model.http.bean.response.AppCheckBean
 import com.king.app.coolg_kt.page.download.DownloadFragment
 import com.king.app.coolg_kt.page.download.OnDownloadListener
 import com.king.app.coolg_kt.service.FileService
-import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
@@ -105,7 +104,6 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
         val fragment = DraggableDialogFragment()
         fragment.contentFragment = content
         fragment.setTitle("Download")
-        fragment.fixedHeight = ScreenUtils.getScreenHeight() * 3 / 5
         fragment.show(supportFragmentManager, "DownloadFragment")
     }
 
@@ -139,7 +137,6 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
         val fragment = DraggableDialogFragment()
         fragment.contentFragment = content
         fragment.setTitle("Download")
-        fragment.fixedHeight = ScreenUtils.getScreenHeight() * 3 / 5
         fragment.show(supportFragmentManager, "DownloadFragment")
     }
 

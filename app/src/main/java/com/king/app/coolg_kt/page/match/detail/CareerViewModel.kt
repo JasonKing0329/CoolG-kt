@@ -92,7 +92,7 @@ class CareerViewModel(application: Application): BaseViewModel(application) {
                         else -> getResource().getColor(R.color.match_level_low)
                     }
                     // rank seed, result后续加载
-                    match = CareerMatch(period, item.bean.matchId, matchBean.name, item.orderInPeriod,
+                    match = CareerMatch(matchBean, period, item.bean.matchId, matchBean.name, item.orderInPeriod,
                         MatchConstants.MATCH_LEVEL[matchBean.level], color, "${matchBean.draws} Draws", "", "",
                         View.GONE, mutableListOf())
                     period.matches.add(match)

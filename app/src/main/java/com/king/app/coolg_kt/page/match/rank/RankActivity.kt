@@ -328,7 +328,6 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = content
         dialogFragment.setTitle("Rank")
-        dialogFragment.fixedHeight = ScreenUtils.getScreenHeight() * 4 / 5;
         dialogFragment.show(supportFragmentManager, "RankDialog")
     }
 }

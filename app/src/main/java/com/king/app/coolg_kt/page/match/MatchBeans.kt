@@ -384,6 +384,7 @@ data class CareerPeriod (
 
 }
 data class CareerMatch (
+    var matchBean: Match,
     var parent: CareerPeriod,
     var matchPeriodId: Long,
     var name: String,

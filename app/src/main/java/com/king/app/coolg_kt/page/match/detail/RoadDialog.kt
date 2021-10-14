@@ -22,6 +22,13 @@ class RoadDialog: DraggableContentFragment<FragmentDialogMatchRoadBinding>() {
     var matchPeriodId: Long = 0
     var recordId: Long = 0
 
+    /**
+     * 根布局是match_parent，需要覆盖为true
+     */
+    override fun fixHeightAsMaxHeight(): Boolean {
+        return true
+    }
+
     override fun getBinding(inflater: LayoutInflater): FragmentDialogMatchRoadBinding = FragmentDialogMatchRoadBinding.inflate(inflater)
 
     override fun initData() {

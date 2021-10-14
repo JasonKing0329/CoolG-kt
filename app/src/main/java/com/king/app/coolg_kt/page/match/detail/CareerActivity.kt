@@ -6,10 +6,12 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivityMatchCareerBinding
 import com.king.app.coolg_kt.page.match.CareerMatch
 import com.king.app.coolg_kt.page.match.CareerRecord
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
+import com.king.app.coolg_kt.page.match.draw.FinalDrawActivity
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 
 /**
@@ -45,7 +47,12 @@ class CareerActivity: BaseActivity<ActivityMatchCareerBinding, CareerViewModel>(
         }
         adapter.onMatchListener = object : CareerAdapter.OnMatchListener {
             override fun onClickMatch(position: Int, record: CareerMatch) {
-                DrawActivity.startPage(this@CareerActivity, record.matchPeriodId)
+                if (record.matchBean.level == MatchConstants.MATCH_LEVEL_FINAL) {
+                    FinalDrawActivity.startPage(this@CareerActivity, record.matchPeriodId)
+                }
+                else {
+                    DrawActivity.startPage(this@CareerActivity, record.matchPeriodId)
+                }
             }
         }
         mBinding.rvList.adapter = adapter

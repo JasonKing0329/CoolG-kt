@@ -44,9 +44,9 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
     var fixedWidth = 0
 
     /**
-     * 固定高度
+     * 固定高度，通过maxHeight与fixHeightAsMaxHeight()来控制（只暴露maxHeight字段）
      */
-    var fixedHeight = 0
+    private var fixedHeight = 0
     
     var dismissListener: DialogInterface.OnDismissListener? = null
     
@@ -125,18 +125,30 @@ open class DraggableDialogFragment : BindingDialogFragment<DialogBaseBinding>(),
     private fun limitMaxMinHeight() {
         val contentHeight: Int = mBinding.flFt.height
         DebugLog.e("contentHeight=$contentHeight")
-        // 最大高度
-        if (maxHeight in 1 until contentHeight) {
+
+        // content高度超过最大高度
+        val contentOverMaxHeight = maxHeight in 1 until contentHeight
+        // content设置了将高度固定为最大高度
+        val fixAsMaxHeight = contentFragment?.fixHeightAsMaxHeight()?:false
+        // 先判断最大高度
+        if (contentOverMaxHeight || fixAsMaxHeight) {
             val params: ViewGroup.LayoutParams = mBinding.flFt.layoutParams
             params.height = maxHeight
             mBinding.flFt.layoutParams = params
         }
-        // 最小高度
+        // 再判断最小高度
         else if (contentHeight < minHeight) {
             val params: ViewGroup.LayoutParams = mBinding.flFt.layoutParams
             params.height = minHeight
             mBinding.flFt.layoutParams = params
         }
+    }
+
+    /**
+     * 将高度固定为最大高度，content根布局是match_parent，只暴露maxHeight，不直接操作fixedHeight
+     */
+    fun fixHeightAsMaxHeight() {
+        fixedHeight = maxHeight
     }
 
     private fun initDragParams() {

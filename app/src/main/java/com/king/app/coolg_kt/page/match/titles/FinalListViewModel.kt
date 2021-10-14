@@ -56,14 +56,18 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
             }
             matchItems.forEach { wrap ->
                 val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.bean.matchId)
-                val winner = wrap.recordList.first { it.recordId == wrap.bean.winnerId }
-                val loser = wrap.recordList.first { it.recordId != wrap.bean.winnerId }
-                val winnerRecord = getDatabase().getRecordDao().getRecordBasic(winner.recordId)
-                val loserRecord = getDatabase().getRecordDao().getRecordBasic(loser.recordId)
-                val r = MatchRecordWrap(winner, winnerRecord)
-                val l = MatchRecordWrap(loser, loserRecord)
-                // 加载image属于耗时操作，后面再加载
-                list.add(FinalListItem(matchPeriod, r, l))
+                val winner = wrap.recordList.firstOrNull { it.recordId == wrap.bean.winnerId }
+                val loser = wrap.recordList.firstOrNull { it.recordId != wrap.bean.winnerId }
+                winner?.let { winner ->
+                    loser?.let { loser ->
+                        val winnerRecord = getDatabase().getRecordDao().getRecordBasic(winner.recordId)
+                        val loserRecord = getDatabase().getRecordDao().getRecordBasic(loser.recordId)
+                        val r = MatchRecordWrap(winner, winnerRecord)
+                        val l = MatchRecordWrap(loser, loserRecord)
+                        // 加载image属于耗时操作，后面再加载
+                        list.add(FinalListItem(matchPeriod, r, l))
+                    }
+                }
             }
             it.onNext(list)
             it.onComplete()

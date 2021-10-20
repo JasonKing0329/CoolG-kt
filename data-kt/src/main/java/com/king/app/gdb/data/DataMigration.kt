@@ -178,6 +178,15 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_17_18: Migration = object : Migration(17, 18) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_17_18")
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `score_plan` (`matchId` INTEGER NOT NULL, `period` INTEGER NOT NULL, `plan` TEXT NOT NULL, PRIMARY KEY(`matchId`, `period`))"
+            )
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

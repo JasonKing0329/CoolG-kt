@@ -459,3 +459,20 @@ data class MatchRoundRecord(
     var periods: String = "",
     var periodList: MutableList<Int> = mutableListOf()
 )
+
+data class ScoreQualifyItem(
+    var scoreLose: Int,
+    var scoreWin: Int
+)
+
+data class ScoreItem(
+    var round: Int,
+    var scoreLose: Int,
+    var scoreWin: Int,
+    var qualifyItem: ScoreQualifyItem? = null
+)
+
+data class DrawScore(
+    var matchId: Long,
+    var items: MutableList<ScoreItem>
+)

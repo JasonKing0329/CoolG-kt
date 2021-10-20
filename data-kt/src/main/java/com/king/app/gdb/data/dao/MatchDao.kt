@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import com.king.app.gdb.data.bean.*
+import com.king.app.gdb.data.entity.ScorePlan
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.*
 
@@ -211,6 +212,9 @@ interface MatchDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrReplaceMatchRankDetails(list: List<MatchRankDetail>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrReplaceScorePlan(bean: ScorePlan)
+
     @Update
     fun updateMatchItems(list: List<MatchItem>)
 
@@ -385,4 +389,11 @@ interface MatchDao {
 
     @Query("select count(*) from match_record mr join match_item mi on mr.matchItemId=mi.id where mr.matchId=:matchId and mr.recordId=:recordId and mi.isQualify=1")
     fun isQualifyRecord(matchId: Long, recordId: Long): Int
+
+    @Query("select * from score_plan where matchId=:matchId")
+    fun getMatchScorePlans(matchId: Long): List<ScorePlan>
+
+    @Query("select * from score_plan where matchId=:matchId and period=:period")
+    fun getMatchScorePlan(matchId: Long, period: Int): ScorePlan?
+
 }

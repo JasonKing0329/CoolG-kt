@@ -9,7 +9,9 @@ import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.FragmentMatchEditorBinding
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
+import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.Match
 
 /**
@@ -56,6 +58,17 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
         }
 
         mBinding.btnStudio.setOnClickListener { StudioActivity.startPageToSelectAsMatch(this, 0) }
+
+        mBinding.ivScorePlan.setOnClickListener { showScorePlan() }
+    }
+
+    private fun showScorePlan() {
+        var content = ScorePlanDialog()
+        content.matchId = match!!.id
+        var dialog = DraggableDialogFragment()
+        dialog.contentFragment = content
+        dialog.maxHeight = ScreenUtils.getScreenHeight()
+        dialog.show(childFragmentManager, "ScorePlanDialog")
     }
 
     private fun saveMatch() {

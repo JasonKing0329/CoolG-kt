@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.model.repository
 
+import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.image.ImageProvider
@@ -467,12 +468,18 @@ class DrawRepository: BaseRepository() {
             getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
             getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
 
-            var plan = when(match.match.level) {
-                MatchConstants.MATCH_LEVEL_GS -> GrandSlamScorePlan(match)
-                MatchConstants.MATCH_LEVEL_GM1000 -> GM1000ScorePlan(match)
-                MatchConstants.MATCH_LEVEL_GM500 -> GM500ScorePlan(match)
-                MatchConstants.MATCH_LEVEL_GM250 -> GM250ScorePlan(match)
-                else -> LowScorePlan(match)
+            var drawScore = getScorePlan(match.match.id)
+            var plan = if (drawScore == null) {
+                when(match.match.level) {
+                    MatchConstants.MATCH_LEVEL_GS -> GrandSlamScorePlan(match)
+                    MatchConstants.MATCH_LEVEL_GM1000 -> GM1000ScorePlan(match)
+                    MatchConstants.MATCH_LEVEL_GM500 -> GM500ScorePlan(match)
+                    MatchConstants.MATCH_LEVEL_GM250 -> GM250ScorePlan(match)
+                    else -> LowScorePlan(match)
+                }
+            }
+            else {
+                BeanPlan(match, drawScore)
             }
 
             val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
@@ -713,4 +720,26 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    fun getScorePlan(matchId: Long, period: Int? = null): DrawScore? {
+        var scorePlan = if (period == null) {
+            var list = getDatabase().getMatchDao().getMatchScorePlans(matchId)
+            // 取最近一站
+            if (list.isNotEmpty()) {
+                list.sortedByDescending { it.period }[0]
+            }
+            else {
+                null
+            }
+        }
+        else {
+            getDatabase().getMatchDao().getMatchScorePlan(matchId, period!!)
+        }
+
+        return if (scorePlan == null) {
+            null
+        }
+        else {
+            Gson().fromJson<DrawScore>(scorePlan.plan, DrawScore::class.java)
+        }
+    }
 }

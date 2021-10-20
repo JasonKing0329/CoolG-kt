@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match.list
 
 import android.view.LayoutInflater
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.king.app.coolg_kt.CoolApplication
@@ -58,11 +59,16 @@ class ScorePlanDialog: DraggableContentFragment<FragmentScorePlanBinding>() {
         }
         if (dbScore == null) {
             editScore = defScore!!
+            sortItems()
             mBinding.cbDefault.isChecked = true
+            mBinding.etPeriod.visibility = View.GONE
         }
         else {
             editScore = dbScore!!
+            sortItems()
             mBinding.cbDefault.isChecked = false
+            mBinding.etPeriod.setText(editScore.period.toString())
+            mBinding.etPeriod.visibility = View.VISIBLE
         }
         showItems()
 
@@ -71,10 +77,22 @@ class ScorePlanDialog: DraggableContentFragment<FragmentScorePlanBinding>() {
                 editScore = defScore!!
             }
             else {
-                dbScore?.apply {
-                    editScore = this
+                if (dbScore == null) {
+                    dbScore = DrawScore(matchId, mutableListOf())
+                    for (item in defScore!!.items) {
+                        dbScore!!.items.add(item)
+                    }
                 }
+                mBinding.etPeriod.visibility = View.VISIBLE
+                editScore = dbScore!!
             }
+            showItems()
+        }
+    }
+
+    fun sortItems() {
+        editScore.items.sortByDescending {
+            MatchConstants.getRoundSortValue(it.round)
         }
     }
 
@@ -115,7 +133,10 @@ class ScorePlanDialog: DraggableContentFragment<FragmentScorePlanBinding>() {
     }
 
     private fun onConfirm() {
-        var period = repository.getCompletedPeriodPack().endPeriod
+        var period = 0
+        kotlin.runCatching {
+            period = mBinding.etPeriod.text.toString().toInt()
+        }
         CoolApplication.instance.database!!.getMatchDao().insertOrReplaceScorePlan(ScorePlan(matchId, period, Gson().toJson(editScore)))
         showMessageShort("success")
         dismissAllowingStateLoss()

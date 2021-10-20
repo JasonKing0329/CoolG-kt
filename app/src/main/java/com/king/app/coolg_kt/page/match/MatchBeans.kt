@@ -475,4 +475,6 @@ data class ScoreItem(
 data class DrawScore(
     var matchId: Long,
     var items: MutableList<ScoreItem>
-)
+) {
+    var period: Int = 0
+}

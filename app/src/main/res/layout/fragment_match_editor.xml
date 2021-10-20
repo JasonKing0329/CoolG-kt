@@ -94,6 +94,7 @@
             android:layout_height="wrap_content"
             android:text="Wildcard(Deprecated, apply in MatchPeriod)"/>
         <LinearLayout
+            android:id="@+id/ll_score_plan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

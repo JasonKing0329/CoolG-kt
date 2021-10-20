@@ -739,7 +739,9 @@ class DrawRepository: BaseRepository() {
             null
         }
         else {
-            Gson().fromJson<DrawScore>(scorePlan.plan, DrawScore::class.java)
+            var bean = Gson().fromJson<DrawScore>(scorePlan.plan, DrawScore::class.java)
+            bean.period = scorePlan.period
+            bean
         }
     }
 }

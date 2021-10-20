@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.conf.AppConstants
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.FragmentMatchEditorBinding
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -59,7 +60,12 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
 
         mBinding.btnStudio.setOnClickListener { StudioActivity.startPageToSelectAsMatch(this, 0) }
 
-        mBinding.ivScorePlan.setOnClickListener { showScorePlan() }
+        if (MatchConstants.MATCH_LEVEL_FINAL == match!!.level) {
+            mBinding.llScorePlan.visibility = View.GONE
+        }
+        mBinding.ivScorePlan.setOnClickListener {
+            showScorePlan()
+        }
     }
 
     private fun showScorePlan() {

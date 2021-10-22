@@ -434,23 +434,7 @@ class DrawRepository: BaseRepository() {
                     }
                 }
             }
-            // star可能存在与多个record中，待record积分计算完毕后，再遍历取最高分计入
-            recordScoreList.forEach { item ->
-                val stars = getDatabase().getRecordDao().getRecordStars(item.recordId)
-                stars.forEach { star ->
-                    var mss = starScoreList.firstOrNull { bean -> bean.starId == star.bean.starId }
-                    if (mss == null) {
-                        mss = MatchScoreStar(0, item.matchId, item.matchItemId, item.recordId, star.bean.starId, item.score)
-                        starScoreList.add(mss)
-                    }
-                    else {
-                        mss.matchItemId = item.matchItemId
-                        mss.score = item.score
-                    }
-                }
-            }
             getDatabase().getMatchDao().insertMatchScoreRecords(recordScoreList)
-            getDatabase().getMatchDao().insertMatchScoreStars(starScoreList)
 
             // 更新match_period表
             match.bean.isScoreCreated = true
@@ -485,9 +469,6 @@ class DrawRepository: BaseRepository() {
 
             val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
             val recordScores = mutableListOf<MatchScoreRecord>()
-            val starScores = mutableListOf<MatchScoreStar>()
-            val starScoreMap = mutableMapOf<Long, MatchScoreStar?>()
-            val updateStarScores = mutableListOf<MatchScoreStar>()
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
                     if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
@@ -511,45 +492,11 @@ class DrawRepository: BaseRepository() {
                         singleScore?.let { score ->
                             val matchScoreRecord = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
                             recordScores.add(matchScoreRecord)
-                            val stars = getDatabase().getRecordDao().getRecordStars(matchRecord.recordId)
-                            stars.forEach { star ->
-                                // star可能在一站中有多个record，取最高分。还可能在同期赛事中有其他record，还要从数据库里查
-                                var matchScoreStar = starScoreMap[star.bean.starId]
-                                if (matchScoreStar == null) {
-                                    // 先从数据库里查是否已有记录
-                                    matchScoreStar = getDatabase().getMatchDao().getMatchScoreStarBy(match.bean.period, match.bean.orderInPeriod, star.bean.starId)
-                                    // 没有则创建新纪录
-                                    if (matchScoreStar == null) {
-                                        matchScoreStar = MatchScoreStar(0, match.bean.id, item.bean.id, matchRecord.recordId, star.bean.starId, score)
-                                        starScoreMap[star.bean.starId] = matchScoreStar
-                                        starScores.add(matchScoreStar)
-                                    }
-                                    // 有则判断是否修改记录
-                                    else {
-                                        starScoreMap[star.bean.starId] = matchScoreStar
-                                        updateStarScores.add(matchScoreStar)
-                                        if (score > matchScoreStar.score) {
-                                            matchScoreStar.matchItemId = item.bean.id
-                                            matchScoreStar.recordId = matchRecord.recordId
-                                            matchScoreStar.score = score
-                                        }
-                                    }
-                                }
-                                else {
-                                    if (score > matchScoreStar.score) {
-                                        matchScoreStar.matchItemId = item.bean.id
-                                        matchScoreStar.recordId = matchRecord.recordId
-                                        matchScoreStar.score = score
-                                    }
-                                }
-                            }
                         }
                     }
                 }
             }
             getDatabase().getMatchDao().insertMatchScoreRecords(recordScores)
-            getDatabase().getMatchDao().insertMatchScoreStars(starScores)
-            getDatabase().getMatchDao().updateMatchScoreStars(starScores)
 
             // 更新match_period表
             match.bean.isScoreCreated = true

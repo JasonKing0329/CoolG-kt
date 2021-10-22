@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.module.MatchRule
 import com.king.app.coolg_kt.page.match.*
 import com.king.app.coolg_kt.page.match.draw.*
 import com.king.app.gdb.data.bean.RankRecord
@@ -625,28 +626,20 @@ class DrawRepository: BaseRepository() {
         // 设置extraValue
         scoreList.forEach { score -> getExtraValue(matchPeriodId, score) }
 
+        // 先按胜负场排序
         scoreList.sortWith(Comparator { o1, o2 ->
             // 第一关键字为win
             if (o1.win == o2.win) {
-                // 第二关键字为lose
-                if (o1.lose == o2.lose) {
-                    // 第三关键字为extraValue
-                    if (o1.extraValue == o2.extraValue) {
-                        // 第四关键字为recordRank
-                        sortIntAsc(o1.recordRank, o2.recordRank)
-                    }
-                    else {
-                        sortIntDesc(o1.extraValue, o2.extraValue)
-                    }
-                }
-                else {
-                    sortIntAsc(o1.lose, o2.lose)
-                }
+                // 第二关键字为lose，只在group所以match没有全部完成的时候有效
+                sortIntAsc(o1.lose, o2.lose)
             }
             else {
                 sortIntDesc(o1.win, o2.win)
             }
         })
+
+        // 解决有胜场相同（包括连环套）的局面
+        MatchRule().resolveFinalCircle(firstRound, scoreList)
 
         scoreList.forEachIndexed { index, finalScore -> finalScore.rank = (index + 1).toString() }
     }

@@ -1,5 +1,7 @@
 package com.king.app.coolg_kt.page.match.draw
 
+import com.king.app.coolg_kt.page.match.WildcardBean
+
 /**
  * @description:
  * @author：Jing
@@ -10,6 +12,7 @@ class DrawStrategy {
     var gm500: GM500Strategy? = null
     var gm250: GM250Strategy? = null
     var low: LowStrategy? = null
+    var preAppliers = mutableListOf<WildcardBean>()// list中符合条件的会被添加至draw中，并从list中删除，剩余的将作为后续wildcards使用
 }
 
 data class GM1000Strategy(

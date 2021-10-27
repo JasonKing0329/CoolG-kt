@@ -76,7 +76,8 @@ class DrawRepository: BaseRepository() {
     }
 
     private fun createRankSystem(): List<RankRecord> {
-        val matchPeriod = getRankPeriodToDraw()
+//        val matchPeriod = getRankPeriodToDraw()
+        val matchPeriod = getCompletedPeriodPack().matchPeriod
         matchPeriod?.let {
             return getDatabase().getMatchDao().getRankRecords(MatchConstants.RANK_LIMIT_MAX, it.period, it.orderInPeriod)
         }

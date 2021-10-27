@@ -1,13 +1,14 @@
 package com.king.app.coolg_kt.page.match.draw
 
+import android.os.Build
 import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.DrawCell
+import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import java.util.*
-import kotlin.math.abs
 
 /**
  * @description:
@@ -17,7 +18,7 @@ import kotlin.math.abs
  * @author：Jing
  * @date: 2021/1/10 17:33
  */
-abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap, var drawStrategy: DrawStrategy?) {
+abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap, var drawStrategy: DrawStrategy) {
 
     val database = CoolApplication.instance.database!!
 
@@ -36,11 +37,16 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap, 
     fun prepare() {
         prepareSamePeriodMap()
 
+        // 先统一将appliers按rank排序
+        drawStrategy.preAppliers.sortBy { it.rank }
+        preCalcAppliers()
         calcSeed()
         setSeed()
         calcDirectInUnSeed()
         calcQualify()
     }
+
+    abstract fun preCalcAppliers();
 
     abstract fun calcSeed()
 
@@ -299,7 +305,11 @@ abstract class DrawPlan(var list: List<RankRecord>, var match: MatchPeriodWrap, 
     }
 }
 
-class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
+class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy): DrawPlan(list, match, drawStrategy) {
+
+    override fun preCalcAppliers() {
+        // GS的pre appliers如果正赛排名不够，只能存在于wildcards中
+    }
 
     override fun calcSeed() {
         seed = 32
@@ -307,9 +317,14 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy
     }
 
     override fun calcDirectInUnSeed() {
-        // gs没有bye,wildcard
+        // gs没有bye
         directInUnSeed = match.match.draws - seed - match.match.qualifyDraws - match.bean.mainWildcard
         directInUnSeedList = list.subList(seed, seed + directInUnSeed)
+        // GS正赛纯粹按排名，appliers若排名够，从list中删除，否则留下，待后续wildcards处理
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            var lastRank = directInUnSeedList.last().rank
+            drawStrategy.preAppliers.removeIf { it.rank <= lastRank }
+        }
     }
 
     /**
@@ -317,7 +332,15 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy
      */
     override fun calcQualify() {
         qualify = 256
-        qualifyList = list.subList(seed + directInUnSeed, seed + directInUnSeed + qualify - match.bean.qualifyWildcard)
+        var end = seed + directInUnSeed + qualify - match.bean.qualifyWildcard
+        qualifyList = list.subList(seed + directInUnSeed, end)
+        // qualify若产生了被待定到正赛wildcards中的record，则要进行顺序替补
+        if (drawStrategy.preAppliers.size > 0) {
+            var result = qualifyList.filter { drawStrategy.preAppliers.firstOrNull { applier -> applier.rank == it.rank } == null }.toMutableList()
+            var replace = list.subList(end, end + 3)
+            result.addAll(replace)
+            qualifyList = result
+        }
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
@@ -329,23 +352,27 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy
 /**
  * GM1000，Top30 4站128签强制，其他6站选4站强制
  */
-class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
+class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy): DrawPlan(list, match, drawStrategy) {
+
+    override fun preCalcAppliers() {
+        // GM1000的pre appliers如果正赛排名不够，只能存在于wildcards中
+        // 同GS
+    }
 
     override fun calcSeed() {
         seed = if (match.match.byeDraws < 16) 16 else match.match.byeDraws
         // 强制
-        if (match.match.draws == 128) {
-            seedList = list.take(seed)
-        }
-        else {
-            // TODO 6选4的逻辑太复杂，先按照强制处理
-            seedList = list.take(seed)
-        }
+        seedList = list.take(seed)
     }
 
     override fun calcDirectInUnSeed() {
         directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
         directInUnSeedList = list.subList(seed, seed + directInUnSeed)
+        // GM1000正赛纯粹按排名，appliers若排名够，从list中删除，否则留下，待后续wildcards处理
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            var lastRank = directInUnSeedList.last().rank
+            drawStrategy.preAppliers.removeIf { it.rank <= lastRank }
+        }
     }
 
     /**
@@ -356,7 +383,7 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: D
         qualify = match.match.qualifyDraws * 8
         // 确定shuffle的数量
         var shuffleNum = qualify / 2// 默认shuffle的数量
-        drawStrategy?.gm1000?.let { shuffleNum = (qualify * (it.shuffleRate.toFloat() / 100.0)).toInt() }
+        drawStrategy.gm1000?.let { shuffleNum = (qualify * (it.shuffleRate.toFloat() / 100.0)).toInt() }
         // 确定直接入围的数量
         val forsure = qualify - shuffleNum
         val tempList = mutableListOf<RankRecord>()
@@ -366,10 +393,18 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: D
         tempList.addAll(list.subList(directIn, directIn + forsure))
         // 在最低排名内进行shuffle
         var lowRank = directIn + forsure + shuffleNum * 3// 默认最低，按shuffleNum的3倍扩充
-        drawStrategy?.gm1000?.let { lowRank = it.lowRank }
+        drawStrategy.gm1000?.let { lowRank = it.lowRank }
+
+        // qualify若产生了被待定到正赛wildcards中的record，则要进行顺序替补。先在extend中增加相应数量，再从tempList中去掉wildcards中的record
         // 添加所有shuffle的数据
-        val extend = list.subList(directIn + forsure, lowRank).shuffled().take(shuffleNum - match.bean.qualifyWildcard)
+        val extend = list.subList(directIn + forsure, lowRank).shuffled().take(shuffleNum - match.bean.qualifyWildcard + drawStrategy.preAppliers.size)
         tempList.addAll(extend)
+        if (drawStrategy.preAppliers.size > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                tempList.removeIf { drawStrategy.preAppliers.firstOrNull { applier -> applier.rank == it.rank } != null }
+            }
+        }
+
         qualifyList = tempList
     }
 
@@ -387,41 +422,23 @@ class GM1000Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: D
 /**
  * GM500，排名300以内有条件随机
  */
-class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
+class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy): DrawPlan(list, match, drawStrategy) {
 
     val random = Random()
     var mainList = mutableListOf<RankRecord>()
 
-    private fun addToResult(rankRecord: RankRecord, resultSeeds: MutableList<RankRecord>) {
-        when {
-            // top10只有5分之一几率参加
-            rankRecord.rank < 10 -> {
-                if (abs(random.nextInt()) % 5 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            // top11-20只有3分之一几率参加
-            rankRecord.rank < 20 -> {
-                if (abs(random.nextInt()) % 3 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            // top21-100只有2分之一几率参加
-            rankRecord.rank < 100 -> {
-                if (abs(random.nextInt()) % 2 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            else -> {
-                if (!samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-        }
+    /**
+     * 因插入pre applier造成mainList溢出的item
+     */
+    var mainOverFlowList = mutableListOf<RankRecord>()
+
+    override fun preCalcAppliers() {
+        // GM500的pre appliers如果排名高于入围正赛的最低排名，插入为seed或普通，同时进行末位淘汰，末位淘汰的record进入qualify的资格赛，成为seed或普通
+        // 如果排名低于入围正赛的最低排名，则只能存在于wildcards中
     }
 
     override fun calcSeed() {
-        drawStrategy?.gm500?.let {
+        drawStrategy.gm500?.let {
             seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
             directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
             var mainSure = seed + directInUnSeed
@@ -447,46 +464,56 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                 mainList.addAll(limitList.shuffled().take(mainSure - mainList.size))
             }
             mainList.sortBy { item -> item.rank }
+
+            // 插入或删除appliers
+            var applierInserted = mutableListOf<WildcardBean>()
+            drawStrategy.preAppliers?.forEach { applier ->
+                for (i in mainList.indices) {
+                    // 高于已确定列表里的排名，插入到排序位置，并标记从preAppliers中删除
+                    if (applier.rank < mainList[i].rank) {
+                        applierInserted.add(applier)
+                        mainList.add(i, RankRecord(applier.recordId, applier.rank))
+                        break
+                    }
+                    // 等于已确定列表里的排名，标记从preAppliers中删除
+                    else if (applier.rank == mainList[i].rank) {
+                        applierInserted.add(applier)
+                        break
+                    }
+                }
+            }
+            // 已插入进mainlist的将其删除，剩下的只能进入wildcards
+            applierInserted.forEach { applier -> drawStrategy?.preAppliers?.remove(applier) }
+            // mainList中溢出的进入qualify
+            if (mainList.size > mainSure) {
+                mainOverFlowList = mainList.subList(mainSure, mainList.size)
+            }
+
             // 确定种子列表
             seedList = mainList.subList(0, seed)
             // 确定直接入围列表
-            directInUnSeedList = mainList.subList(seed, mainList.size)
+            directInUnSeedList = mainList.subList(seed, mainSure)
             return
         }
-        // 默认方式
-        seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
-        val resultSeeds = mutableListOf<RankRecord>()
-        for (i in list.indices) {
-            addToResult(list[i], resultSeeds)
-            if (resultSeeds.size == seed) {
-                break
-            }
-        }
-        seedList = resultSeeds
     }
 
     override fun calcDirectInUnSeed() {
         drawStrategy?.gm500?.let {
             return
         }
-        // 默认方式
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
-        val seedEnd = seedList.last().rank
-        var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
-        val resultSeeds = mutableListOf<RankRecord>()
-        for (i in indexStart until list.size) {
-            addToResult(list[i], resultSeeds)
-            if (resultSeeds.size == directInUnSeed) {
-                break
-            }
-        }
-        directInUnSeedList = resultSeeds
     }
 
     /**
      * qualify排名300以内
      */
     override fun calcQualify() {
+        // 正赛产生的wildcards不能出现在qualify中，可以直接将其加入到samePeriodMap进行控制
+        if (drawStrategy.preAppliers.size > 0) {
+            var mu = samePeriodMap.toMutableList()
+            drawStrategy.preAppliers.forEach { mu.add(it.recordId) }
+            samePeriodMap = mu
+        }
+
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         var lowRank = 300// 默认最低
@@ -500,11 +527,15 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                 if (!samePeriodMap.contains(it.recordId)) {
                     result.add(it)
                 }
-                if (result.size == qualify - match.bean.qualifyWildcard) {
+                // 满额时结束
+                if (result.size == qualify - match.bean.qualifyWildcard - mainOverFlowList.size) {
                     return@outside
                 }
             }
         }
+        // 插入从正赛overflow的
+        result.addAll(0, mainOverFlowList)
+        // 最终排序
         qualifyList = result.sortedBy { it.rank }
     }
 
@@ -522,47 +553,24 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
 /**
  * GM250，排名500内有条件随机
  */
-class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
+class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy): DrawPlan(list, match, drawStrategy) {
 
     val random = Random()
     var mainList = mutableListOf<RankRecord>()
 
-    private fun addToResult(rankRecord: RankRecord, resultSeeds: MutableList<RankRecord>) {
-        when {
-            // top10只有,10分之一几率参加
-            rankRecord.rank < 10 -> {
-                if (abs(random.nextInt()) % 10 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            // top11-20只有5分之一几率参加
-            rankRecord.rank < 20 -> {
-                if (abs(random.nextInt()) % 5 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            // top21-50只有3分之一几率参加
-            rankRecord.rank < 50 -> {
-                if (abs(random.nextInt()) % 3 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            // top51-100只有2分之一几率参加
-            rankRecord.rank < 50 -> {
-                if (abs(random.nextInt()) % 2 == 1 && !samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-            else -> {
-                if (!samePeriodMap.contains(rankRecord.recordId)) {
-                    resultSeeds.add(rankRecord)
-                }
-            }
-        }
+    /**
+     * 因插入pre applier造成mainList溢出的item
+     */
+    var mainOverFlowList = mutableListOf<RankRecord>()
+
+    override fun preCalcAppliers() {
+        // GM250的pre appliers如果排名高于入围正赛的最低排名，插入为seed或普通，同时进行末位淘汰，末位淘汰的record进入qualify的资格赛，成为seed或普通
+        // 如果排名低于入围正赛的最低排名，则只能存在于wildcards中
+        // 同GM500
     }
 
     override fun calcSeed() {
-        drawStrategy?.gm250?.let {
+        drawStrategy.gm250?.let {
             seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
             directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
             var mainSure = seed + directInUnSeed
@@ -588,44 +596,56 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                 mainList.addAll(limitList.shuffled().take(mainSure - mainList.size))
             }
             mainList.sortBy { item -> item.rank }
+
+            // 插入或删除appliers
+            var applierInserted = mutableListOf<WildcardBean>()
+            drawStrategy.preAppliers?.forEach { applier ->
+                for (i in mainList.indices) {
+                    // 高于已确定列表里的排名，插入到排序位置，并标记从preAppliers中删除
+                    if (applier.rank < mainList[i].rank) {
+                        applierInserted.add(applier)
+                        mainList.add(i, RankRecord(applier.recordId, applier.rank))
+                        break
+                    }
+                    // 等于已确定列表里的排名，标记从preAppliers中删除
+                    else if (applier.rank == mainList[i].rank) {
+                        applierInserted.add(applier)
+                        break
+                    }
+                }
+            }
+            // 已插入进mainlist的将其删除，剩下的只能进入wildcards
+            applierInserted.forEach { applier -> drawStrategy?.preAppliers?.remove(applier) }
+            // mainList中溢出的进入qualify
+            if (mainList.size > mainSure) {
+                mainOverFlowList = mainList.subList(mainSure, mainList.size)
+            }
+
             // 确定种子列表
             seedList = mainList.subList(0, seed).sortedBy { item -> item.rank }
             // 确定直接入围列表
             directInUnSeedList = mainList.subList(seed, mainList.size).sortedBy { item -> item.rank }
             return
         }
-        seed = if (match.match.byeDraws < 8) 8 else match.match.byeDraws
-        val resultSeeds = mutableListOf<RankRecord>()
-        for (i in list.indices) {
-            addToResult(list[i], resultSeeds)
-            if (resultSeeds.size == seed) {
-                break
-            }
-        }
-        seedList = resultSeeds
     }
 
     override fun calcDirectInUnSeed() {
-        drawStrategy?.gm250?.let {
+        drawStrategy.gm250?.let {
             return
         }
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
-        val seedEnd = seedList.last().rank
-        var indexStart = list.indexOfFirst { it.rank == seedEnd } + 1
-        val resultSeeds = mutableListOf<RankRecord>()
-        for (i in indexStart until list.size) {
-            addToResult(list[i], resultSeeds)
-            if (resultSeeds.size == directInUnSeed) {
-                break
-            }
-        }
-        directInUnSeedList = resultSeeds
     }
 
     /**
      * qualify排名500以内
      */
     override fun calcQualify() {
+        // 正赛产生的wildcards不能出现在qualify中，可以直接将其加入到samePeriodMap进行控制
+        if (drawStrategy.preAppliers.size > 0) {
+            var mu = samePeriodMap.toMutableList()
+            drawStrategy.preAppliers.forEach { mu.add(it.recordId) }
+            samePeriodMap = mu
+        }
+
         qualify = match.match.qualifyDraws * 8
         val directInEnd = directInUnSeedList.last().rank
         var lowRank = 500// 默认最低
@@ -639,11 +659,14 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                 if (!samePeriodMap.contains(it.recordId)) {
                     result.add(it)
                 }
-                if (result.size == qualify - match.bean.qualifyWildcard) {
+                // 满额时结束
+                if (result.size == qualify - match.bean.qualifyWildcard - mainOverFlowList.size) {
                     return@outside
                 }
             }
         }
+        // 插入从正赛overflow的
+        result.addAll(0, mainOverFlowList)
         qualifyList = result.sortedBy { it.rank }
     }
 
@@ -657,16 +680,19 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
  * Low范围为rankLimit以后1200(MatchConstants.RANK_LIMIT_MAX)以内条件随机
  * list已经满足了1200的条件
  */
-class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy?): DrawPlan(list, match, drawStrategy) {
+class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy): DrawPlan(list, match, drawStrategy) {
 
     var rankLimit = 180
     val random = Random()
-    private val total = match.match.draws - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard + match.match.qualifyDraws * 8 - match.bean.qualifyWildcard
-    private lateinit var rangeList: List<RankRecord>
+
+    override fun preCalcAppliers() {
+        // LOW暂不支持pre appliers
+    }
+
 
     override fun prepareSamePeriodMap() {
         super.prepareSamePeriodMap()
-        drawStrategy?.low?.let {
+        drawStrategy.low?.let {
 
             rankLimit = it.rankTopLimit
 
@@ -697,39 +723,24 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Draw
             qualifyList = qualifies
             return
         }
-        rangeList = list.filter { it.rank>rankLimit && !samePeriodMap.contains(it.recordId) }
-            .shuffled()
-            .take(total)
-            .sortedBy { it.rank }
     }
 
     override fun calcSeed() {
-        drawStrategy?.low?.let {
+        drawStrategy.low?.let {
             return
         }
-        // 如果是64签，固定设16种子，32签固定设8种子。均无轮空
-        seed = if (match.match.draws == 64) {
-            16
-        } else {
-            8
-        }
-        seedList = rangeList.take(seed)
     }
 
     override fun calcDirectInUnSeed() {
-        drawStrategy?.low?.let {
+        drawStrategy.low?.let {
             return
         }
-        directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
-        directInUnSeedList = rangeList.subList(seed, seed + directInUnSeed)
     }
 
     override fun calcQualify() {
-        drawStrategy?.low?.let {
+        drawStrategy.low?.let {
             return
         }
-        qualify = match.match.qualifyDraws * 8
-        qualifyList = rangeList.takeLast(qualify - match.bean.qualifyWildcard)
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {

@@ -50,6 +50,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     var REQUEST_INSERT_SEED = 11903
 
+    var REQUEST_SELECT_PRE_APPLY = 11904
+
     companion object {
         val EXTRA_MATCH_PERIOD_ID = "match_period_id"
         fun startPage(context: Context, matchPeriodId: Long) {
@@ -64,6 +66,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     var isEditing = false
 
     private var wildcardDialog: WildcardDialog? = null
+
+    private var preApplyDialog: WildcardDialog? = null
 
     override fun getContentView(): Int = R.layout.activity_match_draw
 
@@ -81,6 +85,17 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 }
                 R.id.menu_history -> {
                     MatchActivity.startPage(this@DrawActivity, mModel.getMatchId())
+                }
+                R.id.menu_pre_apply -> {
+                    if (mModel.isNotSupportPreApply()) {
+                        showMessageShort("Pre-apply is not supported for current match")
+                        return@setOnMenuItemListener
+                    }
+                    if (mModel.isDrawExist()) {
+                        showMessageShort("This function is only available when draw is not created")
+                        return@setOnMenuItemListener
+                    }
+                    showPreApplyDialog()
                 }
                 R.id.menu_insert_seed -> {
                     if (!mModel.isFirstRound()) {
@@ -287,21 +302,47 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     private fun showWildcardDialog() {
         wildcardDialog = WildcardDialog()
-        wildcardDialog!!.dataList = mModel.getWildcardList()
-        wildcardDialog!!.wildcardListener = object : WildcardDialog.WildCardListener {
-            override fun selectRecord() {
-                selectRecord(REQUEST_SELECT_WILDCARD)
+        wildcardDialog?.apply {
+            countText = "Wildcards"
+            dataList = mModel.getWildcardList()
+            wildcardListener = object : WildcardDialog.WildCardListener {
+                override fun selectRecord() {
+                    selectRecord(REQUEST_SELECT_WILDCARD)
+                }
+
+                override fun confirm(dataList: List<WildcardBean>) {
+                    mModel.arrangeWildcards(dataList)
+                    adapter.notifyDataSetChanged()
+                }
             }
 
-            override fun confirm(dataList: List<WildcardBean>) {
-                mModel.arrangeWildcards(dataList)
-                adapter.notifyDataSetChanged()
-            }
+            var dialog = DraggableDialogFragment()
+            dialog.setTitle("Wildcards")
+            dialog.contentFragment = this
+            dialog.show(supportFragmentManager, "wildcardDialog")
         }
-        var dialog = DraggableDialogFragment()
-        dialog.setTitle("Wildcards")
-        dialog.contentFragment = wildcardDialog
-        dialog.show(supportFragmentManager, "WildcardDialog")
+    }
+
+    private fun showPreApplyDialog() {
+        preApplyDialog = WildcardDialog()
+        preApplyDialog?.apply {
+            countText = "Appliers"
+            enableAddAndRemove = true
+            dataList = mModel.preApplyList
+            wildcardListener = object : WildcardDialog.WildCardListener {
+                override fun selectRecord() {
+                    selectRecord(REQUEST_SELECT_PRE_APPLY)
+                }
+
+                override fun confirm(dataList: List<WildcardBean>) {
+
+                }
+            }
+            var dialog = DraggableDialogFragment()
+            dialog.setTitle("Pre apply")
+            dialog.contentFragment = this
+            dialog.show(supportFragmentManager, "preApplyDialog")
+        }
     }
 
     private fun selectRecord(requestCode: Int) {
@@ -322,30 +363,40 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_SELECT_WILDCARD) {
-            if (resultCode == Activity.RESULT_OK) {
-                val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
-                val bean = mModel.setWildCard(recordId!!)
-                bean?.let {
-                    wildcardDialog?.setSelectedRecord(it)
+        when(requestCode) {
+            REQUEST_SELECT_WILDCARD -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
+                    mModel.setWildCard(recordId!!)?.apply {
+                        wildcardDialog?.setSelectedRecord(this)
+                    }
                 }
             }
-        }
-        else if (requestCode == REQUEST_CHANGE_PLAYER) {
-            if (resultCode == Activity.RESULT_OK) {
-                val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
-                if (mModel.setChangedRecord(recordId!!)) {
-                    adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+            REQUEST_SELECT_PRE_APPLY -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
+                    mModel.setPreApply(recordId!!)?.apply {
+                        preApplyDialog?.setSelectedRecord(this)
+                    }
                 }
             }
-        }
-        if (requestCode == REQUEST_INSERT_SEED) {
-            if (resultCode == Activity.RESULT_OK) {
-                val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
-                if (mModel.insertSeed(recordId!!)) {
-                    mBinding.actionbar.showConfirmStatus(R.id.menu_edit)
-                    adapter.notifyDataSetChanged()
+            REQUEST_CHANGE_PLAYER -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
+                    if (mModel.setChangedRecord(recordId!!)) {
+                        adapter.notifyItemChanged(mModel.mToSetWildCardPosition!!)
+                    }
                 }
+            }
+            REQUEST_INSERT_SEED -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val recordId = data?.getLongExtra(PhoneRecordListActivity.RESP_RECORD_ID, -1)
+                    if (mModel.insertSeed(recordId!!)) {
+                        mBinding.actionbar.showConfirmStatus(R.id.menu_edit)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
             }
         }
     }

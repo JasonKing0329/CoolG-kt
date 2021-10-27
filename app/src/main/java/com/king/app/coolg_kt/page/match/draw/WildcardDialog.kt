@@ -1,7 +1,9 @@
 package com.king.app.coolg_kt.page.match.draw
 
 import android.view.LayoutInflater
+import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
+import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.databinding.FragmentDialogMatchWildcardBinding
 import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
@@ -21,11 +23,27 @@ class WildcardDialog: DraggableContentFragment<FragmentDialogMatchWildcardBindin
 
     var mEditPosition = -1
 
+    var enableAddAndRemove = false
+
+    var countText = ""
+
     override fun getBinding(inflater: LayoutInflater): FragmentDialogMatchWildcardBinding = FragmentDialogMatchWildcardBinding.inflate(inflater)
 
     override fun initData() {
 
-        mBinding.tvTitle.text = "Wildcards (${dataList.size})"
+        mBinding.tvTitle.text = "$countText (${dataList.size})"
+
+        if (enableAddAndRemove) {
+            dialogHolder?.let {
+                val view = it.inflateToolbar(R.layout.layout_toolbar_tag)
+                view.findViewById<View>(R.id.iv_add)
+                    .setOnClickListener {
+                        dataList.add(WildcardBean(0, 0))
+                        adapter.notifyDataSetChanged()
+                    }
+                view.findViewById<View>(R.id.iv_edit).visibility = View.GONE
+            }
+        }
 
         mBinding.rvList.layoutManager = GridLayoutManager(context, 3)
         adapter.list = dataList
@@ -38,10 +56,16 @@ class WildcardDialog: DraggableContentFragment<FragmentDialogMatchWildcardBindin
             }
 
             override fun onDelete(position: Int, bean: WildcardBean) {
-                dataList[position].imageUrl = null
-                dataList[position].rank = 0
-                dataList[position].recordId = 0
-                adapter.notifyItemChanged(position)
+                if (enableAddAndRemove) {
+                    dataList.removeAt(position)
+                    adapter.notifyDataSetChanged()
+                }
+                else {
+                    dataList[position].imageUrl = null
+                    dataList[position].rank = 0
+                    dataList[position].recordId = 0
+                    adapter.notifyItemChanged(position)
+                }
             }
         }
 

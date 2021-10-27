@@ -56,6 +56,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var mToSetWildCardPosition: Int? = null
     var availableWildcard = MutableLiveData<WildcardBean>()
 
+    var preApplyList = mutableListOf<WildcardBean>()
+
     fun loadMatch(matchPeriodId: Long) {
         matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
         getMatchRound(matchPeriod.match)
@@ -204,12 +206,18 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createDraw(drawStrategy: DrawStrategy) {
+        // 浅拷贝一份，以便cancel create后还能继续保留
+        drawStrategy.preAppliers = preApplyList.toMutableList()
         drawRepository.createDraw(matchPeriod, drawStrategy)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
                 override fun onNext(t: DrawData) {
                     createdDrawData = t
                     newDrawCreated.value = true
+                    // 未被安排进入签表的pre appliers，排进wildcards
+                    if (drawStrategy.preAppliers.size > 0) {
+                        arrangeWildcards(t.mainItems, drawStrategy.preAppliers)
+                    }
                     itemsObserver.value = t.mainItems
                 }
 
@@ -274,6 +282,14 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
             val imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
             WildcardBean(recordId, rank, imageUrl)
         }
+    }
+
+    fun setPreApply(recordId: Long): WildcardBean? {
+        val wrap = getDatabase().getRecordDao().getRecord(recordId)
+        // 查询排名
+        val rank = rankRepository.getRecordRankToDraw(recordId)
+        val imageUrl = ImageProvider.getRecordRandomPath(wrap?.bean?.name, null)
+        return WildcardBean(recordId, rank, imageUrl)
     }
 
     fun isModified(): Boolean {
@@ -494,8 +510,15 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun arrangeWildcards(dataList: List<WildcardBean>) {
+        arrangeWildcards(itemsObserver.value, dataList)
+    }
+
+    private fun arrangeWildcards(drawItems: List<DrawItem>?, dataList: List<WildcardBean>) {
         var index = 0
-        itemsObserver.value?.forEach {
+        drawItems?.forEach {
+            if (index >= dataList.size) {
+                return
+            }
             if (isWildcard(it.matchRecord1)) {
                 it.matchRecord1?.imageUrl = dataList[index].imageUrl
                 it.matchRecord1?.bean?.recordId = dataList[index].recordId
@@ -511,5 +534,9 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                 index ++
             }
         }
+    }
+
+    fun isNotSupportPreApply(): Boolean {
+        return matchPeriod.match.level == MatchConstants.MATCH_LEVEL_LOW || matchPeriod.match.level == MatchConstants.MATCH_LEVEL_FINAL
     }
 }

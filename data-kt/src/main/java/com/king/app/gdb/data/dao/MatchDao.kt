@@ -302,6 +302,9 @@ interface MatchDao {
     @Query("select * from match_period order by period desc, orderInPeriod desc limit 1")
     fun getLastMatchPeriod(): MatchPeriod?
 
+    @Query("select mp.period from match_period mp join match_record mr on mp.id=mr.matchId and mr.recordId=:recordId order by mp.period limit 1")
+    fun getRecordFirstPeriod(recordId: Long): Int
+
     @Query("select * from match_period where isScoreCreated=1 order by period desc, orderInPeriod desc limit 1")
     fun getLastCompletedMatchPeriod(): MatchPeriod?
 

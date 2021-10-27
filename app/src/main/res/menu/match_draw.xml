@@ -16,6 +16,10 @@
         android:title="Insert Seed"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/menu_pre_apply"
+        android:title="Pre apply"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/menu_create_draw"
         android:title="Create Draw"
         app:showAsAction="never"/>

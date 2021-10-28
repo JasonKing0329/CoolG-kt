@@ -337,7 +337,7 @@ class GrandSlamPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy
         // qualify若产生了被待定到正赛wildcards中的record，则要进行顺序替补
         if (drawStrategy.preAppliers.size > 0) {
             var result = qualifyList.filter { drawStrategy.preAppliers.firstOrNull { applier -> applier.rank == it.rank } == null }.toMutableList()
-            var replace = list.subList(end, end + 3)
+            var replace = list.subList(end, end + drawStrategy.preAppliers.size)
             result.addAll(replace)
             qualifyList = result
         }

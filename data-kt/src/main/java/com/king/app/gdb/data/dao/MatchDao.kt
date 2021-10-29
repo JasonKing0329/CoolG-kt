@@ -102,6 +102,21 @@ interface MatchDao {
     fun getRecordMatchesRange(recordId: Long, rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<Long>
 
     /**
+     * range范围内recordId level的参加次数统计，用嵌套select才能做到，
+     * 第一次groupBy以matchId有限，而matchId与level是1对1的，所以无法直接从第一层select统计出recordId不同level对应的count来
+     * 嵌套一层select再groupBy recordId, level就可以实现了
+     */
+    @Query("select *, count(level) as count from (" +
+            " select mr.recordId, m.level from match_record mr join match_period mp" +
+            " on mr.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd" +
+            " join match m on mp.matchId=m.id" +
+            " where mr.recordId!=0" +
+            " group by mr.matchId, mr.recordId" +
+            " )" +
+            " group by recordId, level")
+    fun getRankLevelCount(rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<RankLevelCount>
+
+    /**
      * 指定时期内的指定轮次胜利的次数
      */
     @Query("select count(*) from match_item mi join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where mi.winnerId=:recordId and mi.round=:round")

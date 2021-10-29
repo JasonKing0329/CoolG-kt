@@ -41,3 +41,8 @@ data class DataForRoundCount(
     var winnerId: Long?,
     var period: Int
 )
+data class RankLevelCount(
+    var recordId: Long,
+    var level: Int,
+    var count: Int
+)

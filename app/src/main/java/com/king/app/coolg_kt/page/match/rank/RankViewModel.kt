@@ -18,6 +18,7 @@ import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.TimeCostUtil
+import com.king.app.gdb.data.bean.RankLevelCount
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Record
@@ -483,6 +484,37 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    private fun createDetail(bean: RankLevelCount, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail? {
+        var detail = map[bean.recordId]
+        if (detail == null) {
+            detail = MatchRankDetail(bean.recordId, 0, null, 0, 0, 0, 0, 0)
+            map[bean.recordId] = detail
+        }
+        detail?.apply {
+            when(bean.level) {
+                MatchConstants.MATCH_LEVEL_GS -> gsCount = bean.count
+                MatchConstants.MATCH_LEVEL_GM1000 -> gm1000Count = bean.count
+                MatchConstants.MATCH_LEVEL_GM500 -> gm500Count = bean.count
+                MatchConstants.MATCH_LEVEL_GM250 -> gm250Count = bean.count
+                MatchConstants.MATCH_LEVEL_LOW -> lowCount = bean.count
+                else -> {}
+            }
+            // studio
+            orderRepository.getRecordStudio(bean.recordId)?.let { studio ->
+                studioId = studio.id!!
+                studioName = studio.name
+            }
+            return this
+        }
+        return null
+    }
+
+    /**
+     * 当数据表数据量达到80W+时
+     * studio获取较快，1300左右的item耗时在1s以内
+     * 逐个统计level则非常耗时，全部下来要30秒左右
+     */
+    @Deprecated("太耗时")
     private fun createDetail(recordId: Long): MatchRankDetail {
         var detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0)
         // studio
@@ -490,7 +522,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             detail.studioId = studio.id!!
             detail.studioName = studio.name
         }
-        // count
+        // studio获取不算耗时，全部下来仅在1秒内，但是对level的统计非常耗时
         var items = rankRepository.getRecordCurRankRangeMatches(recordId)
         for (item in items) {
             getDatabase().getMatchDao().getMatchPeriod(item)?.match?.let { match ->
@@ -706,9 +738,25 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             val total = recordRanksObserver.value?.size?:0
             val insertPart = 1// insert预留1%作为最后一步
             var progress = 0
-            recordRanksObserver.value?.forEachIndexed { index, rankItem ->
-                val detail = createDetail(rankItem.id)
-                insertDetailList.add(detail)
+
+            var map = mutableMapOf<Long, MatchRankDetail?>()
+            // 废弃逐个统计level的方法，太耗时
+//            recordRanksObserver.value?.forEachIndexed { index, rankItem ->
+//                val detail = createDetail(rankItem.id)
+//                insertDetailList.add(detail)
+//                val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
+//                if (curProgress != progress) {
+//                    progress = curProgress
+//                    it.onNext(progress)
+//                }
+//            }
+
+            // 直接SQL统计RTF周期内，recordId->level->count，大大降低耗时，从先前的30秒直接降到1秒左右
+            rankRepository.getRankLevelCount().forEachIndexed { index, bean ->
+                val detail = createDetail(bean, map)
+                detail?.let { d ->
+                    insertDetailList.add(d)
+                }
                 val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
                 if (curProgress != progress) {
                     progress = curProgress

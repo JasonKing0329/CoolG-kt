@@ -57,12 +57,19 @@ class WallActivity: BaseActivity<ActivityMatchWallBinding, ChampionWallViewModel
     }
 
     override fun initView() {
-        mBinding.actionbar.setOnBackListener { onBackPressed() }
+        fullscreen()
+        // GM1000
         if (getType() == 1) {
-            mBinding.actionbar.setTitle("GS Wall")
+            mBinding.actionbar.visibility = View.GONE
         }
         else {
-            mBinding.actionbar.setTitle("GM1000 Wall")
+            mBinding.actionbar.setOnBackListener { onBackPressed() }
+            if (getType() == 1) {
+                mBinding.actionbar.setTitle("GM1000 Wall")
+            }
+            else {
+                mBinding.actionbar.setTitle("GS Wall")
+            }
         }
 
         // titles与items复用同样属性的layoutManager，在视觉效果上达到统一

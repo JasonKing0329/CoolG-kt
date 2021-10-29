@@ -312,7 +312,6 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
 
                 override fun confirm(dataList: List<WildcardBean>) {
                     mModel.arrangeWildcards(dataList)
-                    adapter.notifyDataSetChanged()
                 }
             }
 

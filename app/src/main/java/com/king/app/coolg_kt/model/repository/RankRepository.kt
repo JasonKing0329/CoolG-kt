@@ -5,6 +5,7 @@ import com.king.app.coolg_kt.page.match.HighRankRecord
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.coolg_kt.utils.TimeCostUtil
+import com.king.app.gdb.data.bean.RankLevelCount
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchRankRecordWrap
@@ -264,6 +265,17 @@ class RankRepository: BaseRepository() {
         val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
         val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
         return getDatabase().getMatchDao().getRecordMatchesRange(recordId, rangeStart, rangeEnd, circleTotal)
+    }
+
+    /**
+     * race to final period下record所参加的level对应次数
+     */
+    fun getRankLevelCount(): List<RankLevelCount> {
+        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+        val pack = getRTFPeriodPack()
+        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+        return getDatabase().getMatchDao().getRankLevelCount(rangeStart, rangeEnd, circleTotal)
     }
 
     fun countRecordTitlesIn(recordId: Long, pack: PeriodPack): Int {

@@ -511,6 +511,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
 
     fun arrangeWildcards(dataList: List<WildcardBean>) {
         arrangeWildcards(itemsObserver.value, dataList)
+        itemsObserver.value = itemsObserver.value
     }
 
     private fun arrangeWildcards(drawItems: List<DrawItem>?, dataList: List<WildcardBean>) {

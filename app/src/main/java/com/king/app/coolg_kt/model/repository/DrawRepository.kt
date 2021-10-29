@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.MatchRule
 import com.king.app.coolg_kt.page.match.*
 import com.king.app.coolg_kt.page.match.draw.*
+import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -135,28 +136,30 @@ class DrawRepository: BaseRepository() {
         return list
     }
 
+    /**
+     * 采用matchItemWrap（包含List<MatchRecord>），从数据库直接加载出来，比一个个单独加载MatchRecordWrap更省时
+     * 但由于DrawItem的结构已定，许多地方都引用了MatchRecordWrap，所以保留该结构，将record与imageUrl延迟加载（因为逐个加载时这两都属于耗时操作）
+     * 如此一来，以GS R128为例，加载速度从原来的5000毫秒+ 直接降低到了50毫秒内
+     */
     fun getDrawItems(matchPeriodId: Long, matchId: Long, round: Int): Observable<List<DrawItem>> {
         return Observable.create {
             var result = mutableListOf<DrawItem>()
+            TimeCostUtil.start()
             var list = getDatabase().getMatchDao().getRoundMatchItems(matchPeriodId, round)
             list.forEach { item ->
-                var drawItem = DrawItem(item)
-                item.winnerId?.let { winnerId->
-                    drawItem.winner = getDatabase().getMatchDao().getMatchRecord(item.id, winnerId)
-                    drawItem.winner?.let { winner ->
-                        winner.imageUrl = ImageProvider.getRecordRandomPath(winner.record?.name, null)
-                    }
+                var drawItem = DrawItem(item.bean)
+                // 逐个加载record与imageUrl非常耗时，将这两都延迟加载
+                item.recordList.firstOrNull { r -> r.order == 1 }?.apply { drawItem.matchRecord1 = MatchRecordWrap(this, null) }
+                item.recordList.firstOrNull { r -> r.order == 2 }?.apply { drawItem.matchRecord2 = MatchRecordWrap(this, null) }
+                if (item.bean.winnerId == drawItem.matchRecord1?.bean?.recordId) {
+                    drawItem.winner = drawItem.matchRecord1
                 }
-                drawItem.matchRecord1 = getDatabase().getMatchDao().getMatchRecord(item.id, 1)
-                drawItem.matchRecord1?.let { bean ->
-                    bean.imageUrl = ImageProvider.getRecordRandomPath(bean.record?.name, null)
-                }
-                drawItem.matchRecord2 = getDatabase().getMatchDao().getMatchRecord(item.id, 2)
-                drawItem.matchRecord2?.let { bean ->
-                    bean.imageUrl = ImageProvider.getRecordRandomPath(bean.record?.name, null)
+                else if (item.bean.winnerId == drawItem.matchRecord2?.bean?.recordId) {
+                    drawItem.winner = drawItem.matchRecord2
                 }
                 result.add(drawItem)
             }
+            TimeCostUtil.end("getDrawItems")
             it.onNext(result)
             it.onComplete()
         }

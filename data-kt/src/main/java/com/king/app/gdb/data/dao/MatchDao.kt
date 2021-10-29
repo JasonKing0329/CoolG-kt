@@ -54,7 +54,7 @@ interface MatchDao {
     fun getAllMatchItems(): List<MatchItem>
 
     @Query("select * from match_item where matchId=:matchPeriodId and round=:round")
-    fun getRoundMatchItems(matchPeriodId: Long, round: Int): List<MatchItem>
+    fun getRoundMatchItems(matchPeriodId: Long, round: Int): List<MatchItemWrap>
 
     @Query("select * from match_item where matchId=:matchPeriodId")
     fun getMatchItems(matchPeriodId: Long): List<MatchItemWrap>

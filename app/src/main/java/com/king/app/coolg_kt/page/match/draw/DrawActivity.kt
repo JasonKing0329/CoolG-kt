@@ -429,6 +429,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             adapter.list = it
             adapter.notifyDataSetChanged()
         })
+        mModel.imageChanged.observe(this, Observer {
+            adapter.notifyItemRangeChanged(it.start, it.count)
+        })
         mModel.saveEditSuccess.observe(this, Observer {
             mBinding.actionbar.cancelConfirmStatus()
             isEditing = false

@@ -10,10 +10,13 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
+import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.DrawData
 import com.king.app.coolg_kt.page.match.DrawItem
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.entity.match.MatchItem
@@ -40,6 +43,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var setRoundPosition = MutableLiveData<Int>()
     var roundList = MutableLiveData<List<RoundPack>>()
     var itemsObserver = MutableLiveData<List<DrawItem>>()
+    var imageChanged = MutableLiveData<TimeWasteRange>()
+
     var newDrawCreated = MutableLiveData<Boolean>()
     var cancelConfirmCancelStatus = MutableLiveData<Boolean>()
     var saveEditSuccess = MutableLiveData<Boolean>()
@@ -182,23 +187,57 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    /**
+     * 逐个加载record与imageUrl属于耗时操作，延迟加载
+     */
+    private var tableWaste = object : TimeWasteTask<DrawItem> {
+        override fun handle(index: Int, data: DrawItem) {
+            data.matchRecord1?.let {
+                it.record = getDatabase().getRecordDao().getRecordBasic(it.bean.recordId)
+                it.imageUrl = ImageProvider.getRecordRandomPath(it.record?.name, null)
+            }
+            data.matchRecord2?.let {
+                it.record = getDatabase().getRecordDao().getRecordBasic(it.bean.recordId)
+                it.imageUrl = ImageProvider.getRecordRandomPath(it.record?.name, null)
+            }
+        }
+    }
+
+    /**
+     * 采用matchItemWrap（包含List<MatchRecord>），从数据库直接加载出来，比一个个单独加载MatchRecordWrap更省时
+     * 但由于DrawItem的结构已定，许多地方都引用了MatchRecordWrap，所以保留该结构，将record与imageUrl延迟加载（因为逐个加载时这两都属于耗时操作）
+     * 如此一来，以GS R128为例，加载速度从原来的5000毫秒+ 直接降低到了50毫秒内
+     */
     private fun loadRoundFromTable(roundPack: RoundPack) {
         loadingObserver.value = true
-        drawRepository.getDrawItems(matchPeriod.bean.id, matchPeriod.bean.matchId, roundPack.id)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<DrawItem>>(getComposite()) {
-                override fun onNext(t: List<DrawItem>) {
-                    loadingObserver.value = false
-                    itemsObserver.value = t
-                }
+        BasicAndTimeWaste<DrawItem>()
+            .basic(drawRepository.getDrawItems(matchPeriod.bean.id, matchPeriod.bean.matchId, roundPack.id))
+            .timeWaste(tableWaste, 1)
+            .composite(getComposite())
+            .subscribe(
+                object : SimpleObserver<List<DrawItem>>(getComposite()) {
+                    override fun onNext(t: List<DrawItem>?) {
+                        loadingObserver.value = false
+                        itemsObserver.value = t
+                    }
 
-                override fun onError(e: Throwable?) {
-                    loadingObserver.value = false
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
+                    override fun onError(e: Throwable?) {
+                        loadingObserver.value = false
+                        e?.printStackTrace()
+                        messageObserver.value = e?.message
+                    }
 
-            })
+                },
+                object : SimpleObserver<TimeWasteRange>(getComposite()) {
+                    override fun onNext(t: TimeWasteRange?) {
+                        imageChanged.value = t
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                    }
+                }
+            )
     }
 
     fun isDrawExist(): Boolean {

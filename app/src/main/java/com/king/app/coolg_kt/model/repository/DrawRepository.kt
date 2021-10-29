@@ -456,6 +456,7 @@ class DrawRepository: BaseRepository() {
             getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
             getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
 
+            TimeCostUtil.start()
             var drawScore = getScorePlan(match.match.id)
             var plan = if (drawScore == null) {
                 when(match.match.level) {
@@ -472,10 +473,17 @@ class DrawRepository: BaseRepository() {
 
             val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
             val recordScores = mutableListOf<MatchScoreRecord>()
+            val qualifyIds = mutableSetOf<Long>()
             items.forEach { item ->
                 item.recordList.forEach { matchRecord ->
                     if (matchRecord.type != MatchConstants.MATCH_RECORD_BYE) {
-                        val isQualify = getDatabase().getMatchDao().isQualifyRecord(matchRecord.matchId, matchRecord.recordId) > 0
+                        // 逐个调用isQualifyRecord太耗时，GS的话，当表数据达到80W+时，352条记录总用时达到13秒以上，修改判断isQualify的逻辑，直接将总耗时降低到60毫秒以内
+//                        val isQualify = getDatabase().getMatchDao().isQualifyRecord(matchRecord.matchId, matchRecord.recordId) > 0
+                        if (item.bean.round in MatchConstants.ROUND_ID_Q1..MatchConstants.ROUND_ID_Q3) {
+                            qualifyIds.add(matchRecord.recordId)
+                        }
+                        val isQualify = qualifyIds.contains(matchRecord.recordId)
+
                         var singleScore: Int? = null
                         // win，只有F计分
                         if (matchRecord.recordId == item.bean.winnerId) {
@@ -505,6 +513,7 @@ class DrawRepository: BaseRepository() {
             match.bean.isScoreCreated = true
             getDatabase().getMatchDao().updateMatchPeriod(match.bean)
 
+            TimeCostUtil.end("createScore")
             it.onNext(true)
             it.onComplete()
         }

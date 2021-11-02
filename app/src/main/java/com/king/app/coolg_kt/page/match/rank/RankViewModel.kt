@@ -763,6 +763,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     it.onNext(progress)
                 }
             }
+            // 先清除旧的
+            getDatabase().getMatchDao().clearMatchRankDetail()
             getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
             it.onComplete()
         }

@@ -411,7 +411,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                         "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
                     }
                 }
-                else ""
+                else "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} 0"
                 // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, "",
                     null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore,

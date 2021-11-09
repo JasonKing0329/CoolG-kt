@@ -155,7 +155,7 @@ interface MatchDao {
     @Query("select * from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
     fun getMatchRankRecordsBy(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap>
 
-    @Query("select mrr.*, mrd.studioId, mrd.studioName from match_rank_record mrr join match_rank_detail mrd on mrr.recordId=mrd.recordId where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
+    @Query("select mrr.*, mrd.studioId, mrd.studioName from match_rank_record mrr left join match_rank_detail mrd on mrr.recordId=mrd.recordId where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
     fun getRankItems(period: Int, orderInPeriod: Int): List<RankItemWrap>
 
     @Query("select * from match_rank_detail where recordId=:recordId")
@@ -416,5 +416,8 @@ interface MatchDao {
 
     @Query("select * from score_plan where matchId=:matchId and period=:period")
     fun getMatchScorePlan(matchId: Long, period: Int): ScorePlan?
+
+    @Query("update match_rank_detail set `gsCount`=0, `gm1000Count`=0, `gm500Count`=0, `gm250Count`=0, `lowCount`=0")
+    fun resetRankDetails()
 
 }

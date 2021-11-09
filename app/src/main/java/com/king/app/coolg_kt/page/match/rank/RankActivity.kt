@@ -78,6 +78,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             when(it) {
                 R.id.menu_create_rank -> createRank()
                 R.id.menu_create_rank_detail -> mModel.createRankDetails()
+                R.id.menu_create_rank_detail_item -> warningCreateDetailItems()
                 R.id.menu_p_end -> mModel.loadPeriodFinalRank()
                 R.id.menu_high_rank -> highRank()
             }
@@ -109,6 +110,13 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
         mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
         mBinding.tvWeek.setOnClickListener { selectWeek() }
+    }
+
+    private fun warningCreateDetailItems() {
+        showConfirmCancelMessage("This action will reset all level count data, continue?",
+            DialogInterface.OnClickListener { dialog, which -> mModel.createRankDetailItems() },
+            null
+        )
     }
 
     private fun selectWeek() {

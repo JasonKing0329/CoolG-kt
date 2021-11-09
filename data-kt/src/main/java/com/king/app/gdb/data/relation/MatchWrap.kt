@@ -82,9 +82,9 @@ data class RankItemWrap (
     @Embedded
     var bean: MatchRankRecord,
 
-    var studioId: Long = 0,
+    var studioId: Long? = 0,
 
-    var studioName: String = "",
+    var studioName: String? = "",
 
     @Relation(parentColumn = "recordId",
         entityColumn = "_id")

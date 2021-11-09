@@ -396,8 +396,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             var result = mutableListOf<RankItem<Record?>>()
             list.forEach { bean ->
                 // studioName, levelMatchCount从detail表里取（该表的数据在create rank时生成）
-                val studioName = bean.studioName
-                val studioId = bean.studioId
+                val studioName = bean.studioName?:""
+                val studioId = bean.studioId?:0
                 // 只有select模式显示levelMatchCount
                 val levelMatchCount = if (isSelectMode) {
                     bean.details?.let { detail ->
@@ -412,7 +412,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                         "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
                     }
                 }
-                else "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} 0"
+                else ""
                 // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, "",
                     null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore,
@@ -757,8 +757,66 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     it.onNext(progress)
                 }
             }
-            // 先清除旧的
-            getDatabase().getMatchDao().clearMatchRankDetail()
+            // orderInPeriod为1，重置所有record的level count全为0
+            if (currentPeriod.orderInPeriod == 1) {
+                getDatabase().getMatchDao().resetRankDetails()
+            }
+            // 积分周期内有参赛的record，新增或修改detail
+            getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
+            it.onComplete()
+        }
+    }
+
+    fun createRankDetailItems() {
+        detailProgressing.value = 0
+        insertDetailItemsProgress()
+            .compose(applySchedulers())
+            .subscribe(object : Observer<Int> {
+                override fun onSubscribe(d: Disposable) {
+                    addDisposable(d)
+                }
+
+                override fun onNext(t: Int) {
+                    detailProgressing.value = t
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    detailProgressError.value = true
+                    messageObserver.value = e?.message?:""
+                }
+
+                override fun onComplete() {
+                    detailProgressing.value = 100
+                    // 刷新列表
+                    initPeriod()
+                    loadData()
+                }
+            })
+    }
+
+    private fun insertDetailItemsProgress(): Observable<Int> {
+        return Observable.create {
+            var allRecords = getDatabase().getRecordDao().getAllBasicRecords()
+            var insertDetailList = mutableListOf<MatchRankDetail>()
+            val total = allRecords.size
+            val insertPart = 1// insert预留1%作为最后一步
+            var progress = 0
+
+            allRecords.forEachIndexed { index, record ->
+                val studio = orderRepository.getRecordStudio(record.id!!)
+                val studioId = studio?.id?:0
+                val studioName = studio?.name?:""
+                insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0))
+
+                val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
+                if (curProgress != progress) {
+                    progress = curProgress
+                    it.onNext(progress)
+                }
+            }
+
+            // 新增或修改detail
             getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
             it.onComplete()
         }

@@ -155,6 +155,9 @@ interface MatchDao {
     @Query("select * from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
     fun getMatchRankRecordsBy(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap>
 
+    @Query("select mrr.*, mrd.studioId, mrd.studioName from match_rank_record mrr join match_rank_detail mrd on mrr.recordId=mrd.recordId where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
+    fun getRankItems(period: Int, orderInPeriod: Int): List<RankItemWrap>
+
     @Query("select * from match_rank_detail where recordId=:recordId")
     fun getMatchRankDetail(recordId: Long): MatchRankDetail?
 

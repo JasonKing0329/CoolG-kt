@@ -77,6 +77,26 @@ data class MatchScoreRecordWrap (
         entityColumn = "id")
     var matchItem: MatchItem
 )
+data class RankItemWrap (
+
+    @Embedded
+    var bean: MatchRankRecord,
+
+    var studioId: Long = 0,
+
+    var studioName: String = "",
+
+    @Relation(parentColumn = "recordId",
+        entityColumn = "_id")
+    var record: Record?,
+
+    @Relation(parentColumn = "recordId",
+        entityColumn = "recordId")
+    var details: MatchRankDetail?
+
+) {
+    var unAvailableScore: Int? = null
+}
 data class MatchRankRecordWrap (
 
     @Embedded

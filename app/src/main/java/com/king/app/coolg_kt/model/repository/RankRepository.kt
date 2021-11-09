@@ -8,9 +8,9 @@ import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.RankLevelCount
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.*
-import com.king.app.gdb.data.relation.MatchRankRecordWrap
 import com.king.app.gdb.data.relation.MatchRankStarWrap
 import com.king.app.gdb.data.relation.MatchScoreRecordWrap
+import com.king.app.gdb.data.relation.RankItemWrap
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -70,15 +70,15 @@ class RankRepository: BaseRepository() {
     /**
      * 从match_rank_record表中获取排名、积分、数量
      */
-    fun getSpecificPeriodRecordRanks(period: Int, orderInPeriod: Int): Observable<List<MatchRankRecordWrap>> {
+    fun getSpecificPeriodRecordRanks(period: Int, orderInPeriod: Int): Observable<List<RankItemWrap>> {
         return Observable.create {
             it.onNext(specificPeriodRecordRanks(period, orderInPeriod))
             it.onComplete()
         }
     }
 
-    fun specificPeriodRecordRanks(period: Int, orderInPeriod: Int): List<MatchRankRecordWrap> {
-        return getDatabase().getMatchDao().getMatchRankRecordsBy(period, orderInPeriod)
+    fun specificPeriodRecordRanks(period: Int, orderInPeriod: Int): List<RankItemWrap> {
+        return getDatabase().getMatchDao().getRankItems(period, orderInPeriod)
     }
 
     /**
@@ -95,13 +95,13 @@ class RankRepository: BaseRepository() {
     /**
      * 从match_rank_record表中获取排名、积分、数量
      */
-    fun getRankPeriodRecordRanks(): Observable<List<MatchRankRecordWrap>> {
+    fun getRankPeriodRecordRanks(): Observable<List<RankItemWrap>> {
         return Observable.create {
             TimeCostUtil.start()
             val pack = getRankPeriodPack()
-            var result = listOf<MatchRankRecordWrap>()
+            var result = listOf<RankItemWrap>()
             pack.matchPeriod?.let { matchPeriod ->
-                result = getDatabase().getMatchDao().getMatchRankRecordsBy(matchPeriod.period, matchPeriod.orderInPeriod)
+                result = getDatabase().getMatchDao().getRankItems(matchPeriod.period, matchPeriod.orderInPeriod)
             }
             TimeCostUtil.end("getRankPeriodRecordRanks")
             it.onNext(result)

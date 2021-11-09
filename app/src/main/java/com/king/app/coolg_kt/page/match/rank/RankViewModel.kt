@@ -26,8 +26,8 @@ import com.king.app.gdb.data.entity.Star
 import com.king.app.gdb.data.entity.match.MatchRankDetail
 import com.king.app.gdb.data.entity.match.MatchRankRecord
 import com.king.app.gdb.data.entity.match.MatchRankStar
-import com.king.app.gdb.data.relation.MatchRankRecordWrap
 import com.king.app.gdb.data.relation.MatchRankStarWrap
+import com.king.app.gdb.data.relation.RankItemWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import io.reactivex.rxjava3.core.Observer
@@ -241,7 +241,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 //            })
     }
 
-    private fun recordRankPeriodRx(): Observable<List<MatchRankRecordWrap>> {
+    private fun recordRankPeriodRx(): Observable<List<RankItemWrap>> {
         periodText.set("P${showPeriod.period}-W${showPeriod.orderInPeriod}")
         // 只有当前week的排名要判断是否统计当前积分，其他情况都从rank表里取
         return if (currentPeriod.period == showPeriod.period && currentPeriod.orderInPeriod == showPeriod.orderInPeriod) {
@@ -356,10 +356,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    private fun toMatchRankRecords(list: List<ScoreCount>, loadDetail: Boolean): ObservableSource<List<MatchRankRecordWrap>> {
+    private fun toMatchRankRecords(list: List<ScoreCount>, loadDetail: Boolean): ObservableSource<List<RankItemWrap>> {
         return ObservableSource {
             TimeCostUtil.start()
-            var result = mutableListOf<MatchRankRecordWrap>()
+            var result = mutableListOf<RankItemWrap>()
             list.forEachIndexed { index, scoreCount ->
                 var record = getDatabase().getRecordDao().getRecordBasic(scoreCount.id)
                 // 只有在select模式下需要使用
@@ -369,9 +369,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 else {
                     null
                 }
-                var wrap = MatchRankRecordWrap(
+                var wrap = RankItemWrap(
                     MatchRankRecord(0, 0, 0,
-                    scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount), record, detail
+                    scoreCount.id, index + 1, scoreCount.score, scoreCount.matchCount)
+                    , 0, "", record, detail
                 )
                 wrap.unAvailableScore = scoreCount.unavailableScore
                 result.add(wrap)
@@ -382,10 +383,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    private fun toRecordList(list: List<MatchRankRecordWrap>): ObservableSource<List<RankItem<Record?>>> {
+    private fun toRecordList(list: List<RankItemWrap>): ObservableSource<List<RankItem<Record?>>> {
         return ObservableSource {
             TimeCostUtil.start()
-            var lastRanks = listOf<MatchRankRecordWrap>()
+            var lastRanks = listOf<RankItemWrap>()
             // period加载变化
             if (periodOrRtf == 0) {
                 // 当前period的上一站
@@ -395,8 +396,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             var result = mutableListOf<RankItem<Record?>>()
             list.forEach { bean ->
                 // studioName, levelMatchCount从detail表里取（该表的数据在create rank时生成）
-                val studioName = bean.details?.studioName
-                val studioId = bean.details?.studioId?:0
+                val studioName = bean.studioName
+                val studioId = bean.studioId
                 // 只有select模式显示levelMatchCount
                 val levelMatchCount = if (isSelectMode) {
                     bean.details?.let { detail ->
@@ -461,13 +462,6 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     // 是否可选
                     if (isSelectMode && samePeriodMap.contains(item.id)) {
                         item.canSelect = false
-                    }
-                    // 未完成match期间，采用的是实时统计积分排名，这种情况下detail未加载，在这里加载一次
-                    if (item.studioId == 0.toLong()) {
-                        orderRepository.getRecordStudio(item.bean?.id?:0)?.let { studio ->
-                            item.studioId = studio.id!!
-                            item.studioName = studio.name
-                        }
                     }
 
                     count ++

@@ -243,8 +243,4 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
         championRateText = format.format(rate)
         return list
     }
-
-    fun loadFinalRanks(): List<MatchRankRecord> {
-        return rankRepository.getRecordFinalRanks(mRecordId)
-    }
 }

@@ -3,7 +3,7 @@ package com.king.app.coolg_kt.page.match.detail
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
-import com.king.app.coolg_kt.base.EmptyViewModel
+import androidx.lifecycle.Observer
 import com.king.app.coolg_kt.databinding.FragmentMatchDetailBasicBinding
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.widget.chart.adapter.BarChartAdapter
@@ -15,7 +15,7 @@ import com.king.app.gdb.data.entity.match.MatchRankRecord
  * @author：Jing
  * @date: 2021/2/24 10:03
  */
-class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, EmptyViewModel>() {
+class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, BasicViewModel>() {
 
     private var periodType = 0
 
@@ -37,7 +37,7 @@ class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, Emp
      */
     var DEGREE_AREA = 10
 
-    override fun createViewModel(): EmptyViewModel = emptyViewModel()
+    override fun createViewModel(): BasicViewModel = generateViewModel(BasicViewModel::class.java)
 
     override fun initView(view: View) {
 
@@ -93,8 +93,8 @@ class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, Emp
         mainViewModel.loadBasic(0, 0)
         mBinding.bean = mainViewModel.detailBasic
 
-        val list = mainViewModel.loadFinalRanks()
-        initRankChart(list)
+        mModel.rankChartList.observe(this, Observer { initRankChart(it) })
+        mModel.loadFinalRanks(mainViewModel.mRecordId)
     }
 
     private fun initRankChart(list: List<MatchRankRecord>) {

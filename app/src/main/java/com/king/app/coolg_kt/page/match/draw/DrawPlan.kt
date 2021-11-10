@@ -482,11 +482,21 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                     }
                 }
             }
-            // 已插入进mainlist的将其删除，剩下的只能进入wildcards
-            applierInserted.forEach { applier -> drawStrategy?.preAppliers?.remove(applier) }
             // mainList中溢出的进入qualify
             if (mainList.size > mainSure) {
                 mainOverFlowList = mainList.subList(mainSure, mainList.size)
+            }
+            // 已插入进mainlist的将其删除，剩下的只能进入wildcards；已插入进mainlist，但溢出的也进入wildcards(否则被插入进qualify中了)
+            applierInserted.forEach { applier ->
+                val isInOver = mainOverFlowList.firstOrNull { it.recordId == applier.recordId }
+                // 没有溢出，直接删除
+                if (isInOver == null) {
+                    drawStrategy?.preAppliers?.remove(applier)
+                }
+                // 溢出了，重新回到wildcards中
+                else {
+                    mainOverFlowList.remove(isInOver)
+                }
             }
 
             // 确定种子列表
@@ -614,11 +624,21 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
                     }
                 }
             }
-            // 已插入进mainlist的将其删除，剩下的只能进入wildcards
-            applierInserted.forEach { applier -> drawStrategy?.preAppliers?.remove(applier) }
             // mainList中溢出的进入qualify
             if (mainList.size > mainSure) {
                 mainOverFlowList = mainList.subList(mainSure, mainList.size)
+            }
+            // 已插入进mainlist的将其删除，剩下的只能进入wildcards；已插入进mainlist，但溢出的也进入wildcards(否则被插入进qualify中了)
+            applierInserted.forEach { applier ->
+                val isInOver = mainOverFlowList.firstOrNull { it.recordId == applier.recordId }
+                // 没有溢出，直接删除
+                if (isInOver == null) {
+                    drawStrategy?.preAppliers?.remove(applier)
+                }
+                // 溢出了，重新回到wildcards中
+                else {
+                    mainOverFlowList.remove(isInOver)
+                }
             }
 
             // 确定种子列表

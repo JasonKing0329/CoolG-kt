@@ -13,6 +13,7 @@ data class StudioSimpleItem(
     var firstChar: String? = null
     var name: String? = null
     var number: String? = null
+    var imageUrl: String? = null
 
 }
 data class StudioRichItem(

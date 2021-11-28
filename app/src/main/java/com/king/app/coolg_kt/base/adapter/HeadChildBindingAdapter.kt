@@ -50,6 +50,14 @@ abstract class HeadChildBindingAdapter<VH : ViewDataBinding, VI : ViewDataBindin
         return getItemViewType(position) == TYPE_ITEM
     }
 
+    fun getHead(position: Int): H? {
+        return list?.get(position) as H
+    }
+
+    fun getItem(position: Int): I? {
+        return list?.get(position) as I
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == TYPE_HEAD) {
             val binding = onCreateHeadBind(LayoutInflater.from(parent.context), parent)

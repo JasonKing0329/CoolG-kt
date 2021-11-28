@@ -22,7 +22,6 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
 
     var simpleObserver = MutableLiveData<List<StudioSimpleItem>>()
     var richObserver = MutableLiveData<List<StudioRichItem>>()
-    var listTypeMenuObserver = MutableLiveData<String>()
 
     /**
      * 在本页面范围内，修正过一次即可
@@ -31,12 +30,11 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
 
     var isSelectAsMatch = false
 
-    fun toggleListType() {
-        if (AppConstants.STUDIO_LIST_TYPE_RICH === SettingProperty.getStudioListType()) {
-            SettingProperty.setStudioListType(AppConstants.STUDIO_LIST_TYPE_SIMPLE)
-        } else {
-            SettingProperty.setStudioListType(AppConstants.STUDIO_LIST_TYPE_RICH)
-        }
+    var listDisplayType = SettingProperty.getStudioListType()
+
+    fun toggleListType(type: Int) {
+        listDisplayType = type
+        SettingProperty.setStudioListType(type)
         loadStudios()
     }
 
@@ -49,12 +47,9 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
     }
 
     fun loadStudios() {
-        if (AppConstants.STUDIO_LIST_TYPE_RICH === SettingProperty.getStudioListType()) {
-            listTypeMenuObserver.value = "Simple List"
-            loadRichItems()
-        } else {
-            listTypeMenuObserver.value = "Rich List"
-            loadSimpleItems()
+        when(listDisplayType) {
+            AppConstants.STUDIO_LIST_TYPE_RICH -> loadRichItems()
+            else -> loadSimpleItems()
         }
     }
 
@@ -164,6 +159,7 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
                     item.firstChar = name[0].toString()
                 }
                 item.number = order.number.toString()
+                item.imageUrl = parseCoverUrl(order.coverUrl)
                 result.add(item)
             }
             it.onNext(result)
@@ -233,5 +229,13 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
             getDatabase().getFavorDao().updateFavorRecordOrder(order)
             messageObserver.value = "success"
         }
+    }
+
+    fun isGridType(): Boolean {
+        return listDisplayType == AppConstants.STUDIO_LIST_TYPE_GRID
+    }
+
+    fun isRichType(): Boolean {
+        return listDisplayType == AppConstants.STUDIO_LIST_TYPE_RICH
     }
 }

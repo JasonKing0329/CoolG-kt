@@ -109,6 +109,15 @@ class RankRepository: BaseRepository() {
         }
     }
 
+    fun getStudioRankPeriodRecordRanks(studioId: Long):List<RankItemWrap> {
+        val pack = getRankPeriodPack()
+        var result = listOf<RankItemWrap>()
+        pack.matchPeriod?.let { matchPeriod ->
+            result = getDatabase().getMatchDao().getStudioRankItems(matchPeriod.period, matchPeriod.orderInPeriod, studioId)
+        }
+        return result
+    }
+
     /**
      * 从match_rank_star表中获取排名、积分、数量
      */

@@ -7,12 +7,14 @@ import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.FragmentStudioListBinding
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 import com.king.app.gdb.data.entity.FavorRecordOrder
 
@@ -42,6 +44,7 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
         }
     }
 
+    private var gridAdapter = StudioGridAdapter()
     private var simpleAdapter = StudioSimpleAdapter()
     private var richAdapter = StudioRichAdapter()
 
@@ -74,6 +77,21 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
                 }
             }
         })
+        gridAdapter.onEditListener = object : StudioGridAdapter.OnEditListener {
+            override fun onEditItem(position: Int, bean: StudioSimpleItem) {
+                modifyStudioName(position, bean)
+            }
+        }
+        gridAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StudioSimpleItem>{
+            override fun onClickItem(view: View, position: Int, data: StudioSimpleItem) {
+                if (isDeleting) {
+                    warningDelete(data.order)
+                }
+                else {
+                    onClickOrder(data.order)
+                }
+            }
+        })
         richAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StudioRichItem>{
             override fun onClickItem(view: View, position: Int, data: StudioRichItem) {
                 if (isDeleting) {
@@ -96,7 +114,7 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
     private fun initMenu() {
         holder?.getJActionBar()?.setOnMenuItemListener { menuId ->
             when (menuId) {
-                R.id.menu_mode -> mModel.toggleListType()
+                R.id.menu_mode -> chooseDisplayMode()
                 R.id.menu_add -> addNewStudio()
                 R.id.menu_delete -> {
                     isDeleting = true
@@ -127,6 +145,14 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
         }
     }
 
+    private fun chooseDisplayMode() {
+        var items = arrayOf("Simple List", "Simple Grid", "Rich List")
+        AlertDialogFragment()
+            .setItems(items
+            ) { dialog, which -> mModel.toggleListType(which) }
+            .show(childFragmentManager, "chooseDisplayMode")
+    }
+
     private fun modifyStudioName(position: Int, simpleItem: StudioSimpleItem) {
         SimpleDialogs().openInputDialog(
             requireContext(),
@@ -139,7 +165,7 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
             else {
                 mModel.updateStudioName(simpleItem.order, it)
                 simpleItem.name = it
-                simpleAdapter.notifyItemChanged(position)
+                commonAdapterFunc().notifyItemChanged(position)
             }
         }
     }
@@ -152,8 +178,6 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
     }
 
     override fun initData() {
-        mModel.listTypeMenuObserver.observe(this,
-            Observer{ text -> holder?.getJActionBar()?.updateMenuText(R.id.menu_mode, text) })
         mModel.simpleObserver.observe(this, Observer{ list -> showSimpleList(list) })
         mModel.richObserver.observe(this, Observer{ list -> showRichList(list) })
 
@@ -175,22 +199,29 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
     }
 
     private fun showSimpleList(list: List<StudioSimpleItem>) {
-        if (mBinding.rvList.adapter == null) {
-            simpleAdapter.list = list
-            mBinding.rvList.adapter = simpleAdapter
-        } else {
+        if (mModel.isGridType()) {
+            mBinding.rvList.layoutManager = GridLayoutManager(context, 3)
+            gridAdapter.list = list
+            mBinding.rvList.adapter = gridAdapter
+        }
+        else {
+            mBinding.rvList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             simpleAdapter.list = list
             mBinding.rvList.adapter = simpleAdapter
         }
     }
 
     private fun showRichList(list: List<StudioRichItem>) {
-        if (mBinding.rvList.adapter == null) {
-            richAdapter.list = list
-            mBinding.rvList.adapter = richAdapter
-        } else {
-            richAdapter.list = list
-            mBinding.rvList.adapter = richAdapter
+        mBinding.rvList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        richAdapter.list = list
+        mBinding.rvList.adapter = richAdapter
+    }
+
+    private fun commonAdapterFunc(): RecyclerView.Adapter<*> {
+        return when {
+            mModel.isRichType() -> richAdapter
+            mModel.isGridType() -> gridAdapter
+            else -> simpleAdapter
         }
     }
 

@@ -18,6 +18,7 @@ class MatchHomeViewModel(application: Application): BaseViewModel(application) {
     var rankUrl = ObservableField<String>()
     var h2hUrl = ObservableField<String>()
     var finalUrl = ObservableField<String>()
+    var studioUrl = ObservableField<String>()
 
     init {
         if (SettingProperty.isDemoImageMode()) {
@@ -26,6 +27,7 @@ class MatchHomeViewModel(application: Application): BaseViewModel(application) {
             rankUrl.set(ImageProvider.getRandomDemoImage(-1, null))
             h2hUrl.set(ImageProvider.getRandomDemoImage(-1, null))
             finalUrl.set(ImageProvider.getRandomDemoImage(-1, null))
+            studioUrl.set(ImageProvider.getRandomDemoImage(-1, null))
         }
         else {
             val urls = SettingProperty.getMatchHomeUrls()
@@ -34,6 +36,7 @@ class MatchHomeViewModel(application: Application): BaseViewModel(application) {
             rankUrl.set(urls.rankUrl)
             h2hUrl.set(urls.h2hUrl)
             finalUrl.set(urls.finalUrl)
+            studioUrl.set(urls.studioUrl)
         }
     }
 
@@ -69,6 +72,13 @@ class MatchHomeViewModel(application: Application): BaseViewModel(application) {
         finalUrl.set(coverPath)
         val urls = SettingProperty.getMatchHomeUrls()
         urls.finalUrl = coverPath
+        SettingProperty.setMatchHomeUrls(urls)
+    }
+
+    fun updateStudioUrl(coverPath: String) {
+        studioUrl.set(coverPath)
+        val urls = SettingProperty.getMatchHomeUrls()
+        urls.studioUrl = coverPath
         SettingProperty.setMatchHomeUrls(urls)
     }
 }

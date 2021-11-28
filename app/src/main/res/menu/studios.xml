@@ -18,7 +18,7 @@
         app:showAsAction="ifRoom"/>
 
     <item android:id="@+id/menu_mode"
-        android:title="Rich List"
+        android:title="Display Mode"
         app:showAsAction="never"/>
 
 </menu>

@@ -9,6 +9,7 @@ import com.king.app.coolg_kt.page.match.h2h.H2hActivity
 import com.king.app.coolg_kt.page.match.list.MatchListActivity
 import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.match.season.SeasonActivity
+import com.king.app.coolg_kt.page.match.studio.MatchStudioActivity
 import com.king.app.coolg_kt.page.match.titles.FinalListActivity
 
 /**
@@ -84,6 +85,14 @@ class MatchHomeActivity: BaseActivity<ActivityMatchHomeBinding, MatchHomeViewMod
             }
             else {
                 mModel.updateFinalUrl(setCoverPath!!)
+            }
+        }
+        mBinding.tvStudio.setOnClickListener {
+            if (setCoverPath == null) {
+                MatchStudioActivity.startPage(this@MatchHomeActivity)
+            }
+            else {
+                mModel.updateStudioUrl(setCoverPath!!)
             }
         }
     }

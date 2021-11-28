@@ -763,6 +763,9 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             }
             // 积分周期内有参赛的record，新增或修改detail
             getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
+            // 更新最高排名
+            getDatabase().getMatchDao().clearHighRanks()
+            getDatabase().getMatchDao().insertAllHighRanks()
             it.onComplete()
         }
     }

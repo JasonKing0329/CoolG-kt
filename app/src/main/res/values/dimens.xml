@@ -304,6 +304,7 @@
     <dimen name="h2h_item_text">14dp</dimen>
     <dimen name="match_home_radius">0dp</dimen>
     <dimen name="match_home_text">30dp</dimen>
+    <dimen name="match_home_text_s">20dp</dimen>
     <dimen name="home_date_text">28dp</dimen>
     <dimen name="home_menu_icon_size">50dp</dimen>
     <dimen name="home_menu_icon_padding">8dp</dimen>
@@ -342,5 +343,7 @@
     <dimen name="match_item_ru_width">144dp</dimen><!-- =2*match_item_sf_width -->
     <dimen name="match_item_ru_height">80dp</dimen>
     <dimen name="record_match_page_line_left">20dp
+    </dimen>
+    <dimen name="match_studio_record_height">70dp
     </dimen><!-- =match_item_cha_height - match_item_sf_height -->
 </resources>

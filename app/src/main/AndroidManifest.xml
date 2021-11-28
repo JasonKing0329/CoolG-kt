@@ -101,6 +101,7 @@
         <activity android:name=".page.match.rank.HighRankActivity" />
         <activity android:name=".page.match.detail.CareerActivity" />
         <activity android:name=".page.match.item.WallActivity" />
+        <activity android:name=".page.match.studio.MatchStudioActivity" />
         <activity
             android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

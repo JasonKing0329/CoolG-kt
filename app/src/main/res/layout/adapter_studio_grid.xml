@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.studio.StudioSimpleItem"/>
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.king.app.coolg_kt.view.CoverView
+            android:id="@+id/tv_studio"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:coverText="@{bean.name}"
+            app:coverTextColor="@color/white"
+            app:coverTextSize="@dimen/text_common_14"
+            app:coverRadius="2dp"
+            app:coverRecordUrl="@{bean.imageUrl}"/>
+
+        <TextView
+            android:id="@+id/tv_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{bean.number}"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_common_12"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_studio"
+            app:layout_constraintEnd_toEndOf="@+id/tv_studio"
+            tools:text="420" />
+
+        <ImageView
+            android:id="@+id/iv_edit"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_edit_white_36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_studio"
+            app:layout_constraintEnd_toEndOf="@+id/tv_studio" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

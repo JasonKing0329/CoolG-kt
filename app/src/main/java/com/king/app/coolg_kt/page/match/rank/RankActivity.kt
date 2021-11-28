@@ -55,6 +55,11 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             intent.putExtra(EXTRA_SELECT_MATCH_LEVEL, matchLevel)
             context.startActivityForResult(intent, requestCode)
         }
+        fun startPageStudioItems(context: Activity, studioId: Long) {
+            var intent = Intent(context, RankActivity::class.java)
+            intent.putExtra(EXTRA_INIT_STUDIO, studioId)
+            context.startActivity(intent)
+        }
         fun startPageToSelectStudioItem(context: Activity, requestCode: Int, studioId: Long, matchLevel: Int) {
             var intent = Intent(context, RankActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)

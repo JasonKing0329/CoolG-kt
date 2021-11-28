@@ -195,7 +195,8 @@ data class HomeUrls(
     var seasonUrl: String? = null,
     var rankUrl: String? = null,
     var h2hUrl: String? = null,
-    var finalUrl: String? = null
+    var finalUrl: String? = null,
+    var studioUrl: String? = null
 )
 
 data class RecordWithRank(
@@ -478,3 +479,18 @@ data class DrawScore(
 ) {
     var period: Int = 0
 }
+
+data class StudioTitle(
+    var flag: String,
+    var title: String,
+    var hasMore: Boolean
+)
+
+data class StudioItem(
+    var column: Int,
+    var record: Record?,
+    var detailRank: Int,
+    var currentRank: String,
+    var detail: String,
+    var imageUrl: String? = null
+)

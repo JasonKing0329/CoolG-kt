@@ -158,6 +158,9 @@ interface MatchDao {
     @Query("select mrr.*, mrd.studioId, mrd.studioName from match_rank_record mrr left join match_rank_detail mrd on mrr.recordId=mrd.recordId where period=:period and orderInPeriod=:orderInPeriod order by score desc, matchCount asc")
     fun getRankItems(period: Int, orderInPeriod: Int): List<RankItemWrap>
 
+    @Query("select mrr.*, mrd.studioId, mrd.studioName from match_rank_record mrr left join match_rank_detail mrd on mrr.recordId=mrd.recordId where period=:period and orderInPeriod=:orderInPeriod and mrd.studioId=:studioId order by score desc, matchCount asc")
+    fun getStudioRankItems(period: Int, orderInPeriod: Int, studioId: Long): List<RankItemWrap>
+
     @Query("select * from match_rank_detail where recordId=:recordId")
     fun getMatchRankDetail(recordId: Long): MatchRankDetail?
 
@@ -420,4 +423,18 @@ interface MatchDao {
     @Query("update match_rank_detail set `gsCount`=0, `gm1000Count`=0, `gm500Count`=0, `gm250Count`=0, `lowCount`=0")
     fun resetRankDetails()
 
+    @Query("select * from match_black_list")
+    fun getBlackList(): List<MatchBlackList>
+
+    @Query("delete from temp_high_rank")
+    fun clearHighRanks()
+
+    @Query("select thr.* from temp_high_rank thr join favor_record fr on thr.recordId=fr.RECORD_ID where fr.ORDER_ID=:studioId order by thr.high limit :limit")
+    fun getStudioHighRank(studioId: Long, limit: Int): List<TempHighRank>
+
+    @Query("insert into temp_high_rank select recordId, min(rank) as high from match_rank_record group by recordId order by high")
+    fun insertAllHighRanks()
+
+    @Query("insert into temp_high_rank select recordId, min(rank) as high from match_rank_record where rank<=:lessEqThan group by recordId order by high")
+    fun insertHighRanks(lessEqThan: Int)
 }

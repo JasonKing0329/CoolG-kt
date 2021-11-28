@@ -32,4 +32,8 @@
         android:title="Studio map"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/menu_black_list"
+        android:title="Blacklist"
+        app:showAsAction="never"/>
+
 </menu>

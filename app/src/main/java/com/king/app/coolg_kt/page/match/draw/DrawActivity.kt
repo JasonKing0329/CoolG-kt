@@ -127,6 +127,9 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 R.id.menu_studio_map -> {
                     showStudioMap()
                 }
+                R.id.menu_black_list -> {
+                    BlackListActivity.startPage(this)
+                }
             }
         }
         mBinding.actionbar.setOnConfirmListener {

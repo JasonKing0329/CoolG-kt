@@ -79,7 +79,13 @@ class DrawRepository: BaseRepository() {
     private fun createRankSystem(): List<RankRecord> {
         val matchPeriod = getRankPeriodToDraw()
         matchPeriod?.let {
-            return getDatabase().getMatchDao().getRankRecords(MatchConstants.RANK_LIMIT_MAX, it.period, it.orderInPeriod)
+            val items = getDatabase().getMatchDao().getRankRecords(MatchConstants.RANK_LIMIT_MAX, it.period, it.orderInPeriod)
+            // 过滤黑名单
+            val blackList = mutableListOf<Long>()
+            getDatabase().getMatchDao().getBlackList().mapTo(blackList) { mb ->
+                mb.recordId
+            }
+            return items.filter { item -> !blackList.contains(item.recordId) }
         }
         return listOf()
     }

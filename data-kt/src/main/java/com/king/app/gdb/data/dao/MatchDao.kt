@@ -437,4 +437,14 @@ interface MatchDao {
 
     @Query("insert into temp_high_rank select recordId, min(rank) as high from match_rank_record where rank<=:lessEqThan group by recordId order by high")
     fun insertHighRanks(lessEqThan: Int)
+
+    @Insert
+    fun insertBlackList(list: List<MatchBlackList>)
+
+    @Delete
+    fun deleteBlackList(list: List<MatchBlackList>)
+
+    @Query("select * from match_black_list")
+    fun queryBlackList(): List<MatchBlackList>
+
 }

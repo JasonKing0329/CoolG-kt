@@ -49,4 +49,8 @@ class RecordGridAdapter : BaseBindingAdapter<AdapterRecordItemGridBinding, Recor
             super.onClickItem(v, position, bean)
         }
     }
+
+    fun getSelectedItems(): List<RecordWrap> {
+        return list?.filter { mCheckMap[it.bean.id!!]?:false }?: listOf()
+    }
 }

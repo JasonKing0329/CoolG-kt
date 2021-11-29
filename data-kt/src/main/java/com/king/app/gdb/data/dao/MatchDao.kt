@@ -438,7 +438,7 @@ interface MatchDao {
     @Query("insert into temp_high_rank select recordId, min(rank) as high from match_rank_record where rank<=:lessEqThan group by recordId order by high")
     fun insertHighRanks(lessEqThan: Int)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertBlackList(list: List<MatchBlackList>)
 
     @Delete
@@ -446,5 +446,11 @@ interface MatchDao {
 
     @Query("select * from match_black_list")
     fun queryBlackList(): List<MatchBlackList>
+
+    @Query("select r.*, m.level, count(m.level) as levelCount from match_item mi join record r on mi.winnerId=r._id join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id where mi.round=7 and r.studioId=:studioId group by r._id, m.level")
+    fun queryStudioRecordLevelChampions(studioId: Long): List<StudioChampionWrap>
+
+    @Query("select r.*, 0 as level, count(r._id) as levelCount from match_item mi join record r on mi.winnerId=r._id join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id where mi.round=7 and r.studioId=:studioId group by r._id")
+    fun queryStudioRecordChampions(studioId: Long): List<StudioChampionWrap>
 
 }

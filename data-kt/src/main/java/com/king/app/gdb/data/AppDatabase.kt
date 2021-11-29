@@ -25,7 +25,7 @@ import com.king.app.gdb.data.entity.match.*
         , Match::class, MatchPeriod::class, MatchItem::class, MatchRecord::class
         , MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class, MatchRankDetail::class
         , ScorePlan::class, MatchBlackList::class, TempHighRank::class],
-    version = 19,
+    version = 20,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -76,6 +76,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .addMigrations(DataMigration.MIGRATION_16_17)
                 .addMigrations(DataMigration.MIGRATION_17_18)
                 .addMigrations(DataMigration.MIGRATION_18_19)
+                .addMigrations(DataMigration.MIGRATION_19_20)
                 .build()
         }
     }

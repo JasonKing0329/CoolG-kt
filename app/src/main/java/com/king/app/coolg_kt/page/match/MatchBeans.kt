@@ -487,10 +487,11 @@ data class StudioTitle(
 )
 
 data class StudioItem(
+    var parentFlag: String,
     var column: Int,
+    var dataBean: Any,
     var record: Record?,
-    var detailRank: Int,
-    var currentRank: String,
-    var detail: String,
+    var currentRank: String = "",
+    var detail: String = "",
     var imageUrl: String? = null
 )

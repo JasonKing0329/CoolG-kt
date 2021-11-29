@@ -61,6 +61,9 @@ interface RecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecordStars(list: List<RecordStar>)
 
+    @Update
+    fun updateRecord(record: Record)
+
     @Query("select * from record_star where RECORD_ID=:recordId")
     fun getRecordStars(recordId: Long): List<RecordStarWrap>
 

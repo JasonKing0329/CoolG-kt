@@ -123,3 +123,13 @@ data class MatchRankStarWrap (
     var star: Star?
 
 )
+data class StudioChampionWrap (
+
+    @Embedded
+    var record: Record,
+    var level: Int,
+    var levelCount: Int
+
+) {
+    var imageUrl: String? = null
+}

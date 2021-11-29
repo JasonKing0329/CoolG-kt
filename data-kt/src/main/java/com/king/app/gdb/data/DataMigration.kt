@@ -195,6 +195,13 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_19_20: Migration = object : Migration(19, 20) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_19_20")
+            database.execSQL("ALTER TABLE 'record' ADD COLUMN `studioId` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

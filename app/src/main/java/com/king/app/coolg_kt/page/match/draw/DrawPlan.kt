@@ -531,7 +531,7 @@ class GM500Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
         }
         else {
             // 正赛有溢出，取溢出的最低排名
-            mainOverFlowList.maxBy { it.rank }!!.rank
+            mainOverFlowList.maxByOrNull { it.rank }!!.rank
         }
         var lowRank = 300// 默认最低
         drawStrategy?.gm500?.let {
@@ -680,7 +680,7 @@ class GM250Plan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
         }
         else {
             // 正赛有溢出，取溢出的最低排名
-            mainOverFlowList.maxBy { it.rank }!!.rank
+            mainOverFlowList.maxByOrNull { it.rank }!!.rank
         }
         var lowRank = 500// 默认最低
         drawStrategy?.gm250?.let {

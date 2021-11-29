@@ -21,8 +21,10 @@ import com.king.app.coolg_kt.model.http.bean.request.VersionRequest
 import com.king.app.coolg_kt.model.http.bean.response.*
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.http.upload.UploadClient
+import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.PropertyRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -476,4 +478,33 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    fun createRecordStudio() {
+        loadingObserver.value = true
+        createRecordStudioRx()
+            .compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    loadingObserver.value = false
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    loadingObserver.value = false
+                }
+            })
+    }
+
+    private fun createRecordStudioRx(): Observable<Boolean> {
+        return Observable.create {
+            var op = OrderRepository()
+            getDatabase().getRecordDao().getAllBasicRecords().forEach {
+                op.getRecordStudio(it.id!!)?.let { studio ->
+                    it.studioId = studio.id!!
+                    getDatabase().getRecordDao().updateRecord(it)
+                }
+            }
+            it.onNext(true)
+            it.onComplete()
+        }
+    }
 }

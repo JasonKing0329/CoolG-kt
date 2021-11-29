@@ -2,7 +2,6 @@ package com.king.app.gdb.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
@@ -67,5 +66,7 @@ data class Record (
     var type:Int = 0,
 
     @ColumnInfo(name = "RECORD_DETAIL_ID")
-    var recordDetailId: Long = 0
+    var recordDetailId: Long = 0,
+
+    var studioId: Long = 0
 )

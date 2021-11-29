@@ -88,7 +88,7 @@ class MatchRule {
         if (sorted[0].value == sorted[1].value) {
             // 222, 胜场全相同，第一名为record rank最高
             if (sorted[0].value == sorted[1].value && sorted[0].value == sorted[2].value) {
-                first = sameScores.minBy { it.record.countRecord!!.rank }
+                first = sameScores.minByOrNull { it.record.countRecord!!.rank }
                 restTwo = sameScores.filter { it != first }.toMutableList()
             }
             // 221, 22进行比较，1直接第三名

@@ -67,6 +67,9 @@ class StudioDetailFragment: BaseFragment<FragmentMatchStudioPageBinding, StudioD
             adapter.list = it
             adapter.notifyDataSetChanged()
         })
+        mModel.rangeObserver.observe(this, Observer {
+            adapter.notifyItemRangeChanged(it.start, it.count)
+        })
         mModel.loadStudioData(requireArguments().getLong(STUDIO_ID))
     }
 }

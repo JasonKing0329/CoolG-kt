@@ -66,7 +66,7 @@ class BlackListActivity: BaseActivity<ActivityMatchBlacklistBinding, BlackListVi
             true
         }
 
-        mBinding.rvList.layoutManager = GridLayoutManager(this, 2)
+        mBinding.rvList.layoutManager = GridLayoutManager(this, 3)
         adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordWrap> {
             override fun onClickItem(view: View, position: Int, data: RecordWrap) {
                 RecordActivity.startPage(this@BlackListActivity, data.bean.id!!)

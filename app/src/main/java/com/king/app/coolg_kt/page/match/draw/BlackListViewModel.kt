@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.gdb.data.entity.match.MatchBlackList
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -36,7 +37,10 @@ class BlackListViewModel(application: Application): BaseViewModel(application) {
             val list = mutableListOf<RecordWrap?>()
             getDatabase().getMatchDao().queryBlackList().mapTo(list) { mb ->
                 val item = getDatabase().getRecordDao().getRecord(mb.recordId)
-                item?.let { bean -> bean.canSelect = true }
+                item?.let { bean ->
+                    bean.canSelect = true
+                    bean.imageUrl = ImageProvider.getRecordRandomPath(bean.bean.name, null)
+                }
                 item
             }
             val result = list.filterNotNull()

@@ -53,7 +53,8 @@ class RecordRepository: BaseRepository() {
         filterBean: RecommendBean? = null,
         like: String? = null,
         whereScene: String? = null,
-        outOfRank: Boolean = false
+        outOfRank: Boolean = false,
+        filterBlackList: Boolean = false
     ): Observable<RecordComplexFilter> {
         return Observable.create {
             val filter = RecordComplexFilter()
@@ -72,21 +73,35 @@ class RecordRepository: BaseRepository() {
             filter.studioId = orderId
             filter.tagId = tagId
             filter.outOfRank = outOfRank
+            filter.filterBlacklist = filterBlackList
             it.onNext(filter)
             it.onComplete()
         }
     }
 
-    fun getRecordsOutOfRank(): Observable<List<RecordWrap>> {
+    fun getRecordsOutOfRank(isFilterBlacklist: Boolean): Observable<List<RecordWrap>> {
         return Observable.create {
             val pack = getCompletedPeriodPack()
             var result = listOf<RecordWrap>()
             pack.matchPeriod?.let { matchPeriod ->
                 result = getDatabase().getRecordDao().getRecordsOutOfRank(matchPeriod.period, matchPeriod.orderInPeriod)
             }
+            if (isFilterBlacklist) {
+                val blacklist = getBlacklistIds()
+                result = result.filter { item -> !blacklist.contains(item.bean.id!!) }
+            }
             it.onNext(result)
             it.onComplete()
         }
+    }
+
+    fun getBlacklistIds(): List<Long> {
+        val ids = mutableListOf<Long>()
+        val blacklist = getDatabase().getMatchDao().getBlackList()
+        blacklist.mapTo(ids) { item ->
+            item.recordId
+        }
+        return ids
     }
 
     private fun getRecordsByFilter(filter: RecordComplexFilter): Observable<List<RecordWrap>> {

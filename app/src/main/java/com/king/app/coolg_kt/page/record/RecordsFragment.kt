@@ -52,6 +52,12 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
         mBinding.rvRecords.setEnableLoadMore(true)
         mBinding.rvRecords.setOnLoadMoreListener { mModel.loadMoreRecords() }
 
+        if (selectAsMatchItem) {
+            mBinding.cbBlack.visibility = View.VISIBLE
+            mBinding.cbBlack.setOnCheckedChangeListener { buttonView, isChecked ->
+                mModel.toggleBlacklist(isChecked)
+            }
+        }
         recordAdapter.popupListener = object : OnPopupListener {
             override fun onPopupRecord(view: View, position: Int, record: RecordWrap) {
                 showEditPopup(view, record.bean)

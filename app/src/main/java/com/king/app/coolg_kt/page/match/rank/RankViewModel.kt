@@ -731,6 +731,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             var insertDetailList = mutableListOf<MatchRankDetail>()
             val total = recordRanksObserver.value?.size?:0
             val insertPart = 1// insert预留1%作为最后一步
+            val highPart = 1// create high预留1%作为最后一步
             var progress = 0
 
             var map = mutableMapOf<Long, MatchRankDetail?>()
@@ -751,7 +752,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 detail?.let { d ->
                     insertDetailList.add(d)
                 }
-                val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
+                val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart + highPart) * 100).toInt()
                 if (curProgress != progress) {
                     progress = curProgress
                     it.onNext(progress)
@@ -763,6 +764,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             }
             // 积分周期内有参赛的record，新增或修改detail
             getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
+            it.onNext(99)
             // 更新最高排名
             getDatabase().getMatchDao().clearHighRanks()
             getDatabase().getMatchDao().insertAllHighRanks()

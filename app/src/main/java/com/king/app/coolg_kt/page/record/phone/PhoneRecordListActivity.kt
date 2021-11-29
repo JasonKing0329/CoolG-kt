@@ -137,11 +137,10 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         initActionBar()
 
         if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
-            val selectAsMatchItem = intent.getBooleanExtra(EXTRA_SELECT_AS_MATCH_ITEM, false)
-            ftRecord.selectAsMatchItem = selectAsMatchItem
+            ftRecord.selectAsMatchItem = isSelectAsMatchItem()
             ftRecord.overrideClickRecordListener = object : RecordsFragment.OnClickRecordListener {
                 override fun onClickRecord(record: RecordWrap) {
-                    if (selectAsMatchItem && record.canSelect != true) {
+                    if (isSelectAsMatchItem() && record.canSelect != true) {
                         showMessageShort("This record is already in draws of current week")
                     }
                     else {
@@ -153,6 +152,10 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
                 }
             }
         }
+    }
+
+    private fun isSelectAsMatchItem(): Boolean {
+        return intent.getBooleanExtra(EXTRA_SELECT_AS_MATCH_ITEM, false)
     }
 
     private fun getStudioId(): Long {

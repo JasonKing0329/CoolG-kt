@@ -50,6 +50,8 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     private var factor = RecordsFragment.Factor()
 
+    private var isFilterBlacklist = false
+
     var selectAsMatchItem = false
 
     init {
@@ -91,7 +93,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     private fun loadRecordsOutOfRank() {
         BasicAndTimeWaste<RecordWrap>()
-            .basic(recordRepository.getRecordsOutOfRank())
+            .basic(recordRepository.getRecordsOutOfRank(isFilterBlacklist))
             .timeWaste(outOfRankWaste(), 20)
             .composite(getComposite())
             .subscribe(
@@ -177,7 +179,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     private fun queryRecords(): Observable<List<RecordWrap>> {
         return recordRepository.getRecordFilter(mSortMode, mSortDesc, factor.recordType, factor.starId
-            , factor.orderId, factor.tagId, moreCursor, mRecommendBean, factor.keyword, factor.scene, factor.outOfRank)
+            , factor.orderId, factor.tagId, moreCursor, mRecommendBean, factor.keyword, factor.scene, factor.outOfRank, isFilterBlacklist)
             .flatMap { filter -> recordRepository.getRecords(filter) }
             .flatMap { list ->  toFilterViewItems(list)};
     }
@@ -221,10 +223,17 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
                 loadSamePeriodItems()
             }
 
-            list.forEach { record ->
+            val result = if (isFilterBlacklist) {
+                val ids = recordRepository.getBlacklistIds()
+                list.filter { item -> !ids.contains(item.bean.id!!) }
+            }
+            else {
+                list
+            }
+            result.forEach { record ->
                 itemDetail(record)
             }
-            it.onNext(list)
+            it.onNext(result)
             it.onComplete()
         }
     }
@@ -263,5 +272,10 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     fun updateFactors(factor: RecordsFragment.Factor) {
         this.factor = factor
+    }
+
+    fun toggleBlacklist(checked: Boolean) {
+        isFilterBlacklist = checked
+        reloadRecords()
     }
 }

@@ -148,13 +148,13 @@ class RecordRepository: BaseRepository() {
         if (filter.starId != 0.toLong()) {
             buildQueryJoinStar(filter.starId, buffer)
         }
-        if (filter.studioId != 0.toLong()) {
-            buildQueryJoinStudio(filter.studioId, buffer)
-        }
         if (filter.tagId !== 0.toLong()) {
             buildQueryJoinTag(filter.tagId, buffer)
         }
         // 再处理WHERE
+        if (filter.studioId != 0.toLong()) {
+            appendWhere(whereBuffer, "studioId=").append(filter.studioId)
+        }
         filter.filter?.let {
             if (it.isOnline) {
                 appendWhere(whereBuffer, "T.deprecated=0")
@@ -281,10 +281,6 @@ class RecordRepository: BaseRepository() {
 
     private fun buildQueryJoinStar(starId: Long, buffer: StringBuffer) {
         buffer.append(" JOIN record_star RS ON RS.RECORD_ID=T._id AND RS.STAR_ID=").append(starId)
-    }
-
-    private fun buildQueryJoinStudio(studioId: Long, buffer: StringBuffer) {
-        buffer.append(" JOIN favor_record FR ON FR.RECORD_ID=T._id AND FR.ORDER_ID=").append(studioId)
     }
 
     private fun buildQueryJoinTag(tagId: Long, buffer: StringBuffer) {

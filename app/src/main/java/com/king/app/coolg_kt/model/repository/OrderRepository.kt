@@ -1,10 +1,6 @@
 package com.king.app.coolg_kt.model.repository
 
-import com.king.app.coolg_kt.conf.AppConstants
-import com.king.app.gdb.data.entity.FavorRecord
-import com.king.app.gdb.data.entity.FavorRecordOrder
-import com.king.app.gdb.data.entity.FavorStar
-import com.king.app.gdb.data.entity.FavorStarOrder
+import com.king.app.gdb.data.entity.*
 import io.reactivex.rxjava3.core.Observable
 import java.util.*
 
@@ -54,58 +50,39 @@ class OrderRepository:BaseRepository() {
         }
     }
 
-    fun getRecordStudio(recordId: Long): FavorRecordOrder? {
-        var studioParentId = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)?.id
-        studioParentId?.let {
-            return getDatabase().getFavorDao().getStudioByRecord(recordId, it)
+    fun getRecordStudio(record: Record?): FavorRecordOrder? {
+        record?.let {
+            return getDatabase().getFavorDao().getStudioById(it.studioId)
         }
         return null
+    }
+
+    fun getRecordStudio(recordId: Long): FavorRecordOrder? {
+        return getDatabase().getFavorDao().getStudioByRecord(recordId)
     }
 
     /**
      * record的studio为唯一对应关系，如果已存在需要替换
      */
-    fun addRecordToStudio(studioId: Long, recordId: Long): Observable<FavorRecord> {
+    fun addRecordToStudio(studioId: Long, record: Record): Observable<Boolean> {
         return Observable.create {
-            var studioParentId = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)?.id
-            var list = getDatabase().getFavorDao().getStudioRelationByRecord(recordId, studioParentId!!)
-            if (list.isEmpty()) {
-                it.onNext(insertFavorRecord(studioId, recordId))
+            var oldStudioId = record.studioId
+            record.studioId = studioId
+            getDatabase().getRecordDao().updateRecord(record)
+            // 更新后修改原有studio与新studio的数量统计
+            val count = getDatabase().getRecordDao().getStudioCount(studioId)
+            getDatabase().getFavorDao().getStudioById(studioId)?.let { studio ->
+                studio.number = count
+                getDatabase().getFavorDao().updateFavorRecordOrder(studio)
             }
-            // 已存在，替换
-            else {
-                // 历史脏数据可能存在多条，删除并重新插入。正常情况是1条，直接替换
-                if (list.size > 1) {
-                    // 先修改原order的数量统计
-                    list.forEach { wrap ->
-                        wrap.order?.let { order ->
-                            order.number --
-                            getDatabase().getFavorDao().updateFavorRecordOrder(order)
-                        }
-                        // 删除
-                        getDatabase().getFavorDao().deleteFavorRecord(wrap.bean)
-                    }
-                    // 插入新的对应关系
-                    it.onNext(insertFavorRecord(studioId, recordId))
-                }
-                else {
-                    var bean = list.first()
-                    // 与原studio不一样才修改
-                    if (bean.bean.orderId != studioId) {
-                        // 先修改原order的数量统计
-                        bean.order?.let { order ->
-                            order.number --
-                            getDatabase().getFavorDao().updateFavorRecordOrder(order)
-                        }
-                        // 修改关联关系
-                        bean.bean.orderId = studioId
-                        getDatabase().getFavorDao().updateFavorRecord(bean.bean)
-                        // 修改数量统计
-                        increaseFavorRecordOrder(studioId)
-                    }
-                    it.onNext(bean.bean)
+            if (oldStudioId != 0L && oldStudioId != studioId) {
+                val count = getDatabase().getRecordDao().getStudioCount(oldStudioId)
+                getDatabase().getFavorDao().getStudioById(oldStudioId)?.let { studio ->
+                    studio.number = count
+                    getDatabase().getFavorDao().updateFavorRecordOrder(studio)
                 }
             }
+            it.onNext(true)
             it.onComplete()
         }
     }

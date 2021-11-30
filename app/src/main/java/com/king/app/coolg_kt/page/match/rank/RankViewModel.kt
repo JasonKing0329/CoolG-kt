@@ -809,7 +809,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             var progress = 0
 
             allRecords.forEachIndexed { index, record ->
-                val studio = orderRepository.getRecordStudio(record.id!!)
+                val studio = orderRepository.getRecordStudio(record)
                 val studioId = studio?.id?:0
                 val studioName = studio?.name?:""
                 insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0))

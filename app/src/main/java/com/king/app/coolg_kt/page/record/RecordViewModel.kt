@@ -6,7 +6,6 @@ import android.media.MediaMetadataRetriever
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.king.app.coolg_kt.base.BaseViewModel
-import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PassionPoint
 import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.model.bean.VideoPlayList
@@ -333,11 +332,8 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
 
     private fun findStudio(list: List<FavorRecordOrder>): ObservableSource<List<FavorRecordOrder>> {
         return ObservableSource {
-            var studioParentId = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)?.id
-            studioParentId?.let { parentId ->
-                var studio = getDatabase().getFavorDao().getStudioByRecord(mRecord.bean.id!!, parentId)
-                studioObserver.postValue(studio?.name?:"")
-            }
+            var studio = getDatabase().getFavorDao().getStudioByRecord(mRecord.bean.id!!)
+            studioObserver.postValue(studio?.name?:"")
             it.onNext(list)
         }
     }
@@ -359,10 +355,10 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     }
 
     fun addToStudio(orderId: Long) {
-        orderRepository.addRecordToStudio(orderId, mRecord.bean.id!!)
+        orderRepository.addRecordToStudio(orderId, mRecord.bean)
             .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<FavorRecord>(getComposite()) {
-                override fun onNext(t: FavorRecord) {
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean) {
                     messageObserver.value = "Add successfully"
                     loadRecordOrders()
                 }

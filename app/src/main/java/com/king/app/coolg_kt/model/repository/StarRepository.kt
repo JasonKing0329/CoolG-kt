@@ -45,8 +45,8 @@ class StarRepository: BaseRepository() {
             }
             else {
                 // 有studioId的情况目前不支持tagId
-                buffer.append("select T.* from favor_record fr " +
-                        "join record_star rs on fr.RECORD_ID=rs.RECORD_ID and fr.ORDER_ID=${builder.studioId} " +
+                buffer.append("select T.* from record r " +
+                        "join record_star rs on r._id=rs.RECORD_ID and r.studioId=${builder.studioId} " +
                         "join stars T on rs.STAR_ID=T._id ")
             }
             // star_rating必须是left join，否则未评级的直接被过滤掉了

@@ -88,13 +88,13 @@ interface RecordDao {
     @Query("select SCENE as name, count(SCENE) as number from record group by SCENE")
     fun getAllScenes(): List<RecordScene>
 
-    @Query("select r.* from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:studioId order by r.SCORE desc limit :num")
+    @Query("select * from record where studioId=:studioId order by SCORE desc limit :num")
     fun getStudioTopRecords(studioId: Long, num: Int): List<RecordWrap>
 
-    @Query("select r.* from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:studioId order by r.LAST_MODIFY_TIME desc limit :num")
+    @Query("select * from record where studioId=:studioId order by LAST_MODIFY_TIME desc limit :num")
     fun getStudioRecentRecords(studioId: Long, num: Int): List<RecordWrap>
 
-    @Query("select * from record where _id not in (select r._id from record r join favor_record fr on fr.RECORD_ID=r._id join favor_order_record fo ON fr.ORDER_ID=fo._id AND fo.PARENT_ID=1)")
+    @Query("select * from record where studioId=0")
     fun getRecordsWithoutStudio(): List<RecordWrap>
 
     @Query("delete from record")
@@ -108,5 +108,8 @@ interface RecordDao {
 
     @Query("delete from record_star")
     fun deleteRecordStars()
+
+    @Query("select count(*) from record where studioId=:studioId")
+    fun getStudioCount(studioId: Long): Int
 
 }

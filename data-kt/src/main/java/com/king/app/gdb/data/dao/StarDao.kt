@@ -85,8 +85,8 @@ interface StarDao {
     @Query("select s.*, count(*) as count from stars s join record_star rs on s._id=rs.STAR_ID where rs.RECORD_ID in (select RECORD_iD from record_star where STAR_ID =:starId) and rs.STAR_ID !=:starId group by s._id")
     fun getStarRelationships(starId: Long): List<StarRelationship>
 
-    @Query("SELECT fodr._id as studioId, fodr.name as name, count(fodr._id) AS count FROM favor_order_record fodr  LEFT JOIN favor_record fr ON fodr._id=fr.order_id LEFT JOIN record r ON fr.record_id=r._id LEFT JOIN record_star rs ON r._id=rs.record_id  WHERE rs.star_id=:starId AND fodr.parent_id=:orderId GROUP BY fodr._id ORDER BY count DESC")
-    fun getStarStudioTag(starId: Long, orderId: Long): List<StarStudioTag>
+    @Query("SELECT fodr._id as studioId, fodr.name as name, count(fodr._id) AS count FROM favor_order_record fodr  LEFT JOIN record r ON fodr._id=r.studioId LEFT JOIN record_star rs ON r._id=rs.record_id WHERE rs.star_id=:starId AND fodr.parent_id=:studioParentId GROUP BY fodr._id ORDER BY count DESC")
+    fun getStarStudioTag(starId: Long, studioParentId: Long): List<StarStudioTag>
 
     @RawQuery
     fun getStarsBySql(query: SupportSQLiteQuery): List<StarWrap>
@@ -94,10 +94,10 @@ interface StarDao {
     @Query("select * from stars s join star_rating sr on s._id=sr.STAR_ID where sr.COMPLEX>=:atLeast order by random() limit :num")
     fun getStarByRating(atLeast: Float, num: Int): List<Star>
 
-    @Query("select s.*, count(s._id) as extraCount from favor_record fr join record_star rs on fr.RECORD_ID=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where fr.ORDER_ID=:orderId group by s._id order by extraCount desc limit :num")
-    fun getStudioTopStars(orderId: Long, num: Int): List<StarWrapWithCount>
+    @Query("select s.*, count(s._id) as extraCount from record r join record_star rs on r._id=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where r.studioId=:studioId group by s._id order by extraCount desc limit :num")
+    fun getStudioTopStars(studioId: Long, num: Int): List<StarWrapWithCount>
 
-    @Query("select s.* from favor_record fr join record_star rs on fr.RECORD_ID=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where fr.ORDER_ID=:orderId group by s._id")
-    fun getStudioStars(orderId: Long): List<Star>
+    @Query("select s.* from record r join record_star rs on r._id=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where r.studioId=:studioId group by s._id")
+    fun getStudioStars(studioId: Long): List<Star>
 
 }

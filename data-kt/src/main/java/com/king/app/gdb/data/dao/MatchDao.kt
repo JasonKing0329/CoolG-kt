@@ -429,7 +429,7 @@ interface MatchDao {
     @Query("delete from temp_high_rank")
     fun clearHighRanks()
 
-    @Query("select thr.* from temp_high_rank thr join favor_record fr on thr.recordId=fr.RECORD_ID where fr.ORDER_ID=:studioId order by thr.high limit :limit")
+    @Query("select thr.* from temp_high_rank thr join record r on thr.recordId=r._id where r.studioId=:studioId order by thr.high limit :limit")
     fun getStudioHighRank(studioId: Long, limit: Int): List<TempHighRank>
 
     @Query("insert into temp_high_rank select recordId, min(rank) as high from match_rank_record group by recordId order by high")

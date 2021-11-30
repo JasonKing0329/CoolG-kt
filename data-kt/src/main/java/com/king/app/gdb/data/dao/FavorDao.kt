@@ -6,7 +6,6 @@ import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.FavorStar
 import com.king.app.gdb.data.entity.FavorStarOrder
-import com.king.app.gdb.data.relation.FavorRecordWrap
 
 /**
  * @description:
@@ -94,11 +93,11 @@ interface FavorDao {
     @Query("select * from favor_order_record where NAME=:name and PARENT_ID=:studioParentId")
     fun getStudioByName(name: String, studioParentId: Long): FavorRecordOrder?
 
-    @Query("select fo.* from favor_order_record fo join favor_record fr on fo._id=fr.ORDER_ID where fr.RECORD_ID=:recordId and fo.PARENT_ID=:studioParentId")
-    fun getStudioByRecord(recordId: Long, studioParentId: Long): FavorRecordOrder?
+    @Query("select fo.* from favor_order_record fo join record r on r.studioId=fo._id where r._id=:recordId")
+    fun getStudioByRecord(recordId: Long): FavorRecordOrder?
 
-    @Query("select fr.* from favor_record fr join favor_order_record fo on fo._id=fr.ORDER_ID where fr.RECORD_ID=:recordId and fo.PARENT_ID=:studioParentId")
-    fun getStudioRelationByRecord(recordId: Long, studioParentId: Long): List<FavorRecordWrap>
+    @Query("select * from favor_order_record where _id=:studioId")
+    fun getStudioById(studioId: Long): FavorRecordOrder?
 
     @Query("select * from favor_star where STAR_ID=:starId and ORDER_ID=:orderId")
     fun getFavorStarBy(starId: Long, orderId: Long): FavorStar?
@@ -115,11 +114,11 @@ interface FavorDao {
     @RawQuery
     fun getRecordOrdersBySql(query: SupportSQLiteQuery): List<FavorRecordOrder>
 
-    @Query("select count(*) from (select rs.STAR_ID as num from favor_record fr join record_star rs on fr.RECORD_ID=rs.RECORD_ID where fr.ORDER_ID=:orderId group by rs.STAR_ID)")
-    fun countStudioStarNumber(orderId: Long): Int
+    @Query("select count(*) from (select rs.STAR_ID as num from record r join record_star rs on r._id=rs.RECORD_ID where r.studioId=:studioId group by rs.STAR_ID)")
+    fun countStudioStarNumber(studioId: Long): Int
 
-    @Query("select count(*) from favor_record fr join record r on fr.RECORD_ID=r._id where fr.ORDER_ID=:orderId and r.SCORE>=:score")
-    fun countRecordScoreOver(orderId: Long, score: Int): Int
+    @Query("select count(*) from record where studioId=:studioId and SCORE>=:score")
+    fun countRecordScoreOver(studioId: Long, score: Int): Int
 
     @Query("select * from favor_order_record where NAME='Studio'")
     fun getStudioOrder(): FavorRecordOrder?

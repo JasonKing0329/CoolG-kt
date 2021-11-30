@@ -71,7 +71,7 @@ class StudioMapDialog: DraggableContentFragment<FragmentDialogStudioMapBinding>(
 
     private fun checkRecord(record: MatchRecordWrap, items: MutableList<StudioMapItem>) {
         if (record.bean.recordId != 0.toLong()) {
-            var studio = orderRepository.getRecordStudio(record.bean.recordId)?.name
+            var studio = orderRepository.getRecordStudio(record.record)?.name
             if (studio == null) {
                 studio = UNKNOWN
             }
@@ -87,7 +87,7 @@ class StudioMapDialog: DraggableContentFragment<FragmentDialogStudioMapBinding>(
 
     private fun checkWinner(record: MatchRecordWrap, items: MutableList<StudioMapItem>) {
         if (record.bean.recordId != 0.toLong()) {
-            var studio = orderRepository.getRecordStudio(record.bean.recordId)?.name
+            var studio = orderRepository.getRecordStudio(record.record)?.name
             if (studio == null) {
                 studio = UNKNOWN
             }

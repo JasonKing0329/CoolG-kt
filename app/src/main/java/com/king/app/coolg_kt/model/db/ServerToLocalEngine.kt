@@ -18,6 +18,7 @@ class ServerToLocalEngine:DbUpgradeEngine() {
             AppDatabase.newInstance(CoolApplication.instance, AppConfig.GDB_DB_TEMP_FULL_PATH)
             val recordDao = AppDatabase.instance!!.getRecordDao()
             val starDao = AppDatabase.instance!!.getStarDao()
+            val favorDao = AppDatabase.instance!!.getFavorDao()
             val propDao = AppDatabase.instance!!.getPropertyDao()
             val serverData = ServerData(
                 recordDao.getAllBasicRecords(),
@@ -25,6 +26,7 @@ class ServerToLocalEngine:DbUpgradeEngine() {
                 recordDao.getAllRecordType3w(),
                 recordDao.getAllRecordStars(),
                 starDao.getAllBasicStars(),
+                favorDao.getAllFavorRecordOrders(),
                 propDao.getProperties()
             )
             AppDatabase.instance!!.destroy()
@@ -50,6 +52,15 @@ class ServerToLocalEngine:DbUpgradeEngine() {
             AppDatabase.instance!!.getPropertyDao().let { dao ->
                 dao.deleteProperties()
                 dao.insertProperties(serverData.properties)
+            }
+            AppDatabase.instance!!.getFavorDao().let { dao ->
+                // 替换本地设置的imageUrl
+                val map = mutableMapOf<Long, String?>()
+                dao.getAllFavorRecordOrders().forEach { item ->
+                    map[item.id!!] = item.coverUrl
+                }
+                dao.deleteFavorRecordOrders()
+                dao.insertFavorRecordOrders(serverData.favorRecordOrderList)
             }
             // 重新计算star rank and record rank(score)
             createCountData()

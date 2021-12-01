@@ -115,10 +115,20 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
         holder?.getJActionBar()?.setOnMenuItemListener { menuId ->
             when (menuId) {
                 R.id.menu_mode -> chooseDisplayMode()
-                R.id.menu_add -> addNewStudio()
+                R.id.menu_add -> {
+                    showConfirmCancelMessage("App端修改Studio不会与服务端同步，需要在服务端手动修改，是否继续？",
+                        { dialog, which -> addNewStudio() },
+                        null
+                    )
+                }
                 R.id.menu_delete -> {
-                    isDeleting = true
-                    holder?.getJActionBar()?.showConfirmStatus(menuId)
+                    showConfirmCancelMessage("App端修改Studio不会与服务端同步，需要在服务端手动修改，是否继续？",
+                        { dialog, which ->
+                            isDeleting = true
+                            holder?.getJActionBar()?.showConfirmStatus(menuId)
+                        },
+                        null
+                    )
                 }
             }
         }
@@ -154,20 +164,26 @@ class StudioListFragment: BaseFragment<FragmentStudioListBinding, StudioViewMode
     }
 
     private fun modifyStudioName(position: Int, simpleItem: StudioSimpleItem) {
-        SimpleDialogs().openInputDialog(
-            requireContext(),
-            "Modify studio's name",
-            simpleItem.name
-        ) {
-            if (it.trim().isEmpty()) {
-                showMessageShort("Empty words")
-            }
-            else {
-                mModel.updateStudioName(simpleItem.order, it)
-                simpleItem.name = it
-                commonAdapterFunc().notifyItemChanged(position)
-            }
-        }
+
+        showConfirmCancelMessage("App端修改Studio不会与服务端同步，需要在服务端手动修改，是否继续？",
+            { dialog, which ->
+                SimpleDialogs().openInputDialog(
+                    requireContext(),
+                    "Modify studio's name",
+                    simpleItem.name
+                ) {
+                    if (it.trim().isEmpty()) {
+                        showMessageShort("Empty words")
+                    }
+                    else {
+                        mModel.updateStudioName(simpleItem.order, it)
+                        simpleItem.name = it
+                        commonAdapterFunc().notifyItemChanged(position)
+                    }
+                }
+            },
+            null
+        )
     }
 
     private fun addNewStudio() {

@@ -17,12 +17,14 @@ data class ServerData (
     var recordType3wList: List<RecordType3w>,
     var recordStarList: List<RecordStar>,
     var starList: List<Star>,
+    var favorRecordOrderList: List<FavorRecordOrder>,
     var properties: List<GProperties>
 )
 
 /**
  * 本地数据库在原始数据库的基础上扩展的内容
  */
+@Deprecated("use ServerData")
 data class LocalData (
     var favorRecordList: List<FavorRecord>,
     var favorStarList: List<FavorStar>,

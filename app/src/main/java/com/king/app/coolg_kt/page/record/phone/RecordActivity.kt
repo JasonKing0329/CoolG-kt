@@ -232,7 +232,10 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private fun selectStudio() {
-        StudioActivity.startPageToSelect(this, REQUEST_SELECT_STUDIO)
+        showConfirmCancelMessage("App端修改Studio不会与服务端同步，需要在服务端手动修改，是否继续？",
+            { dialog, which -> StudioActivity.startPageToSelect(this@RecordActivity, REQUEST_SELECT_STUDIO) },
+            null
+        )
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityImageManagerBinding
 import com.king.app.coolg_kt.model.bean.ImageBean
 import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.match.list.MatchListActivity
+import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 
@@ -33,6 +35,7 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
     
     private val REQUEST_SET_VIDEO_COVER = 101
     private val REQUEST_SET_MATCH_COVER = 102
+    private val REQUEST_SET_STUDIO_COVER = 103
     private var staggerAdapter: StaggerAdapter = StaggerAdapter()
     
     override fun getContentView(): Int = R.layout.activity_image_manager
@@ -108,13 +111,14 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
     }
 
     private fun onApplyImage(path: String?) {
-        val options = arrayOf("Play Order", "Match", "Match Home")
+        val options = arrayOf("Play Order", "Match", "Match Home", "Studio")
         AlertDialogFragment()
             .setItems(options) { dialogInterface, i ->
                 when(i) {
                     0 -> onSetCoverForPlayOrder(path)
                     1 -> onSetCoverForMatch(path)
                     2 -> onSetCoverForMatchHome(path)
+                    3 -> onSetCoverForStudio(path)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")
@@ -134,6 +138,11 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
         PlayOrderActivity.startPageToSelect(this, REQUEST_SET_VIDEO_COVER)
     }
 
+    private fun onSetCoverForStudio(path: String?) {
+        mModel.setUrlToSetCover(path)
+        StudioActivity.startPageToSelect(this, REQUEST_SET_STUDIO_COVER)
+    }
+
     override fun onActivityResult(
         requestCode: Int,
         resultCode: Int,
@@ -150,6 +159,12 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
             if (resultCode == Activity.RESULT_OK) {
                 val matchId = data?.getLongExtra(MatchListActivity.RESP_MATCH_ID, -1)!!
                 mModel.setMatchCover(matchId)
+            }
+        }
+        else if (requestCode == REQUEST_SET_STUDIO_COVER) {
+            if (resultCode == Activity.RESULT_OK) {
+                val studioId = data?.getLongExtra(AppConstants.RESP_ORDER_ID, -1)!!
+                mModel.setStudioCover(studioId)5
             }
         }
     }

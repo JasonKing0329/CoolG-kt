@@ -151,6 +151,13 @@ class ImageViewModel(application: Application) : BaseViewModel(application) {
         getDatabase().getMatchDao().updateMatch(match)
     }
 
+    fun setStudioCover(studioId: Long) {
+        getDatabase().getFavorDao().getFavorRecordOrderBy(studioId)?.apply {
+            coverUrl = mUrlToSetCover!!
+            getDatabase().getFavorDao().updateFavorRecordOrder(this)
+        }
+    }
+
     init {
         val margin = ScreenUtils.dp2px(1f)
         val column = 2

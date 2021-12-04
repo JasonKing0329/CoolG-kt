@@ -45,7 +45,7 @@
             android:src="@drawable/ic_edit_white_36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintBottom_toBottomOf="@+id/tv_studio"
-            app:layout_constraintEnd_toEndOf="@+id/tv_studio" />
+            app:layout_constraintStart_toStartOf="@+id/tv_studio" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

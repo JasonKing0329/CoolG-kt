@@ -54,12 +54,19 @@ class ServerToLocalEngine:DbUpgradeEngine() {
                 dao.insertProperties(serverData.properties)
             }
             AppDatabase.instance!!.getFavorDao().let { dao ->
-                // 替换本地设置的imageUrl
+                // 临时保存本地设置的imageUrl
                 val map = mutableMapOf<Long, String?>()
                 dao.getAllFavorRecordOrders().forEach { item ->
                     map[item.id!!] = item.coverUrl
                 }
+                // 删除本地orders
                 dao.deleteFavorRecordOrders()
+
+                // 替换本地设置的imageUrl
+                serverData.favorRecordOrderList.forEach { item ->
+                    item.coverUrl = map[item.id!!]
+                }
+                // 插入server orders
                 dao.insertFavorRecordOrders(serverData.favorRecordOrderList)
             }
             // 重新计算star rank and record rank(score)

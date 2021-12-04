@@ -164,7 +164,7 @@ class ImageManagerActivity : BaseActivity<ActivityImageManagerBinding, ImageView
         else if (requestCode == REQUEST_SET_STUDIO_COVER) {
             if (resultCode == Activity.RESULT_OK) {
                 val studioId = data?.getLongExtra(AppConstants.RESP_ORDER_ID, -1)!!
-                mModel.setStudioCover(studioId)5
+                mModel.setStudioCover(studioId)
             }
         }
     }

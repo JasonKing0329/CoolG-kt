@@ -24,6 +24,7 @@ import com.king.app.coolg_kt.model.http.upload.UploadClient
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.PropertyRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.utils.*
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import okhttp3.MediaType
@@ -46,6 +47,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
 
     var warningSync: MutableLiveData<Boolean> = MutableLiveData()
     var warningUpload: MutableLiveData<String> = MutableLiveData()
+    var zipProgress: MutableLiveData<ZipProgress> = MutableLiveData()
 
     private var useLocalToServer = false
     var localToServerEngine = LocalToServerEngine()
@@ -220,10 +222,6 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     fun checkSyncVersion(view: View) {
         // sync无视版本信息
         warningSync.value = true
-    }
-
-    fun onReceiveIp(view: View) {
-
     }
 
     fun moveStar() {
@@ -507,4 +505,85 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             it.onComplete()
         }
     }
+
+    fun zipImages() {
+        zipProgress.value = ZipProgress(0, "Finding files to zip...")
+        zipTest().compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    zipProgress.value = ZipProgress(100, "Finished")
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message?:""
+                }
+            })
+    }
+
+    private fun zipTest(): Observable<Boolean> {
+        return Observable.create {
+            var target = File("${AppConfig.APP_DIR_IMG}/img_gdb.zip")
+            FileUtil.deleteFile(target)
+
+            var file = File(AppConfig.GDB_IMG)
+            CostTimeUtil.start()
+            ZipUtils.zipFiles(file.listFiles().asList(), target, null, object : ZipProgressListener {
+                override fun onProgress(fileCount: Int, total: Int) {
+                    var progress = (fileCount.toDouble() / total.toDouble() * 100).toInt()
+                    if (progress != lastProgress) {
+                        lastProgress = progress
+                        zipProgress.postValue(ZipProgress(progress, "Zipping..., $fileCount/$total"))
+                    }
+                }
+
+                override fun onComplete() {
+                    DebugLog.e("all finished")
+                }
+            })
+            CostTimeUtil.end("zip")
+            it.onNext(true)
+        }
+    }
+
+    fun unzipImages() {
+        zipProgress.value = ZipProgress(0, "Start to unzip...")
+        unzipTest().compose(applySchedulers())
+            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
+                override fun onNext(t: Boolean?) {
+                    zipProgress.value = ZipProgress(100, "Finished")
+                }
+
+                override fun onError(e: Throwable?) {
+                    e?.printStackTrace()
+                    messageObserver.value = e?.message?:""
+                }
+            })
+    }
+
+    var lastProgress = 0
+
+    private fun unzipTest(): Observable<Boolean> {
+        return Observable.create {
+            var target = File(AppConfig.GDB_IMG)
+            var source = File("${AppConfig.APP_DIR_IMG}/img_gdb.zip")
+            CostTimeUtil.start()
+            ZipUtils.upZipFile(source, target.path, object : ZipProgressListener {
+                override fun onProgress(fileCount: Int, total: Int) {
+                    var progress = (fileCount.toDouble() / total.toDouble() * 100).toInt()
+                    if (progress != lastProgress) {
+                        lastProgress = progress
+                        zipProgress.postValue(ZipProgress(progress, "Unzipping..., $fileCount/$total"))
+                    }
+                }
+
+                override fun onComplete() {
+                    DebugLog.e("all finished")
+                }
+            })
+            CostTimeUtil.end("unzip")
+            it.onNext(true)
+        }
+    }
+
 }

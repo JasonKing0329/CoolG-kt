@@ -40,12 +40,7 @@ public class ZipUtils {
 	 */
 	public static void zipFiles(Collection<File> resFileList, File zipFile)
 			throws IOException {
-		ZipOutputStream zipout = new ZipOutputStream(new BufferedOutputStream(
-				new FileOutputStream(zipFile), BUFF_SIZE));
-		for (File resFile : resFileList) {
-			zipFile(resFile, zipout, "");
-		}
-		zipout.close();
+		zipFiles(resFileList, zipFile, null, null);
 	}
 
 	/**
@@ -61,14 +56,41 @@ public class ZipUtils {
 	 *             当压缩过程出错时抛出
 	 */
 	public static void zipFiles(Collection<File> resFileList, File zipFile,
-                                String comment) throws IOException {
+                                String comment, ZipProgressListener progressListener) throws IOException {
 		ZipOutputStream zipout = new ZipOutputStream(new BufferedOutputStream(
 				new FileOutputStream(zipFile), BUFF_SIZE));
-		for (File resFile : resFileList) {
-			zipFile(resFile, zipout, "");
+		int total = 0;
+		if (progressListener != null) {
+			CostTimeUtil.start();
+			for (File f:resFileList) {
+				total += countFiles(f);
+			}
+			CostTimeUtil.end("collectFiles");
 		}
-		zipout.setComment(comment);
+		ProgressControl progressControl = new ProgressControl(progressListener, 0, total);
+		for (File resFile : resFileList) {
+			zipFile(resFile, zipout, "", progressControl);
+		}
+		if (comment != null) {
+			zipout.setComment(comment);
+		}
 		zipout.close();
+		if (progressListener != null) {
+			progressListener.onComplete();
+		}
+	}
+
+	private static int countFiles(File file) {
+		int count = 0;
+		if (file.isDirectory()) {
+			for (File f:file.listFiles()) {
+				count += countFiles(f);
+			}
+		}
+		else {
+			count = 1;
+		}
+		return count;
 	}
 
 	/**
@@ -81,13 +103,15 @@ public class ZipUtils {
 	 * @throws IOException
 	 *             当解压缩过程出错时抛出
 	 */
-	public static void upZipFile(File zipFile, String folderPath)
+	public static void upZipFile(File zipFile, String folderPath, ZipProgressListener listener)
 			throws ZipException, IOException {
 		File desDir = new File(folderPath);
 		if (!desDir.exists()) {
 			desDir.mkdirs();
 		}
 		ZipFile zf = new ZipFile(zipFile);
+		int total = zf.size();
+		int count = 0;
 		for (Enumeration<?> entries = zf.entries(); entries.hasMoreElements();) {
 			ZipEntry entry = ((ZipEntry) entries.nextElement());
 			InputStream in = zf.getInputStream(entry);
@@ -109,6 +133,13 @@ public class ZipUtils {
 			}
 			in.close();
 			out.close();
+			count ++;
+			if (listener != null) {
+				listener.onProgress(count, total);
+			}
+		}
+		if (listener != null) {
+			listener.onComplete();
 		}
 	}
 
@@ -243,13 +274,14 @@ public class ZipUtils {
 	 *            压缩的目的文件
 	 * @param rootpath
 	 *            压缩的文件路径
+	 * @param progressControl
 	 * @throws FileNotFoundException
 	 *             找不到文件时抛出
 	 * @throws IOException
 	 *             当压缩过程出错时抛出
 	 */
 	private static void zipFile(File resFile, ZipOutputStream zipout,
-                                String rootpath) throws FileNotFoundException, IOException {
+								String rootpath, ProgressControl progressControl) throws FileNotFoundException, IOException {
 		rootpath = rootpath
 				+ (rootpath.trim().length() == 0 ? "" : File.separator)
 				+ resFile.getName();
@@ -257,7 +289,7 @@ public class ZipUtils {
 		if (resFile.isDirectory()) {
 			File[] fileList = resFile.listFiles();
 			for (File file : fileList) {
-				zipFile(file, zipout, rootpath);
+				zipFile(file, zipout, rootpath, progressControl);
 			}
 		} else {
 			byte buffer[] = new byte[BUFF_SIZE];
@@ -271,6 +303,22 @@ public class ZipUtils {
 			in.close();
 			zipout.flush();
 			zipout.closeEntry();
+			progressControl.count ++;
+			if (progressControl.listener != null) {
+				progressControl.listener.onProgress(progressControl.count, progressControl.total);
+			}
+		}
+	}
+
+	private static class ProgressControl {
+		ZipProgressListener listener;
+		int count;
+		int total;
+
+		public ProgressControl(ZipProgressListener listener, int count, int total) {
+			this.listener = listener;
+			this.count = count;
+			this.total = total;
 		}
 	}
 }

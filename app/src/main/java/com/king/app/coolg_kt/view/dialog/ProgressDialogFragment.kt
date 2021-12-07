@@ -76,4 +76,9 @@ class ProgressDialogFragment : DialogFragment() {
     fun setMessage(message: String) {
         this.message = message
     }
+
+    fun updateMessage(message: String) {
+        mBinding.tvMessage.text = message
+    }
+
 }

@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.lifecycle.Observer
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
+import com.king.app.coolg_kt.conf.AppConfig
 import com.king.app.coolg_kt.databinding.ActivityManageBinding
 import com.king.app.coolg_kt.model.bean.DownloadDialogBean
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
@@ -14,6 +15,7 @@ import com.king.app.coolg_kt.page.download.OnDownloadListener
 import com.king.app.coolg_kt.service.FileService
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
+import com.king.app.coolg_kt.view.dialog.ProgressDialogFragment
 import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 
 /**
@@ -22,6 +24,9 @@ import com.king.app.coolg_kt.view.dialog.SimpleDialogs
  * @date: 2020/12/13 11:06
  */
 class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
+
+    private var detailProgress = ProgressDialogFragment()
+
     override fun getContentView(): Int = R.layout.activity_manage
 
     override fun createViewModel(): ManageViewModel = generateViewModel(ManageViewModel::class.java)
@@ -40,6 +45,17 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
             showMessageLong("Run on background...")
             startService(Intent().setClass(this@ManageActivity, FileService::class.java))
         }
+
+        mBinding.tvZip.setOnClickListener {
+            showConfirmCancelMessage("压缩过程可能需要几分钟，确定开始？",
+                { dialog, which -> mModel.zipImages() },
+                null)
+        }
+        mBinding.tvUnzip.setOnClickListener {
+            showConfirmCancelMessage("确定解压到${AppConfig.GDB_IMG}？",
+                { dialog, which -> mModel.unzipImages() },
+                null)
+        }
     }
 
     override fun initData() {
@@ -51,6 +67,26 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
 
         mModel.warningSync.observe(this, Observer { result -> warningSync() });
         mModel.warningUpload.observe(this, Observer { message -> warningUpload(message) });
+        mModel.zipProgress.observe(this, {
+            when(it.progress) {
+                0 -> {
+                    if (!detailProgress.isVisible) {
+                        detailProgress.setMessage(it.message)
+                        detailProgress.showAsNumProgress(0, supportFragmentManager, "DetailProgress")
+                    }
+                }
+                100 -> {
+                    detailProgress.setProgress(it.progress)
+                    detailProgress.dismissAllowingStateLoss()
+                    showMessageShort("success")
+                }
+                else -> {
+                    detailProgress.setProgress(it.progress)
+                    detailProgress.updateMessage(it.message)
+                }
+            }
+
+        })
     }
 
     private fun warningMoveStar() {

@@ -156,35 +156,6 @@
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="15dp">
                 <LinearLayout
-                    android:id="@+id/group_clear_images"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_marginLeft="30dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_layers_clear_3f3a71_48dp"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_marginLeft="20dp"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="20dp"
-                        android:text="Clear useless images"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginTop="20dp"
-                app:cardCornerRadius="15dp">
-                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
@@ -311,18 +282,18 @@
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="15dp">
                 <LinearLayout
+                    android:id="@+id/group_clear_images"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
                     android:background="?android:attr/selectableItemBackground"
-                    android:onClick="@{model.onReceiveIp}"
                     android:gravity="center_vertical">
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginLeft="30dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_http_3f3a71_48dp"/>
+                        android:src="@drawable/ic_layers_clear_3f3a71_48dp"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -330,10 +301,48 @@
                         android:layout_marginLeft="20dp"
                         android:textColor="@color/colorPrimary"
                         android:textSize="20dp"
-                        android:text="Receive IP"/>
+                        android:text="Clear useless images"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp">
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="80dp"
+                    app:cardCornerRadius="15dp">
+                    <TextView
+                        android:id="@+id/tv_zip"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20dp"
+                        android:text="Zip Images"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="80dp"
+                    app:cardCornerRadius="15dp"
+                    android:layout_marginLeft="10dp">
+                    <TextView
+                        android:id="@+id/tv_unzip"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20dp"
+                        android:text="Unzip Images"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
         </LinearLayout>
 
     </ScrollView>

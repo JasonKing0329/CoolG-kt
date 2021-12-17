@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.model.repository
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.page.match.HighRankRecord
 import com.king.app.coolg_kt.page.match.PeriodPack
+import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.RankLevelCount
@@ -22,6 +23,14 @@ class RankRepository: BaseRepository() {
 
     fun isRecordRankCreated(): Boolean {
         var pack = getRankPeriodPack()
+        pack.matchPeriod?.let {
+            return getDatabase().getMatchDao().countRecordRankItems(it.period, it.orderInPeriod) > 0
+        }
+        return false
+    }
+
+    fun isLastCompletedRankCreated(): Boolean {
+        var pack = getCompletedPeriodPack()
         pack.matchPeriod?.let {
             return getDatabase().getMatchDao().countRecordRankItems(it.period, it.orderInPeriod) > 0
         }
@@ -222,11 +231,21 @@ class RankRepository: BaseRepository() {
         return getDatabase().getMatchDao().getRecordScoresInPeriodRange(recordId, rangeStart, rangeEnd, circleTotal)
     }
 
+    /**
+     * current rank
+     */
     fun getRecordCurrentRank(recordId: Long): Int {
-        var pack = getCompletedPeriodPack()
-        pack.matchPeriod?.let {
-            val rankItem = getDatabase().getMatchDao().getRecordRank(recordId, it.period, it.orderInPeriod)
-            rankItem?.let { item -> return item.rank }
+        getCurrentPeriodPack()?.matchPeriod?.apply {
+            // 先查询这一站对应的排名
+            if (isRecordRankCreated()) {
+                getDatabase().getMatchDao().getRecordRank(recordId, period, orderInPeriod)?.let { return it.rank }
+            }
+            // 如果这一站还没有创建，查询上一站的
+            else {
+                getLastPeriod(ShowPeriod(period, orderInPeriod))?.apply {
+                    getDatabase().getMatchDao().getRecordRank(recordId, period, orderInPeriod)?.let { return it.rank }
+                }
+            }
         }
         return -1
     }

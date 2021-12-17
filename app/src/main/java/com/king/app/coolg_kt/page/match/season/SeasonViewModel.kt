@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.bean.MatchPeriodTitle
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import io.reactivex.rxjava3.core.Observable
@@ -17,6 +18,8 @@ import io.reactivex.rxjava3.core.Observable
 class SeasonViewModel(application: Application): BaseViewModel(application) {
 
     var matchesObserver = MutableLiveData<MutableList<Any>>()
+
+    val rankRepository = RankRepository()
 
     fun loadMatches() {
         toClassifyMatches()
@@ -73,5 +76,16 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
 
         it.onNext(result)
         it.onComplete()
+    }
+
+    fun isRankCreated(): Boolean {
+        rankRepository.getCompletedPeriodPack()?.matchPeriod?.apply {
+            val result = rankRepository.isLastCompletedRankCreated()
+            if (!result) {
+                messageObserver.value = "The rank list of P$period-W$orderInPeriod haven't been created-"
+            }
+            return result
+        }
+        return true
     }
 }

@@ -44,7 +44,11 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener {
             when (it) {
-                R.id.menu_add -> editMatch(null)
+                R.id.menu_add -> {
+                    if (mModel.isRankCreated()) {
+                        editMatch(null)
+                    }
+                }
             }
         }
 

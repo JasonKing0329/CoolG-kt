@@ -93,17 +93,10 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         player1?.let {
             player1Name.set(it.bean.name)
             player1ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
-            var rank = rankRepository.getRecordCurrentRank(it.bean.id!!)
-            if (rank == -1) {
-                player1Rank.set("r${MatchConstants.RANK_OUT_OF_SYSTEM}")
-            }
-            else {
-                player1Rank.set("r$rank")
-            }
             onH2hChanged()
             loadPlayerInfo(it,
                 InfoPart(
-                    ytdTitles1Text, ytdWinLose1Text, ytdMatches1Text,
+                    player1Rank, ytdTitles1Text, ytdWinLose1Text, ytdMatches1Text,
                     careerTitles1Text, careerWinLose1Text, debut1Text,
                     highRank1Text, scoreRank1Text
                 )
@@ -115,17 +108,10 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         player2?.let {
             player2Name.set(it.bean.name)
             player2ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
-            var rank = rankRepository.getRecordCurrentRank(it.bean.id!!)
-            if (rank == -1) {
-                player2Rank.set("r${MatchConstants.RANK_OUT_OF_SYSTEM}")
-            }
-            else {
-                player2Rank.set("r$rank")
-            }
             onH2hChanged()
             loadPlayerInfo(it,
                 InfoPart(
-                    ytdTitles2Text, ytdWinLose2Text, ytdMatches2Text,
+                    player2Rank, ytdTitles2Text, ytdWinLose2Text, ytdMatches2Text,
                     careerTitles2Text, careerWinLose2Text, debut2Text,
                     highRank2Text, scoreRank2Text
                 )
@@ -221,6 +207,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     }
 
     data class InfoPart (
+        var rank: ObservableField<String>,
         var ytdTitles: ObservableField<String>,
         var ytdWinLose: ObservableField<String>,
         var ytdMatches: ObservableField<String>,
@@ -299,6 +286,13 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     private fun countRank(record: RecordWrap, infoPart: InfoPart) {
         val recordId = record.bean.id!!
         // rank
+        var rank = rankRepository.getRecordCurrentRank(recordId)
+        if (rank == -1) {
+            infoPart.rank.set("r${MatchConstants.RANK_OUT_OF_SYSTEM}")
+        }
+        else {
+            infoPart.rank.set("r$rank")
+        }
         val high = getDatabase().getMatchDao().getRecordHighestRank(recordId)
         val highWeeks = getDatabase().getMatchDao().getRecordRankWeeks(recordId, high)
         getDatabase().getMatchDao().getRecordRankFirstTime(recordId, high)?.let {

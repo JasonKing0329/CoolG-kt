@@ -306,6 +306,9 @@ class RankRepository: BaseRepository() {
         return getDatabase().getMatchDao().getRankLevelCount(rangeStart, rangeEnd, circleTotal)
     }
 
+    /**
+     * micro不计入title
+     */
     fun countRecordTitlesIn(recordId: Long, pack: PeriodPack): Int {
         val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
         val rangeStart = pack.startPeriod * circleTotal + pack.startPIO

@@ -202,6 +202,13 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_20_21: Migration = object : Migration(20, 21) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_20_21")
+            database.execSQL("ALTER TABLE 'match_rank_detail' ADD COLUMN `microCount` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

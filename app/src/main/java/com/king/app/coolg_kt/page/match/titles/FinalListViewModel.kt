@@ -142,8 +142,9 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     private fun getTitlesCount(): Observable<List<Any>> {
         return Observable.create {
             var list = mutableListOf<Any>()
+            // micro不进入all统计，但是进入level micro统计
             val items = if (mFilterLevel == MatchConstants.MATCH_LEVEL_ALL) {
-                getDatabase().getMatchDao().countRecordRound(MatchConstants.ROUND_ID_F)
+                getDatabase().getMatchDao().countRecordFinals(MatchConstants.ROUND_ID_F)
             }
             else {
                 getDatabase().getMatchDao().countRecordRoundByLevel(MatchConstants.ROUND_ID_F, mFilterLevel)

@@ -206,11 +206,11 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
         val list = mutableListOf<ChampionItem>()
         val finalList = getDatabase().getMatchDao().getRecordMatchItemsByRound(mRecordId, MatchConstants.ROUND_ID_F)
         var passCount = 0
+        var distinctCount = 0
         finalList.forEach {
             val isPass = if (isWin) it.bean.winnerId == mRecordId
                 else it.bean.winnerId != mRecordId
             if (isPass) {
-                passCount ++
                 val match = getDatabase().getMatchDao().getMatchPeriod(it.bean.matchId)
                 val item = ChampionItem(mRecordId, match.bean.id!!)
                 item.date = "P${match.bean.period}-W${match.bean.orderInPeriod}"
@@ -231,14 +231,22 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
                     }
                 }
                 list.add(item)
+                // micro不计入title，但依然分到micro标签下显示
+                if (match.match.level == MatchConstants.MATCH_LEVEL_MICRO) {
+                    distinctCount ++
+                }
+                else {
+                    passCount ++
+                }
             }
         }
         // index是倒序，开始设置
         list.forEachIndexed { index, championItem ->
             championItem.index = (list.size - index).toString()
         }
-        championPerTotalText = "$passCount/${finalList.size}"
-        val rate = passCount.toFloat() / finalList.size
+        val total = finalList.size - distinctCount
+        championPerTotalText = "$passCount/$total"
+        val rate = passCount.toFloat() / total
         val format = DecimalFormat("#.#%")
         championRateText = format.format(rate)
         return list

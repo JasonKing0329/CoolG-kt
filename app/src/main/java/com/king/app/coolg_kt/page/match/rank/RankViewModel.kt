@@ -407,6 +407,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                             MatchConstants.MATCH_LEVEL_GM500 -> detail.gm500Count
                             MatchConstants.MATCH_LEVEL_GM250 -> detail.gm250Count
                             MatchConstants.MATCH_LEVEL_LOW -> detail.lowCount
+                            MatchConstants.MATCH_LEVEL_MICRO -> detail.microCount
                             else -> 0
                         }
                         "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
@@ -481,7 +482,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     private fun createDetail(bean: RankLevelCount, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail? {
         var detail = map[bean.recordId]
         if (detail == null) {
-            detail = MatchRankDetail(bean.recordId, 0, null, 0, 0, 0, 0, 0)
+            detail = MatchRankDetail(bean.recordId, 0, null, 0, 0, 0, 0, 0, 0)
             map[bean.recordId] = detail
         }
         detail?.apply {
@@ -491,6 +492,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 MatchConstants.MATCH_LEVEL_GM500 -> gm500Count = bean.count
                 MatchConstants.MATCH_LEVEL_GM250 -> gm250Count = bean.count
                 MatchConstants.MATCH_LEVEL_LOW -> lowCount = bean.count
+                MatchConstants.MATCH_LEVEL_MICRO -> microCount = bean.count
                 else -> {}
             }
             // studio
@@ -510,7 +512,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
      */
     @Deprecated("太耗时")
     private fun createDetail(recordId: Long): MatchRankDetail {
-        var detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0)
+        var detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0, 0)
         // studio
         orderRepository.getRecordStudio(recordId)?.let { studio ->
             detail.studioId = studio.id!!
@@ -526,6 +528,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     MatchConstants.MATCH_LEVEL_GM500 -> detail.gm500Count++
                     MatchConstants.MATCH_LEVEL_GM250 -> detail.gm250Count++
                     MatchConstants.MATCH_LEVEL_LOW -> detail.lowCount++
+                    MatchConstants.MATCH_LEVEL_MICRO -> detail.microCount++
                     else -> {}
                 }
             }
@@ -812,7 +815,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 val studio = orderRepository.getRecordStudio(record)
                 val studioId = studio?.id?:0
                 val studioName = studio?.name?:""
-                insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0))
+                insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0, 0))
 
                 val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
                 if (curProgress != progress) {

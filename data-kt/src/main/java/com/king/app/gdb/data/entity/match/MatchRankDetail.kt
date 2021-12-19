@@ -18,5 +18,6 @@ data class MatchRankDetail (
     var gm1000Count: Int,
     var gm500Count: Int,
     var gm250Count: Int,
-    var lowCount: Int
+    var lowCount: Int,
+    var microCount: Int
 )

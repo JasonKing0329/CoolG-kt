@@ -119,7 +119,7 @@ interface MatchDao {
     /**
      * 指定时期内的指定轮次胜利的次数
      */
-    @Query("select count(*) from match_item mi join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where mi.winnerId=:recordId and mi.round=:round")
+    @Query("select count(*) from match_item mi join match_period mp on mi.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd join 'match' m on mp.matchId=m.id and m.level!=6 where mi.winnerId=:recordId and mi.round=:round")
     fun countRecordWinIn(recordId: Long, round: Int, rangeStart: Int, rangeEnd: Int, circleTotal: Int): Int
 
     @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where msr.recordId=:recordId order by msr.score desc")
@@ -386,6 +386,9 @@ interface MatchDao {
 
     @Query("select winnerId, count(winnerId) as num from match_item where round=:roundId group by winnerId order by num desc")
     fun countRecordRound(roundId: Int): List<TitlesCount>
+
+    @Query("select mi.winnerId, count(mi.winnerId) as num from match_item mi join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id where mi.round=:roundId and m.level!=6 group by mi.winnerId order by num desc")
+    fun countRecordFinals(roundId: Int): List<TitlesCount>
 
     @Query("select mi.winnerId, count(winnerId) as num from match_item mi join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id where m.level=:level and mi.round=:roundId group by mi.winnerId order by num desc")
     fun countRecordRoundByLevel(roundId: Int, level: Int): List<TitlesCount>

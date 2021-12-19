@@ -750,7 +750,7 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Draw
             var qualifies = mutableListOf<RankRecord>()
             var quaSeeds = list.filter { item -> item.rank in (directInEnd + 1)..it.qualifySeedLow && !samePeriodMap.contains(item.recordId) }
                 .shuffled().take(qualifySeed).sortedBy { item -> item.rank }
-            var quaLefts = list.filter { item -> item.rank > it.qualifySeedLow && !samePeriodMap.contains(item.recordId) }
+            var quaLefts = list.filter { item -> (item.rank in it.qualifySeedLow..it.qualifyLow) && !samePeriodMap.contains(item.recordId) }
                 .shuffled().take(qualify - qualifySeed - match.bean.qualifyWildcard).sortedBy { item -> item.rank }
             qualifies.addAll(quaSeeds)
             qualifies.addAll(quaLefts)
@@ -786,4 +786,43 @@ class LowPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Draw
         }
         arrangeUnSeeds(draws)
     }
+}
+
+/**
+ * Low范围为rank 1000以后条件随机
+ * 没有qualify
+ */
+class MicroPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: DrawStrategy): DrawPlan(list, match, drawStrategy) {
+    override fun preCalcAppliers() {
+        // MICRO暂不支持pre appliers
+    }
+
+    override fun calcSeed() {
+        drawStrategy?.micro?.let {
+            seed = 8
+            directInUnSeed = 32 - seed - match.match.wildcardDraws
+
+            seedList = list.filter { item -> item.rank in it.rankTopLimit..it.mainSeedLow && !samePeriodMap.contains(item.recordId) }
+                .shuffled().take(seed).sortedBy { item -> item.rank }
+            // 直接入围
+            val seedEnd = seedList.last().rank
+            directInUnSeed = match.match.draws - seed - match.match.byeDraws - match.match.qualifyDraws - match.bean.mainWildcard
+            directInUnSeedList = list.filter { item -> item.rank >= (seedEnd + 1) && !samePeriodMap.contains(item.recordId) }
+                .shuffled().take(directInUnSeed).sortedBy { item -> item.rank }
+        }
+    }
+
+    override fun calcDirectInUnSeed() {
+
+    }
+
+    override fun calcQualify() {
+        qualify = 0
+    }
+
+    override fun createMainDraw(draws: MutableList<DrawCell>) {
+        arrangeDraw32Seed8(draws)
+        arrangeUnSeeds(draws)
+    }
+
 }

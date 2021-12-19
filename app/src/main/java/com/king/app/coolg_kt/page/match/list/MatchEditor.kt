@@ -60,7 +60,7 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
 
         mBinding.btnStudio.setOnClickListener { StudioActivity.startPageToSelectAsMatch(this, 0) }
 
-        if (MatchConstants.MATCH_LEVEL_FINAL == match!!.level) {
+        if (MatchConstants.MATCH_LEVEL_FINAL == match?.level) {
             mBinding.llScorePlan.visibility = View.GONE
         }
         mBinding.ivScorePlan.setOnClickListener {

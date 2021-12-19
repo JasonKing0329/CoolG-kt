@@ -40,6 +40,7 @@
         <item>GM500</item>
         <item>GM250</item>
         <item>LOW</item>
+        <item>MICRO</item>
     </string-array>
 
     <string-array name="match_level_with_all" translatable="false">
@@ -50,6 +51,7 @@
         <item>GM500</item>
         <item>GM250</item>
         <item>LOW</item>
+        <item>MICRO</item>
     </string-array>
 
     <string-array name="rank_type" translatable="false">

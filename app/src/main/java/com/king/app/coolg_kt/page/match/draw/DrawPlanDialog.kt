@@ -34,12 +34,16 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
         if (drawStrategy.low == null) {
             drawStrategy.low = LowStrategy()
         }
+        if (drawStrategy.micro == null) {
+            drawStrategy.micro = MicroStrategy()
+        }
         matchPeriod?.match?.let {
             when(it.level) {
                 MatchConstants.MATCH_LEVEL_GM1000 -> {
                     mBinding.clGm1000.visibility = View.VISIBLE
                     mBinding.clGm500.visibility = View.GONE
                     mBinding.clLow.visibility = View.GONE
+                    mBinding.clMicro.visibility = View.GONE
                     drawStrategy.gm1000?.let { str ->
                         mBinding.etGm1000Shuffle.setText(str.shuffleRate.toString())
                         mBinding.etGm1000Min.setText(str.lowRank.toString())
@@ -49,6 +53,7 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                     mBinding.clGm1000.visibility = View.GONE
                     mBinding.clGm500.visibility = View.VISIBLE
                     mBinding.clLow.visibility = View.GONE
+                    mBinding.clMicro.visibility = View.GONE
                     drawStrategy.gm500?.let { str ->
                         mBinding.etGm500Top10.setText(str.top10.toString())
                         mBinding.etGm500Top20.setText(str.top20.toString())
@@ -61,6 +66,7 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                     mBinding.clGm1000.visibility = View.GONE
                     mBinding.clGm500.visibility = View.VISIBLE
                     mBinding.clLow.visibility = View.GONE
+                    mBinding.clMicro.visibility = View.GONE
                     drawStrategy.gm250?.let { str ->
                         mBinding.etGm500Top10.setText(str.top10.toString())
                         mBinding.etGm500Top20.setText(str.top20.toString())
@@ -73,11 +79,23 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                     mBinding.clGm1000.visibility = View.GONE
                     mBinding.clGm500.visibility = View.GONE
                     mBinding.clLow.visibility = View.VISIBLE
+                    mBinding.clMicro.visibility = View.GONE
                     drawStrategy.low?.let { str ->
                         mBinding.etHigh.setText(str.rankTopLimit.toString())
                         mBinding.etLowMainMin.setText(str.mainLow.toString())
                         mBinding.etLowSeed.setText(str.mainSeedLow.toString())
                         mBinding.etLowQualifySeedMin.setText(str.qualifySeedLow.toString())
+                        mBinding.etLowQualifyMin.setText(str.qualifyLow.toString())
+                    }
+                }
+                MatchConstants.MATCH_LEVEL_MICRO -> {
+                    mBinding.clGm1000.visibility = View.GONE
+                    mBinding.clGm500.visibility = View.GONE
+                    mBinding.clLow.visibility = View.GONE
+                    mBinding.clMicro.visibility = View.VISIBLE
+                    drawStrategy.micro?.let { str ->
+                        mBinding.etMicroHigh.setText(str.rankTopLimit.toString())
+                        mBinding.etMicroSeed.setText(str.mainSeedLow.toString())
                     }
                 }
                 else -> {}
@@ -109,6 +127,11 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         drawStrategy.low!!.mainSeedLow = mBinding.etLowSeed.text.toString().toInt()
                         drawStrategy.low!!.mainLow = mBinding.etLowMainMin.text.toString().toInt()
                         drawStrategy.low!!.qualifySeedLow = mBinding.etLowQualifySeedMin.text.toString().toInt()
+                        drawStrategy.low!!.qualifyLow = mBinding.etLowQualifyMin.text.toString().toInt()
+                    }
+                    MatchConstants.MATCH_LEVEL_MICRO -> {
+                        drawStrategy.micro!!.rankTopLimit = mBinding.etMicroHigh.text.toString().toInt()
+                        drawStrategy.micro!!.mainSeedLow = mBinding.etMicroSeed.text.toString().toInt()
                     }
                     else -> {}
                 }

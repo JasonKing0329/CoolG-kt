@@ -78,8 +78,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
 
     private fun getMatchRound(match: Match) {
         val rounds = drawRepository.getMatchRound(match, drawType)
-        if (match.level == 1) {
-            qualifyVisibility.set(View.GONE)
+        if (match.level == MatchConstants.MATCH_LEVEL_MICRO) {
+            qualifyVisibility.set(View.INVISIBLE)
         }
         roundList.value = rounds
     }

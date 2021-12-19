@@ -101,7 +101,8 @@ class DrawRepository: BaseRepository() {
             MatchConstants.MATCH_LEVEL_GM1000 -> GM1000Plan(rankRecords, match, strategy)
             MatchConstants.MATCH_LEVEL_GM500 -> GM500Plan(rankRecords, match, strategy)
             MatchConstants.MATCH_LEVEL_GM250 -> GM250Plan(rankRecords, match, strategy)
-            else -> LowPlan(rankRecords, match, strategy)
+            MatchConstants.MATCH_LEVEL_LOW -> LowPlan(rankRecords, match, strategy)
+            else -> MicroPlan(rankRecords, match, strategy)
         }
         plan.prepare()
         val mainCells = plan.arrangeMainDraw()
@@ -470,7 +471,8 @@ class DrawRepository: BaseRepository() {
                     MatchConstants.MATCH_LEVEL_GM1000 -> GM1000ScorePlan(match)
                     MatchConstants.MATCH_LEVEL_GM500 -> GM500ScorePlan(match)
                     MatchConstants.MATCH_LEVEL_GM250 -> GM250ScorePlan(match)
-                    else -> LowScorePlan(match)
+                    MatchConstants.MATCH_LEVEL_LOW -> LowScorePlan(match)
+                    else -> MicroScorePlan(match)
                 }
             }
             else {

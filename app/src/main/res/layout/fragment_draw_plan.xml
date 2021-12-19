@@ -247,7 +247,63 @@
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toEndOf="@+id/tv_low_qualify_seed_min"
                     app:layout_constraintTop_toBottomOf="@+id/tv_low_qualify" />
+                <TextView
+                    android:id="@+id/tv_low_qualify_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seed最低排名"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/et_low_qualify_min"
+                    app:layout_constraintBottom_toBottomOf="@+id/et_low_qualify_min"/>
+                <EditText
+                    android:id="@+id/et_low_qualify_min"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/tv_low_qualify_min"
+                    app:layout_constraintTop_toBottomOf="@+id/et_low_qualify_seed_min" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_micro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp">
+                <TextView
+                    android:id="@+id/tv_micro_high"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="最高排名"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/et_micro_high"
+                    app:layout_constraintBottom_toBottomOf="@+id/et_micro_high"/>
+                <EditText
+                    android:id="@+id/et_micro_high"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/tv_micro_high"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/tv_micro_seed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seed最低排名"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/et_micro_seed"
+                    app:layout_constraintBottom_toBottomOf="@+id/et_micro_seed"/>
+                <EditText
+                    android:id="@+id/et_micro_seed"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/tv_micro_seed"
+                    app:layout_constraintTop_toBottomOf="@+id/et_micro_high" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </FrameLayout>
 
         <TextView

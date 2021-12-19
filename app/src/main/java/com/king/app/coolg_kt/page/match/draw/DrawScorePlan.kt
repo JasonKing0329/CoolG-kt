@@ -114,6 +114,16 @@ abstract class DrawScorePlan(var match: MatchPeriodWrap) {
             }
         }
 
+        fun defMicroPlan(matchId: Long): DrawScore {
+            var bean = DrawScore(matchId, mutableListOf())
+            bean.items.add(ScoreItem(MatchConstants.ROUND_ID_F, 16, 25))
+            bean.items.add(ScoreItem(MatchConstants.ROUND_ID_SF, 10, 16))
+            bean.items.add(ScoreItem(MatchConstants.ROUND_ID_QF, 5, 10))
+            bean.items.add(ScoreItem(MatchConstants.ROUND_ID_16, 2, 5))
+            bean.items.add(ScoreItem(MatchConstants.ROUND_ID_32, 0, 2))
+            return bean
+        }
+
     }
 }
 
@@ -266,6 +276,21 @@ class LowScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
         }
         if (isQualify && round >= MatchConstants.ROUND_ID_128 && round <= MatchConstants.ROUND_ID_F) {
             score += if (match.match.draws == 64) 5 else 3
+        }
+        return score
+    }
+}
+
+class MicroScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
+
+    override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
+        var score = when(round) {
+            MatchConstants.ROUND_ID_32 -> if (isWinner) 2 else 0
+            MatchConstants.ROUND_ID_16 -> if (isWinner) 5 else 2
+            MatchConstants.ROUND_ID_QF -> if (isWinner) 10 else 5
+            MatchConstants.ROUND_ID_SF -> if (isWinner) 16 else 10
+            MatchConstants.ROUND_ID_F -> if (isWinner) 25 else 16
+            else -> 0
         }
         return score
     }

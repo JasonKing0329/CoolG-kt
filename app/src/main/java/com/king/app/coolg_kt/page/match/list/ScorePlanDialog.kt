@@ -110,6 +110,7 @@ class ScorePlanDialog: DraggableContentFragment<FragmentScorePlanBinding>() {
             MatchConstants.MATCH_LEVEL_GM500 -> DrawScorePlan.defGM500Plan(match.id, match.draws)
             MatchConstants.MATCH_LEVEL_GM250 -> DrawScorePlan.defGM250Plan(match.id)
             MatchConstants.MATCH_LEVEL_LOW -> DrawScorePlan.defLowPlan(match.id, match.draws)
+            MatchConstants.MATCH_LEVEL_MICRO -> DrawScorePlan.defMicroPlan(match.id)
             else -> null
         }
         when(match.draws) {

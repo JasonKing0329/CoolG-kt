@@ -6,8 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import com.king.app.coolg_kt.conf.AppConfig
+import com.king.app.coolg_kt.utils.CrashHandler
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.AppDatabase
+
 
 /**
  * @description:
@@ -32,6 +34,9 @@ class CoolApplication: Application() {
             val builder = StrictMode.VmPolicy.Builder()
             StrictMode.setVmPolicy(builder.build())
         }
+
+        // 采集崩溃信息存储到本地
+        CrashHandler.getInstance().init(this)
 
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityPaused(activity: Activity) {

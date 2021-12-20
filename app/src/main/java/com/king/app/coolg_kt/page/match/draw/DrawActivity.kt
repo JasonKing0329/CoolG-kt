@@ -80,8 +80,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         mBinding.actionbar.setOnMenuItemListener {
             when(it) {
                 R.id.menu_edit -> {
-                    isEditing = true
                     mBinding.actionbar.showConfirmStatus(it)
+                    toggleEdit(true)
                 }
                 R.id.menu_history -> {
                     MatchActivity.startPage(this@DrawActivity, mModel.getMatchId())
@@ -157,12 +157,12 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                         false
                     }
                     else {
-                        isEditing = false
+                        toggleEdit(false)
                         true
                     }
                 }
                 else -> {
-                    isEditing = false
+                    toggleEdit(false)
                     true
                 }
             }
@@ -418,8 +418,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
     override fun initData() {
 
         mModel.cancelConfirmCancelStatus.observe(this, Observer {
-            isEditing = false
             mBinding.actionbar.cancelConfirmStatus()
+            toggleEdit(false)
         })
         mModel.setRoundPosition.observe(this, Observer { mBinding.spRound.setSelection(it) })
         mModel.roundList.observe(this, Observer {
@@ -437,9 +437,15 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         })
         mModel.saveEditSuccess.observe(this, Observer {
             mBinding.actionbar.cancelConfirmStatus()
-            isEditing = false
+            toggleEdit(false)
         })
         mModel.loadMatch(intent.getLongExtra(EXTRA_MATCH_PERIOD_ID, -1))
+    }
+
+    private fun toggleEdit(edit: Boolean) {
+        isEditing = edit
+        adapter.isEditing = edit
+        adapter.notifyDataSetChanged()
     }
 
     override fun onBackPressed() {

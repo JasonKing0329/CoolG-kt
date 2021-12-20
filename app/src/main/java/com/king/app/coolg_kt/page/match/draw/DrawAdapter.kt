@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.match.draw
 
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
@@ -9,6 +10,7 @@ import com.king.app.coolg_kt.databinding.AdapterMatchRecordBinding
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.gdb.data.relation.MatchRecordWrap
+import kotlin.math.abs
 
 /**
  * @description:
@@ -18,6 +20,7 @@ import com.king.app.gdb.data.relation.MatchRecordWrap
 class DrawAdapter: BaseBindingAdapter<AdapterMatchRecordBinding, DrawItem>() {
 
     var onDrawListener: OnDrawListener? = null
+    var isEditing = false
 
     override fun onCreateBind(
         inflater: LayoutInflater,
@@ -111,6 +114,69 @@ class DrawAdapter: BaseBindingAdapter<AdapterMatchRecordBinding, DrawItem>() {
         binding.ivEdit2.setOnClickListener { onDrawListener?.onEditPlayer(binding.ivEdit1, position, bean, bean.matchRecord2) }
         binding.ivDetail1.setOnClickListener { onDrawListener?.onPlayerDetail(position, bean, bean.matchRecord1) }
         binding.ivDetail2.setOnClickListener { onDrawListener?.onPlayerDetail(position, bean, bean.matchRecord2) }
+
+        if (isEditing) {
+            binding.ivPlayer1.setOnTouchListener(ItemTouchListener(binding.ivWinner))
+            binding.ivPlayer2.setOnTouchListener(ItemTouchListener(binding.ivWinner))
+        }
+        else {
+            binding.ivPlayer1.setOnTouchListener(null)
+            binding.ivPlayer2.setOnTouchListener(null)
+        }
+    }
+
+    class ItemTouchListener(private val targetView: View): View.OnTouchListener {
+        private var startTime = 0L
+        private var startX = 0f
+        private var startY = 0f
+        private var targetDistance = 0
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    startTime = System.currentTimeMillis()
+                    startX = event.rawX
+                    startY = event.rawY
+                    // 计算move to target需要移动的距离
+                    val locV = IntArray(2)
+                    val locT = IntArray(2)
+                    v.getLocationInWindow(locV)
+                    targetView.getLocationInWindow(locT)
+                    val distance = locT[0] - locV[0]
+                    // x方向上移动3/5就算移动到目的地
+                    targetDistance = distance * 3 / 5
+                    v.parent.requestDisallowInterceptTouchEvent(true)
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    var x = event.rawX
+                    var y = event.rawY
+                    v.translationX = x - startX
+                    v.translationY = y - startY
+                }
+                MotionEvent.ACTION_UP -> {
+                    var time = System.currentTimeMillis()
+                    var x = event.rawX
+                    var y = event.rawY
+                    if (time - startTime <= 200 &&
+                            abs(x - startX) <= 30 &&
+                            abs(y - startY) <= 30) {
+                        v.performClick()
+                    }
+                    else {
+                        if (x - startX >= targetDistance &&
+                                abs(y - startY) < v.height) {
+                            v.performLongClick()
+                        }
+                    }
+                    v.translationX = 0f
+                    v.translationY = 0f
+                    v.parent.requestDisallowInterceptTouchEvent(false)
+                }
+                MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_OUTSIDE -> {
+                    v.parent.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+            return true
+        }
     }
 
     interface OnDrawListener {

@@ -5,6 +5,27 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <!-- 为了使player1与player2拖拽过程中能浮在winner上方，将winner与path图层置底 -->
+        <ImageView
+            android:id="@+id/iv_winner"
+            android:layout_width="140dp"
+            android:layout_height="80dp"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="@+id/iv_player1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
+            app:layout_constraintEnd_toStartOf="@+id/group_index_winner"
+            tools:src="@drawable/def_small"/>
+        <ImageView
+            android:id="@+id/iv_path"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_up_path"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="@+id/iv_player1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
+            app:layout_constraintEnd_toStartOf="@+id/iv_winner"
+            app:layout_constraintStart_toEndOf="@+id/iv_player1"/>
+
         <LinearLayout
             android:id="@+id/group_index1"
             android:layout_width="@dimen/draw_index_width"
@@ -137,15 +158,6 @@
             app:layout_constraintEnd_toEndOf="@+id/iv_player2"
             app:layout_constraintTop_toTopOf="@+id/iv_player2"
             app:layout_constraintBottom_toBottomOf="@+id/iv_player2"/>
-        <ImageView
-            android:id="@+id/iv_winner"
-            android:layout_width="140dp"
-            android:layout_height="80dp"
-            android:scaleType="fitXY"
-            app:layout_constraintTop_toTopOf="@+id/iv_player1"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
-            app:layout_constraintEnd_toStartOf="@+id/group_index_winner"
-            tools:src="@drawable/def_small"/>
 
         <LinearLayout
             android:id="@+id/group_index_winner"
@@ -169,16 +181,6 @@
                 style="@style/TvDrawRank"
                 tools:text="R 254" />
         </LinearLayout>
-        <ImageView
-            android:id="@+id/iv_path"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:src="@drawable/ic_up_path"
-            android:scaleType="fitXY"
-            app:layout_constraintTop_toTopOf="@+id/iv_player1"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
-            app:layout_constraintEnd_toStartOf="@+id/iv_winner"
-            app:layout_constraintStart_toEndOf="@+id/iv_player1"/>
 
         <TextView
             android:id="@+id/tv_h2h"

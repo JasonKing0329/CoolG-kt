@@ -1,6 +1,5 @@
 package com.king.app.coolg_kt.base.adapter
 
-import android.media.CamcorderProfile
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

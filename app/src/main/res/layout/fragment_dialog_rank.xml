@@ -11,6 +11,7 @@
             android:layout_height="match_parent"
             android:paddingTop="10dp"
             android:paddingRight="16dp"
+            android:layout_marginBottom="10dp"
             app:axisXTextSize="6dp"
             app:axisYTextSize="8dp"
             app:axisYTextWidth="30dp"
@@ -21,5 +22,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+        <ImageView
+            android:id="@+id/iv_zoom_out"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_baseline_zoom_out_24"
+            app:layout_constraintEnd_toStartOf="@+id/iv_zoom_in"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_zoom_in"/>
+
+        <ImageView
+            android:id="@+id/iv_zoom_in"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_baseline_zoom_in_24"
+            android:layout_marginBottom="50dp"
+            android:layout_marginEnd="@dimen/common_margin_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

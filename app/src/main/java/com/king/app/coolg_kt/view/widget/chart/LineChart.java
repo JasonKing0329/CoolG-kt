@@ -197,4 +197,8 @@ public class LineChart extends AxisChart {
         }
         return true;
     }
+
+    public void setMinXCellWidth(int mMinXCellWidth) {
+        this.mMinXCellWidth = mMinXCellWidth;
+    }
 }

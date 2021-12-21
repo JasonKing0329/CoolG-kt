@@ -6,6 +6,7 @@ import com.king.app.coolg_kt.CoolApplication
 import com.king.app.coolg_kt.databinding.FragmentDialogRankBinding
 import com.king.app.coolg_kt.page.match.AxisDegree
 import com.king.app.coolg_kt.page.match.LineChartData
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 import com.king.app.coolg_kt.view.widget.chart.adapter.IAxis
 import com.king.app.coolg_kt.view.widget.chart.adapter.LineChartAdapter
@@ -22,7 +23,7 @@ class RankDialog: DraggableContentFragment<FragmentDialogRankBinding>() {
     /**
      * x轴每隔n个点显示一个刻度
      */
-    val DEGREE_COMBINE = 4
+    var DEGREE_COMBINE = 4
 
     /**
      * y轴每个显示刻度之间的隐藏刻度
@@ -38,6 +39,21 @@ class RankDialog: DraggableContentFragment<FragmentDialogRankBinding>() {
 
     var recordId: Long = 0L
 
+    var zoomParams = listOf(
+        ZoomParam(24, 1f),
+        ZoomParam(12, 2f),
+        ZoomParam(8, 3f),
+        ZoomParam(6, 4f),
+        ZoomParam(4, 6f),
+        ZoomParam(3, 8f)
+    )
+    var zoomCursor = 4
+
+    data class ZoomParam(
+        var degreeCombine: Int,
+        var cellWidth: Float
+    )
+
     /**
      * 根布局是match_parent，需要覆盖为true
      */
@@ -48,9 +64,31 @@ class RankDialog: DraggableContentFragment<FragmentDialogRankBinding>() {
     override fun getBinding(inflater: LayoutInflater): FragmentDialogRankBinding = FragmentDialogRankBinding.inflate(inflater)
 
     override fun initData() {
-        var data = loadRankData()
-        data?.let {
-            showChart(it)
+        mBinding.ivZoomIn.setOnClickListener {
+            if (zoomCursor < zoomParams.size - 1) {
+                zoomCursor++
+                zoomWith(zoomCursor)
+            }
+        }
+        mBinding.ivZoomOut.setOnClickListener {
+            if (zoomCursor > 0) {
+                zoomCursor--
+                zoomWith(zoomCursor)
+            }
+        }
+
+        zoomWith(zoomCursor)
+    }
+
+    private fun zoomWith(cursor: Int) {
+        DEGREE_COMBINE = zoomParams[cursor].degreeCombine
+        mBinding.chartRank.setMinXCellWidth(ScreenUtils.dp2px(zoomParams[cursor].cellWidth))
+        refresh()
+    }
+
+    private fun refresh() {
+        loadRankData()?.apply {
+            showChart(this)
         }
     }
 

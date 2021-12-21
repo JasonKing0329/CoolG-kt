@@ -6,7 +6,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.king.app.coolg_kt.R
@@ -62,7 +62,13 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
         immersiveTopDarkFont(mBinding.toolbar)
 
         mBinding.actionbar.setOnBackListener { finish() }
-        mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val manager = GridLayoutManager(this, 2)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return adapter.getSpanSize(position)
+            }
+        }
+        mBinding.rvList.layoutManager = manager
         mBinding.rvList.addItemDecoration(object : ItemDecoration() {
             override fun getItemOffsets(
                 outRect: Rect,
@@ -72,7 +78,7 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
             ) {
                 val position = parent.getChildAdapterPosition(view)
                 // items 与 header之间的间隔
-                if (position == 1) {
+                if (position in 1..2) {
                     outRect.top = ScreenUtils.dp2px(10f)
                 }
             }

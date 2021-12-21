@@ -67,4 +67,17 @@ abstract class HeaderFooterRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerVie
     override fun getItemCount(): Int {
         return if (list == null) 2 else list!!.size + 2 // 首尾分别为header和footer
     }
+
+    fun isHead(position: Int): Boolean {
+        return getItemViewType(position) == TYPE_HEAD
+    }
+
+    fun isFooter(position: Int): Boolean {
+        return getItemViewType(position) == TYPE_MORE
+    }
+
+    fun isItem(position: Int): Boolean {
+        return getItemViewType(position) == TYPE_ITEM
+    }
+
 }

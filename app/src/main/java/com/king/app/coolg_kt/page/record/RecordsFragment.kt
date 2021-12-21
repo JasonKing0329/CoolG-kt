@@ -47,6 +47,8 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
     override fun getBinding(inflater: LayoutInflater): FragmentRecordsBinding = FragmentRecordsBinding.inflate(inflater)
 
     override fun initView(view: View) {
+        mBinding.model = mModel
+
         val span = if (ScreenUtils.isTablet()) 3 else 2
         mBinding.rvRecords.layoutManager = GridLayoutManager(requireContext(), span)
         mBinding.rvRecords.setEnableLoadMore(true)

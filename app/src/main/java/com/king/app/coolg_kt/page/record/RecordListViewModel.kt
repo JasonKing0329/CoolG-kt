@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.record
 
 import android.app.Application
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
@@ -18,6 +19,8 @@ import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * Desc:
@@ -53,6 +56,9 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     private var isFilterBlacklist = false
 
     var selectAsMatchItem = false
+
+    var filterBlackListEnable = ObservableBoolean(true)
+    var outOfRankWasteDisposable: Disposable? = null
 
     init {
         onSortTypeChanged()
@@ -92,6 +98,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     }
 
     private fun loadRecordsOutOfRank() {
+        filterBlackListEnable.set(false)
         BasicAndTimeWaste<RecordWrap>()
             .basic(recordRepository.getRecordsOutOfRank(isFilterBlacklist))
             .timeWaste(outOfRankWaste(), 20)
@@ -108,7 +115,11 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
                         messageObserver.value = e?.message?:""
                     }
                 },
-                object : SimpleObserver<TimeWasteRange>(getComposite()) {
+                object : Observer<TimeWasteRange> {
+                    override fun onSubscribe(d: Disposable?) {
+                        outOfRankWasteDisposable = d
+                    }
+
                     override fun onNext(t: TimeWasteRange) {
                         rangeChangedObserver.value = t
                     }
@@ -116,6 +127,10 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
                     override fun onError(e: Throwable?) {
                         e?.printStackTrace()
                         messageObserver.value = e?.message?:""
+                    }
+                    override fun onComplete() {
+                        filterBlackListEnable.set(true)
+                        outOfRankWasteDisposable = null
                     }
                 }
             )
@@ -275,7 +290,19 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     }
 
     fun toggleBlacklist(checked: Boolean) {
-        isFilterBlacklist = checked
-        reloadRecords()
+        // 已加载完
+        if (outOfRankWasteDisposable == null) {
+            isFilterBlacklist = checked
+            reloadRecords()
+        }
+        // 未加载完不允许开始filter，否则容易造成adapter的IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionBindingHolder
+        else {
+            messageObserver.value = "Loading is not completed yet!"
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        outOfRankWasteDisposable?.dispose()
     }
 }

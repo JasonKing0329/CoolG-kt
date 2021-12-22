@@ -82,7 +82,7 @@ class SystemPlayerActivity:BaseActivity<ActivityTvPlayerSystemBinding, SystemPla
         mModel.isSocketServer = intent.getBooleanExtra(EXTRA_SOCKET, false)
         if (!mModel.isSocketServer) {
             mModel.currentUrl = intent.getStringExtra(EXTRA_URL)
-            mModel.currentPathInServer = intent.getStringExtra(EXTRA_PATH)
+            mModel.currentPathInServer = intent.getStringExtra(EXTRA_PATH)?:""
         }
 
         videoController = VideoController(

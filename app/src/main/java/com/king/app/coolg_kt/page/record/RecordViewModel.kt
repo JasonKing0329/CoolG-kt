@@ -22,6 +22,7 @@ import com.king.app.coolg_kt.model.socket.*
 import com.king.app.coolg_kt.page.video.player.PlayListInstance
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.UrlUtil
+import com.king.app.coolg_kt.utils.videos
 import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
@@ -61,8 +62,6 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     var studioObserver: MutableLiveData<String> = MutableLiveData()
 
     var videoUrlObserver: MutableLiveData<String> = MutableLiveData()
-
-    var playVideoInPlayer: MutableLiveData<Boolean> = MutableLiveData()
 
     private val repository = RecordRepository()
     private var playRepository = PlayRepository()
@@ -194,7 +193,7 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
      * 测试用
      */
     private fun testPlayUrl() {
-        mPlayUrl = "http://jzvd.nathen.cn/342a5f7ef6124a4a8faf00e738b8bee4/cf6d9db0bd4d41f59d09ea0a81e918fd-5287d2089db37e62345123a1be272f8b.mp4"
+        mPlayUrl = videos[5]
         videoUrlObserver.value = mPlayUrl
     }
 
@@ -215,11 +214,14 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
             })
     }
 
-    fun playInPlayer() {
+    fun canPlay(): Boolean {
+        return mPlayUrl != null
+    }
+
+    fun addToJzvdPlayList() {
         // 将视频url添加到临时播放列表的末尾
         PlayListInstance.getInstance().addRecord(mRecord.bean, mPlayUrl)
         PlayListInstance.getInstance().setPlayIndexAsLast()
-        playVideoInPlayer.value = true
     }
 
     fun refreshTags() {

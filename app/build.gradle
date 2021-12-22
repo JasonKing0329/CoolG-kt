@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 323
-        versionName "9.2.5"
+        versionCode 324
+        versionName "9.2.6"
         flavorDimensions "1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -122,6 +122,7 @@ dependencies {
 
     implementation 'cn.jzvd:jiaozivideoplayer:7.5.0'
     implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.4'
+    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.4'
 //    implementation 'com.avery:subtitle:1.0.6'
 
     implementation 'com.belerweb:pinyin4j:2.5.0'

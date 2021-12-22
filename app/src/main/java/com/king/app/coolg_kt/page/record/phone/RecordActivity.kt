@@ -39,6 +39,8 @@ import com.king.app.coolg_kt.page.record.RecordPlayOrdersAdapter
 import com.king.app.coolg_kt.page.record.RecordViewModel
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
+import com.king.app.coolg_kt.page.tv.player.IjkPlayerActivity
+import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
@@ -154,14 +156,35 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
                 mModel.playInSocketServer(it)
             })
         }
-        mBinding.videoView.interceptFullScreenListener = View.OnClickListener {
-            showConfirmCancelMessage("是否在临时列表中打开，若是，视频将从上一次记录的位置开始播放？",
-                getString(R.string.yes),
-                DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mModel.playInPlayer() },
-                getString(R.string.no),
-                DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mBinding.videoView.executeFullScreen() }
-            )
+        // 取消对全屏的拦截，用默认的全屏事件。系统播放器改用另外的按钮启动
+//        mBinding.videoView.interceptFullScreenListener = View.OnClickListener {
+//            showConfirmCancelMessage("是否在临时列表中打开，若是，视频将从上一次记录的位置开始播放？",
+//                getString(R.string.yes),
+//                DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mModel.playInPlayer() },
+//                getString(R.string.no),
+//                DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> mBinding.videoView.executeFullScreen() }
+//            )
+//        }
+        // Jzvd-JZMediaIjk
+        mBinding.tvPlayerIjk.setOnClickListener {
+            if (mModel.canPlay()) {
+                IjkPlayerActivity.startPage(this, mModel.mPlayUrl?:"")
+            }
         }
+        // Jzvd-JZMediaSystem
+        mBinding.tvPlayerJzvd.setOnClickListener {
+            if (mModel.canPlay()) {
+                mModel.addToJzvdPlayList()
+                PlayerActivity.startPage(this, true)
+            }
+        }
+        // 原生VideoView
+        mBinding.tvPlayerSystem.setOnClickListener {
+            if (mModel.canPlay()) {
+                SystemPlayerActivity.startPage(this, mModel.mPlayUrl?:"", null)
+            }
+        }
+
         mBinding.rvTags.layoutManager = LinearLayoutManager(
             this,
             LinearLayoutManager.HORIZONTAL,
@@ -312,7 +335,6 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             }
         )
         mModel.videoUrlObserver.observe(this, Observer { previewVideo(it) })
-        mModel.playVideoInPlayer.observe(this, Observer { playList() })
         mModel.bitmapObserver.observe(this, Observer { bitmap: Bitmap ->
             mBinding.banner.visibility = View.GONE
             mBinding.videoView.visibility = View.VISIBLE
@@ -384,10 +406,6 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         }
         tagAdapter.list = tags
         tagAdapter.notifyDataSetChanged()
-    }
-
-    private fun playList() {
-        PlayerActivity.startPage(this, false)
     }
 
     private fun showScores(list: List<TitleValueBean>) {

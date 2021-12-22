@@ -29,6 +29,10 @@ class IjkPlayerActivity: BaseActivity<ActivityTvPlayerIjkBinding, IjkPlayerViewM
         }
     }
 
+    override fun isFullScreen(): Boolean {
+        return true
+    }
+
     override fun getContentView(): Int = R.layout.activity_tv_player_ijk
 
     override fun createViewModel(): IjkPlayerViewModel = generateViewModel(

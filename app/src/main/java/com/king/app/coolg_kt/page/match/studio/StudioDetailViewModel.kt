@@ -132,7 +132,7 @@ class StudioDetailViewModel(application: Application): BaseViewModel(application
             if (gm1000.isNotEmpty()) {
                 result.add(StudioTitle(FLAG_TITLE_CHAMPION_GM1000, " GM1000 ", false))
                 gm1000.forEach { wrap ->
-                    val column = if (gs.size == 1) 3 else 1
+                    val column = if (gm1000.size == 1) 3 else 1
                     var studioItem = StudioItem(FLAG_TITLE_CHAMPION_GM1000, column, wrap, wrap.record)
                     result.add(studioItem)
                 }
@@ -143,7 +143,7 @@ class StudioDetailViewModel(application: Application): BaseViewModel(application
             if (allChampions.isNotEmpty()) {
                 result.add(StudioTitle(FLAG_TITLE_CHAMPION, " All Champions ", false))
                 allChampions.forEach { wrap ->
-                    val column = if (gs.size == 1) 3 else 1
+                    val column = if (allChampions.size == 1) 3 else 1
                     var studioItem = StudioItem(FLAG_TITLE_CHAMPION, column, wrap, wrap.record)
                     result.add(studioItem)
                 }

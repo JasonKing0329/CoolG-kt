@@ -96,6 +96,9 @@ class MatchActivity: BaseActivity<ActivityMatchDetailBinding, MatchViewModel>() 
             adapter.list = it
             adapter.notifyDataSetChanged()
         })
+        mModel.semiItemsRange.observe(this, Observer {
+            adapter.notifyItemRangeChanged(it.start, it.count)
+        })
         mModel.countItemsObserver.observe(this, Observer {
             countAdapter.list = it
             mBinding.rvList.adapter = countAdapter

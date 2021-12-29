@@ -26,6 +26,7 @@
             android:padding="8dp"
             android:visibility="gone"
             android:textColor="@color/white"
+            android:checked="true"
             android:enabled="@{model.filterBlackListEnable}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

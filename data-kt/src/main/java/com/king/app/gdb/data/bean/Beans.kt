@@ -46,3 +46,13 @@ data class RankLevelCount(
     var level: Int,
     var count: Int
 )
+data class MatchSemiRecord(
+    var recordId: Long,
+    var recordSeed: Int,
+    var recordRank: Int,
+    var round: Int,
+    var winnerId: Long?,
+    var period: Int,
+    var matchPeriodId: Long,
+    var matchPeriodDate: Long
+)

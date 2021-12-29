@@ -283,13 +283,14 @@ data class MatchSemiPack(
     var matchPeriodId: Long,
     var period: String,
     var date: String,
-    var items: List<MatchSemiItem>
+    var items: MutableList<MatchSemiItem>
 )
 
 data class MatchSemiItem(
     var recordId: Long,
     var rank: String,
-    var imageUrl: String?
+    var rankNow: String = "",
+    var imageUrl: String? = null
 )
 data class RecordH2hItem (
     var record1: Record,

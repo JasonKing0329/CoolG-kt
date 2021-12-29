@@ -33,6 +33,7 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
     var matchLevel = ObservableField<String>()
 
     var itemsObserver = MutableLiveData<List<MatchSemiPack>>()
+    var semiItemsRange = MutableLiveData<TimeWasteRange>()
     var repository = RankRepository()
     var dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
@@ -55,20 +56,37 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
         matchName.set(match.name)
         matchLevel.set("${MatchConstants.MATCH_LEVEL[match.level]} ")
 
-        querySemiItems()
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<MatchSemiPack>>(getComposite()) {
-                override fun onNext(t: List<MatchSemiPack>) {
-                    itemsObserver.value = t
-                }
+        BasicAndTimeWaste<MatchSemiPack>()
+            .basic(querySemiItemsUpgrade())
+            .timeWaste(semiWaste(), 1)
+            .composite(getComposite())
+            .subscribe(
+                object : SimpleObserver<List<MatchSemiPack>>(getComposite()) {
+                    override fun onNext(t: List<MatchSemiPack>) {
+                        itemsObserver.value = t
+                    }
 
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message?:"error"
-                }
-            })
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                        messageObserver.value = e?.message?:"error"
+                    }
+                },
+                object : SimpleObserver<TimeWasteRange>(getComposite()) {
+                    override fun onNext(t: TimeWasteRange) {
+                        semiItemsRange.value = t
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                    }
+                },
+            )
     }
 
+    @Deprecated(
+        "repository.getMatchSemiItems的方式太耗时，当match_record膨胀到40W+后，耗时达到5秒以上",
+        replaceWith = ReplaceWith("querySemiItemsUpgrade", "")
+    )
     private fun querySemiItems(): Observable<List<MatchSemiPack>> {
         return Observable.create {
             var list = mutableListOf<MatchSemiPack>()
@@ -89,14 +107,76 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
                         else {
                             record.recordRank?.toString()?:""
                         }
-                        val bean = getDatabase().getRecordDao().getRecordBasic(record.recordId)
-                        var item = MatchSemiItem(record.recordId, rank, ImageProvider.getRecordRandomPath(bean?.name, null))
+                        // imageUrl与rankNow属于耗时操作，不在这里加载
+                        var item = MatchSemiItem(record.recordId, rank)
                         items.add(item)
+                    }
+                }
+                // imageUrl与rankNow属于耗时操作，不在这里加载
+            }
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
+    /**
+     * 通过Sql语句先查询出matchId对应的所有sf, f的记录，再对记录进行period分组与轮次排序，大大缩减了时间（40W+数据也能在500ms以内）
+     */
+    private fun querySemiItemsUpgrade(): Observable<List<MatchSemiPack>> {
+        return Observable.create {
+            var list = mutableListOf<MatchSemiPack>()
+            getDatabase().getMatchDao().queryMatchSemiRecords(matchId).forEach { msr ->
+                var pack = list.firstOrNull { pack -> pack.matchPeriodId == msr.matchPeriodId }
+                if (pack == null) {
+                    pack = MatchSemiPack(msr.matchPeriodId, "P${msr.period}", dateFormat.format(Date(msr.matchPeriodDate)), mutableListOf())
+                    list.add(pack)
+                }
+                var rank = if (msr.recordSeed > 0) {
+                    "[${msr.recordSeed}]/${msr.recordRank}"
+                }
+                else {
+                    msr.recordRank.toString()
+                }
+                if (msr.round == MatchConstants.ROUND_ID_F) {
+                    // 根据SemiGroup的规则，0是冠军，1是亚军，2,3是四强
+                    // sql里已按round排序，决赛在前，四强在后，但是冠亚军还需要区别一下，冠军作为第0个插入
+                    if (msr.recordId == msr.winnerId) {
+                        pack.items.add(0, MatchSemiItem(msr.recordId, rank))
+                    }
+                    else {
+                        pack.items.add(MatchSemiItem(msr.recordId, rank))
+                    }
+                }
+                // SF只加输掉的一方
+                else {
+                    if (msr.recordId != msr.winnerId) {
+                        pack.items.add(MatchSemiItem(msr.recordId, rank))
                     }
                 }
             }
             it.onNext(list)
             it.onComplete()
+        }
+    }
+
+    private fun semiWaste(): TimeWasteTask<MatchSemiPack> {
+        return object : TimeWasteTask<MatchSemiPack> {
+            override fun handle(index: Int, data: MatchSemiPack) {
+                data.items.forEach { item ->
+                    val bean = getDatabase().getRecordDao().getRecordBasic(item.recordId)
+                    item.imageUrl = ImageProvider.getRecordRandomPath(bean?.name, null)
+                    // 加载currentRank非常耗时，需求上只需要第一个显示即可
+                    if (index == 0) {
+                        val rankNow = repository.getRecordCurrentRank(item.recordId)
+                        item.rankNow = if (rankNow == -1) {
+                            "Now 9999"
+                        }
+                        else {
+                            "Now $rankNow"
+                        }
+                    }
+                }
+            }
         }
     }
 

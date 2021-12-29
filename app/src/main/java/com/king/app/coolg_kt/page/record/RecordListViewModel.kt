@@ -53,7 +53,7 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     private var factor = RecordsFragment.Factor()
 
-    private var isFilterBlacklist = false
+    private var isFilterBlacklist = true
 
     var selectAsMatchItem = false
 

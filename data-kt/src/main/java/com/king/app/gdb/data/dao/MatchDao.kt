@@ -456,4 +456,6 @@ interface MatchDao {
     @Query("select r.*, 0 as level, count(r._id) as levelCount from match_item mi join record r on mi.winnerId=r._id join match_period mp on mi.matchId=mp.id join 'match' m on mp.matchId=m.id where mi.round=7 and r.studioId=:studioId group by r._id")
     fun queryStudioRecordChampions(studioId: Long): List<StudioChampionWrap>
 
+    @Query("select mr.recordId, mr.recordSeed, mr.recordRank, mi.round, mi.winnerId, mp.period, mp.id as matchPeriodId, mp.date as matchPeriodDate from match_record mr join match_item mi on mr.matchItemId=mi.id and mi.round in (6,7)join match_period mp on mr.matchId=mp.id join 'match' m on mp.matchId=m.id where m.id=:matchId order by mp.period desc, mi.round")
+    fun queryMatchSemiRecords(matchId: Long):List<MatchSemiRecord>
 }

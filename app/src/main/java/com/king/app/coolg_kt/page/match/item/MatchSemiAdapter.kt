@@ -47,7 +47,8 @@ class MatchSemiAdapter: BaseBindingAdapter<AdapterMatchDetailItemBinding, MatchS
             val adapter = object : SemiGroup.SemiAdapter() {
                 override fun getView(position: Int): View {
                     val view = LayoutInflater.from(semiGroup.context).inflate(R.layout.layout_match_semi_item, null)
-                    view.findViewById<TextView>(R.id.tv_title).text = items[position].rank
+                    view.findViewById<TextView>(R.id.tv_title).text = "${items[position].rank}"
+                    view.findViewById<TextView>(R.id.tv_rank_now).text = items[position].rankNow
                     val ivImage = view.findViewById<ImageView>(R.id.iv_image)
                     ivImage.setOnClickListener { onRecordListener?.onClickRecord(items[position]) }
                     ImageBindingAdapter.setRecordUrl(ivImage, items[position].imageUrl)

@@ -65,4 +65,10 @@
         <item>By Level</item>
     </string-array>
 
+    <string-array name="video_player" translatable="false">
+        <item>Ijk</item>
+        <item>JZVD</item>
+        <item>System</item>
+    </string-array>
+
 </resources>

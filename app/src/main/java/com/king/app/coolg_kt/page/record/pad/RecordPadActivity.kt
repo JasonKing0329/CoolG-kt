@@ -38,6 +38,8 @@ import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
 import com.king.app.coolg_kt.page.record.pad.RecordPagerAdapter.OnHolderListener
 import com.king.app.coolg_kt.page.star.phone.StarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
+import com.king.app.coolg_kt.page.tv.player.IjkPlayerActivity
+import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
 import com.king.app.coolg_kt.page.video.player.PlayerActivity
 import com.king.app.coolg_kt.utils.BannerHelper
@@ -226,13 +228,29 @@ class RecordPadActivity : BaseActivity<ActivityRecordPadBinding, RecordPadViewMo
                 }
             }
         })
-        mBinding.ivPlayVideo.setOnClickListener { v: View? -> mModel.playVideo() }
-        mModel.videoPlayOnReadyObserver.observe(
-            this,
-            Observer {
-                PlayerActivity.startPage(this, true)
-            }
-        )
+        mBinding.ivPlayVideo.visibility = View.GONE
+        mBinding.ivPlayVideo.setOnClickListener {
+            AlertDialogFragment()
+                .setItems(
+                    resources.getStringArray(R.array.video_player)
+                ) { dialog, which ->
+                    when (which) {
+                        0 -> IjkPlayerActivity.startPage(
+                            this@RecordPadActivity,
+                            mModel.mPlayUrl ?: ""
+                        )
+                        1 -> {
+                            mModel.addToJzvdPlayList()
+                            PlayerActivity.startPage(this@RecordPadActivity, true)
+                        }
+                        2 -> SystemPlayerActivity.startPage(
+                            this@RecordPadActivity,
+                            mModel.mPlayUrl ?: "",
+                            null
+                        )
+                    }
+                }.show(supportFragmentManager, "setItems")
+        }
         mBinding.rvOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         mBinding.rvPlayOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         mBinding.rvTags.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)

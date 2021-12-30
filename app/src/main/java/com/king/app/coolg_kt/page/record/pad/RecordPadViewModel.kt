@@ -13,8 +13,7 @@ import com.king.app.coolg_kt.model.module.VideoModel
 import com.king.app.coolg_kt.model.palette.ViewColorBound
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.page.record.RecordViewModel
-import com.king.app.coolg_kt.page.video.player.PlayListInstance
-import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.relation.RecordStarWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
@@ -36,7 +35,6 @@ class RecordPadViewModel(application: Application) : RecordViewModel(application
     var scoreObserver: MutableLiveData<MutableList<TitleValueBean>> = MutableLiveData()
     var paletteObserver: MutableLiveData<Palette> = MutableLiveData()
     var viewBoundsObserver: MutableLiveData<List<ViewColorBound>> = MutableLiveData()
-    var videoPlayOnReadyObserver: MutableLiveData<Boolean> = MutableLiveData()
     private val paletteMap: MutableMap<Int, Palette> = mutableMapOf()
     private val viewBoundsMap: MutableMap<Int, List<ViewColorBound>?> = mutableMapOf()
 
@@ -232,12 +230,4 @@ class RecordPadViewModel(application: Application) : RecordViewModel(application
         }
     }
 
-    fun playVideo() {
-        mRecord?.let { record ->
-            // 将视频url添加到播放列表的末尾
-            PlayListInstance.getInstance().addRecord(record.bean, mPlayUrl)
-            PlayListInstance.getInstance().setPlayIndexAsLast()
-            videoPlayOnReadyObserver!!.value = true
-        }
-    }
 }

@@ -566,6 +566,9 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                 it.isChanged = true
                 index ++
             }
+            if (index >= dataList.size) {
+                return
+            }
             if (isWildcard(it.matchRecord2)) {
                 it.matchRecord2?.imageUrl = dataList[index].imageUrl
                 it.matchRecord2?.bean?.recordId = dataList[index].recordId

@@ -67,11 +67,11 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
         checkPassword(mPwd)
     }
 
-    fun initCreate() {
-        prepare()
+    fun initCreate(isStartSu: Boolean) {
+        prepare(isStartSu)
     }
 
-    private fun prepare() {
+    private fun prepare(isStartSu: Boolean) {
         showLoading(true)
         prepareData()
             .observeOn(AndroidSchedulers.mainThread())
@@ -84,10 +84,15 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
                 override fun onNext(hasExtendPref: Boolean) {
                     showLoading(false)
 
-                    if (SettingProperty.isEnableFingerPrint()) {
-                        fingerprintObserver.setValue(true)
-                    } else {
-                        passwordCheck.setValue(true)
+                    if (isStartSu) {
+                        loginObserver.setValue(true)
+                    }
+                    else {
+                        if (SettingProperty.isEnableFingerPrint()) {
+                            fingerprintObserver.setValue(true)
+                        } else {
+                            passwordCheck.setValue(true)
+                        }
                     }
                 }
 

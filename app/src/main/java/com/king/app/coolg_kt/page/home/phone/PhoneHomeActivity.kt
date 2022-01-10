@@ -16,6 +16,7 @@ import com.king.app.coolg_kt.databinding.ActivityHomeBinding
 import com.king.app.coolg_kt.page.home.HomeRecord
 import com.king.app.coolg_kt.page.home.HomeStar
 import com.king.app.coolg_kt.page.home.HomeViewModel
+import com.king.app.coolg_kt.page.login.LoginActivity
 import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.record.pad.PadRecordListActivity
 import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
@@ -56,6 +57,10 @@ class PhoneHomeActivity: BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         setupMenu()
         mBinding.btnTop.setOnClickListener {
             mBinding.rvList.scrollToPosition(0)
+        }
+        mBinding.btnHome.setOnClickListener {
+            LoginActivity.startAsSuperUser(this)
+            finish()
         }
 
         mBinding.rvList.setEnableLoadMore(true)

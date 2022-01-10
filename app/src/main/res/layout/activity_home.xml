@@ -46,8 +46,18 @@
             android:padding="@dimen/home_menu_icon_padding"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/btn_top"
+            app:layout_constraintBottom_toTopOf="@+id/btn_home"
             android:src="@drawable/baseline_menu_book_indigo_a100_48dp"/>
+        <ImageView
+            android:id="@+id/btn_home"
+            android:layout_width="@dimen/home_menu_icon_size"
+            android:layout_height="@dimen/home_menu_icon_size"
+            android:layout_margin="@dimen/home_menu_icon_margin"
+            android:padding="@dimen/home_menu_icon_padding"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/btn_top"
+            android:src="@drawable/ic_baseline_home_indigo_24"/>
         <ImageView
             android:id="@+id/btn_top"
             android:layout_width="@dimen/home_menu_icon_size"

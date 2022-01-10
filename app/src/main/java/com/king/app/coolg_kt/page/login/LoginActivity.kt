@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.page.login
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.view.View
@@ -17,6 +18,7 @@ import com.king.app.coolg_kt.model.fingerprint.FingerprintHelper
 import com.king.app.coolg_kt.model.fingerprint.OnFingerResultListener
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.home.phone.PhoneHomeActivity
+import com.king.app.coolg_kt.page.match.MatchHomeActivity
 import com.king.app.coolg_kt.page.setting.ManageActivity
 import com.king.app.coolg_kt.page.setting.SettingsActivity
 import com.king.app.coolg_kt.page.tv.TvActivity
@@ -24,6 +26,16 @@ import com.king.app.coolg_kt.utils.AppUtil
 import com.tbruyelle.rxpermissions3.RxPermissions
 
 class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
+
+    companion object {
+        val EXTRA_SUPER_USER = "super_user"
+
+        fun startAsSuperUser(context: Context) {
+            var intent = Intent(context, LoginActivity::class.java)
+            intent.putExtra(EXTRA_SUPER_USER, true)
+            context.startActivity(intent)
+        }
+    }
 
     override fun getContentView(): Int = R.layout.activity_login
 
@@ -54,9 +66,13 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             })
     }
 
+    private fun isStartSuperUser(): Boolean {
+        return intent.getBooleanExtra(EXTRA_SUPER_USER, false)
+    }
+
     private fun initCreate() {
         mModel.passwordCheck.observe(this, Observer { showPasswordCheck() })
-        mModel.initCreate()
+        mModel.initCreate(isStartSuperUser())
     }
 
     private fun checkFingerprint() {

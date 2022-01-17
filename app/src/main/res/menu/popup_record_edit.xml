@@ -5,4 +5,6 @@
         android:title="Add to play order"/>
     <item android:id="@+id/menu_detail"
         android:title="Detail page"/>
+    <item android:id="@+id/menu_detail_match"
+        android:title="Match detail page"/>
 </menu>

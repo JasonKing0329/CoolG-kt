@@ -13,6 +13,7 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.FragmentRecordsBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.record.pad.RecordPadActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
@@ -104,6 +105,7 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
             when (item.itemId) {
                 R.id.menu_add_to_play_order -> addToPlayOrder(data)
                 R.id.menu_detail -> goToRecordPage(data)
+                R.id.menu_detail_match -> goToMatchRecordPage(data)
             }
             false
         }
@@ -126,6 +128,10 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
         else {
             RecordActivity.startPage(requireContext(), record.id!!)
         }
+    }
+
+    private fun goToMatchRecordPage(record: Record) {
+        DetailActivity.startRecordPage(requireContext(), record.id!!)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

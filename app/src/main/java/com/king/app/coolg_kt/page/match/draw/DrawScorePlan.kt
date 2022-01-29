@@ -284,13 +284,26 @@ class LowScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 class MicroScorePlan(match: MatchPeriodWrap): DrawScorePlan(match) {
 
     override fun getRoundScore(round: Int, isWinner: Boolean, isQualify: Boolean): Int {
-        var score = when(round) {
-            MatchConstants.ROUND_ID_32 -> if (isWinner) 1 else 0
-            MatchConstants.ROUND_ID_16 -> if (isWinner) 3 else 1
-            MatchConstants.ROUND_ID_QF -> if (isWinner) 6 else 3
-            MatchConstants.ROUND_ID_SF -> if (isWinner) 10 else 6
-            MatchConstants.ROUND_ID_F -> if (isWinner) 15 else 10
-            else -> 0
+        var score = if (match.match.draws == 64) {
+            when(round) {
+                MatchConstants.ROUND_ID_64 -> if (isWinner) 1 else 0
+                MatchConstants.ROUND_ID_32 -> if (isWinner) 2 else 1
+                MatchConstants.ROUND_ID_16 -> if (isWinner) 4 else 2
+                MatchConstants.ROUND_ID_QF -> if (isWinner) 8 else 4
+                MatchConstants.ROUND_ID_SF -> if (isWinner) 13 else 8
+                MatchConstants.ROUND_ID_F -> if (isWinner) 20 else 13
+                else -> 0
+            }
+        }
+        else {
+            when(round) {
+                MatchConstants.ROUND_ID_32 -> if (isWinner) 1 else 0
+                MatchConstants.ROUND_ID_16 -> if (isWinner) 3 else 1
+                MatchConstants.ROUND_ID_QF -> if (isWinner) 6 else 3
+                MatchConstants.ROUND_ID_SF -> if (isWinner) 10 else 6
+                MatchConstants.ROUND_ID_F -> if (isWinner) 15 else 10
+                else -> 0
+            }
         }
         return score
     }

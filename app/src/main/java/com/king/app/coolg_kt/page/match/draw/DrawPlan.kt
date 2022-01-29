@@ -799,8 +799,12 @@ class MicroPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
 
     override fun calcSeed() {
         drawStrategy?.micro?.let {
-            seed = 8
-            directInUnSeed = 32 - seed - match.match.wildcardDraws
+            seed = if (match.match.draws == 64) {
+                16
+            } else {
+                8
+            }
+            directInUnSeed = match.match.draws - seed - match.match.wildcardDraws
 
             seedList = list.filter { item -> item.rank in it.rankTopLimit..it.mainSeedLow && !samePeriodMap.contains(item.recordId) }
                 .shuffled().take(seed).sortedBy { item -> item.rank }

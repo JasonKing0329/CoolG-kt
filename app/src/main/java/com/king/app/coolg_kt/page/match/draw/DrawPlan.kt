@@ -804,7 +804,7 @@ class MicroPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
             } else {
                 8
             }
-            directInUnSeed = match.match.draws - seed - match.match.wildcardDraws
+            directInUnSeed = match.match.draws - seed - match.bean.mainWildcard
 
             seedList = list.filter { item -> item.rank in it.rankTopLimit..it.mainSeedLow && !samePeriodMap.contains(item.recordId) }
                 .shuffled().take(seed).sortedBy { item -> item.rank }
@@ -825,7 +825,12 @@ class MicroPlan(list: List<RankRecord>, match: MatchPeriodWrap, drawStrategy: Dr
     }
 
     override fun createMainDraw(draws: MutableList<DrawCell>) {
-        arrangeDraw32Seed8(draws)
+        if (match.match.draws == 64) {
+            arrangeDraw64(draws, 16)
+        }
+        else {
+            arrangeDraw32Seed8(draws)
+        }
         arrangeUnSeeds(draws)
     }
 

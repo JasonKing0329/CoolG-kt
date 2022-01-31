@@ -381,6 +381,17 @@ interface MatchDao {
     @Query("select mi.* from match_item mi join match_period mp on mi.matchId=mp.id and mp.matchId=:matchId and mp.period=:period join match_score_record msr on mi.id=msr.matchItemId and msr.recordId=:recordId")
     fun getResultMatchItem(recordId: Long, matchId: Long, period: Int): MatchItem?
 
+    /**
+     * 按match level统计record的最终轮次
+     */
+    @Query("select msr.recordId,mi.round,mi.winnerId,mp.id as matchPeriodId,mp.period,m.id as matchId,m.name from match_score_record msr \n" +
+            "join match_item mi on msr.matchItemId= mi.id \n" +
+            "join match_period mp on msr.matchId=mp.id \n" +
+            "join match m on mp.matchId=m.id \n" +
+            "where msr.recordId=:recordId and m.level=:level \n" +
+            "order by period,m.orderInPeriod")
+    fun getRecordResultOfLevel(recordId: Long, level: Int): List<RecordLevelResult>
+
     @Query("select recordId from match_rank_record where period=:period and orderInPeriod=:orderInPeriod order by rank limit :top")
     fun getTopRecordRanks(period: Int, orderInPeriod: Int, top: Int): List<Long>
 

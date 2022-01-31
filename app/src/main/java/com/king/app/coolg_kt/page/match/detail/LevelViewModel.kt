@@ -6,6 +6,7 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.page.match.RoundItem
+import com.king.app.gdb.data.bean.RecordLevelResult
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -29,7 +30,7 @@ class LevelViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun loadData(level: Int) {
-        getLevelData(level)
+        getLevelDataNew(level)
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<List<RoundItem>>(getComposite()){
                 override fun onNext(t: List<RoundItem>) {
@@ -42,6 +43,46 @@ class LevelViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    /**
+     * 一次性sql查出全部结果，再逐个从结果中挑出来，大大缩短加载时间
+     */
+    private fun getLevelDataNew(level: Int): Observable<List<RoundItem>> {
+        return Observable.create {
+            val list = mutableListOf<RoundItem>()
+            val matches = getDatabase().getMatchDao().getMatchByLevel(level)
+            matchCount = matches.size
+            // title
+            list.add(RoundItem(true, true, "Period"))
+            matches.forEach { match ->
+                list.add(RoundItem(true, false, match.name))
+            }
+
+            val results = getDatabase().getMatchDao().getRecordResultOfLevel(mRecordId, level)
+            val first = results.firstOrNull()?.period?:0
+            val last = results.lastOrNull()?.period?:0
+            for (period in first..last) {
+                var pList = mutableListOf<RoundItem>();
+                matches.forEach { match ->
+                    val result = results.firstOrNull { result -> result.period==period && result.matchId==match.id }
+                    if (result == null) {
+                        pList.add(RoundItem(false, false, "--", 0))
+                    }
+                    else {
+                        val round = result.round
+                        val text = MatchConstants.roundResultShort(round, result.winnerId == mRecordId)
+                        pList.add(RoundItem(false, false, text, result.matchPeriodId))
+                    }
+                }
+                list.add(RoundItem(false, true, "P$period"))
+                list.addAll(pList)
+            }
+
+            it.onNext(list)
+            it.onComplete()
+        }
+    }
+
+    @Deprecated("逐个统计结果太耗时", replaceWith = ReplaceWith("getLevelDataNew"))
     private fun getLevelData(level: Int): Observable<List<RoundItem>> {
         return Observable.create {
             val list = mutableListOf<RoundItem>()

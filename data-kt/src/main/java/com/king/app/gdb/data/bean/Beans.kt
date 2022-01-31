@@ -56,3 +56,12 @@ data class MatchSemiRecord(
     var matchPeriodId: Long,
     var matchPeriodDate: Long
 )
+data class RecordLevelResult(
+    var recordId: Long,
+    var round: Int,
+    var winnerId: Long?,
+    var matchPeriodId: Long,
+    var period: Int,
+    var matchId: Long,
+    var name: String?
+)

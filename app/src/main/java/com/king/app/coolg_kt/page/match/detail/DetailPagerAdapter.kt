@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.page.match.detail
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.king.app.coolg_kt.utils.DebugLog
 
 /**
  * Desc:
@@ -14,6 +15,7 @@ class DetailPagerAdapter(activity: FragmentActivity, val list: List<AbsDetailChi
     override fun getItemCount(): Int = list.size
 
     override fun createFragment(position: Int): Fragment {
+        DebugLog.e("$position")
         return list[position]
     }
 }

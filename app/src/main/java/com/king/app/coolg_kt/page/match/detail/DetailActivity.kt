@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.page.match.detail
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.Observer
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
@@ -10,6 +11,7 @@ import com.king.app.coolg_kt.databinding.ActivityMatchRecordDetailBinding
 import com.king.app.coolg_kt.page.match.h2h.RecordH2hActivity
 import com.king.app.coolg_kt.page.match.rank.RankDialog
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 
 /**
@@ -64,6 +66,9 @@ class DetailActivity: BaseActivity<ActivityMatchRecordDetailBinding, DetailViewM
     }
 
     private fun initTabs() {
+
+        // 设置一下能避免跨多个tab切换时，呈现的fragment错乱的问题
+        mBinding.viewpager.offscreenPageLimit = 2
 
         val list = mutableListOf<AbsDetailChildFragment<*, *>>()
         list.add(BasicFragment())

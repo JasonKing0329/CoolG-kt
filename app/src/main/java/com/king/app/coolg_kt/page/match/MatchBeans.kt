@@ -288,6 +288,7 @@ data class MatchSemiPack(
 
 data class MatchSemiItem(
     var recordId: Long,
+    var round: Int,
     var rank: String,
     var rankNow: String = "",
     var imageUrl: String? = null

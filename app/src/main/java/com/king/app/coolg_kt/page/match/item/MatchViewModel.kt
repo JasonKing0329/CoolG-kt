@@ -108,7 +108,7 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
                             record.recordRank?.toString()?:""
                         }
                         // imageUrl与rankNow属于耗时操作，不在这里加载
-                        var item = MatchSemiItem(record.recordId, rank)
+                        var item = MatchSemiItem(record.recordId, 0, rank)
                         items.add(item)
                     }
                 }
@@ -141,16 +141,27 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
                     // 根据SemiGroup的规则，0是冠军，1是亚军，2,3是四强
                     // sql里已按round排序，决赛在前，四强在后，但是冠亚军还需要区别一下，冠军作为第0个插入
                     if (msr.recordId == msr.winnerId) {
-                        pack.items.add(0, MatchSemiItem(msr.recordId, rank))
+                        pack.items.add(0, MatchSemiItem(msr.recordId, msr.round, rank))
                     }
                     else {
-                        pack.items.add(MatchSemiItem(msr.recordId, rank))
+                        // 亚军在冠军之后，四强之前
+                        if (pack.items.size > 0) {
+                            if (pack.items[0].round == MatchConstants.ROUND_ID_F) {
+                                pack.items.add(1, MatchSemiItem(msr.recordId, msr.round, rank))
+                            }
+                            else {
+                                pack.items.add(0, MatchSemiItem(msr.recordId, msr.round, rank))
+                            }
+                        }
+                        else {
+                            pack.items.add(MatchSemiItem(msr.recordId, msr.round, rank))
+                        }
                     }
                 }
                 // SF只加输掉的一方
                 else {
                     if (msr.recordId != msr.winnerId) {
-                        pack.items.add(MatchSemiItem(msr.recordId, rank))
+                        pack.items.add(MatchSemiItem(msr.recordId, msr.round, rank))
                     }
                 }
             }

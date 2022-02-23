@@ -321,4 +321,97 @@ public class ZipUtils {
 			this.total = total;
 		}
 	}
+
+	private static class PackControl {
+		ZipOutputStream zipout;
+		String pathAndName;
+		int index;
+
+		public PackControl(ZipOutputStream zipout, int index, String pathAndName) {
+			this.zipout = zipout;
+			this.index = index;
+			this.pathAndName = pathAndName;
+		}
+	}
+
+	public static void zipFilesAsMultiPacks(Collection<File> resFileList, String zipPathAndName
+			, ZipProgressListener progressListener) throws IOException {
+		ZipOutputStream zipout = new ZipOutputStream(new BufferedOutputStream(
+				new FileOutputStream(new File(zipPathAndName + "_1.zip")), BUFF_SIZE));
+		PackControl packControl = new PackControl(zipout, 1, zipPathAndName);
+		int total = 0;
+		if (progressListener != null) {
+			CostTimeUtil.start();
+			for (File f:resFileList) {
+				total += countFiles(f);
+			}
+			CostTimeUtil.end("collectFiles");
+		}
+		ProgressControl progressControl = new ProgressControl(progressListener, 0, total);
+		for (File resFile : resFileList) {
+			zipPackFile(resFile, packControl, "", progressControl);
+		}
+
+		// 关闭最后一个Pack
+		zipout.close();
+		if (progressListener != null) {
+			progressListener.onComplete();
+		}
+	}
+
+	/**
+	 * 压缩文件
+	 *
+	 * @param resFile
+	 *            需要压缩的文件（夹）
+	 * @param packControl
+	 *            压缩的目的文件
+	 * @param rootpath
+	 *            压缩的文件路径
+	 * @param progressControl
+	 * @throws FileNotFoundException
+	 *             找不到文件时抛出
+	 * @throws IOException
+	 *             当压缩过程出错时抛出
+	 */
+	private static void zipPackFile(File resFile, PackControl packControl,
+								String rootpath, ProgressControl progressControl) throws FileNotFoundException, IOException {
+		rootpath = rootpath
+				+ (rootpath.trim().length() == 0 ? "" : File.separator)
+				+ resFile.getName();
+		rootpath = new String(rootpath.getBytes("8859_1"), "GB2312");
+		if (resFile.isDirectory()) {
+			File[] fileList = resFile.listFiles();
+			for (File file : fileList) {
+				zipPackFile(file, packControl, rootpath, progressControl);
+			}
+		} else {
+			byte buffer[] = new byte[BUFF_SIZE];
+			BufferedInputStream in = new BufferedInputStream(
+					new FileInputStream(resFile), BUFF_SIZE);
+			packControl.zipout.putNextEntry(new ZipEntry(rootpath));
+			int realLength;
+			while ((realLength = in.read(buffer)) != -1) {
+				packControl.zipout.write(buffer, 0, realLength);
+			}
+			in.close();
+			packControl.zipout.flush();
+			packControl.zipout.closeEntry();
+			progressControl.count ++;
+			if (progressControl.listener != null) {
+				progressControl.listener.onProgress(progressControl.count, progressControl.total);
+			}
+			// 一个pack最多10000个文件
+			if (progressControl.count % 10000 == 0) {
+				// 关闭当前pack
+				packControl.zipout.close();
+				// 新建一个pack
+				packControl.index = packControl.index + 1;
+				ZipOutputStream zipout = new ZipOutputStream(new BufferedOutputStream(
+						new FileOutputStream(new File(packControl.pathAndName + "_" + packControl.index + ".zip")), BUFF_SIZE));
+				packControl.zipout = zipout;
+			}
+		}
+	}
+
 }

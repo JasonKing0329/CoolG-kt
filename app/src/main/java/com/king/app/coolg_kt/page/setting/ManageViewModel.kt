@@ -528,7 +528,8 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
 
             var file = File(AppConfig.GDB_IMG)
             CostTimeUtil.start()
-            ZipUtils.zipFiles(file.listFiles().asList(), target, null, object : ZipProgressListener {
+            var pathAndName = "${AppConfig.APP_DIR_IMG}/img_gdb"
+            ZipUtils.zipFilesAsMultiPacks(file.listFiles().asList(), pathAndName, object : ZipProgressListener {
                 override fun onProgress(fileCount: Int, total: Int) {
                     var progress = (fileCount.toDouble() / total.toDouble() * 100).toInt()
                     if (progress != lastProgress) {

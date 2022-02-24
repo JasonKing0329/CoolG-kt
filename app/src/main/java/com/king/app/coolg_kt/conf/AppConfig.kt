@@ -19,6 +19,7 @@ object AppConfig {
     val SDCARD = Environment.getExternalStorageDirectory().path
     val APP_ROOT = "$SDCARD/fileencrypt"
     val APP_DIR_IMG = "$APP_ROOT/img"
+    val APP_DIR_IMG_ZIP = "$APP_DIR_IMG/zip"
     val APP_DIR_CROP_IMG = "$APP_DIR_IMG/crop"
     val DOWNLOAD_IMAGE_DEFAULT = "$APP_DIR_IMG/download"
     val GDB_IMG = "$APP_DIR_IMG/gdb"
@@ -53,6 +54,7 @@ object AppConfig {
     val DIRS = arrayOf(
         APP_ROOT,
         APP_DIR_IMG,
+        APP_DIR_IMG_ZIP,
         APP_DIR_CROP_IMG,
         DOWNLOAD_IMAGE_DEFAULT,
         GDB_IMG,

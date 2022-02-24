@@ -28,6 +28,18 @@ import java.util.zip.ZipOutputStream;
 public class ZipUtils {
 	private static final int BUFF_SIZE = 1024 * 1024; // 1M Byte
 
+	// 之所以引入多个压缩包并限制单个最大800M是因为：
+	// 按照之前唯一一个压缩包的方法，最终的ZIP会达到2G以上，这会导致：
+	// (1)windows电脑上无法通过资源管理器直接从PC复制到手机
+	// (2)使用解压代码时，new ZipFile(file)会抛出java.util.zip.ZipException: error in opening zip file
+	// 第一点可以通过别的管理器进行传输，比如android studio的device file explorer可以upload上去
+	// 但是第二点就无解了。
+	// 经过实测发现1G以内的zip可以打开（最大测试到990M），因此引入多个压缩包的压缩方法。
+	// 为保证能正常解压，将每个压缩包限制在稳定有效的800M以内，这样既可以解决无法解压的问题，也可以解决在windows的文件目录直接复制的问题。
+	// 要注意每个压缩包在压缩时ZipOutputStream，当前包压缩完时都要执行close()，否则也会出现问题（2）
+	// 最后，有的手机使用时，600M的zip仍然无法直接传输，这种情况就用别的资源管理器传输吧，AS就可以
+	private static final long ZIP_MAX_SIZE = 800 * 1024 * 1024;// zip包最大800M
+
 	/**
 	 * 批量压缩文件（夹）
 	 * 
@@ -326,6 +338,7 @@ public class ZipUtils {
 		ZipOutputStream zipout;
 		String pathAndName;
 		int index;
+		long size;
 
 		public PackControl(ZipOutputStream zipout, int index, String pathAndName) {
 			this.zipout = zipout;
@@ -353,7 +366,7 @@ public class ZipUtils {
 		}
 
 		// 关闭最后一个Pack
-		zipout.close();
+		packControl.zipout.close();
 		if (progressListener != null) {
 			progressListener.onComplete();
 		}
@@ -401,8 +414,9 @@ public class ZipUtils {
 			if (progressControl.listener != null) {
 				progressControl.listener.onProgress(progressControl.count, progressControl.total);
 			}
-			// 一个pack最多10000个文件
-			if (progressControl.count % 10000 == 0) {
+			packControl.size = packControl.size + resFile.length();
+			// 一个pack最多800M文件
+			if (packControl.size >= ZIP_MAX_SIZE) {
 				// 关闭当前pack
 				packControl.zipout.close();
 				// 新建一个pack
@@ -410,6 +424,7 @@ public class ZipUtils {
 				ZipOutputStream zipout = new ZipOutputStream(new BufferedOutputStream(
 						new FileOutputStream(new File(packControl.pathAndName + "_" + packControl.index + ".zip")), BUFF_SIZE));
 				packControl.zipout = zipout;
+				packControl.size = 0;
 			}
 		}
 	}

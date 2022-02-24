@@ -60,13 +60,13 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
 
     override fun initData() {
 
-        mModel.imagesObserver.observe(this, Observer { bean -> imagesFound(bean) });
+        mModel.imagesObserver.observe(this, Observer { bean -> imagesFound(bean) })
 
-        mModel.gdbCheckObserver.observe(this, Observer { bean -> gdbFound(bean) });
-        mModel.readyToDownloadObserver.observe(this, Observer { size -> downloadDatabase(size, false) });
+        mModel.gdbCheckObserver.observe(this, Observer { bean -> gdbFound(bean) })
+        mModel.readyToDownloadObserver.observe(this, Observer { size -> downloadDatabase(size, false) })
 
-        mModel.warningSync.observe(this, Observer { result -> warningSync() });
-        mModel.warningUpload.observe(this, Observer { message -> warningUpload(message) });
+        mModel.warningSync.observe(this, Observer { result -> warningSync() })
+        mModel.warningUpload.observe(this, Observer { message -> warningUpload(message) })
         mModel.zipProgress.observe(this, {
             when(it.progress) {
                 0 -> {
@@ -75,17 +75,24 @@ class ManageActivity: BaseActivity<ActivityManageBinding, ManageViewModel>() {
                         detailProgress.showAsNumProgress(0, supportFragmentManager, "DetailProgress")
                     }
                 }
-                100 -> {
-                    detailProgress.setProgress(it.progress)
-                    detailProgress.dismissAllowingStateLoss()
-                    showMessageShort("success")
-                }
                 else -> {
                     detailProgress.setProgress(it.progress)
                     detailProgress.updateMessage(it.message)
                 }
             }
 
+        })
+        mModel.zipComplete.observe(this, {
+            detailProgress.setProgress(100)
+            detailProgress.dismissAllowingStateLoss()
+            showMessageShort("success")
+        })
+        mModel.deleteZipSources.observe(this, {
+            showConfirmCancelMessage(
+                "是否删除zip文件？",
+                { dialog, which -> mModel.deleteUnZipFiles() },
+                null
+                )
         })
     }
 

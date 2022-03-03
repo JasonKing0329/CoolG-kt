@@ -48,6 +48,8 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     var warningSync: MutableLiveData<Boolean> = MutableLiveData()
     var warningUpload: MutableLiveData<String> = MutableLiveData()
     var zipProgress: MutableLiveData<ZipProgress> = MutableLiveData()
+    var zipComplete: MutableLiveData<Boolean> = MutableLiveData()
+    var deleteZipSources: MutableLiveData<Boolean> = MutableLiveData()
 
     private var useLocalToServer = false
     var localToServerEngine = LocalToServerEngine()
@@ -511,7 +513,7 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
         zipTest().compose(applySchedulers())
             .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
                 override fun onNext(t: Boolean?) {
-                    zipProgress.value = ZipProgress(100, "Finished")
+                    zipComplete.value = true
                 }
 
                 override fun onError(e: Throwable?) {
@@ -521,14 +523,13 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
+    var lastProgress = 0
+
     private fun zipTest(): Observable<Boolean> {
         return Observable.create {
-            var target = File("${AppConfig.APP_DIR_IMG}/img_gdb.zip")
-            FileUtil.deleteFile(target)
-
             var file = File(AppConfig.GDB_IMG)
             CostTimeUtil.start()
-            var pathAndName = "${AppConfig.APP_DIR_IMG}/img_gdb"
+            var pathAndName = "${AppConfig.APP_DIR_IMG_ZIP}/img_gdb"
             ZipUtils.zipFilesAsMultiPacks(file.listFiles().asList(), pathAndName, object : ZipProgressListener {
                 override fun onProgress(fileCount: Int, total: Int) {
                     var progress = (fileCount.toDouble() / total.toDouble() * 100).toInt()
@@ -548,11 +549,24 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun unzipImages() {
+        var target = File(AppConfig.GDB_IMG)
+        val folder = File(AppConfig.APP_DIR_IMG_ZIP)
+        val list = if (folder.exists()) {
+            folder.listFiles()
+        }
+        else {
+            arrayOf()
+        }
+        if (list.isEmpty()) {
+            messageObserver.value = "No zip file found"
+            return
+        }
         zipProgress.value = ZipProgress(0, "Start to unzip...")
-        unzipTest().compose(applySchedulers())
+        unzipTest(list, target.path).compose(applySchedulers())
             .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
                 override fun onNext(t: Boolean?) {
-                    zipProgress.value = ZipProgress(100, "Finished")
+                    zipComplete.value = true
+                    deleteZipSources.value = true
                 }
 
                 override fun onError(e: Throwable?) {
@@ -562,29 +576,49 @@ class ManageViewModel(application: Application): BaseViewModel(application) {
             })
     }
 
-    var lastProgress = 0
+    private var unzipQueue: Queue<UnzipTask> = LinkedList()
 
-    private fun unzipTest(): Observable<Boolean> {
+    private class UnzipTask(
+        var source: File,
+        var folderPath: String,
+        var listener: ZipProgressListener
+    ) {
+
+        fun execute() {
+            ZipUtils.upZipFile(source, folderPath, listener)
+        }
+    }
+
+    private fun unzipTest(list: Array<File>, path: String): Observable<Boolean> {
         return Observable.create {
-            var target = File(AppConfig.GDB_IMG)
-            var source = File("${AppConfig.APP_DIR_IMG}/img_gdb.zip")
-            CostTimeUtil.start()
-            ZipUtils.upZipFile(source, target.path, object : ZipProgressListener {
-                override fun onProgress(fileCount: Int, total: Int) {
-                    var progress = (fileCount.toDouble() / total.toDouble() * 100).toInt()
-                    if (progress != lastProgress) {
-                        lastProgress = progress
-                        zipProgress.postValue(ZipProgress(progress, "Unzipping..., $fileCount/$total"))
+            list.forEachIndexed { index, file ->
+                unzipQueue.offer(UnzipTask(file, path, object : ZipProgressListener {
+                    override fun onProgress(fileCount: Int, total: Int) {
+                        var progress = (fileCount.toDouble() / total.toDouble() * 100).toInt()
+                        if (progress != lastProgress) {
+                            lastProgress = progress
+                            zipProgress.postValue(
+                                ZipProgress(
+                                    progress,
+                                    "${list.size} packs total\nUnzipping ${index + 1}/${list.size} ..., $fileCount/$total"
+                                )
+                            )
+                        }
                     }
-                }
 
-                override fun onComplete() {
-                    DebugLog.e("all finished")
-                }
-            })
-            CostTimeUtil.end("unzip")
+                    override fun onComplete() {
+                        unzipQueue.poll()?.execute()
+                    }
+                }))
+            }
+            unzipQueue.poll()?.execute()
             it.onNext(true)
         }
+    }
+
+    fun deleteUnZipFiles() {
+        var folder = File(AppConfig.APP_DIR_IMG_ZIP)
+        FileUtil.deleteFilesUnderFolder(folder)
     }
 
 }

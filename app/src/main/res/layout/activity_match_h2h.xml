@@ -35,8 +35,8 @@
 
         <ImageView
             android:id="@+id/iv_record1"
-            android:layout_width="140dp"
-            android:layout_height="80dp"
+            android:layout_width="130dp"
+            android:layout_height="72dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,8 +46,8 @@
 
         <ImageView
             android:id="@+id/iv_record2"
-            android:layout_width="140dp"
-            android:layout_height="80dp"
+            android:layout_width="130dp"
+            android:layout_height="72dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_record1"

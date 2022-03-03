@@ -301,7 +301,7 @@
     <dimen name="video_item_action_size">30dp</dimen>
     <dimen name="video_item_action_padding">3dp</dimen>
     <dimen name="draw_index_width">30dp</dimen>
-    <dimen name="h2h_item_text">14dp</dimen>
+    <dimen name="h2h_item_text">13dp</dimen>
     <dimen name="match_home_radius">0dp</dimen>
     <dimen name="match_home_text">30dp</dimen>
     <dimen name="match_home_text_s">20dp</dimen>

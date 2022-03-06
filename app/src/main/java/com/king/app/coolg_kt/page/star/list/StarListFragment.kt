@@ -166,6 +166,9 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
                 showRichList(list)
             }
         )
+        mModel.imageChanged.observe(this, Observer {
+            mBinding.rvList.adapter?.notifyItemRangeChanged(it.start, it.count)
+        })
         mModel.circleUpdateObserver.observe(this,
             Observer {
                 mCircleAdapter.notifyDataSetChanged()

@@ -11,9 +11,12 @@ import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.model.bean.StarBuilder
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider.getStarRandomPath
+import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
 import com.king.app.coolg_kt.model.module.StarIndexEmitter
+import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.StarRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.relation.StarWrap
@@ -47,6 +50,7 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
     var indexBarObserver = MutableLiveData<Boolean>()
     var circleListObserver = MutableLiveData<List<StarWrap>>()
     var richListObserver = MutableLiveData<MutableList<StarWrap>>()
+    var imageChanged = MutableLiveData<TimeWasteRange>()
     var circleUpdateObserver = MutableLiveData<Boolean>()
     var richUpdateObserver = MutableLiveData<Boolean>()
     var indexBarVisibility = ObservableInt()
@@ -66,13 +70,39 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
         isLoading = true
         currentViewMode = SettingProperty.getStarListViewMode()
         loadingObserver.value = true
-        queryStars()
-            .flatMap { toViewItems(it) }
-            .flatMap {
-                mFullList = it
-                mList.addAll(mFullList)
-                createIndexes() 
-            }
+
+        BasicAndTimeWaste<StarWrap>()
+            .basic(queryStars())
+            .timeWaste(imageWaste, 20)
+            .composite(getComposite())
+            .subscribe(
+                object : SimpleObserver<List<StarWrap>>(getComposite()) {
+                    override fun onNext(t: List<StarWrap>) {
+                        mFullList = t
+                        mList.addAll(mFullList)
+                        startCreateIndex()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        loadingObserver.value = false
+                        isLoading = false
+                        messageObserver.value = e.message
+                    }
+                },
+                object : SimpleObserver<TimeWasteRange>(getComposite()) {
+                    override fun onNext(t: TimeWasteRange) {
+                        imageChanged.value = t
+                    }
+
+                    override fun onError(e: Throwable) {
+                        e.printStackTrace()
+                    }
+                }
+            )
+    }
+
+    private fun startCreateIndex() {
+        createIndexes()
             .compose(applySchedulers())
             .subscribe(object : SimpleObserver<String>(getComposite()) {
                 override fun onNext(index: String) {
@@ -112,13 +142,9 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
         return repository.queryStarsBy(builder)
     }
 
-    private fun toViewItems(list: List<StarWrap>): Observable<List<StarWrap>> {
-        return Observable.create {
-            list.forEach { star ->
-                star.imagePath = getStarRandomPath(star.bean.name, null)
-            }
-            it.onNext(list)
-            it.onComplete()
+    private var imageWaste = object : TimeWasteTask<StarWrap> {
+        override fun handle(index: Int, star: StarWrap) {
+            star.imagePath = getStarRandomPath(star.bean.name, null)
         }
     }
 

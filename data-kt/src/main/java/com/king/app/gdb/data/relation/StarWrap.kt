@@ -60,3 +60,13 @@ data class StarStudioTag (
     var name: String?,
     var count: Int = 0
 )
+
+data class DebutStar (
+
+    var starId: Long,
+
+    var debut: Long,
+
+    @Embedded
+    var star: Star
+)

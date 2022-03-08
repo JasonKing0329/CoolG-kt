@@ -4,6 +4,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.king.app.gdb.data.bean.StarWrapWithCount
 import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.relation.DebutStar
 import com.king.app.gdb.data.relation.StarRelationship
 import com.king.app.gdb.data.relation.StarStudioTag
 import com.king.app.gdb.data.relation.StarWrap
@@ -99,5 +100,21 @@ interface StarDao {
 
     @Query("select s.* from record r join record_star rs on r._id=rs.RECORD_ID join stars s on rs.STAR_ID=s._id where r.studioId=:studioId group by s._id")
     fun getStudioStars(studioId: Long): List<Star>
+
+    /**
+     * 所有star在record中第一次出现的记录
+     * sql难点：record_star中record_id与star_id是1：N，
+     * 即，star_id会出现在多个record关联的记录中，导致关联查询出来的列表会有许多重复的star_id项（因为modify_time不重复）。
+     * 1）如果想用distinct，就得去掉modify_time，但是modify_time是必须要的结果
+     * 2）用groupBy，groupBy后能做到star_id不再重复，但modify_time在group过程中并不能按照后面order by来呈现，也即无法保证取到star_id对应的最早的modify_time
+     * 3) 最终，仍然采用groupBy，只要在select中加上min(r.LAST_MODIFY_TIME)就为group的过程加了条件，能保证取到最早的modify_time
+     */
+    @Query("select rs.STAR_ID as starId, min(r.LAST_MODIFY_TIME) as debut, s.* from record r \n" +
+            "join record_star rs on r._id=rs.RECORD_ID \n" +
+            "join stars s on rs.STAR_ID = s._id \n" +
+            "where r.LAST_MODIFY_TIME > 0 \n" +
+            "group by rs.STAR_ID \n" +
+            "order by r.LAST_MODIFY_TIME ")
+    fun getDebutStar(): List<DebutStar>
 
 }

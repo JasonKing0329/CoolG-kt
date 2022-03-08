@@ -15,6 +15,7 @@ import com.king.app.coolg_kt.page.pub.TagAdapter
 import com.king.app.coolg_kt.page.record.phone.TagClassAdapter
 import com.king.app.coolg_kt.page.star.AbsTagStarActivity
 import com.king.app.coolg_kt.page.star.TagStarViewModel
+import com.king.app.coolg_kt.page.star.timeline.StarTimelineActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.entity.TagClass
@@ -114,6 +115,10 @@ class TagStarActivity : AbsTagStarActivity<ActivityStarTagBinding>() {
     }
     override fun goToClassicPage() {
         StarsPhoneActivity.startPage(this)
+    }
+
+    override fun goToTimelinePage() {
+        StarTimelineActivity.startPage(this)
     }
 
     override fun goToStarPage(starId: Long) {

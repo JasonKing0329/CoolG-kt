@@ -70,4 +70,6 @@
 
     <color name="dlg_base_bg">#eeeeee</color>
     <color name="dlg_tag_bg">#dddddd</color>
+    <color name="text_timeline">#2CC5DA</color>
+    <color name="grey_600">#666666</color>
 </resources>

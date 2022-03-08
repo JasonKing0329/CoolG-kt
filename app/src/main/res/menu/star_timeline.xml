@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/menu_sort"
+        android:title="Sort"
+        android:icon="@drawable/ic_sort_purple_3f3a71_36dp"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/menu_edit"
+        android:title="Sort"
+        android:icon="@drawable/ic_edit_purple_3f3a71_36dp"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/menu_hide"
+        android:title="Show/Hide"
+        app:showAsAction="never"/>
+
+</menu>

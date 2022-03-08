@@ -18,6 +18,7 @@
     <string name="action_settings">Settings</string>
     <string name="no_content">No content</string>
     <string name="save_success">Save success</string>
+    <string name="done">Done</string>
 
     <!-- login -->
     <string name="username">User name</string>

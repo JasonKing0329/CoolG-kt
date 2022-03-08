@@ -91,6 +91,7 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
         actionbar.setOnMenuItemListener { menuId: Int ->
             when (menuId) {
                 R.id.menu_classic -> goToClassicPage()
+                R.id.menu_timeline -> goToTimelinePage()
                 R.id.menu_tag_sort_mode -> setTagSortMode()
                 R.id.menu_tag_random -> showRandomPage()
             }
@@ -157,6 +158,7 @@ abstract class AbsTagStarActivity<T : ViewDataBinding> : BaseActivity<T, TagStar
     protected abstract fun showTagClasses(tags: List<TagClass>)
     protected abstract fun focusOnTag(position: Int)
     protected abstract fun goToClassicPage()
+    protected abstract fun goToTimelinePage()
     protected abstract fun goToStarPage(starId: Long)
 
     private val onStarRatingListener = object : OnStarRatingListener{

@@ -9,6 +9,7 @@ import com.king.app.coolg_kt.model.bean.StarDetailBuilder
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
+import com.king.app.gdb.data.relation.DebutStar
 import com.king.app.gdb.data.relation.StarWrap
 import io.reactivex.rxjava3.core.Observable
 
@@ -194,4 +195,7 @@ class StarRepository: BaseRepository() {
         return getDatabase().getStarDao().getStarsBySql(SimpleSQLiteQuery(sql))
     }
 
+    fun getDebutStars(): List<DebutStar> {
+        return getDatabase().getStarDao().getDebutStar()
+    }
 }

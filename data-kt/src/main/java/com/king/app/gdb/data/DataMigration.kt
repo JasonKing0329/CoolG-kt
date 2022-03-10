@@ -209,6 +209,13 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_21_22: Migration = object : Migration(21, 22) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_21_22")
+            database.execSQL("CREATE TABLE IF NOT EXISTS `timeline_star_exclude` (`starId` INTEGER NOT NULL, PRIMARY KEY(`starId`))")
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

@@ -1,19 +1,19 @@
 package com.king.app.coolg_kt.page.star.timeline
 
 import android.app.Application
+import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
-import com.king.app.coolg_kt.model.bean.HideTimelineStars
 import com.king.app.coolg_kt.model.bean.TimelineStar
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
 import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.StarRepository
-import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.entity.Star
+import com.king.app.gdb.data.entity.TimelineExcludeList
 import io.reactivex.rxjava3.core.Observable
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,8 +31,6 @@ class StarTimelineViewModel(application: Application): BaseViewModel(application
     val repository = StarRepository()
 
     val dateFormat = SimpleDateFormat("yyyy-MM")
-
-    var hideStars = HideTimelineStars(mutableListOf())
 
     var isShowHiddenStar = false
 
@@ -67,11 +65,11 @@ class StarTimelineViewModel(application: Application): BaseViewModel(application
     private fun formatStars(): Observable<List<TimelineStar>> {
         return Observable.create {
             val result = mutableListOf<TimelineStar>()
-            hideStars = SettingProperty.getHideTimelineStars()
+            val hideStars = getDatabase().getStarDao().getTimelineExcludeList().toMutableList()
             var lastDate = ""
             // getDebutStars已按时间升序排序
             repository.getDebutStars().forEach { item ->
-                val isHidden = hideStars.idList.contains(item.starId)
+                val isHidden = hideStars.firstOrNull { t -> t.starId == item.starId } != null
                 if (!isHidden || isShowHiddenStar) {
                     // 显示的时间取到月，重复的不显示
                     var date = dateFormat.format(Date(item.debut))
@@ -112,12 +110,13 @@ class StarTimelineViewModel(application: Application): BaseViewModel(application
 
     fun updateHidden(position: Int, starId: Long, hide: Boolean) {
         if (hide) {
-            hideStars.idList.add(starId)
+            getDatabase().getStarDao().insertTimelineExcludeList(listOf(TimelineExcludeList(starId)))
         }
         else {
-            hideStars.idList.remove(starId)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                getDatabase().getStarDao().deleteTimelineExcludeList(listOf(TimelineExcludeList(starId)))
+            }
         }
-        SettingProperty.setHideTimelineStars(hideStars)
 
         timelineItems.value?.get(position)?.isHidden = hide
         if (hide && !isShowHiddenStar) {

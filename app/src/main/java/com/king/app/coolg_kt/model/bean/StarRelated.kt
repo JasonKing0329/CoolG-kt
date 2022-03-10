@@ -15,6 +15,3 @@ data class TimelineStar(
     var isHidden: Boolean,
     var imageUrl: String? = null
 )
-data class HideTimelineStars (
-    var idList: MutableList<Long>
-)

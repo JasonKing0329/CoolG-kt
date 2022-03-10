@@ -117,4 +117,13 @@ interface StarDao {
             "order by r.LAST_MODIFY_TIME ")
     fun getDebutStar(): List<DebutStar>
 
+    @Query("select * from timeline_star_exclude")
+    fun getTimelineExcludeList(): List<TimelineExcludeList>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTimelineExcludeList(list: List<TimelineExcludeList>)
+
+    @Delete
+    fun deleteTimelineExcludeList(list: List<TimelineExcludeList>)
+
 }

@@ -2,7 +2,6 @@ package com.king.app.coolg_kt.model.setting
 
 import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
-import com.king.app.coolg_kt.model.bean.HideTimelineStars
 import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.match.HomeUrls
 import com.king.app.coolg_kt.page.match.draw.DrawStrategy
@@ -323,24 +322,6 @@ class SettingProperty: BaseProperty() {
             } catch (e: java.lang.Exception) {
             }
             setString("draw_strategy", sql)
-        }
-
-        fun getHideTimelineStars(): HideTimelineStars {
-            val sql = getString("hide_timeline_stars")
-            try {
-                return Gson().fromJson(sql, HideTimelineStars::class.java)
-            } catch (e: java.lang.Exception) {
-            }
-            return HideTimelineStars(mutableListOf())
-        }
-
-        fun setHideTimelineStars(bean: HideTimelineStars) {
-            var sql: String? = null
-            try {
-                sql = Gson().toJson(bean)
-            } catch (e: java.lang.Exception) {
-            }
-            setString("hide_timeline_stars", sql)
         }
     }
 

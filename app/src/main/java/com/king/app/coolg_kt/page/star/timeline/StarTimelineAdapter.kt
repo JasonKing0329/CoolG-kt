@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.star.timeline
 
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,6 +41,7 @@ class StarTimelineAdapter: BaseBindingAdapter<AdapterStarTimelineBinding, Timeli
     ) {
         updateConstraint(binding, bean)
         binding.bean = bean
+        binding.tvVideos.text = "${bean.star.records} videos"
 
         if (isEditing || isShowHidden && bean.isHidden) {
             binding.ivHide.visibility = View.VISIBLE
@@ -61,7 +63,7 @@ class StarTimelineAdapter: BaseBindingAdapter<AdapterStarTimelineBinding, Timeli
 
     private fun updateConstraint(binding: AdapterStarTimelineBinding, bean: TimelineStar) {
         val imageParam = binding.ivImage.layoutParams as ConstraintLayout.LayoutParams
-        val nameParam = binding.tvName.layoutParams as ConstraintLayout.LayoutParams
+        val nameParam = binding.groupName.layoutParams as ConstraintLayout.LayoutParams
         val dateParam = binding.tvDate.layoutParams as ConstraintLayout.LayoutParams
         // 重置水平方向的约束
         resetHor(imageParam)
@@ -76,6 +78,7 @@ class StarTimelineAdapter: BaseBindingAdapter<AdapterStarTimelineBinding, Timeli
                 imageParam.marginStart = imageMargin
                 nameParam.marginStart = nameMargin
                 dateParam.marginEnd = dateMargin
+                binding.groupName.gravity = Gravity.LEFT
             }
             DataConstants.VALUE_RELATION_MIX -> {
                 imageParam.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
@@ -84,6 +87,7 @@ class StarTimelineAdapter: BaseBindingAdapter<AdapterStarTimelineBinding, Timeli
                 dateParam.endToStart = binding.ivImage.id
                 nameParam.marginStart = nameMargin
                 dateParam.marginEnd = dateMargin
+                binding.groupName.gravity = Gravity.LEFT
             }
             else -> {
                 imageParam.endToStart = binding.divider.id
@@ -92,10 +96,11 @@ class StarTimelineAdapter: BaseBindingAdapter<AdapterStarTimelineBinding, Timeli
                 imageParam.marginEnd = imageMargin
                 nameParam.marginEnd = nameMargin
                 dateParam.marginStart = dateMargin
+                binding.groupName.gravity = Gravity.RIGHT
             }
         }
         binding.ivImage.layoutParams = imageParam
-        binding.tvName.layoutParams = nameParam
+        binding.groupName.layoutParams = nameParam
         binding.tvDate.layoutParams = dateParam
     }
 

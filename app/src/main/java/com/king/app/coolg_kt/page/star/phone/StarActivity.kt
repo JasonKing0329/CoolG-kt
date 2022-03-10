@@ -122,7 +122,7 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
 
             override fun onCancelFilterStudio(studioId: Long) {
                 // all records
-                mModel.mStudioId = studioId
+                mModel.mStudioId = 0
                 mModel.loadStarRecords()
             }
 

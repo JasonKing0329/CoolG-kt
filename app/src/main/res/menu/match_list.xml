@@ -25,4 +25,12 @@
         android:title="GM1000 wall"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/menu_show_studio_count"
+        android:title="Show/Hide studio count"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_switch_match"
+        android:title="Switch match"
+        app:showAsAction="never"/>
+
 </menu>

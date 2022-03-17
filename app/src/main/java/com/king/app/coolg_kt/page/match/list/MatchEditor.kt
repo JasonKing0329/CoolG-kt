@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import com.king.app.coolg_kt.CoolApplication
+import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.FragmentMatchEditorBinding
@@ -27,6 +28,10 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
     var initLevel = 0
 
     var onMatchListener: OnMatchListener? = null
+
+    private var isApplyStudioCover = false
+
+    private var studioCoverUrl: String? = null
 
     override fun getBinding(inflater: LayoutInflater): FragmentMatchEditorBinding = FragmentMatchEditorBinding.inflate(inflater)
 
@@ -58,7 +63,21 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
             }
         }
 
-        mBinding.btnStudio.setOnClickListener { StudioActivity.startPageToSelectAsMatch(this, 0) }
+        mBinding.btnStudio.setOnClickListener {
+            showConfirmCancelMessage(
+                "Apply studio's cover as match cover?",
+                getString(R.string.yes),
+                { dialog, which ->
+                    isApplyStudioCover = true
+                    StudioActivity.startPageToSelectAsMatch(this@MatchEditor, 0)
+                },
+                getString(R.string.no),
+                { dialog, which ->
+                    isApplyStudioCover = false
+                    StudioActivity.startPageToSelectAsMatch(this@MatchEditor, 0)
+                }
+            )
+        }
 
         if (MatchConstants.MATCH_LEVEL_FINAL == match?.level) {
             mBinding.llScorePlan.visibility = View.GONE
@@ -87,6 +106,9 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
         if (match == null) {
             match = Match(0, level, draw, byeDraw, qualifyDraw, 0, order, name, "")
             var list = listOf(match!!)
+            if (isApplyStudioCover) {
+                match!!.imgUrl = studioCoverUrl?:""
+            }
             CoolApplication.instance.database!!.getMatchDao().insertMatches(list)
         }
         else {
@@ -97,6 +119,9 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
                 it.qualifyDraws = qualifyDraw
                 it.orderInPeriod = order
                 it.name = name
+                if (isApplyStudioCover) {
+                    it.imgUrl = studioCoverUrl?:""
+                }
                 CoolApplication.instance.database!!.getMatchDao().updateMatch(it)
             }
         }
@@ -109,6 +134,9 @@ class MatchEditor: DraggableContentFragment<FragmentMatchEditorBinding>() {
             val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
             CoolApplication.instance.database!!.getFavorDao().getFavorRecordOrderBy(orderId)?.let {
                 mBinding.etName.setText(it.name)
+                if (isApplyStudioCover) {
+                    studioCoverUrl = it.coverUrl
+                }
             }
         }
     }

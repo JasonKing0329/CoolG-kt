@@ -704,4 +704,16 @@ class DrawRepository: BaseRepository() {
             bean
         }
     }
+
+    fun getDefaultScorePlan(match: Match): DrawScore? {
+        return when(match.level) {
+            MatchConstants.MATCH_LEVEL_GS -> DrawScorePlan.defGrandSlamPlan(match.id)
+            MatchConstants.MATCH_LEVEL_GM1000 -> DrawScorePlan.defGM1000Plan(match.id, match.draws)
+            MatchConstants.MATCH_LEVEL_GM500 -> DrawScorePlan.defGM500Plan(match.id, match.draws)
+            MatchConstants.MATCH_LEVEL_GM250 -> DrawScorePlan.defGM250Plan(match.id)
+            MatchConstants.MATCH_LEVEL_LOW -> DrawScorePlan.defLowPlan(match.id, match.draws)
+            MatchConstants.MATCH_LEVEL_MICRO -> DrawScorePlan.defMicroPlan(match.id)
+            else -> null
+        }
+    }
 }

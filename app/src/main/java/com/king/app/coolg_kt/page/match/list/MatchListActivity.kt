@@ -15,9 +15,11 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivityMatchListBinding
+import com.king.app.coolg_kt.model.bean.MatchListItem
 import com.king.app.coolg_kt.page.match.item.MatchActivity
 import com.king.app.coolg_kt.page.match.item.WallActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.Match
 
@@ -47,7 +49,15 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         }
     }
 
+    val REQUEST_SWITCH_WEEK = 0
+    val REQUEST_SWITCH_WEEK_WITH_SCORE = 1
+    val REQUEST_SWITCH_STUDIO = 2
+
     val adapter = MatchItemAdapter()
+
+    private var isInSwitchMatch = false
+
+    private var matchToSwitch: MatchListItem? = null
 
     override fun getContentView(): Int = R.layout.activity_match_list
 
@@ -65,6 +75,20 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
                 }
                 R.id.menu_wall_gs -> WallActivity.startPageGs(this)
                 R.id.menu_wall_gm1000 -> WallActivity.startPageGM1000(this)
+                R.id.menu_show_studio_count -> {
+                    if (adapter.showStudioCount) {
+                        mBinding.actionbar.updateMenuText(R.id.menu_show_studio_count, "Show studio count")
+                    }
+                    else {
+                        mBinding.actionbar.updateMenuText(R.id.menu_show_studio_count, "Hide studio count")
+                    }
+                    adapter.showStudioCount = !adapter.showStudioCount
+                    adapter.notifyDataSetChanged()
+                }
+                R.id.menu_switch_match -> {
+                    isInSwitchMatch = true
+                    mBinding.actionbar.showConfirmStatus(it, true, getString(R.string.done))
+                }
             }
         }
         mBinding.actionbar.registerPopupMenuOn(
@@ -78,13 +102,24 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
             true
         }
         mBinding.actionbar.setOnConfirmListener {
-            adapter.isDeleteMode = false
-            adapter.notifyDataSetChanged()
+            when(it) {
+                R.id.menu_delete -> {
+                    adapter.isDeleteMode = false
+                    adapter.notifyDataSetChanged()
+                }
+                R.id.menu_switch_match -> {
+                    isInSwitchMatch = false
+                }
+            }
             true
         }
         mBinding.actionbar.setOnCancelListener {
-            adapter.isDeleteMode = false
-            adapter.notifyDataSetChanged()
+            when(it) {
+                R.id.menu_delete -> {
+                    adapter.isDeleteMode = false
+                    adapter.notifyDataSetChanged()
+                }
+            }
             true
         }
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -101,16 +136,21 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
             }
         })
 
-        adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<Match> {
-            override fun onClickItem(view: View, position: Int, data: Match) {
-                if (isSelectMode()) {
-                    val intent = Intent()
-                    intent.putExtra(RESP_MATCH_ID, data.id)
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
+        adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<MatchListItem> {
+            override fun onClickItem(view: View, position: Int, data: MatchListItem) {
+                if (isInSwitchMatch) {
+                    switchMatch(data)
                 }
                 else {
-                    MatchActivity.startPage(this@MatchListActivity, data.id)
+                    if (isSelectMode()) {
+                        val intent = Intent()
+                        intent.putExtra(RESP_MATCH_ID, data.match.id)
+                        setResult(Activity.RESULT_OK, intent)
+                        finish()
+                    }
+                    else {
+                        MatchActivity.startPage(this@MatchListActivity, data.match.id)
+                    }
                 }
             }
         }
@@ -134,6 +174,20 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
             }
         }
         mBinding.rvList.adapter = adapter
+    }
+
+    private fun switchMatch(data: MatchListItem) {
+        matchToSwitch = data
+        val options = arrayOf("Switch week", "Switch week & draws & score_plan", "Switch studio(name and cover)")
+        AlertDialogFragment()
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> startPageToSelect(this@MatchListActivity, REQUEST_SWITCH_WEEK)
+                    1 -> startPageToSelect(this@MatchListActivity, REQUEST_SWITCH_WEEK_WITH_SCORE)
+                    2 -> startPageToSelect(this@MatchListActivity, REQUEST_SWITCH_STUDIO)
+                }
+            }
+            .show(supportFragmentManager, "AlertDialogFragment")
     }
 
     private fun isSelectMode(): Boolean {
@@ -182,4 +236,51 @@ class MatchListActivity: BaseActivity<ActivityMatchListBinding, MatchListViewMod
         dialogFragment.show(supportFragmentManager, "MatchEditor")
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(requestCode) {
+            REQUEST_SWITCH_WEEK -> {
+                val matchId = data?.getLongExtra(RESP_MATCH_ID, -1)?:-1
+                if (matchId != (-1).toLong()) {
+                    showConfirmCancelMessage(
+                        "Are you sure to switch week?",
+                        { dialog, which ->
+                            matchToSwitch?.apply {
+                                mModel.switchWeek(this, matchId)
+                            }
+                        },
+                        null
+                    )
+                }
+            }
+            REQUEST_SWITCH_WEEK_WITH_SCORE -> {
+                val matchId = data?.getLongExtra(RESP_MATCH_ID, -1)?:-1
+                if (matchId != (-1).toLong()) {
+                    showConfirmCancelMessage(
+                        "Are you sure to switch week?",
+                        { dialog, which ->
+                            matchToSwitch?.apply {
+                                mModel.switchWeekAndDraws(this, matchId)
+                            }
+                        },
+                        null
+                    )
+                }
+            }
+            REQUEST_SWITCH_STUDIO -> {
+                val matchId = data?.getLongExtra(RESP_MATCH_ID, -1)?:-1
+                if (matchId != (-1).toLong()) {
+                    showConfirmCancelMessage(
+                        "Are you sure to switch studio?",
+                        { dialog, which ->
+                            matchToSwitch?.apply {
+                                mModel.switchStudio(this, matchId)
+                            }
+                        },
+                        null
+                    )
+                }
+            }
+        }
+    }
 }

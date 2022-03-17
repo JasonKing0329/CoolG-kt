@@ -8,6 +8,7 @@ import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterMatchItemBinding
 import com.king.app.coolg_kt.databinding.AdapterMatchItemGroupBinding
+import com.king.app.coolg_kt.model.bean.MatchListItem
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.MatchItemGroup
 import com.king.app.gdb.data.entity.match.Match
@@ -17,7 +18,7 @@ import com.king.app.gdb.data.entity.match.Match
  * @author：Jing
  * @date: 2021/1/9 22:03
  */
-class MatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBinding, AdapterMatchItemBinding, MatchItemGroup, Match>() {
+class MatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBinding, AdapterMatchItemBinding, MatchItemGroup, MatchListItem>() {
 
     var isDeleteMode = false
 
@@ -26,8 +27,10 @@ class MatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBinding, Ad
 
     var isDemoImage = SettingProperty.isDemoImageMode()
 
+    var showStudioCount = false
+
     override val itemClass: Class<*>
-        get() = Match::class.java
+        get() = MatchListItem::class.java
 
     override fun onCreateHeadBind(
         from: LayoutInflater,
@@ -44,20 +47,22 @@ class MatchItemAdapter: HeadChildBindingAdapter<AdapterMatchItemGroupBinding, Ad
         binding.ivAdd.setOnClickListener { onMatchGroupListener?.onAddGroupItem(head.level) }
     }
 
-    override fun onBindItem(binding: AdapterMatchItemBinding, position: Int, bean: Match) {
-        binding.bean = bean
+    override fun onBindItem(binding: AdapterMatchItemBinding, position: Int, bean: MatchListItem) {
+        binding.bean = bean.match
         binding.ivDelete.visibility = if (isDeleteMode) View.VISIBLE else View.GONE
-        binding.ivDelete.setOnClickListener { onMatchItemListener?.onDelete(position, bean) }
-        binding.ivEdit.setOnClickListener { onMatchItemListener?.onEdit(position, bean) }
-        binding.tvOrder.text = "W${bean.orderInPeriod}"
-        binding.tvLevel.text = MatchConstants.MATCH_LEVEL[bean.level]
-        if (bean.byeDraws > 0) {
-            binding.tvDraws.text = "${bean.draws - bean.byeDraws} Draws(${bean.byeDraws} bye, ${bean.qualifyDraws} qualify)"
+        binding.ivDelete.setOnClickListener { onMatchItemListener?.onDelete(position, bean.match) }
+        binding.ivEdit.setOnClickListener { onMatchItemListener?.onEdit(position, bean.match) }
+        binding.tvOrder.text = "W${bean.match.orderInPeriod}"
+        binding.tvLevel.text = MatchConstants.MATCH_LEVEL[bean.match.level]
+        binding.tvStudioCount.visibility = if (showStudioCount) View.VISIBLE else View.GONE
+        binding.tvStudioCount.text = "【${bean.studioCount}】"
+        if (bean.match.byeDraws > 0) {
+            binding.tvDraws.text = "${bean.match.draws - bean.match.byeDraws} Draws(${bean.match.byeDraws} bye, ${bean.match.qualifyDraws} qualify)"
         }
         else {
-            binding.tvDraws.text = "${bean.draws} Draws(${bean.qualifyDraws} qualify)"
+            binding.tvDraws.text = "${bean.match.draws} Draws(${bean.match.qualifyDraws} qualify)"
         }
-        val color = when(bean.level) {
+        val color = when(bean.match.level) {
             MatchConstants.MATCH_LEVEL_GS -> binding.tvLevel.resources.getColor(R.color.match_level_gs)
             MatchConstants.MATCH_LEVEL_FINAL -> binding.tvLevel.resources.getColor(R.color.match_level_final)
             MatchConstants.MATCH_LEVEL_GM1000 -> binding.tvLevel.resources.getColor(R.color.match_level_gm1000)

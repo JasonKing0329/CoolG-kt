@@ -11,7 +11,6 @@ import com.king.app.coolg_kt.databinding.FragmentScorePlanBinding
 import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.page.match.DrawScore
 import com.king.app.coolg_kt.page.match.ScoreItem
-import com.king.app.coolg_kt.page.match.draw.DrawScorePlan
 import com.king.app.coolg_kt.view.dialog.DraggableContentFragment
 import com.king.app.gdb.data.entity.ScorePlan
 
@@ -104,15 +103,7 @@ class ScorePlanDialog: DraggableContentFragment<FragmentScorePlanBinding>() {
     fun createRounds() {
         var roundList = mutableListOf<RoundPack>()
         var match = CoolApplication.instance.database!!.getMatchDao().getMatch(matchId)
-        defScore = when(match.level) {
-            MatchConstants.MATCH_LEVEL_GS -> DrawScorePlan.defGrandSlamPlan(match.id)
-            MatchConstants.MATCH_LEVEL_GM1000 -> DrawScorePlan.defGM1000Plan(match.id, match.draws)
-            MatchConstants.MATCH_LEVEL_GM500 -> DrawScorePlan.defGM500Plan(match.id, match.draws)
-            MatchConstants.MATCH_LEVEL_GM250 -> DrawScorePlan.defGM250Plan(match.id)
-            MatchConstants.MATCH_LEVEL_LOW -> DrawScorePlan.defLowPlan(match.id, match.draws)
-            MatchConstants.MATCH_LEVEL_MICRO -> DrawScorePlan.defMicroPlan(match.id)
-            else -> null
-        }
+        defScore = repository.getDefaultScorePlan(match)
         when(match.draws) {
             128 -> {
                 roundList.addAll(MatchConstants.ROUND_MAIN_DRAW128)

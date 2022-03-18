@@ -55,22 +55,15 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     fun loadData() {
         mOffset = 0
         viewList.clear()
-        launchMain {
+        launchFlowThread(
             flow { emit(recordRepository.latestRecords(mOffset, LOAD_NUM)) }
-                .map { createViewList(it) }
-                .onStart { loadingObserver.value = true }
-                .catch {
-                    it.printStackTrace()
-                    messageObserver.value = it.message
-                }
-                .onCompletion { loadingObserver.value = false }
-                .collect {
-                    viewList.addAll(it)
-                    DebugLog.e("viewList.size=${viewList.size}")
-                    dataLoaded.value = true
-                }
+                .map { createViewList(it) },
+            withLoading = true
+        ) {
+            viewList.addAll(it)
+            DebugLog.e("viewList.size=${viewList.size}")
+            dataLoaded.value = true
         }
-
     }
 
     fun loadMore() {
@@ -82,6 +75,7 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
         launchMain {
             flow { emit(recordRepository.latestRecords(mOffset, LOAD_NUM)) }
                 .map { viewList(it) }
+                .flowOn(fixedPool)
                 .onStart { loadingObserver.value = true }
                 .catch {
                     it.printStackTrace()
@@ -187,8 +181,10 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createMenuIconUrl() {
-        launchMain {
-            val t = getMenuIconUrl()
+        launchSingleThread(
+            { getMenuIconUrl() },
+            withLoading = false
+        ) { t ->
             if (t.isNotEmpty()) {
                 menuStarUrl.set(t[0])
             }

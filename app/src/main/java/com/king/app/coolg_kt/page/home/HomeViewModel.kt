@@ -17,8 +17,8 @@ import com.king.app.gdb.data.entity.PlayItem
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import kotlinx.coroutines.flow.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,25 +55,22 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     fun loadData() {
         mOffset = 0
         viewList.clear()
-        loadingObserver.value = true
-        recordRepository.getLatestRecords(mOffset, LOAD_NUM)
-            .flatMap { toViewList(it) }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
-                override fun onNext(list: List<Any>) {
-                    loadingObserver.value = false
-                    viewList.addAll(list)
+        launchMain {
+            flow { emit(recordRepository.latestRecords(mOffset, LOAD_NUM)) }
+                .map { createViewList(it) }
+                .onStart { loadingObserver.value = true }
+                .catch {
+                    it.printStackTrace()
+                    messageObserver.value = it.message
+                }
+                .onCompletion { loadingObserver.value = false }
+                .collect {
+                    viewList.addAll(it)
                     DebugLog.e("viewList.size=${viewList.size}")
                     dataLoaded.value = true
                 }
+        }
 
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    loadingObserver.value = false
-                    messageObserver.value = e?.message
-                }
-
-            })
     }
 
     fun loadMore() {
@@ -82,56 +79,55 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
         }
         isLoadingMore = true
 
-        recordRepository.getLatestRecords(mOffset, LOAD_NUM)
-            .flatMap { toViewList(it) }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
-                override fun onNext(list: List<Any>) {
-                    viewList.addAll(list)
+        launchMain {
+            flow { emit(recordRepository.latestRecords(mOffset, LOAD_NUM)) }
+                .map { viewList(it) }
+                .onStart { loadingObserver.value = true }
+                .catch {
+                    it.printStackTrace()
+                    messageObserver.value = it.message
+                }
+                .onCompletion {
+                    loadingObserver.value = false
+                    isLoadingMore = false
+                }
+                .collect {
+                    viewList.addAll(it)
                     DebugLog.e("viewList.size=${viewList.size}")
-                    newRecordsObserver.value = list.size
-                    isLoadingMore = false
+                    newRecordsObserver.value = it.size
                 }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                    isLoadingMore = false
-                }
-            })
+        }
     }
 
     /**
      * 返回实际添加的item数，不包含HomeFoot
      */
-    private fun toViewList(list: List<RecordWrap>): ObservableSource<List<Any>> {
-        return ObservableSource {
-            DebugLog.e("start toViewList")
+    fun viewList(list: List<RecordWrap>): List<Any> {
+        return createViewList(list)
+    }
 
-            mOffset += list.size
-            var addList = mutableListOf<Any>()
-            var lastDate = findLastDate()
-            list.forEach {  record ->
-                var homeRecord = toHomeRecord(record, lastDate)
-                addList.add(homeRecord)
-                lastDate = homeRecord.date
+    private fun createViewList(list: List<RecordWrap>): List<Any> {
+        DebugLog.e("addList.size=${viewList.size}")
+        DebugLog.e("start toViewList")
+        mOffset += list.size
+        var addList = mutableListOf<Any>()
+        var lastDate = findLastDate()
+        list.forEach {  record ->
+            var homeRecord = toHomeRecord(record, lastDate)
+            addList.add(homeRecord)
+            lastDate = homeRecord.date
 
-                var stars = getDatabase().getRecordDao().getRecordStars(record.bean.id!!)
-                    .filter { s -> s.bean.score >= 80 }
-                    .sortedByDescending { s -> s.bean.score }
-                    // 超出两个只取前两个
-                    .take(2)
-                stars.forEach { star ->
-                    var homeStar = toHomeStar(star, stars.size, lastDate)
-                    addList.add(homeStar)
-                }
+            var stars = getDatabase().getRecordDao().getRecordStars(record.bean.id!!)
+                .filter { s -> s.bean.score >= 80 }
+                .sortedByDescending { s -> s.bean.score }
+                // 超出两个只取前两个
+                .take(2)
+            stars.forEach { star ->
+                var homeStar = toHomeStar(star, stars.size, lastDate)
+                addList.add(homeStar)
             }
-
-            DebugLog.e("addList.size=${viewList.size}")
-
-            it.onNext(addList)
-            it.onComplete()
         }
+        return addList
     }
 
     private fun toHomeStar(star: RecordStarWrap, totalSize: Int, date: String): HomeStar {
@@ -191,46 +187,36 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createMenuIconUrl() {
-        getMenuIconUrl()
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<String>>(getComposite()) {
-                override fun onNext(t: List<String>) {
-                    if (t.isNotEmpty()) {
-                        menuStarUrl.set(t[0])
-                    }
-                    if (t.size > 1) {
-                        menuRecordUrl.set(t[1])
-                    }
-                    if (t.size > 2) {
-                        menuStudioUrl.set(t[2])
-                    }
-                    if (t.size > 3) {
-                        menuVideoUrl.set(t[3])
-                    }
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-            })
+        launchMain {
+            val t = getMenuIconUrl()
+            if (t.isNotEmpty()) {
+                menuStarUrl.set(t[0])
+            }
+            if (t.size > 1) {
+                menuRecordUrl.set(t[1])
+            }
+            if (t.size > 2) {
+                menuStudioUrl.set(t[2])
+            }
+            if (t.size > 3) {
+                menuVideoUrl.set(t[3])
+            }
+        }
     }
 
-    private fun getMenuIconUrl(): Observable<List<String>> {
-        return Observable.create {
-            var stars = getDatabase().getStarDao().getStarByRating(3.8f, 10)
-            var urls = mutableListOf<String>()
-            for (star in stars) {
-                var url = ImageProvider.getStarRandomPath(star.name, null)
-                url?.let {
-                    urls.add(url)
-                }
-                if (urls.size == 4) {
-                    break
-                }
+    private fun getMenuIconUrl(): List<String> {
+        var stars = getDatabase().getStarDao().getStarByRating(3.8f, 10)
+        var urls = mutableListOf<String>()
+        for (star in stars) {
+            var url = ImageProvider.getStarRandomPath(star.name, null)
+            url?.let {
+                urls.add(url)
             }
-            it.onNext(urls)
-            it.onComplete()
+            if (urls.size == 4) {
+                break
+            }
         }
+        return urls
     }
 
     fun saveRecordToAddViewOrder(record: Record) {

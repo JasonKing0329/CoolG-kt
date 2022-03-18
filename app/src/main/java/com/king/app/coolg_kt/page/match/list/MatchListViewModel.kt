@@ -13,7 +13,6 @@ import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.MatchItemGroup
 import com.king.app.gdb.data.entity.ScorePlan
 import com.king.app.gdb.data.entity.match.Match
-import kotlinx.coroutines.runBlocking
 
 /**
  * @description:
@@ -28,30 +27,30 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
     var gson = Gson()
 
     fun loadMatches() {
-        runBlocking {
+        launchMain {
             val result = mutableListOf<MatchListItem>()
-            var list = getDatabase().getMatchDao().getAllMatchesByOrder()
             val parent = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
-            list.mapTo(result) {
-                val item = MatchListItem(it, 0)
-                it.imgUrl = ImageProvider.parseCoverUrl(it.imgUrl)?:""
-                parent?.let { order ->
-                    var studio = getDatabase().getFavorDao().getStudioByName(it.name, order.id!!)
-                    studio?.let { s ->
-                        item.studioCount = s.number
+            getDatabase().getMatchDao().getAllMatchesByOrder()
+                .mapTo(result) {
+                    val item = MatchListItem(it, 0)
+                    it.imgUrl = ImageProvider.parseCoverUrl(it.imgUrl)?:""
+                    parent?.let { order ->
+                        var studio = getDatabase().getFavorDao().getStudioByName(it.name, order.id!!)
+                        studio?.let { s ->
+                            item.studioCount = s.number
+                        }
                     }
+                    item
                 }
-                item
-            }
             originList = result
-            matchesObserver.postValue(result)
+            matchesObserver.value = result
         }
     }
 
     fun jumpTo(): Int {
         RankRepository().getCompletedPeriodPack()?.matchPeriod?.let {
             matchesObserver.value?.indexOfFirst { match ->
-                match is Match && match.orderInPeriod == it.orderInPeriod
+                match is MatchListItem && match.match.orderInPeriod == it.orderInPeriod
             }?.let { index ->
                 if (index != -1) {
                     return index
@@ -93,7 +92,7 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
      * only switch orderInPeriod
      */
     fun switchWeek(from: MatchListItem, toMatchId: Long) {
-        runBlocking {
+        launchMain {
             getDatabase().getMatchDao().getMatch(toMatchId)?.apply {
                 val toWeek = orderInPeriod
                 orderInPeriod = from.match.orderInPeriod
@@ -111,7 +110,7 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
      * switch orderInPeriod, draws, score plan
      */
     fun switchWeekAndDraws(from: MatchListItem, toMatchId: Long) {
-        runBlocking {
+        launchMain {
             getDatabase().getMatchDao().getMatch(toMatchId)?.apply {
                 // score plan有历史记录的作用，因此交换其实是copy对方的plan作为新周期的plan
                 // getDefaultScorePlan跟draws有关，需要放在交换draws之前
@@ -162,7 +161,7 @@ class MatchListViewModel(application: Application): BaseViewModel(application) {
      * switch name and imgUrl
      */
     fun switchStudio(from: MatchListItem, toMatchId: Long) {
-        runBlocking {
+        launchMain {
             getDatabase().getMatchDao().getMatch(toMatchId)?.apply {
                 val toName = name
                 val toUrl = imgUrl

@@ -19,6 +19,7 @@ public class ServerBody {
      * 扩展字段
      */
     private boolean isOnline;
+    private boolean isManuel;
 
     public String getIdentity() {
         return identity;
@@ -66,5 +67,13 @@ public class ServerBody {
 
     public void setOnline(boolean online) {
         isOnline = online;
+    }
+
+    public boolean isManuel() {
+        return isManuel;
+    }
+
+    public void setManuel(boolean manuel) {
+        isManuel = manuel;
     }
 }

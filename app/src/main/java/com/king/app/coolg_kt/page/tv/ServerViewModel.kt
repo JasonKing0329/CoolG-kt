@@ -32,14 +32,29 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
         serverList.removeAll { TextUtils.isEmpty(it.serverName) }
         // 从本地加载出来的先一律设置为离线
         serverList.forEach { it.isOnline = false}
+        serverList.add(0, manuelServer())
         serversObserver.value = serverList
+    }
+
+    private fun manuelServer(): ServerBody {
+        val server = ServerBody()
+        server.serverName = "Manuel"
+        server.isOnline = false
+        server.ip = SettingProperty.getServerUrl()
+        server.isManuel = true
+        return server
     }
 
     fun connectToServer(serverBody: ServerBody) {
 
         loadingObserver.value = true;
 
-        val fullUrl = "${serverBody.ip}:${serverBody.port}/${serverBody.extraUrl}"
+        val fullUrl = if (serverBody.isManuel) {
+            serverBody.ip
+        }
+        else {
+            "${serverBody.ip}:${serverBody.port}/${serverBody.extraUrl}"
+        }
         SettingProperty.setServerUrl(fullUrl)
 
         AppHttpClient.getInstance().getAppService().isServerOnline()
@@ -136,6 +151,15 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
     override fun onDestroy() {
         udpReceiver.destroy()
         super.onDestroy()
+    }
+
+    fun updateServerIp(name: String) {
+        SettingProperty.setServerUrl(name)
+        loadServers()
+    }
+
+    fun getManuelServer(): String? {
+        return SettingProperty.getServerUrl()
     }
 
 }

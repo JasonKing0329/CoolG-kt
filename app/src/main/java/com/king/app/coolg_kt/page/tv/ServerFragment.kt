@@ -12,6 +12,7 @@ import com.king.app.coolg_kt.databinding.FragmentTvServerBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.model.udp.ServerBody
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.SimpleDialogs
 
 /**
  * @description:
@@ -51,6 +52,10 @@ class ServerFragment: BaseFragment<FragmentTvServerBinding, ServerViewModel>() {
             }
         })
 
+        mBinding.llManuel.setOnClickListener {
+            SimpleDialogs().openInputDialog(requireContext(), "Set server IP", mModel.getManuelServer()
+            ) { name -> mModel.updateServerIp(name) }
+        }
         adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<ServerBody> {
             override fun onClickItem(view: View, position: Int, data: ServerBody) {
                 mModel.connectToServer(data)

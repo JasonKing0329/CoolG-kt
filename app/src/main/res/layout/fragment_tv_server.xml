@@ -41,6 +41,7 @@
                 android:textSize="16dp"
                 android:text="修改Manuel地址"/>
             <ImageView
+                android:id="@+id/iv_edit"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:focusable="true"

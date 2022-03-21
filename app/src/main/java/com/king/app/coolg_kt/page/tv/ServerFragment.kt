@@ -52,7 +52,7 @@ class ServerFragment: BaseFragment<FragmentTvServerBinding, ServerViewModel>() {
             }
         })
 
-        mBinding.llManuel.setOnClickListener {
+        mBinding.ivEdit.setOnClickListener {
             SimpleDialogs().openInputDialog(requireContext(), "Set server IP", mModel.getManuelServer()
             ) { name -> mModel.updateServerIp(name) }
         }

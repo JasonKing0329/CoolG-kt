@@ -29,7 +29,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     var messageObserver = MutableLiveData<String>()
 
     val fixedPool = newFixedThreadPoolContext(5, "Fixed")
-    val fixedScope = CoroutineScope(fixedPool)
+    val fixedScope = CoroutineScope(SupervisorJob() + fixedPool)
     val mainScope = MainScope()
 
     fun addDisposable(disposable: Disposable) {

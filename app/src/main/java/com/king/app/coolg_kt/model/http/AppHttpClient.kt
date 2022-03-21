@@ -37,6 +37,8 @@ class AppHttpClient {
 
     private lateinit var appService: AppService
 
+    private lateinit var appServiceCoroutine: AppServiceCoroutine
+
     private constructor() {
         val builder = OkHttpClient.Builder() // 打印url
             .addInterceptor { chain: Interceptor.Chain ->
@@ -68,6 +70,7 @@ class AppHttpClient {
 
     private fun createService(retrofit: Retrofit) {
         appService = retrofit.create(AppService::class.java)
+        appServiceCoroutine = retrofit.create(AppServiceCoroutine::class.java)
     }
 
     private fun getBaseUrl(): String {
@@ -81,5 +84,14 @@ class AppHttpClient {
             createRetrofit()
         }
         return appService
+    }
+
+    fun getAppServiceCoroutine(): AppServiceCoroutine {
+        var url = getBaseUrl()
+        // baseUrl变了，重新创建retrofit
+        if (url != currentBaseUrl) {
+            createRetrofit()
+        }
+        return appServiceCoroutine
     }
 }

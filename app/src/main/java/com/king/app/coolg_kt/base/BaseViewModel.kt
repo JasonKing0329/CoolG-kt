@@ -85,7 +85,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
      * 主线程协程完全处理flow事件与统一的loading, error事件
      */
     fun<T> launchSingle(
-        block: () -> T,
+        block: suspend () -> T,
         withLoading: Boolean = false,
         onComplete: (T) -> Unit) {
         launchMain {
@@ -103,14 +103,15 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
      * 主线程协程完全处理flow事件与统一的loading, error事件
      */
     fun<T> launchSingleThread(
-        block: () -> T,
+        block: suspend () -> T,
         withLoading: Boolean = false,
         onComplete: (T) -> Unit) {
         launchMain {
             if (withLoading) {
                 loadingObserver.value = true
             }
-            onComplete(withContext(fixedPool) { block() })
+            val response = withContext(fixedPool) { block() }
+            onComplete(response)
             if (withLoading) {
                 loadingObserver.value = false
             }

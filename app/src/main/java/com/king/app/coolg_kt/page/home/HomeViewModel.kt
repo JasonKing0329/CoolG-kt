@@ -200,7 +200,7 @@ class HomeViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    private fun getMenuIconUrl(): List<String> {
+    private suspend fun getMenuIconUrl(): List<String> {
         var stars = getDatabase().getStarDao().getStarByRating(3.8f, 10)
         var urls = mutableListOf<String>()
         for (star in stars) {

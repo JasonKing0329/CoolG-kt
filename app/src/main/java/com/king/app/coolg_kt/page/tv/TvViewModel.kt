@@ -16,7 +16,8 @@ import com.king.app.coolg_kt.model.log.UploadLogModel
 import com.king.app.coolg_kt.utils.AppUtil
 import com.king.app.coolg_kt.utils.FileUtil
 import com.king.app.coolg_kt.utils.UrlUtil
-import io.reactivex.rxjava3.core.ObservableSource
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.io.File
 import java.util.*
 
@@ -52,33 +53,19 @@ class TvViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun getBg() {
-        loadingObserver.value = true
-        AppHttpClient.getInstance().getAppService().getBgFiles()
-            .flatMap { toUrls(it.imageList) }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<String>>(getComposite()){
-                override fun onNext(t: List<String>) {
-                    loadingObserver.value = false
-                    bgObserver.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    loadingObserver.value = false
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
+        launchFlowThread(
+            flow { emit(AppHttpClient.getInstance().getAppServiceCoroutine().getBgFiles()) }
+                .map { toUrls(it.imageList) },
+            withLoading = true
+        ) {
+            bgObserver.value = it
+        }
     }
 
-    private fun toUrls(list: List<String>): ObservableSource<List<String>> {
-        return ObservableSource {
-            val result = mutableListOf<String>()
-            list.forEach { url ->
-                result.add(UrlUtil.toVideoUrl(url))
-            }
-            it.onNext(result)
-            it.onComplete()
-        }
+    private fun toUrls(list: List<String>): List<String> {
+        val result = mutableListOf<String>()
+        list.mapTo(result) { UrlUtil.toVideoUrl(it) }
+        return result
     }
 
     fun downloadBg(url: String) {
@@ -110,24 +97,15 @@ class TvViewModel(application: Application): BaseViewModel(application) {
      * {"isAppUpdate":true,"appVersion":"8.1","appName":"JJGallery-4.7.2-release-20170812224854.apk","appSize":10618166,"isGdbDatabaseUpdate":false,"gdbDabaseSize":0}
      */
     fun checkAppUpdate() {
-        var version = AppUtil.getAppVersionName()
-        AppHttpClient.getInstance().getAppService().checkAppUpdate(Command.TYPE_APP, version)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<AppCheckBean>(getComposite()) {
-                override fun onNext(t: AppCheckBean) {
-                    if (t.isAppUpdate) {
-                        appCheckBean = t
-                        newVersionFound.value = "发现新版本${t.appVersion}，是否更新？"
-                    }
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    loadingObserver.value = false
-                    messageObserver.value = e?.message?:""
-                }
-
-            })
+        launchSingleThread(
+            { AppHttpClient.getInstance().getAppServiceCoroutine().checkAppUpdate(Command.TYPE_APP, AppUtil.getAppVersionName()) },
+            withLoading = true
+        ) {
+            if (it.isAppUpdate) {
+                appCheckBean = it
+                newVersionFound.value = "发现新版本${it.appVersion}，是否更新？"
+            }
+        }
     }
 
     fun getDownloadRequest(): DownloadDialogBean {

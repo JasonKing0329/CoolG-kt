@@ -32,8 +32,11 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
         serverList.removeAll { TextUtils.isEmpty(it.serverName) }
         // 从本地加载出来的先一律设置为离线
         serverList.forEach { it.isOnline = false}
-        serverList.add(0, manuelServer())
+        val manuelServer = manuelServer()
+        serverList.add(0, manuelServer)
         serversObserver.value = serverList
+
+        checkManuelOnline(manuelServer)
     }
 
     private fun manuelServer(): ServerBody {
@@ -45,10 +48,17 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
         return server
     }
 
-    fun connectToServer(serverBody: ServerBody) {
+    private fun checkManuelOnline(server: ServerBody) {
+        launchSingleThread(
+            { connectServer(server) },
+            withLoading = false
+        ){
+            server.isOnline = it.isOnline
+            serversObserver.value = serverList
+        }
+    }
 
-        loadingObserver.value = true;
-
+    private suspend fun connectServer(serverBody: ServerBody): GdbRespBean {
         val fullUrl = if (serverBody.isManuel) {
             serverBody.ip
         }
@@ -56,27 +66,23 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
             "${serverBody.ip}:${serverBody.port}/${serverBody.extraUrl}"
         }
         SettingProperty.setServerUrl(fullUrl)
+        return AppHttpClient.getInstance().getAppServiceCoroutine().isServerOnline()
+    }
 
-        AppHttpClient.getInstance().getAppService().isServerOnline()
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<GdbRespBean>(getComposite()) {
-                override fun onNext(bean: GdbRespBean) {
-                    loadingObserver.value = false;
-                    if (bean.isOnline) {
-                        messageObserver.value = "Connect success"
-                        connectSuccess.value = true
-                    }
-                    else {
-                        messageObserver.value = "Server is not online"
-                    }
-                }
+    fun connectToServer(serverBody: ServerBody) {
 
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    loadingObserver.value = false
-                    messageObserver.value = e?.message
-                }
-            })
+        launchSingleThread(
+            { connectServer(serverBody) },
+            withLoading = true
+        ) {
+            if (it.isOnline) {
+                messageObserver.value = "Connect success"
+                connectSuccess.value = true
+            }
+            else {
+                messageObserver.value = "Server is not online"
+            }
+        }
     }
 
     fun onReceiveIp() {
@@ -132,21 +138,6 @@ class ServerViewModel(application: Application): BaseViewModel(application) {
             }
         }
     }
-
-    // 本机模拟器测试用（udp端口问题，模拟器无法接受服务器广播）
-//    init {
-//        var server = TvServers()
-//        var body = ServerBody()
-//        body.serverName = "PC-Aiden"
-//        body.ip = "192.168.2.151"
-//        body.port = 8080
-//        body.extraUrl = "JJGalleryServer"
-//        body.identity = UdpReceiver.UDP_SERVER_IDENTITY
-//        var list = server.list.toMutableList()
-//        list.add(body)
-//        server.list = list
-//        SettingProperty.setTvServers(server)
-//    }
 
     override fun onDestroy() {
         udpReceiver.destroy()

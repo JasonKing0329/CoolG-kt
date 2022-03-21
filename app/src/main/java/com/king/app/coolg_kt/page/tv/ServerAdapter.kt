@@ -19,7 +19,12 @@ class ServerAdapter: BaseBindingAdapter<AdapterTvServerBinding, ServerBody>() {
 
     override fun onBindItem(binding: AdapterTvServerBinding, position: Int, bean: ServerBody) {
         binding.tvName.text = bean.serverName
-        binding.tvIp.text = bean.ip
+        if (bean.isManuel) {
+            binding.tvIp.text = bean.ip.subSequence(0, bean.ip.indexOf("/"))
+        }
+        else {
+            binding.tvIp.text = bean.ip
+        }
         if (bean.isOnline) {
             binding.tvOnline.text = "online"
             binding.tvOnline.setTextColor(binding.tvOnline.resources.getColor(R.color.yellowF7D23E))

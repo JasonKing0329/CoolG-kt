@@ -26,13 +26,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:focusable="true"
-            android:background="@drawable/selector_tv_server_bg"
             android:layout_marginStart="24dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
+            android:gravity="center_vertical"
             app:layout_constraintTop_toTopOf="@+id/tv_title"
             app:layout_constraintBottom_toBottomOf="@+id/tv_title"
             app:layout_constraintStart_toEndOf="@+id/tv_title">
@@ -40,18 +39,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16dp"
-                android:textColor="@color/white"
                 android:text="修改Manuel地址"/>
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/selector_tv_server_edit"/>
+                android:focusable="true"
+                android:padding="4dp"
+                android:layout_marginLeft="4dp"
+                android:src="@drawable/selector_tv_server_edit"
+                android:background="@drawable/shape_oval_transgrey"/>
         </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginTop="@dimen/common_margin_8"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintBottom_toBottomOf="@id/bg"
             app:layout_constraintStart_toStartOf="@id/tv_title"

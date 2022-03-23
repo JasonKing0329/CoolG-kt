@@ -32,12 +32,14 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
 
     companion object {
         val EXTRA_STUDIO_ID = "studio_id"
+        val EXTRA_SCENE_NAME = "scene_name"
         val EXTRA_SELECT_MODE = "select_mode"
         val EXTRA_OUT_OF_RANK = "out_of_rank"
         val EXTRA_SELECT_AS_MATCH_ITEM = "select_as_match_item"
         val RESP_RECORD_ID = "record_id"
-        fun startPage(context: Context) {
+        fun startPage(context: Context, scene: String? = null) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
+            intent.putExtra(EXTRA_SCENE_NAME, scene)
             context.startActivity(intent)
         }
         fun startPageToSelect(context: Activity, requestCode: Int) {
@@ -162,6 +164,10 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         return intent.getLongExtra(EXTRA_STUDIO_ID, 0)
     }
 
+    private fun getStartScene(): String? {
+        return intent.getStringExtra(EXTRA_SCENE_NAME)
+    }
+
     private fun isOutOfRank(): Boolean {
         return intent.getBooleanExtra(EXTRA_OUT_OF_RANK, false)
     }
@@ -171,12 +177,13 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         mModel.tagClassesObserver.observe(this, Observer{ tags -> showTagClasses(tags) })
         mModel.focusTagPosition.observe(this, Observer{ position -> focusOnTag(position) })
         if (getStudioId() == 0L) {
-            mModel.loadHead()
+            mModel.loadHead(getStartScene())
             tagClassVisibility()
         }
 
         ftRecord.factor.orderId = getStudioId()
         ftRecord.factor.outOfRank = isOutOfRank()
+        ftRecord.factor.scene = getStartScene()?:AppConstants.KEY_SCENE_ALL
         supportFragmentManager.beginTransaction()
             .replace(R.id.ft_records, ftRecord, "RecordsFragment")
             .commit()
@@ -249,6 +256,9 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
     private fun focusOnTag(position: Int) {
         tagAdapter.selection = position
         tagAdapter.notifyDataSetChanged()
+        if (position != -1) {
+            mBinding.rvTags.scrollToPosition(position)
+        }
     }
 
     private fun onSearch(text: String) {

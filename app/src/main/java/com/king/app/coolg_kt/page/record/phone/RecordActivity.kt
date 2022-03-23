@@ -30,6 +30,7 @@ import com.king.app.coolg_kt.model.image.ImageProvider.getRecordCuPath
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.image.ImageManagerActivity
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.TagAdapter
 import com.king.app.coolg_kt.page.pub.TagManagerActivity
@@ -98,25 +99,27 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
                 R.id.menu_banner_setting -> showSettingDialog()
             }
         }
-        mBinding.groupScene.setOnClickListener {  }
-        mBinding.ivOrderAdd.setOnClickListener { selectOrderToAddStar() }
-        mBinding.ivOrderDelete.setOnClickListener {
-            orderAdapter.toggleDeleteMode()
-            orderAdapter.notifyDataSetChanged()
-        }
-        mBinding.groupOrder.setOnClickListener {
-            // collapse
-            if (mBinding.ivOrderArrow.isSelected) {
-                mBinding.ivOrderArrow.isSelected = false
-                mBinding.ivOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
-                mBinding.rvOrders.visibility = View.GONE
-            } else {
-                mBinding.ivOrderArrow.isSelected = true
-                mBinding.ivOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
-                mBinding.rvOrders.visibility = View.VISIBLE
-            }
-        }
-        mBinding.rvOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        mBinding.groupScene.setOnClickListener { PhoneRecordListActivity.startPage(this, mModel.mRecord.bean.scene) }
+        mBinding.groupMatch.setOnClickListener { DetailActivity.startRecordPage(this, recordId) }
+        mBinding.groupOrder.visibility = View.GONE
+//        mBinding.ivOrderAdd.setOnClickListener { selectOrderToAddStar() }
+//        mBinding.ivOrderDelete.setOnClickListener {
+//            orderAdapter.toggleDeleteMode()
+//            orderAdapter.notifyDataSetChanged()
+//        }
+//        mBinding.groupOrder.setOnClickListener {
+//            // collapse
+//            if (mBinding.ivOrderArrow.isSelected) {
+//                mBinding.ivOrderArrow.isSelected = false
+//                mBinding.ivOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
+//                mBinding.rvOrders.visibility = View.GONE
+//            } else {
+//                mBinding.ivOrderArrow.isSelected = true
+//                mBinding.ivOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
+//                mBinding.rvOrders.visibility = View.VISIBLE
+//            }
+//        }
+//        mBinding.rvOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         mBinding.ivPlayOrderAdd.setOnClickListener {
             PlayOrderActivity.startPageToSelect(this@RecordActivity, REQUEST_VIDEO_ORDER)
         }
@@ -546,7 +549,6 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
 //            .with(OrderPhoneActivity.EXTRA_SELECT_RECORD, true)
 //            .requestCode(REQUEST_ADD_ORDER)
 //            .go(this)
-        TODO()
     }
 
     override fun onActivityResult(

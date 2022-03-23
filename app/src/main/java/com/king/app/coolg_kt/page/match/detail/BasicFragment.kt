@@ -90,8 +90,8 @@ class BasicFragment: AbsDetailChildFragment<FragmentMatchDetailBasicBinding, Bas
 
     override fun initData() {
 
+        mainViewModel.showDetailBasic.observe(this, { mBinding.bean = it })
         mainViewModel.loadBasic(0, 0)
-        mBinding.bean = mainViewModel.detailBasic
 
         mModel.rankChartList.observe(this, Observer { initRankChart(it) })
         mModel.loadFinalRanks(mainViewModel.mRecordId)

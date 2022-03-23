@@ -57,15 +57,20 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
         return type == 1
     }
 
-    fun loadHead() {
-        if (isHeadScene()) {
-            loadScenes()
+    fun loadHead(initScene: String? = null) {
+        if (initScene == null) {
+            if (isHeadScene()) {
+                loadScenes()
+            }
+            else {
+                getTagClasses()
+                mCurTagClassId = TAG_CLASS_ALL_ID
+                tagClassesObserver.value = tagClassList
+                loadTags()
+            }
         }
         else {
-            getTagClasses()
-            mCurTagClassId = TAG_CLASS_ALL_ID
-            tagClassesObserver.value = tagClassList
-            loadTags()
+            loadScenes(initScene)
         }
     }
 
@@ -106,7 +111,7 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
             })
     }
 
-    private fun loadScenes() {
+    private fun loadScenes(focusToScene: String? = null) {
         dataTagList = convertScenes(getDatabase().getRecordDao().getAllScenes())
         sortTags(mTagSortType, dataTagList)
             .compose(applySchedulers())
@@ -114,7 +119,12 @@ class PhoneRecordListViewModel(application: Application): BaseViewModel(applicat
                 override fun onNext(t: List<RecordTag>) {
                     val allList: List<RecordTag> = addTagAll(t)
                     tagsObserver.value = allList
-                    focusTagPosition.value = 0
+                    if (focusToScene == null) {
+                        focusTagPosition.value = 0
+                    }
+                    else {
+                        focusTagPosition.value = allList.indexOfFirst { it.name == focusToScene }
+                    }
                 }
 
                 override fun onError(e: Throwable?) {

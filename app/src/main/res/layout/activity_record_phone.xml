@@ -292,6 +292,33 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <RelativeLayout
+                        android:id="@+id/group_match"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gdb_record_line_height"
+                        android:background="?android:attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="Details of match"
+                            android:transitionName="@string/anim_record_page_scene" />
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_keyboard_arrow_right_grey_700_36dp"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/vertical_divider"
+                            android:background="@color/divider" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
                         android:id="@+id/group_order"
                         style="@style/GroupStarSecItem"
                         android:background="?android:attr/selectableItemBackground">

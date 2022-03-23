@@ -13,7 +13,6 @@ import com.king.app.coolg_kt.page.match.DetailHead
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
 import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchRankRecord
 import com.king.app.gdb.data.relation.RecordWrap
 import java.text.DecimalFormat
 
@@ -38,6 +37,8 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
 
     var detailBasic = DetailBasic()
     var detailHead = DetailHead()
+
+    var showDetailBasic = MutableLiveData<DetailBasic>()
 
     var showRankDialog = MutableLiveData<Boolean>()
     var showH2hPage = MutableLiveData<Boolean>()
@@ -79,11 +80,20 @@ class DetailViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun loadBasic(type: Int, specificPeriod: Int) {
-        basicPeriodType = type
-        countRank()
-        val pack = getPeriodPack(type, specificPeriod)
-        countWinLose(pack)
-        countPeriodRelated(pack)
+        // basic信息在数据量很大以后有些耗时，利用主线程处理还是有些慢和卡，用线程池来处理
+        launchSingleThread(
+            {
+                basicPeriodType = type
+                countRank()
+                val pack = getPeriodPack(type, specificPeriod)
+                countWinLose(pack)
+                countPeriodRelated(pack)
+                detailBasic
+            },
+            withLoading = false
+        ) {
+            showDetailBasic.value = it
+        }
     }
 
     private fun getPeriodPack(type: Int, specificPeriod: Int): PeriodPack {

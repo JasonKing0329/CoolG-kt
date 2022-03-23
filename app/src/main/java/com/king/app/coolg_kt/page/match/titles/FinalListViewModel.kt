@@ -4,14 +4,13 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
-import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.FinalListItem
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.match.TitleCountItem
 import com.king.app.gdb.data.relation.MatchRecordWrap
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.Job
 
 /**
  * Desc:
@@ -28,88 +27,53 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
     private var mFilterLevel = MatchConstants.MATCH_LEVEL_ALL
     private var rankRepository = RankRepository()
 
+    private var finalListJob: Job? = null
+    private var titlesCountJob: Job? = null
+
     fun loadData() {
-        getFinals(mFilterLevel)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<FinalListItem>>(getComposite()){
-                override fun onNext(t: List<FinalListItem>) {
-                    dataObserver.value = t
-                    // 加载耗时操作
-                    loadTimeWaste(t)
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
+        cancelAll()
+        finalListJob = basicAndTimeWaste(
+            blockBasic = { getFinals(mFilterLevel) },
+            onCompleteBasic = { dataObserver.value = it },
+            blockWaste = { handleItem(it) },
+            wasteNotifyCount = 20,
+            onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count) },
+            withBasicLoading = true
+        )
     }
 
-    private fun getFinals(level: Int): Observable<List<FinalListItem>> {
-        return Observable.create {
-            val list = mutableListOf<FinalListItem>()
-            val matchItems = if (level == MatchConstants.MATCH_LEVEL_ALL) {
-                getDatabase().getMatchDao().getMatchItemsByRound(MatchConstants.ROUND_ID_F)
-            }
-            else {
-                getDatabase().getMatchDao().getMatchItemsByRoundLevel(MatchConstants.ROUND_ID_F, level)
-            }
-            matchItems.forEach { wrap ->
-                val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.bean.matchId)
-                val winner = wrap.recordList.firstOrNull { it.recordId == wrap.bean.winnerId }
-                val loser = wrap.recordList.firstOrNull { it.recordId != wrap.bean.winnerId }
-                winner?.let { winner ->
-                    loser?.let { loser ->
-                        val winnerRecord = getDatabase().getRecordDao().getRecordBasic(winner.recordId)
-                        val loserRecord = getDatabase().getRecordDao().getRecordBasic(loser.recordId)
-                        val r = MatchRecordWrap(winner, winnerRecord)
-                        val l = MatchRecordWrap(loser, loserRecord)
-                        // 加载image属于耗时操作，后面再加载
-                        list.add(FinalListItem(matchPeriod, r, l))
-                    }
-                }
-            }
-            it.onNext(list)
-            it.onComplete()
+    private fun getFinals(level: Int): List<FinalListItem> {
+        val list = mutableListOf<FinalListItem>()
+        val matchItems = if (level == MatchConstants.MATCH_LEVEL_ALL) {
+            getDatabase().getMatchDao().getMatchItemsByRound(MatchConstants.ROUND_ID_F)
         }
-    }
-
-    private fun loadTimeWaste(list: List<FinalListItem>) {
-        finalItemsTimeWaste(list)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
-                override fun onNext(t: TimeWasteRange) {
-                    imageChanged.value = t
+        else {
+            getDatabase().getMatchDao().getMatchItemsByRoundLevel(MatchConstants.ROUND_ID_F, level)
+        }
+        matchItems.forEach { wrap ->
+            val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(wrap.bean.matchId)
+            val winner = wrap.recordList.firstOrNull { it.recordId == wrap.bean.winnerId }
+            val loser = wrap.recordList.firstOrNull { it.recordId != wrap.bean.winnerId }
+            winner?.let { winner ->
+                loser?.let { loser ->
+                    val winnerRecord = getDatabase().getRecordDao().getRecordBasic(winner.recordId)
+                    val loserRecord = getDatabase().getRecordDao().getRecordBasic(loser.recordId)
+                    val r = MatchRecordWrap(winner, winnerRecord)
+                    val l = MatchRecordWrap(loser, loserRecord)
+                    // 加载image属于耗时操作，后面再加载
+                    list.add(FinalListItem(matchPeriod, r, l))
                 }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-            })
+            }
+        }
+        return list
     }
 
     /**
      * 加载耗时操作
      */
-    private fun finalItemsTimeWaste(list: List<FinalListItem>): Observable<TimeWasteRange> {
-        return Observable.create {
-            var count = 0
-            var totalNotified = 0
-            list.forEach { item ->
-                item.recordWin.imageUrl = ImageProvider.getRecordRandomPath(item.recordWin.record?.name, null)
-                item.recordLose.imageUrl = ImageProvider.getRecordRandomPath(item.recordLose.record?.name, null)
-                count ++
-                // 每20个通知一次
-                if (count % 20 == 0) {
-                    it.onNext(TimeWasteRange(count - 20, count))
-                    totalNotified = count
-                }
-            }
-            if (totalNotified != list.size) {
-                it.onNext(TimeWasteRange(totalNotified, list.size - totalNotified))
-            }
-            it.onComplete()
-        }
+    private fun handleItem(item: FinalListItem) {
+        item.recordWin.imageUrl = ImageProvider.getRecordRandomPath(item.recordWin.record?.name, null)
+        item.recordLose.imageUrl = ImageProvider.getRecordRandomPath(item.recordLose.record?.name, null)
     }
 
     fun filterByLevel(levelIndex: Int) {
@@ -122,102 +86,65 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
         loadTitlesCount()
     }
 
+    private fun cancelAll() {
+        finalListJob?.cancel()
+        titlesCountJob?.cancel()
+    }
+
     fun loadTitlesCount() {
-        getTitlesCount()
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
-                override fun onNext(t: List<Any>) {
-                    titlesCountObserver.value = t
-                    loadTitlesCountTimeWaste(t)
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message?:""
-                }
-
-            })
+        cancelAll()
+        titlesCountJob = basicAndTimeWaste(
+            blockBasic = { getTitlesCount() },
+            onCompleteBasic = { titlesCountObserver.value = it },
+            blockWaste = { handleTitlesCountWaste(it) },
+            wasteNotifyCount = 5,
+            onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count) },
+            withBasicLoading = true
+        )
     }
 
-    private fun getTitlesCount(): Observable<List<Any>> {
-        return Observable.create {
-            var list = mutableListOf<Any>()
-            // micro不进入all统计，但是进入level micro统计
-            val items = if (mFilterLevel == MatchConstants.MATCH_LEVEL_ALL) {
-                getDatabase().getMatchDao().countRecordFinals(MatchConstants.ROUND_ID_F)
-            }
-            else {
-                getDatabase().getMatchDao().countRecordRoundByLevel(MatchConstants.ROUND_ID_F, mFilterLevel)
-            }
-            var lastCount = 0
-            var countMap = mutableMapOf<Int, Int>()
-            items.forEach { item ->
-                if (item.num != lastCount) {
-                    list.add("${item.num} Titles")
-                    lastCount = item.num
-                }
-                getDatabase().getRecordDao().getRecordBasic(item.winnerId)?.let { record ->
-                    countMap[item.num] = (countMap[item.num] ?:0) + 1
-                    // rank, imageUrl都可以放到耗时操作里后续加载
-                    list.add(TitleCountItem(record, item.num, 0, false))
-                }
-            }
-            // 根据countMap确认item是否在分组下唯一
-            list.forEach { obj ->
-                if (obj is TitleCountItem) {
-                    val count = countMap[obj.titles]?:0
-                    if (count == 1) {
-                        obj.isOnlyOne = true
-                    }
-                }
-            }
-
-            it.onNext(list)
-            it.onComplete()
+    private fun getTitlesCount(): List<Any> {
+        var list = mutableListOf<Any>()
+        // micro不进入all统计，但是进入level micro统计
+        val items = if (mFilterLevel == MatchConstants.MATCH_LEVEL_ALL) {
+            getDatabase().getMatchDao().countRecordFinals(MatchConstants.ROUND_ID_F)
         }
-    }
-
-    private fun loadTitlesCountTimeWaste(list: List<Any>) {
-        titlesCountTimeWaste(list)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<TimeWasteRange>(getComposite()){
-                override fun onNext(t: TimeWasteRange) {
-                    imageChanged.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-            })
-    }
-
-    /**
-     * 加载耗时操作
-     */
-    private fun titlesCountTimeWaste(list: List<Any>): Observable<TimeWasteRange> {
-        return Observable.create {
-            var count = 0
-            var totalNotified = 0
-            list.forEach { item ->
-                if (item is TitleCountItem) {
-                    // image
-                    item.imageUrl = ImageProvider.getRecordRandomPath(item.record.name, null)
-                    // rank
-                    item.rank = rankRepository.getRecordCurrentRank(item.record.id!!)
-                    // details
-                    titleDetails(item)
-                }
-                count ++
-                // 每20个通知一次
-                if (count % 20 == 0) {
-                    it.onNext(TimeWasteRange(count - 20, count))
-                    totalNotified = count
+        else {
+            getDatabase().getMatchDao().countRecordRoundByLevel(MatchConstants.ROUND_ID_F, mFilterLevel)
+        }
+        var lastCount = 0
+        var countMap = mutableMapOf<Int, Int>()
+        items.forEach { item ->
+            if (item.num != lastCount) {
+                list.add("${item.num} Titles")
+                lastCount = item.num
+            }
+            getDatabase().getRecordDao().getRecordBasic(item.winnerId)?.let { record ->
+                countMap[item.num] = (countMap[item.num] ?:0) + 1
+                // rank, imageUrl都可以放到耗时操作里后续加载
+                list.add(TitleCountItem(record, item.num, 0, false))
+            }
+        }
+        // 根据countMap确认item是否在分组下唯一
+        list.forEach { obj ->
+            if (obj is TitleCountItem) {
+                val count = countMap[obj.titles]?:0
+                if (count == 1) {
+                    obj.isOnlyOne = true
                 }
             }
-            if (totalNotified != list.size) {
-                it.onNext(TimeWasteRange(totalNotified, list.size - totalNotified))
-            }
-            it.onComplete()
+        }
+        return list
+    }
+
+    private fun handleTitlesCountWaste(item: Any) {
+        if (item is TitleCountItem) {
+            // image
+            item.imageUrl = ImageProvider.getRecordRandomPath(item.record.name, null)
+            // rank
+            item.rank = rankRepository.getRecordCurrentRank(item.record.id!!)
+            // details
+            titleDetails(item)
         }
     }
 

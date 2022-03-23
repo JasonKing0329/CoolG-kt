@@ -74,12 +74,12 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         return CoolApplication.instance.database!!
     }
 
-    fun launchMain(block: suspend CoroutineScope.() -> Unit) {
-        mainScope.launch { block() }
+    fun launchMain(block: suspend CoroutineScope.() -> Unit): Job {
+        return mainScope.launch { block() }
     }
 
-    fun launchThread(block: suspend CoroutineScope.() -> Unit) {
-        fixedScope.launch { block() }
+    fun launchThread(block: suspend CoroutineScope.() -> Unit): Job {
+        return fixedScope.launch { block() }
     }
 
     /**
@@ -88,8 +88,8 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     fun<T> launchSingle(
         block: suspend () -> T,
         withLoading: Boolean = false,
-        onComplete: (T) -> Unit) {
-        launchMain {
+        onComplete: (T) -> Unit): Job {
+        return launchMain {
             if (withLoading) {
                 loadingObserver.value = true
             }
@@ -106,8 +106,8 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     fun<T> launchSingleThread(
         block: suspend () -> T,
         withLoading: Boolean = false,
-        onComplete: (T) -> Unit) {
-        launchMain {
+        onComplete: (T) -> Unit): Job {
+        return launchMain {
             if (withLoading) {
                 loadingObserver.value = true
             }
@@ -196,32 +196,43 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
      * @param blockWaste 子线程加载每个item对应的耗时任务
      * @param wasteNotifyCount 指定每隔几个通知UI更新
      * @param onWasteRangeChanged 耗时数据加载完，通知UI List待更新的范围，(start, count)
+     * @param withBasicLoading 加载basic期间是否展示等待框（waste属于数据后台更新，肯定不转圈）
      */
     fun<T> basicAndTimeWaste(
         blockBasic: suspend () -> List<T>,
         onCompleteBasic: (List<T>) -> Unit,
         blockWaste: suspend (T) -> Unit,
         wasteNotifyCount: Int,
-        onWasteRangeChanged: (Int, Int) -> Unit
-    ) {
-        launchThread {
+        onWasteRangeChanged: (Int, Int) -> Unit,
+        withBasicLoading: Boolean = false,
+    ): Job {
+        if (withBasicLoading) {
+            loadingObserver.value = true
+        }
+        return launchThread {
+            DebugLog.e("basic start")
             val basic = blockBasic()
             withContext(Dispatchers.Main) {
                 DebugLog.e("onCompleteBasic")
+                if (withBasicLoading) {
+                    loadingObserver.value = false
+                }
                 onCompleteBasic(basic)
             }
             var index = 0
+            DebugLog.e("waste start")
             while (isActive && index < basic.size) {
                 blockWaste(basic[index])
+                index ++
 
                 // 每处理完wasteNotifyCount组数据通知UI变化
-                if ((index + 1) % wasteNotifyCount == 0) {
+                if (index % wasteNotifyCount == 0) {
+                    val start = index - wasteNotifyCount
                     withContext(Dispatchers.Main) {
-                        DebugLog.e("onWasteRangeChanged start=$index, count=$wasteNotifyCount")
-                        onWasteRangeChanged(index, wasteNotifyCount)
+                        DebugLog.e("onWasteRangeChanged start=$start, count=$wasteNotifyCount")
+                        onWasteRangeChanged(start, wasteNotifyCount)
                     }
                 }
-                index ++
             }
         }
     }

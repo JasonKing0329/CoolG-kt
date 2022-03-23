@@ -5,6 +5,7 @@ import android.content.res.Resources
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.CoolApplication
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.AppDatabase
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.ObservableTransformer
@@ -186,4 +187,43 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                 }
             }
     }
+
+    /**
+     * 先加载基础列表List<T>通知UI加载列表，
+     * 然后异步更新每一个item比较耗时的数据，并指定每加载完wasteNotifyCount个时更新
+     * @param blockBasic 子线程加载基础List<T>
+     * @param onCompleteBasic 基础List加载完成，Main线程通知UI更新
+     * @param blockWaste 子线程加载每个item对应的耗时任务
+     * @param wasteNotifyCount 指定每隔几个通知UI更新
+     * @param onWasteRangeChanged 耗时数据加载完，通知UI List待更新的范围，(start, count)
+     */
+    fun<T> basicAndTimeWaste(
+        blockBasic: suspend () -> List<T>,
+        onCompleteBasic: (List<T>) -> Unit,
+        blockWaste: suspend (T) -> Unit,
+        wasteNotifyCount: Int,
+        onWasteRangeChanged: (Int, Int) -> Unit
+    ) {
+        launchThread {
+            val basic = blockBasic()
+            withContext(Dispatchers.Main) {
+                DebugLog.e("onCompleteBasic")
+                onCompleteBasic(basic)
+            }
+            var index = 0
+            while (isActive && index < basic.size) {
+                blockWaste(basic[index])
+
+                // 每处理完wasteNotifyCount组数据通知UI变化
+                if ((index + 1) % wasteNotifyCount == 0) {
+                    withContext(Dispatchers.Main) {
+                        DebugLog.e("onWasteRangeChanged start=$index, count=$wasteNotifyCount")
+                        onWasteRangeChanged(index, wasteNotifyCount)
+                    }
+                }
+                index ++
+            }
+        }
+    }
+
 }

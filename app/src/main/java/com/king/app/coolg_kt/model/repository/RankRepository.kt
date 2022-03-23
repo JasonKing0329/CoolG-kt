@@ -173,8 +173,22 @@ class RankRepository: BaseRepository() {
                 }
             }
         }
-        // 重新按score降序排序
-        return list.sortedByDescending { it.score }
+        // 重新按score降序排序，score相等的情况按matchCount升序
+        return list.sortedWith { o1, o2 ->
+            when (val result = compareInt(o2.score, o1.score)) {
+                0 -> compareInt(o1.matchCount, o2.matchCount)
+                else -> result
+            }
+        }
+    }
+
+    private fun compareInt(left: Int, right: Int): Int {
+        val result = left - right
+        return when {
+            result > 0 -> 1
+            result < 0 -> -1
+            else -> 0
+        }
     }
 
     private fun getStarScoreList(pack: PeriodPack): List<ScoreCount> {
@@ -235,17 +249,9 @@ class RankRepository: BaseRepository() {
      * current rank
      */
     fun getRecordCurrentRank(recordId: Long): Int {
-        getCurrentPeriodPack()?.matchPeriod?.apply {
-            // 先查询这一站对应的排名
-            if (isRecordRankCreated()) {
-                getDatabase().getMatchDao().getRecordRank(recordId, period, orderInPeriod)?.let { return it.rank }
-            }
-            // 如果这一站还没有创建，查询上一站的
-            else {
-                getLastPeriod(ShowPeriod(period, orderInPeriod))?.apply {
-                    getDatabase().getMatchDao().getRecordRank(recordId, period, orderInPeriod)?.let { return it.rank }
-                }
-            }
+        // 查询当前orderInPeriod或上一个（即最近一站）的排名
+        getDatabase().getMatchDao().getRecordLastRank(recordId)?.let {
+            return it.rank
         }
         return -1
     }

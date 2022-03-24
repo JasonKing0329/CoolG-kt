@@ -11,9 +11,7 @@ import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.model.bean.StarBuilder
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider.getStarRandomPath
-import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
 import com.king.app.coolg_kt.model.module.StarIndexEmitter
-import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.StarRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.coolg_kt.page.match.TimeWasteRange
@@ -21,6 +19,7 @@ import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.relation.StarWrap
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.Job
 
 /**
  * Desc:
@@ -43,6 +42,8 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
     private var mKeyword: String? = null
     private val indexEmitter = StarIndexEmitter()
     private val repository = StarRepository()
+
+    private var loadStarJob: Job? = null
 
     // 防止重复loading
     var isLoading = false
@@ -69,36 +70,20 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
         mList.clear()
         isLoading = true
         currentViewMode = SettingProperty.getStarListViewMode()
-        loadingObserver.value = true
 
-        BasicAndTimeWaste<StarWrap>()
-            .basic(queryStars())
-            .timeWaste(imageWaste, 20)
-            .composite(getComposite())
-            .subscribe(
-                object : SimpleObserver<List<StarWrap>>(getComposite()) {
-                    override fun onNext(t: List<StarWrap>) {
-                        mFullList = t
-                        mList.addAll(mFullList)
-                        startCreateIndex()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        loadingObserver.value = false
-                        isLoading = false
-                        messageObserver.value = e.message
-                    }
-                },
-                object : SimpleObserver<TimeWasteRange>(getComposite()) {
-                    override fun onNext(t: TimeWasteRange) {
-                        imageChanged.value = t
-                    }
-
-                    override fun onError(e: Throwable) {
-                        e.printStackTrace()
-                    }
-                }
-            )
+        loadStarJob?.cancel()
+        loadStarJob = basicAndTimeWaste(
+            blockBasic = { queryStars() },
+            onCompleteBasic = {
+                mFullList = it
+                mList.addAll(mFullList)
+                startCreateIndex()
+            },
+            blockWaste = { _, it ->  handleStar(it) },
+            wasteNotifyCount = 20,
+            onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count) },
+            withBasicLoading = true
+        )
     }
 
     private fun startCreateIndex() {
@@ -134,18 +119,16 @@ class StarListViewModel(application: Application) : BaseViewModel(application) {
             })
     }
 
-    private fun queryStars(): Observable<List<StarWrap>> {
+    private fun queryStars(): List<StarWrap> {
         val builder = StarBuilder()
             .setStudioId(mStudioId)
             .setType(starType)
             .setSortType(sortType)
-        return repository.queryStarsBy(builder)
+        return repository.queryStarWith(builder)
     }
 
-    private var imageWaste = object : TimeWasteTask<StarWrap> {
-        override fun handle(index: Int, star: StarWrap) {
-            star.imagePath = getStarRandomPath(star.bean.name, null)
-        }
+    private fun handleStar(star: StarWrap) {
+        star.imagePath = getStarRandomPath(star.bean.name, null)
     }
 
     private fun createIndexes(): Observable<String> {

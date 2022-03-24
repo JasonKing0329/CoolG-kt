@@ -201,7 +201,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     fun<T> basicAndTimeWaste(
         blockBasic: suspend () -> List<T>,
         onCompleteBasic: (List<T>) -> Unit,
-        blockWaste: suspend (T) -> Unit,
+        blockWaste: suspend (Int, T) -> Unit,
         wasteNotifyCount: Int,
         onWasteRangeChanged: (Int, Int) -> Unit,
         withBasicLoading: Boolean = false,
@@ -222,7 +222,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
             var index = 0
             DebugLog.e("waste start")
             while (isActive && index < basic.size) {
-                blockWaste(basic[index])
+                blockWaste(index, basic[index])
                 index ++
 
                 // 每处理完wasteNotifyCount组数据通知UI变化

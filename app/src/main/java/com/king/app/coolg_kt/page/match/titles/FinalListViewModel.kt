@@ -35,7 +35,7 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
         finalListJob = basicAndTimeWaste(
             blockBasic = { getFinals(mFilterLevel) },
             onCompleteBasic = { dataObserver.value = it },
-            blockWaste = { handleItem(it) },
+            blockWaste = { _, it -> handleItem(it) },
             wasteNotifyCount = 20,
             onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count) },
             withBasicLoading = true
@@ -96,7 +96,7 @@ class FinalListViewModel(application: Application): BaseViewModel(application) {
         titlesCountJob = basicAndTimeWaste(
             blockBasic = { getTitlesCount() },
             onCompleteBasic = { titlesCountObserver.value = it },
-            blockWaste = { handleTitlesCountWaste(it) },
+            blockWaste = { _, it ->  handleTitlesCountWaste(it) },
             wasteNotifyCount = 5,
             onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count) },
             withBasicLoading = true

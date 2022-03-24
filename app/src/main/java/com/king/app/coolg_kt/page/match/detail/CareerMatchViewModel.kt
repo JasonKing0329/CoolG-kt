@@ -4,15 +4,11 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
-import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
-import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
-import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.CareerCategoryMatch
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.gdb.data.entity.match.MatchItem
-import io.reactivex.rxjava3.core.Observable
 
 /**
  * Desc:
@@ -36,46 +32,25 @@ class CareerMatchViewModel(application: Application): BaseViewModel(application)
     private var sortType = SORT_BY_WEEK
 
     fun loadMatches() {
-        BasicAndTimeWaste<Any>()
-            .basic(basicMatches())
-            .timeWaste(timeWaste(), 10)
-            .composite(getComposite())
-            .subscribe(
-                object : SimpleObserver<List<Any>>(getComposite()) {
-                    override fun onNext(t: List<Any>) {
-                        matchesObserver.value = t
-                    }
-
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                        messageObserver.value = e?.message?:""
-                    }
-                },
-                object : SimpleObserver<TimeWasteRange>(getComposite()) {
-                    override fun onNext(t: TimeWasteRange) {
-                        rangeChangedObserver.value = t
-                    }
-
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                        messageObserver.value = e?.message?:""
-                    }
-                }
-            )
+        basicAndTimeWaste(
+            blockBasic = { basicMatches() },
+            onCompleteBasic = { matchesObserver.value = it },
+            blockWaste = { _, it ->  handleItem(it) },
+            wasteNotifyCount = 5,
+            onWasteRangeChanged = { start, count -> rangeChangedObserver.value = TimeWasteRange(start, count) },
+            withBasicLoading = true
+        )
     }
 
-    private fun basicMatches(): Observable<List<Any>> {
-        return Observable.create {
-            var list = getDatabase().getMatchDao().getAllMatchesByOrder()
-            list.forEach { match ->
-                match.imgUrl = ImageProvider.parseCoverUrl(match.imgUrl)?:""
-                val data = CareerCategoryMatch(match, 0, "", "")
-                // 其他耗时操作都交给timewaste
-                totalMatches.add(data)
-            }
-            it.onNext(totalMatches)
-            it.onComplete()
+    private fun basicMatches(): List<Any> {
+        var list = getDatabase().getMatchDao().getAllMatchesByOrder()
+        list.forEach { match ->
+            match.imgUrl = ImageProvider.parseCoverUrl(match.imgUrl)?:""
+            val data = CareerCategoryMatch(match, 0, "", "")
+            // 其他耗时操作都交给timewaste
+            totalMatches.add(data)
         }
+        return totalMatches
     }
 
     private fun loadDetails(data: CareerCategoryMatch) {
@@ -127,13 +102,9 @@ class CareerMatchViewModel(application: Application): BaseViewModel(application)
         data.best = bestBuffer.toString()
     }
 
-    private fun timeWaste(): TimeWasteTask<Any> {
-        return object : TimeWasteTask<Any> {
-            override fun handle(index: Int, data: Any) {
-                if (data is CareerCategoryMatch)  {
-                    loadDetails(data)
-                }
-            }
+    private fun handleItem(data: Any) {
+        if (data is CareerCategoryMatch)  {
+            loadDetails(data)
         }
     }
 
@@ -212,41 +183,32 @@ class CareerMatchViewModel(application: Application): BaseViewModel(application)
 
     fun sortByLevel() {
         sortType = SORT_BY_LEVEL
-        groupByLevel()
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<Any>>(getComposite()) {
-                override fun onNext(t: List<Any>) {
-                    matchesObserver.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message?:""
-                }
-            })
+        launchSingle(
+            { groupByLevel() },
+            withLoading = false
+        ) {
+            matchesObserver.value = it
+        }
     }
 
-    private fun groupByLevel(): Observable<List<Any>> {
-        return Observable.create {
-            val result = mutableListOf<Any>()
-            val levelMap = mutableMapOf<Int, MutableList<CareerCategoryMatch>?>()
-            totalMatches
-                .filter { item -> joinedMatch(item) }
-                .forEach { item ->
-                    var data = levelMap[item.match.level]
-                    if (data == null) {
-                        data = mutableListOf()
-                        levelMap[item.match.level] = data
-                    }
-                    data.add(item)
+    private fun groupByLevel(): List<Any> {
+        val result = mutableListOf<Any>()
+        val levelMap = mutableMapOf<Int, MutableList<CareerCategoryMatch>?>()
+        totalMatches
+            .filter { item -> joinedMatch(item) }
+            .forEach { item ->
+                var data = levelMap[item.match.level]
+                if (data == null) {
+                    data = mutableListOf()
+                    levelMap[item.match.level] = data
                 }
-            levelMap.keys.sorted().forEach { level ->
-                result.add(MatchConstants.MATCH_LEVEL[level])
-                // level下按week升序
-                result.addAll(levelMap[level]!!.sortedBy { bean -> bean.match.orderInPeriod })
+                data.add(item)
             }
-            it.onNext(result)
-            it.onComplete()
+        levelMap.keys.sorted().forEach { level ->
+            result.add(MatchConstants.MATCH_LEVEL[level])
+            // level下按week升序
+            result.addAll(levelMap[level]!!.sortedBy { bean -> bean.match.orderInPeriod })
         }
+        return result
     }
 }

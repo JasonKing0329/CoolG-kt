@@ -24,7 +24,7 @@ class HighViewModel(application: Application): BaseViewModel(application) {
         basicAndTimeWaste(
             blockBasic = { highestRanks() },
             onCompleteBasic = { itemsObserver.value = it },
-            blockWaste = { handleRankGroup(it) },
+            blockWaste = { _, it ->  handleRankGroup(it) },
             wasteNotifyCount = 1,
             onWasteRangeChanged = { start, count -> rangeChanged.value = TimeWasteRange(start, count) }
         )

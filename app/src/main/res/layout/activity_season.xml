@@ -3,6 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.season.SeasonViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -29,13 +35,61 @@
             app:title="Matches"
             app:titleColor="@color/actionbar_element" />
 
+        <LinearLayout
+            android:id="@+id/ll_period"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="@dimen/common_margin_10"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"
+            app:layout_constraintStart_toStartOf="parent">
+            <ImageView
+                android:id="@+id/iv_previous"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:visibility="@{model.periodLastVisibility}"
+                android:padding="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_chevron_left_black_36dp" />
+            <TextView
+                android:id="@+id/tv_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{model.periodText}"
+                android:textSize="20dp"
+                android:textColor="@color/text_normal"
+                tools:text="Period 34"/>
+            <ImageView
+                android:id="@+id/iv_next"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:visibility="@{model.periodNextVisibility}"
+                android:padding="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_chevron_right_black_24dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{model.periodDateText}"
+            android:textSize="12dp"
+            android:textColor="@color/text_sub"
+            android:layout_marginStart="14dp"
+            app:layout_constraintStart_toEndOf="@+id/ll_period"
+            app:layout_constraintTop_toTopOf="@+id/ll_period"
+            app:layout_constraintBottom_toBottomOf="@+id/ll_period"
+            tools:text="2022-03-20 To 2022-03-28"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/actionbar"
+            app:layout_constraintTop_toBottomOf="@id/ll_period"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/adapter_season_item"/>
 

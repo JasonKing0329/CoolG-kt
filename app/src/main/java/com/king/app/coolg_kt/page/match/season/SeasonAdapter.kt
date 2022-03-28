@@ -4,11 +4,9 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.king.app.coolg_kt.R
-import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.AdapterSeasonItemBinding
-import com.king.app.coolg_kt.databinding.AdapterSeasonPeriodBinding
-import com.king.app.coolg_kt.model.bean.MatchPeriodTitle
 import com.king.app.coolg_kt.utils.RippleUtil
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 
@@ -17,25 +15,14 @@ import com.king.app.gdb.data.relation.MatchPeriodWrap
  * @author：Jing Yang
  * @date: 2020/5/13 15:44
  */
-class SeasonAdapter: HeadChildBindingAdapter<AdapterSeasonPeriodBinding, AdapterSeasonItemBinding, MatchPeriodTitle, MatchPeriodWrap>() {
-
-    override val itemClass: Class<*> get() = MatchPeriodWrap::class.java
+class SeasonAdapter: BaseBindingAdapter<AdapterSeasonItemBinding, MatchPeriodWrap>() {
 
     var onActionListener: OnActionListener? = null
 
-    override fun onCreateHeadBind(
-        from: LayoutInflater,
+    override fun onCreateBind(
+        inflater: LayoutInflater,
         parent: ViewGroup
-    ): AdapterSeasonPeriodBinding = AdapterSeasonPeriodBinding.inflate(from, parent, false)
-
-    override fun onCreateItemBind(
-        from: LayoutInflater,
-        parent: ViewGroup
-    ): AdapterSeasonItemBinding = AdapterSeasonItemBinding.inflate(from, parent, false)
-
-    override fun onBindHead(binding: AdapterSeasonPeriodBinding, position: Int, head: MatchPeriodTitle) {
-        binding.bean = head
-    }
+    ): AdapterSeasonItemBinding = AdapterSeasonItemBinding.inflate(inflater, parent, false)
 
     override fun onBindItem(binding: AdapterSeasonItemBinding, position: Int, bean: MatchPeriodWrap) {
         binding.clGroup.background = RippleUtil.getRippleBackground(

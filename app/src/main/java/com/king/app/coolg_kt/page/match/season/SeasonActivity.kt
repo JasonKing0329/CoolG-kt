@@ -10,12 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
-import com.king.app.coolg_kt.base.adapter.HeadChildBindingAdapter
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.databinding.ActivitySeasonBinding
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
 import com.king.app.coolg_kt.page.match.draw.FinalDrawActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -41,6 +42,8 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
     override fun createViewModel(): SeasonViewModel = generateViewModel(SeasonViewModel::class.java)
 
     override fun initView() {
+        mBinding.model = mModel
+
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener {
             when (it) {
@@ -58,6 +61,23 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
                 outRect.top = ScreenUtils.dp2px(8f)
             }
         })
+
+        mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
+        mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
+        mBinding.tvWeek.setOnClickListener {
+            val list = mutableListOf<String>()
+            for (i in mModel.endPeriod downTo 1) {
+                list.add(i.toString())
+            }
+            if (list.size > 0) {
+                AlertDialogFragment()
+                    .setItems(list.toTypedArray()
+                    ) { dialog, which ->
+                        mModel.targetPeriod(mModel.endPeriod - which)
+                    }
+                    .show(supportFragmentManager, "AlertDialogFragment")
+            }
+        }
     }
 
     override fun onResume() {
@@ -87,7 +107,7 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
         mModel.loadMatches()
     }
 
-    private fun showMatches(list: MutableList<Any>?) {
+    private fun showMatches(list: List<MatchPeriodWrap>) {
         adapter.list = list
         if (mBinding.rvList.adapter == null) {
             adapter.onActionListener = object : SeasonAdapter.OnActionListener {
@@ -101,7 +121,7 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
                     editMatch(bean)
                 }
             }
-            adapter.onItemClickListener = object : HeadChildBindingAdapter.OnItemClickListener<MatchPeriodWrap> {
+            adapter.listenerClick = object : BaseBindingAdapter.OnItemClickListener<MatchPeriodWrap> {
                 override fun onClickItem(view: View, position: Int, match: MatchPeriodWrap) {
                     if (match.match.level == MatchConstants.MATCH_LEVEL_FINAL) {
                         FinalDrawActivity.startPage(this@SeasonActivity, match.bean.id)
@@ -117,4 +137,5 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
             adapter.notifyDataSetChanged()
         }
     }
+
 }

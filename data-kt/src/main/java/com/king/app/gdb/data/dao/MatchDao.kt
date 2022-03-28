@@ -50,6 +50,9 @@ interface MatchDao {
     @Query("select * from match_period order by period desc, orderInPeriod desc")
     fun getAllMatchPeriodsOrdered(): List<MatchPeriodWrap>
 
+    @Query("select * from match_period where period=:period order by period desc, orderInPeriod desc")
+    fun getMatchPeriodsOrdered(period: Int): List<MatchPeriodWrap>
+
     @Query("select * from match_item")
     fun getAllMatchItems(): List<MatchItem>
 

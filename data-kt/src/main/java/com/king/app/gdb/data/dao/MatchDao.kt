@@ -2,6 +2,7 @@ package com.king.app.gdb.data.dao
 
 import androidx.room.*
 import com.king.app.gdb.data.bean.*
+import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.ScorePlan
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.*
@@ -475,4 +476,7 @@ interface MatchDao {
 
     @Query("select mr.recordId, mr.recordSeed, mr.recordRank, mi.round, mi.winnerId, mp.period, mp.id as matchPeriodId, mp.date as matchPeriodDate from match_record mr join match_item mi on mr.matchItemId=mi.id and mi.round in (6,7)join match_period mp on mr.matchId=mp.id join 'match' m on mp.matchId=m.id where m.id=:matchId order by mp.period desc, mi.round")
     fun queryMatchSemiRecords(matchId: Long):List<MatchSemiRecord>
+
+    @Query("select r.* from match_item mi join record r on mi.winnerId=r._id where mi.matchId=:matchPeriodId and mi.round=:round")
+    fun queryMatchWinner(matchPeriodId: Long, round: Int): Record?
 }

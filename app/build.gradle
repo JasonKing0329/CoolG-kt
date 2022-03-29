@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 351
-        versionName "9.5.1"
+        versionCode 352
+        versionName "9.5.2"
         flavorDimensions "1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -134,4 +134,6 @@ dependencies {
     implementation 'com.gyf.immersionbar:immersionbar:3.0.0'
 // kotlin扩展（可选）
     implementation 'com.gyf.immersionbar:immersionbar-ktx:3.0.0'
+
+    implementation "com.daimajia.swipelayout:library:1.2.0@aar"
 }

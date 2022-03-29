@@ -6,7 +6,10 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.RankRepository
+import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.relation.MatchPeriodWrap
@@ -29,12 +32,15 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
 
     var endPeriod = rankRepository.getRTFPeriodPack().startPeriod
 
+    var imageChanged = MutableLiveData<TimeWasteRange>()
+
     var showPeriod = endPeriod
 
     fun loadMatches() {
         periodText.set("Period $showPeriod")
-        launchSingle(
-            {
+        basicAndTimeWaste(
+            blockBasic = {
+                getDatabase().getMatchDao().getMatchPeriodsOrdered(showPeriod)
                 // list按降序排列
                 val list = getDatabase().getMatchDao().getMatchPeriodsOrdered(showPeriod)
                 val startTime = FormatUtil.formatDate(list.lastOrNull()?.bean?.date?:0)
@@ -42,10 +48,20 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
                 periodDateText.set("$startTime To $endTime")
                 list
             },
-            withLoading = true
-        ) {
-            checkLastNext()
-            matchesObserver.value = it
+            onCompleteBasic = {
+                checkLastNext()
+                matchesObserver.value = it
+            },
+            blockWaste = { _, it ->  handleItem(it) },
+            5,
+            onWasteRangeChanged = {start, count -> imageChanged.value = TimeWasteRange(start, count) },
+            withBasicLoading = false
+        )
+    }
+
+    private fun handleItem(it: MatchPeriodWrap) {
+        getDatabase().getMatchDao().queryMatchWinner(it.bean.id, MatchConstants.ROUND_ID_F)?.apply {
+            it.imageUrl = ImageProvider.getRecordRandomPath(name, null)
         }
     }
 

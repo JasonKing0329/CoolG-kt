@@ -20,7 +20,9 @@ data class MatchPeriodWrap (
         entityColumn = "id")
     var match: Match
 
-)
+) {
+    var imageUrl: String? = null
+}
 data class MatchRecordWrap (
 
     @Embedded

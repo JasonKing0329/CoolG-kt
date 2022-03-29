@@ -48,9 +48,10 @@
     <color name="match_level_gs">#FF0005</color>
     <color name="match_level_final">#C93437</color>
     <color name="match_level_gm1000">#cc6600</color>
-    <color name="match_level_gm500">#9900a5c4</color>
-    <color name="match_level_gm250">#666666</color>
-    <color name="match_level_low">#909090</color>
+    <color name="match_level_gm500">#9905D3FA</color>
+    <color name="match_level_gm250">#1F8F40</color>
+    <color name="match_level_low">#332945</color>
+    <color name="match_level_micro">#777777</color>
 
     <color name="tab_actionbar_text_focus">#FFD600</color>
 

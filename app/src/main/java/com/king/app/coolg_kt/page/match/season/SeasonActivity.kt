@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
@@ -103,7 +102,8 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
     }
 
     override fun initData() {
-        mModel.matchesObserver.observe(this, Observer { showMatches(it) })
+        mModel.matchesObserver.observe(this, { showMatches(it) })
+        mModel.imageChanged.observe(this, { adapter.notifyItemRangeChanged(it.start, it.count) })
         mModel.loadMatches()
     }
 

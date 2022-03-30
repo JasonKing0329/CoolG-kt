@@ -53,6 +53,21 @@ class SeasonActivity: BaseActivity<ActivitySeasonBinding, SeasonViewModel>() {
                 }
             }
         }
+        mBinding.actionbar.registerPopupMenuOn(
+            R.id.menu_filter,
+            R.menu.menu_level
+        ) {
+            when(it.itemId) {
+                R.id.menu_level_all -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_ALL)
+                R.id.menu_level_gs -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_GS)
+                R.id.menu_level_gm1000 -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_GM1000)
+                R.id.menu_level_gm500 -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_GM500)
+                R.id.menu_level_gm250 -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_GM250)
+                R.id.menu_level_low -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_LOW)
+                R.id.menu_level_micro -> mModel.filterByLevel(MatchConstants.MATCH_LEVEL_MICRO)
+            }
+            true
+        }
 
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.addItemDecoration(object : RecyclerView.ItemDecoration(){

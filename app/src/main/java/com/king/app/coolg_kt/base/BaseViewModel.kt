@@ -234,6 +234,15 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                     }
                 }
             }
+            // 还有剩余没通知的，最后通知
+            if (index % wasteNotifyCount != 0) {
+                val count = index - index / wasteNotifyCount * wasteNotifyCount
+                val start = index - count
+                DebugLog.e("onWasteRangeChanged start=$start, count=$count")
+                withContext(Dispatchers.Main) {
+                    onWasteRangeChanged(start, count)
+                }
+            }
         }
     }
 

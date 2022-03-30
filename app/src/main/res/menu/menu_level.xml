@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/menu_level_all"
+        android:title="All"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_level_gs"
+        android:title="Grand Slam"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_level_gm1000"
+        android:title="GM1000"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_level_gm500"
+        android:title="GM500"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_level_gm250"
+        android:title="GM250"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_level_low"
+        android:title="LOW"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_level_micro"
+        android:title="MICRO"
+        app:showAsAction="never"/>
+</menu>

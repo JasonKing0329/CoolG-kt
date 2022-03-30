@@ -13,6 +13,7 @@ import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.utils.FormatUtil
 import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.relation.MatchPeriodWrap
+import kotlinx.coroutines.Job
 
 /**
  * @description:
@@ -36,17 +37,29 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
 
     var showPeriod = endPeriod
 
+    var mFilterLevel = MatchConstants.MATCH_LEVEL_ALL
+
+    var urlMap = mutableMapOf<Long, String?>()
+
+    var loadJob: Job? = null
+
     fun loadMatches() {
         periodText.set("Period $showPeriod")
-        basicAndTimeWaste(
+        loadJob?.cancel()
+        loadJob = basicAndTimeWaste(
             blockBasic = {
-                getDatabase().getMatchDao().getMatchPeriodsOrdered(showPeriod)
+                urlMap.clear()
                 // list按降序排列
-                val list = getDatabase().getMatchDao().getMatchPeriodsOrdered(showPeriod)
+                var list = getDatabase().getMatchDao().getMatchPeriodsOrdered(showPeriod)
                 val startTime = FormatUtil.formatDate(list.lastOrNull()?.bean?.date?:0)
                 val endTime = FormatUtil.formatDate(list.firstOrNull()?.bean?.date?:0)
                 periodDateText.set("$startTime To $endTime")
-                list
+                return@basicAndTimeWaste if (mFilterLevel != MatchConstants.MATCH_LEVEL_ALL) {
+                    list.filter { it.match.level == mFilterLevel }
+                }
+                else {
+                    list
+                }
             },
             onCompleteBasic = {
                 checkLastNext()
@@ -61,7 +74,14 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
 
     private fun handleItem(it: MatchPeriodWrap) {
         getDatabase().getMatchDao().queryMatchWinner(it.bean.id, MatchConstants.ROUND_ID_F)?.apply {
-            it.imageUrl = ImageProvider.getRecordRandomPath(name, null)
+            var url = urlMap[id]
+            if (url == null) {
+                it.imageUrl = ImageProvider.getRecordRandomPath(name, null)
+                urlMap[id!!] = it.imageUrl
+            }
+            else {
+                it.imageUrl = url
+            }
         }
     }
 
@@ -126,6 +146,13 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
         }
         else {
             periodLastVisibility.set(View.VISIBLE)
+        }
+    }
+
+    fun filterByLevel(level: Int) {
+        if (level != mFilterLevel) {
+            mFilterLevel = level
+            loadMatches()
         }
     }
 

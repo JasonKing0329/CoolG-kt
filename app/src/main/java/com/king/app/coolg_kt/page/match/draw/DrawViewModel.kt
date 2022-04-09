@@ -24,6 +24,8 @@ import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
+import java.util.*
+import kotlin.math.abs
 
 /**
  * @description:
@@ -581,5 +583,18 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
 
     fun isNotSupportPreApply(): Boolean {
         return matchPeriod.match.level == MatchConstants.MATCH_LEVEL_LOW || matchPeriod.match.level == MatchConstants.MATCH_LEVEL_FINAL
+    }
+
+    fun randomWin() {
+        val random = Random()
+        itemsObserver.value?.forEach {
+            it.winner = if (abs(random.nextInt()) % 2 == 0) {
+                it.matchRecord1
+            }
+            else {
+                it.matchRecord2
+            }
+            it.isChanged = true
+        }
     }
 }

@@ -264,6 +264,19 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             mBinding.tvMain.isSelected = false
             mBinding.tvQualify.isSelected = true
         }
+        mBinding.tvRandomWin.setOnClickListener {
+            if (isEditing) {
+                showConfirmCancelMessage("Random results will overwrite the origin results, continue?",
+                    { dialog, which ->
+                        mModel.randomWin()
+                        adapter.notifyDataSetChanged()
+                    },
+                    null)
+            }
+            else {
+                showMessageShort("It only works in edit mode")
+            }
+        }
     }
 
     private fun showStudioMap() {

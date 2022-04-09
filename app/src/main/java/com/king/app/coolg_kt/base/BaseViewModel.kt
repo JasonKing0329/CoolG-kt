@@ -93,7 +93,12 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
             if (withLoading) {
                 loadingObserver.value = true
             }
-            onComplete(block())
+            kotlin.runCatching {
+                onComplete(block())
+            }?.onFailure {
+                it.printStackTrace()
+                messageObserver.value = it.message?:"error"
+            }
             if (withLoading) {
                 loadingObserver.value = false
             }
@@ -111,8 +116,13 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
             if (withLoading) {
                 loadingObserver.value = true
             }
-            val response = withContext(fixedPool) { block() }
-            onComplete(response)
+            kotlin.runCatching {
+                val response = withContext(fixedPool) { block() }
+                onComplete(response)
+            }?.onFailure {
+                it.printStackTrace()
+                messageObserver.value = it.message?:"error"
+            }
             if (withLoading) {
                 loadingObserver.value = false
             }

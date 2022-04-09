@@ -1,11 +1,10 @@
 package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.page.match.HighRankRecord
 import com.king.app.coolg_kt.page.match.PeriodPack
-import com.king.app.coolg_kt.page.match.ShowPeriod
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
-import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.RankLevelCount
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.*
@@ -45,21 +44,16 @@ class RankRepository: BaseRepository() {
         return false
     }
 
-    fun getRankPeriodRecordScores(): Observable<List<ScoreCount>> {
-        return Observable.create {
-            TimeCostUtil.start()
-            val list = getRecordScoreList(getRankPeriodPack())
-            TimeCostUtil.end("getRankPeriodRecordScores")
-            it.onNext(list)
-            it.onComplete()
+    fun getRankPeriodRecordScores(): List<ScoreCount> {
+        var list = listOf<ScoreCount>()
+        printCostTime("getRankPeriodRecordScores") {
+            list = getRecordScoreList(getRankPeriodPack())
         }
+        return list
     }
 
-    fun getRTFRecordScores(): Observable<List<ScoreCount>> {
-        return Observable.create {
-            it.onNext(getRecordScoreList(getRTFPeriodPack()))
-            it.onComplete()
-        }
+    fun getRTFRecordScores(): List<ScoreCount> {
+        return getRecordScoreList(getRTFPeriodPack())
     }
 
     fun getRankPeriodStarScores(): Observable<List<ScoreCount>> {
@@ -79,14 +73,7 @@ class RankRepository: BaseRepository() {
     /**
      * 从match_rank_record表中获取排名、积分、数量
      */
-    fun getSpecificPeriodRecordRanks(period: Int, orderInPeriod: Int): Observable<List<RankItemWrap>> {
-        return Observable.create {
-            it.onNext(specificPeriodRecordRanks(period, orderInPeriod))
-            it.onComplete()
-        }
-    }
-
-    fun specificPeriodRecordRanks(period: Int, orderInPeriod: Int): List<RankItemWrap> {
+    fun getSpecificPeriodRecordRanks(period: Int, orderInPeriod: Int): List<RankItemWrap> {
         return getDatabase().getMatchDao().getRankItems(period, orderInPeriod)
     }
 
@@ -104,18 +91,15 @@ class RankRepository: BaseRepository() {
     /**
      * 从match_rank_record表中获取排名、积分、数量
      */
-    fun getRankPeriodRecordRanks(): Observable<List<RankItemWrap>> {
-        return Observable.create {
-            TimeCostUtil.start()
+    fun getRankPeriodRecordRanks(): List<RankItemWrap> {
+        var result = listOf<RankItemWrap>()
+        printCostTime("getRankPeriodRecordRanks") {
             val pack = getRankPeriodPack()
-            var result = listOf<RankItemWrap>()
             pack.matchPeriod?.let { matchPeriod ->
                 result = getDatabase().getMatchDao().getRankItems(matchPeriod.period, matchPeriod.orderInPeriod)
             }
-            TimeCostUtil.end("getRankPeriodRecordRanks")
-            it.onNext(result)
-            it.onComplete()
         }
+        return result
     }
 
     fun getStudioRankPeriodRecordRanks(studioId: Long):List<RankItemWrap> {

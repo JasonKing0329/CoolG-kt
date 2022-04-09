@@ -18,6 +18,7 @@ import com.king.app.coolg_kt.databinding.ActivityMatchRankBinding
 import com.king.app.coolg_kt.page.match.RankItem
 import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
+import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.coolg_kt.view.dialog.ProgressDialogFragment
@@ -165,29 +166,17 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
     <item>Star-RTF</item>
      */
     private fun createRank() {
-        when {
-            mModel.periodOrRtf == 0 && mModel.recordOrStar == 0 -> {
+        when (mModel.periodOrRtf) {
+            0 -> {
                 if (mModel.isLastRecordRankCreated()) {
                     showConfirmCancelMessage("Record ranks of last week have been already created, do you want to override it?",
                         DialogInterface.OnClickListener { dialog, which -> mModel.createRankRecord() },
                         null)
-                }
-                else {
+                } else {
                     mModel.createRankRecord()
                 }
             }
-            mModel.periodOrRtf == 1 && mModel.recordOrStar == 0 -> showMessageShort("Create record ranks can only be executed in Record-Period!")
-            mModel.periodOrRtf == 0 && mModel.recordOrStar == 1 -> {
-                if (mModel.isLastStarRankCreated()) {
-                    showConfirmCancelMessage("Star Ranks of last week have been already created, do you want to override it?",
-                        DialogInterface.OnClickListener { dialog, which -> mModel.createRankStar() },
-                        null)
-                }
-                else {
-                    mModel.createRankStar()
-                }
-            }
-            mModel.periodOrRtf == 1 && mModel.recordOrStar == 0 -> showMessageShort("Create star ranks can only be executed in Star-Period!")
+            1 -> showMessageShort("Create record ranks can only be executed in Record-Period!")
         }
     }
 
@@ -295,6 +284,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         })
         mModel.detailProgressError.observe(this, Observer { detailProgress.dismissAllowingStateLoss() })
         mModel.detailProgressing.observe(this, Observer {
+            DebugLog.e("progress=$it")
             when(it) {
                 0 -> {
                     if (!detailProgress.isVisible) {
@@ -312,7 +302,6 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         })
 
         mBinding.tvPeriod.isSelected = true
-        mModel.onRecordOrStarChanged(0)
 
         mModel.studiosObserver.observe(this, Observer {
             var adapter = ArrayAdapter<String>(this@RankActivity, android.R.layout.simple_dropdown_item_1line, it)
@@ -333,6 +322,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             mBinding.spStudio.visibility = View.INVISIBLE
         }
         mModel.loadStudios()
+        mModel.loadRanks()
     }
 
     private fun showRankDialog(record: Record) {

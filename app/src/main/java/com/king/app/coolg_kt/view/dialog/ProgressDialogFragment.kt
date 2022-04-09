@@ -54,7 +54,9 @@ class ProgressDialogFragment : DialogFragment() {
     }
 
     fun setProgress(progress: Int) {
-        mBinding.tvProgress.text = "$progress%"
+        kotlin.runCatching {
+            mBinding.tvProgress.text = "$progress%"
+        }
     }
 
     fun showAsNumProgress(startProgress: Int, manager: FragmentManager, tag: String?) {

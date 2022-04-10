@@ -588,11 +588,20 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     fun randomWin() {
         val random = Random()
         itemsObserver.value?.forEach {
-            it.winner = if (abs(random.nextInt()) % 2 == 0) {
-                it.matchRecord1
-            }
-            else {
-                it.matchRecord2
+            it.winner = when {
+                it.matchRecord1?.bean?.type == MatchConstants.MATCH_RECORD_BYE -> {
+                    it.matchRecord2
+                }
+                it.matchRecord2?.bean?.type == MatchConstants.MATCH_RECORD_BYE -> {
+                    it.matchRecord1
+                }
+                else -> {
+                    if (abs(random.nextInt()) % 2 == 0) {
+                        it.matchRecord1
+                    } else {
+                        it.matchRecord2
+                    }
+                }
             }
             it.isChanged = true
         }

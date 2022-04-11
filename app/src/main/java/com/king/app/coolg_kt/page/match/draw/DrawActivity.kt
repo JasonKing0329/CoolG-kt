@@ -459,6 +459,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         isEditing = edit
         adapter.isEditing = edit
         adapter.notifyDataSetChanged()
+        mBinding.tvRandomWin.visibility = if (edit) View.VISIBLE else View.GONE
     }
 
     override fun onBackPressed() {

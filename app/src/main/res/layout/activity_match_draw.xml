@@ -114,10 +114,12 @@
             android:text="Random Win"
             android:textColor="@drawable/selector_studio_tag_text"
             android:gravity="center"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="160dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="@+id/actionbar"
+            app:layout_constraintBottom_toBottomOf="@+id/actionbar"
+            tools:visibility="visible"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

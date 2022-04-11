@@ -11,6 +11,8 @@ import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.entity.TagClass
+import com.king.app.gdb.data.entity.match.MatchItem
+import com.king.app.gdb.data.entity.match.MatchRecord
 
 /**
  * @description:
@@ -211,4 +213,11 @@ data class TagGroupItem (
     var item: Tag,
     var parent:TagClass,
     var isEditing: Boolean
+)
+
+data class DrawUpdateResult (
+    var updateItemList: MutableList<MatchItem> = mutableListOf(),
+    var insertList: MutableList<MatchRecord> = mutableListOf(),
+    var updateList: MutableList<MatchRecord> = mutableListOf(),
+    var deleteList: MutableList<MatchRecord> = mutableListOf(),
 )

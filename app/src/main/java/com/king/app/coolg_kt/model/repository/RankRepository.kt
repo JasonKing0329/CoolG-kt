@@ -387,4 +387,16 @@ class RankRepository: BaseRepository() {
     fun getRecordRankInMatch(recordId: Long, matchPeriodId: Long): MatchRecord? {
         return getDatabase().getMatchDao().getMatchRecords(matchPeriodId, recordId).firstOrNull()
     }
+
+    fun deleteMatchPeriod(bean: MatchPeriod) {
+        // delete related tables
+        getDatabase().runInTransaction {
+            // match_item
+            getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(bean.id)
+            // match_record
+            getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(bean.id)
+            // match_period
+            getDatabase().getMatchDao().deleteMatchPeriod(bean)
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.king.app.coolg_kt.model.repository
 import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
+import com.king.app.coolg_kt.model.bean.DrawUpdateResult
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.MatchRule
 import com.king.app.coolg_kt.page.match.*
@@ -10,6 +11,7 @@ import com.king.app.coolg_kt.page.match.draw.*
 import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.*
+import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -322,8 +324,169 @@ class DrawRepository: BaseRepository() {
         }
     }
 
+    private fun findNextRoundMatchItem(order: Int, nextRounds: List<MatchItemWrap>?): MatchItemWrap? {
+        return nextRounds?.firstOrNull{ it.bean.order == order }
+    }
+
+    /**
+     * update match result of specific round
+     */
+    fun updateDrawByRound(roundId: Int, list: List<DrawItem>?) {
+        val result = when(roundId) {
+            MatchConstants.ROUND_ID_Q3, MatchConstants.ROUND_ID_F -> updateEndDraw(list)
+            else -> updateNextRoundDraw(roundId + 1, list)
+        }
+        getDatabase().runInTransaction {
+            getDatabase().getMatchDao().updateMatchItems(result.updateItemList)
+            getDatabase().getMatchDao().updateMatchRecords(result.updateList)
+            getDatabase().getMatchDao().insertMatchRecords(result.insertList)
+            getDatabase().getMatchDao().deleteMatchRecords(result.deleteList)
+        }
+    }
+
+    /**
+     * change draw with next round to create
+     */
+    private fun updateNextRoundDraw(roundId: Int, list: List<DrawItem>?): DrawUpdateResult {
+        val result = DrawUpdateResult()
+        list?.let {
+            val matchId = it[0].matchItem.matchId
+            // 提前加载下一轮数据，比在forEach中单个查询大大节省时间，参见toggleNextRound注释
+            var nextRounds = getDatabase().getMatchDao().getMatchItems(matchId, roundId)
+            list.forEachIndexed { index, drawItem ->
+                // 本轮数据也待修改
+                drawItem.winner?.let {  winner ->
+                    drawItem.matchItem.winnerId = winner.bean.recordId
+                    result.updateItemList.add(drawItem.matchItem)
+                }
+                drawItem.matchRecord1?.let { result.updateList.add(it.bean) }
+                drawItem.matchRecord2?.let { result.updateList.add(it.bean) }
+                // 待到每两个签位第二个时，再生成下一轮的draw item
+                if (index % 2 == 1) {
+                    updateNextRound(list!![index - 1], drawItem, nextRounds, result)
+                }
+            }
+        }
+        return result
+    }
+
+    /**
+     * change draw data when current round is Q3 or Final
+     */
+    private fun updateEndDraw(list: List<DrawItem>?): DrawUpdateResult {
+        val result = DrawUpdateResult()
+        list?.filter { it.isChanged }?.forEach { drawItem ->
+            drawItem.winner?.let {  winner ->
+                drawItem.matchItem.winnerId = winner.bean.recordId
+                result.updateItemList.add(drawItem.matchItem)
+
+                when(drawItem.matchItem.round) {
+                    // Q3，胜者填补正赛签位
+                    MatchConstants.ROUND_ID_Q3 -> {
+                        setQualifyToMainDraw(winner.bean)
+                    }
+                    // Final，决定冠军
+                    MatchConstants.ROUND_ID_F -> {
+
+                    }
+                }
+            }
+            drawItem.matchRecord1?.let { result.updateList.add(it.bean) }
+            drawItem.matchRecord2?.let { result.updateList.add(it.bean) }
+        }
+        return result
+    }
+
+    /**
+     * fill main draw with qualify winner
+     */
+    private fun setQualifyToMainDraw(bean: MatchRecord) {
+        var qualify = getDatabase().getMatchDao().getUndefinedQualifies(bean.matchId).shuffled().first()
+        qualify.recordId = bean.recordId
+        qualify.recordRank = bean.recordRank
+        qualify.recordSeed = 0
+        getDatabase().getMatchDao().updateMatchRecords(listOf(qualify))
+    }
+
+    /**
+     * 根据签位配对的两个产生下一轮
+     */
+    private fun updateNextRound(
+        drawItem1: DrawItem,
+        drawItem2: DrawItem,
+        nextRounds: List<MatchItemWrap>?,
+        result: DrawUpdateResult
+    ) {
+        val nextRoundOrder = drawItem1.matchItem.order / 2
+        val nextWrap = findNextRoundMatchItem(nextRoundOrder, nextRounds)
+        // 下一轮还未创建，创建下一轮
+        if (nextWrap == null) {
+            newNextRoundItem(nextRoundOrder, drawItem1, drawItem2, result)
+        }
+        // 下一轮已存在，修改record数据
+        else {
+            updateNextRoundItem(nextWrap, drawItem1, drawItem2, result)
+        }
+    }
+
+    private fun newNextRoundItem(
+        nextRoundOrder: Int,
+        drawItem1: DrawItem,
+        drawItem2: DrawItem,
+        result: DrawUpdateResult
+    ) {
+        val nextItem = drawItem1.matchItem.copy()
+        nextItem.id = 0
+        nextItem.round = drawItem1.matchItem.round + 1
+        nextItem.order = nextRoundOrder
+        nextItem.isBye = false
+        nextItem.winnerId = 0
+        val id = getDatabase().getMatchDao().insertMatchItem(nextItem)
+        nextItem.id = id
+        drawItem1.winner?.let {
+            result.insertList.add(newNextMatchRecord(it.bean, id, 1))
+        }
+        drawItem2.winner?.let {
+            result.insertList.add(newNextMatchRecord(it.bean, id, 2))
+        }
+    }
+
+    private fun updateNextRoundItem(
+        nextItem: MatchItemWrap,
+        drawItem1: DrawItem,
+        drawItem2: DrawItem,
+        result: DrawUpdateResult
+    ) {
+        // 先删除原有的关联
+        result.deleteList.addAll(nextItem.recordList)
+        // 再插入新关系
+        drawItem1.winner?.let {
+            result.insertList.add(newNextMatchRecord(it.bean, nextItem.bean.id, 1))
+        }
+        drawItem2.winner?.let {
+            result.insertList.add(newNextMatchRecord(it.bean, nextItem.bean.id, 2))
+        }
+    }
+
+    private fun newNextMatchRecord(bean: MatchRecord, matchItemId: Long, order: Int): MatchRecord {
+        val mr = bean.copy()
+        mr.id = 0
+        mr.type = 0
+        mr.order = order
+        mr.matchItemId = matchItemId
+        return mr
+    }
+
+    /**
+     * 逐个查询 nextWrap 在128/256 qualify draw中太耗时
+     * 采用预先查询next round list来大大缩短时间
+     * 但是如此一来会有下一轮item的逻辑问题，因为下一轮的drawItem(matchItem)是由这一轮的两个drawItem的winner决定的
+     * 因此改造方法，直接创建由两个drawItem产生next round matchItem的方法
+     */
+    @Deprecated("逐个查询next round太耗时", replaceWith = ReplaceWith("updateDrawByRound"))
     fun toggleNextRound(matchItem: MatchItem, winner: MatchRecordWrap) {
         val nextRoundOrder = matchItem.order / 2
+        // 经测试，当数据膨胀到数十万条后，这个getMatchItem查询很耗时，每一条耗时30ms左右，如此一来，在128甚至256签的qualify中，就要耗时4-10秒
         val nextWrap = getDatabase().getMatchDao().getMatchItem(matchItem.matchId, matchItem.round + 1, nextRoundOrder)
         // 不存在，创建新的MatchItem与MatchRecord
         if (nextWrap == null) {
@@ -359,6 +522,7 @@ class DrawRepository: BaseRepository() {
                 nextRecord1.recordSeed = 0
                 nextRecord1.type = 0
             }
+            // 经测试，数据膨胀到数十万条，insert与update方法都几乎不怎么耗时
             getDatabase().getMatchDao().insertMatchRecords(listOf(nextRecord1, nextRecord2))
         }
         // 已存在，修改MatchRecord
@@ -382,6 +546,7 @@ class DrawRepository: BaseRepository() {
                 nextRecord.recordRank = winner.bean.recordRank
                 nextRecord.recordSeed = winner.bean.recordSeed
                 nextRecord.type = winner.bean.type
+                // 经测试，基本数据膨胀到数十万条，insert与update方法都几乎不怎么耗时
                 getDatabase().getMatchDao().updateMatchRecords(listOf(nextRecord))
             }
         }

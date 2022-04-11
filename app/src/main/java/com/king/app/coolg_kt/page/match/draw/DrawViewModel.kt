@@ -8,6 +8,7 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
+import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
@@ -19,11 +20,8 @@ import com.king.app.coolg_kt.page.match.DrawItem
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.gdb.data.entity.match.Match
-import com.king.app.gdb.data.entity.match.MatchItem
-import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
-import io.reactivex.rxjava3.core.Observable
 import java.util.*
 import kotlin.math.abs
 
@@ -157,6 +155,10 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         roundPosition = position
         checkNextLast()
         reloadRound()
+    }
+
+    fun getCurrentRound(): Int {
+        return roundList.value?.get(roundPosition)?.id?:0
     }
 
     private fun reloadRound() {
@@ -339,20 +341,14 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun saveEdit() {
-        saveEditRx()
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
-                override fun onNext(t: Boolean?) {
-                    messageObserver.value = "success"
-                    saveEditSuccess.value = true
-                    reloadRound()
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
+        launchSingleThread(
+            { updateDraw() },
+            withLoading = true
+        ) {
+            messageObserver.value = "success"
+            saveEditSuccess.value = true
+            reloadRound()
+        }
     }
 
     fun cancelEdit() {
@@ -360,49 +356,36 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         reloadRound()
     }
 
-    private fun saveEditRx(): Observable<Boolean> {
-        return Observable.create {
-            val updateMatchRecords = mutableListOf<MatchRecord>()
-            val updateMatchItems = mutableListOf<MatchItem>()
-            itemsObserver.value?.filter { it.isChanged }?.forEach { drawItem ->
-                drawItem.winner?.let {  winner ->
-                    drawItem.matchItem.winnerId = winner.bean.recordId
-                    updateMatchItems.add(drawItem.matchItem)
-
-                    when(drawItem.matchItem.round) {
-                        // Q3，胜者填补正赛签位
-                        MatchConstants.ROUND_ID_Q3 -> {
-                            setQualifyToMainDraw(winner.bean)
+    private fun getChangedDrawItems(): List<DrawItem>? {
+        return when(getCurrentRound()) {
+            MatchConstants.ROUND_ID_Q3, MatchConstants.ROUND_ID_F -> itemsObserver.value?.filter { it.isChanged }
+            else -> {
+                // 影响下一轮matchItem的要保证配对的两个drawItem都一起进入修改
+                itemsObserver.value?.filterIndexed { index, drawItem ->
+                    if (drawItem.isChanged) {
+                        true
+                    } else {// 配对的是否为true
+                        val coupleIndex = if (index%2 == 0) {
+                            index + 1
                         }
-                        // Final，决定冠军
-                        MatchConstants.ROUND_ID_F -> {
-
+                        else {
+                            index - 1
                         }
-                        // 其他，判断进入到下一轮
-                        else -> {
-                            // 一对签位，在第二个item检查下一轮
-                            // 检查下一轮
-                            drawRepository.toggleNextRound(drawItem.matchItem, winner)
+                        var result = false
+                        kotlin.runCatching {
+                            result = itemsObserver.value?.get(coupleIndex)?.isChanged == true
                         }
+                        result
                     }
                 }
-                drawItem.matchRecord1?.let { updateMatchRecords.add(it.bean) }
-                drawItem.matchRecord2?.let { updateMatchRecords.add(it.bean) }
             }
-            getDatabase().getMatchDao().updateMatchItems(updateMatchItems)
-            getDatabase().getMatchDao().updateMatchRecords(updateMatchRecords)
-
-            it.onNext(true)
-            it.onComplete()
         }
     }
 
-    private fun setQualifyToMainDraw(bean: MatchRecord) {
-        var qualify = getDatabase().getMatchDao().getUndefinedQualifies(bean.matchId).shuffled().first()
-        qualify.recordId = bean.recordId
-        qualify.recordRank = bean.recordRank
-        qualify.recordSeed = 0
-        getDatabase().getMatchDao().updateMatchRecords(listOf(qualify))
+    private fun updateDraw() {
+        printCostTime {
+            drawRepository.updateDrawByRound(getCurrentRound(), getChangedDrawItems())
+        }
     }
 
     fun createScore() {

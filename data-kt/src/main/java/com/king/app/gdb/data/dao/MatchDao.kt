@@ -57,7 +57,7 @@ interface MatchDao {
     @Query("select * from match_item")
     fun getAllMatchItems(): List<MatchItem>
 
-    @Query("select * from match_item where matchId=:matchPeriodId and round=:round")
+    @Query("select * from match_item where matchId=:matchPeriodId and round=:round order by `order`")
     fun getRoundMatchItems(matchPeriodId: Long, round: Int): List<MatchItemWrap>
 
     @Query("select * from match_item where matchId=:matchPeriodId")
@@ -270,6 +270,9 @@ interface MatchDao {
     @Query("delete from match_record")
     fun deleteMatchRecords()
 
+    @Delete
+    fun deleteMatchRecords(list: List<MatchRecord>)
+
     @Query("delete from match_record where matchId =:matchPeriodId")
     fun deleteMatchRecordsByMatchPeriod(matchPeriodId: Long)
 
@@ -311,6 +314,9 @@ interface MatchDao {
 
     @Query("select * from match_item where matchId=:matchId and round=:round and `order`=:order")
     fun getMatchItem(matchId: Long, round: Int, order: Int): MatchItemWrap?
+
+    @Query("select * from match_item where matchId=:matchId and round=:round")
+    fun getMatchItems(matchId: Long, round: Int): List<MatchItemWrap>
 
     @Query("select * from match_item where id=:id")
     fun getMatchItem(id: Long): MatchItem?

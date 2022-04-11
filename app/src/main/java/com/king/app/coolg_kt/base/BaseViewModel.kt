@@ -94,13 +94,17 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                 loadingObserver.value = true
             }
             kotlin.runCatching {
-                onComplete(block())
+                val result = block()
+                if (withLoading) {
+                    loadingObserver.value = false
+                }
+                onComplete(result)
             }?.onFailure {
                 it.printStackTrace()
+                if (withLoading) {
+                    loadingObserver.value = false
+                }
                 messageObserver.value = it.message?:"error"
-            }
-            if (withLoading) {
-                loadingObserver.value = false
             }
         }
     }
@@ -118,13 +122,16 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
             }
             kotlin.runCatching {
                 val response = withContext(fixedPool) { block() }
+                if (withLoading) {
+                    loadingObserver.value = false
+                }
                 onComplete(response)
             }?.onFailure {
                 it.printStackTrace()
+                if (withLoading) {
+                    loadingObserver.value = false
+                }
                 messageObserver.value = it.message?:"error"
-            }
-            if (withLoading) {
-                loadingObserver.value = false
             }
         }
     }

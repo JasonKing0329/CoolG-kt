@@ -103,7 +103,7 @@ class SeasonViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun deleteMatch(bean: MatchPeriod) {
-        getDatabase().getMatchDao().deleteMatchPeriod(bean)
+        rankRepository.deleteMatchPeriod(bean)
         loadMatches()
     }
 

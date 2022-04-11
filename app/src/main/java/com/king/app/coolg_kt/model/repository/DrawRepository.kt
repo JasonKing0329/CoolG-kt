@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.bean.DrawUpdateResult
+import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.MatchRule
 import com.king.app.coolg_kt.page.match.*
@@ -57,21 +58,18 @@ class DrawRepository: BaseRepository() {
         return FinalDrawPlan(rankRecords, match).arrangeMainDraw()
     }
 
-    fun createDraw(bean: MatchPeriodWrap, drawStrategy: DrawStrategy):Observable<DrawData> {
-        return Observable.create {
-            var drawData = DrawData(bean.bean)
-            // 第一个赛季，种子排位参考CountRecord
-            var rankRecords = if (bean.bean.period == 1) {
-                createRankByRecord()
-            }
-            // 参考rank体系
-            else {
-                createRankSystem()
-            }
-            createNormalMainDraw(bean, rankRecords, drawData, drawStrategy)
-            it.onNext(drawData)
-            it.onComplete()
+    fun createDraw(bean: MatchPeriodWrap, drawStrategy: DrawStrategy):DrawData {
+        var drawData = DrawData(bean.bean)
+        // 第一个赛季，种子排位参考CountRecord
+        var rankRecords = if (bean.bean.period == 1) {
+            createRankByRecord()
         }
+        // 参考rank体系
+        else {
+            createRankSystem()
+        }
+        createNormalMainDraw(bean, rankRecords, drawData, drawStrategy)
+        return drawData
     }
 
     private fun createRankByRecord(): List<RankRecord> {
@@ -150,10 +148,9 @@ class DrawRepository: BaseRepository() {
      * 但由于DrawItem的结构已定，许多地方都引用了MatchRecordWrap，所以保留该结构，将record与imageUrl延迟加载（因为逐个加载时这两都属于耗时操作）
      * 如此一来，以GS R128为例，加载速度从原来的5000毫秒+ 直接降低到了50毫秒内
      */
-    fun getDrawItems(matchPeriodId: Long, matchId: Long, round: Int): Observable<List<DrawItem>> {
-        return Observable.create {
-            var result = mutableListOf<DrawItem>()
-            TimeCostUtil.start()
+    fun getDrawItems(matchPeriodId: Long, matchId: Long, round: Int): List<DrawItem> {
+        var result = mutableListOf<DrawItem>()
+        printCostTime("getDrawItems") {
             var list = getDatabase().getMatchDao().getRoundMatchItems(matchPeriodId, round)
             list.forEach { item ->
                 var drawItem = DrawItem(item.bean)
@@ -168,10 +165,8 @@ class DrawRepository: BaseRepository() {
                 }
                 result.add(drawItem)
             }
-            TimeCostUtil.end("getDrawItems")
-            it.onNext(result)
-            it.onComplete()
         }
+        return result
     }
 
     fun isDrawExist(matchPeriodId: Long): Boolean {
@@ -215,51 +210,48 @@ class DrawRepository: BaseRepository() {
         }
     }
 
-    fun saveDraw(data: DrawData):Observable<DrawData> {
-        return Observable.create {
-            // 先清除matchPeriodId相关
-            getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
-            getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
+    fun saveDraw(data: DrawData):DrawData {
+        // 先清除matchPeriodId相关
+        getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
+        getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
 
-            // 先插入MatchItem获取id
-            val insertMatchItemList = mutableListOf<MatchItem>()
-            data.qualifyItems.forEach { drawItem ->
-                insertMatchItemList.add(drawItem.matchItem)
-            }
-            data.mainItems.forEach { drawItem ->
-                insertMatchItemList.add(drawItem.matchItem)
-            }
-            val ids = getDatabase().getMatchDao().insertMatchItems(insertMatchItemList)
-            insertMatchItemList.forEachIndexed { index, matchItem ->
-                matchItem.id = ids[index]
-            }
-
-            // 再插入MatchRecord
-            val insertMatchRecordList = mutableListOf<MatchRecord>()
-            data.qualifyItems.forEach { drawItem ->
-                drawItem.matchRecord1?.bean?.let { matchRecord ->
-                    matchRecord.matchItemId = drawItem.matchItem.id
-                    insertMatchRecordList.add(matchRecord)
-                }
-                drawItem.matchRecord2?.bean?.let { matchRecord ->
-                    matchRecord.matchItemId = drawItem.matchItem.id
-                    insertMatchRecordList.add(matchRecord)
-                }
-            }
-            data.mainItems.forEach { drawItem ->
-                drawItem.matchRecord1?.bean?.let { matchRecord ->
-                    matchRecord.matchItemId = drawItem.matchItem.id
-                    insertMatchRecordList.add(matchRecord)
-                }
-                drawItem.matchRecord2?.bean?.let { matchRecord ->
-                    matchRecord.matchItemId = drawItem.matchItem.id
-                    insertMatchRecordList.add(matchRecord)
-                }
-            }
-            getDatabase().getMatchDao().insertMatchRecords(insertMatchRecordList)
-            it.onNext(data)
-            it.onComplete()
+        // 先插入MatchItem获取id
+        val insertMatchItemList = mutableListOf<MatchItem>()
+        data.qualifyItems.forEach { drawItem ->
+            insertMatchItemList.add(drawItem.matchItem)
         }
+        data.mainItems.forEach { drawItem ->
+            insertMatchItemList.add(drawItem.matchItem)
+        }
+        val ids = getDatabase().getMatchDao().insertMatchItems(insertMatchItemList)
+        insertMatchItemList.forEachIndexed { index, matchItem ->
+            matchItem.id = ids[index]
+        }
+
+        // 再插入MatchRecord
+        val insertMatchRecordList = mutableListOf<MatchRecord>()
+        data.qualifyItems.forEach { drawItem ->
+            drawItem.matchRecord1?.bean?.let { matchRecord ->
+                matchRecord.matchItemId = drawItem.matchItem.id
+                insertMatchRecordList.add(matchRecord)
+            }
+            drawItem.matchRecord2?.bean?.let { matchRecord ->
+                matchRecord.matchItemId = drawItem.matchItem.id
+                insertMatchRecordList.add(matchRecord)
+            }
+        }
+        data.mainItems.forEach { drawItem ->
+            drawItem.matchRecord1?.bean?.let { matchRecord ->
+                matchRecord.matchItemId = drawItem.matchItem.id
+                insertMatchRecordList.add(matchRecord)
+            }
+            drawItem.matchRecord2?.bean?.let { matchRecord ->
+                matchRecord.matchItemId = drawItem.matchItem.id
+                insertMatchRecordList.add(matchRecord)
+            }
+        }
+        getDatabase().getMatchDao().insertMatchRecords(insertMatchRecordList)
+        return data
     }
 
     private fun nextRoundItem(matchPeriodId: Long, roundId: Int, order: Int, isQualify: Boolean, winner1Record: MatchRecord, winner2Record: MatchRecord): MatchItem {
@@ -623,12 +615,12 @@ class DrawRepository: BaseRepository() {
     /**
      * 普通签表算分
      */
-    fun createScore(match: MatchPeriodWrap): Observable<Boolean> {
-        return Observable.create {
-            getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
-            getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
+    fun createScore(match: MatchPeriodWrap): Boolean {
 
-            TimeCostUtil.start()
+        getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
+        getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
+
+        printCostTime("createScore") {
             var drawScore = getScorePlan(match.match.id)
             var plan = if (drawScore == null) {
                 when(match.match.level) {
@@ -686,10 +678,8 @@ class DrawRepository: BaseRepository() {
             match.bean.isScoreCreated = true
             getDatabase().getMatchDao().updateMatchPeriod(match.bean)
 
-            TimeCostUtil.end("createScore")
-            it.onNext(true)
-            it.onComplete()
         }
+        return true
     }
 
     fun getFinalDrawData(matchPeriod: MatchPeriodWrap): Observable<FinalDrawData> {

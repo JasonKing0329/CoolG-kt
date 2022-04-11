@@ -9,10 +9,7 @@ import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.extension.printCostTime
-import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
-import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
-import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.DrawData
@@ -22,6 +19,7 @@ import com.king.app.coolg_kt.page.match.WildcardBean
 import com.king.app.gdb.data.entity.match.Match
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
+import kotlinx.coroutines.Job
 import java.util.*
 import kotlin.math.abs
 
@@ -62,6 +60,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     var availableWildcard = MutableLiveData<WildcardBean>()
 
     var preApplyList = mutableListOf<WildcardBean>()
+
+    var loadDrawJob: Job? = null
 
     fun loadMatch(matchPeriodId: Long) {
         matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
@@ -192,56 +192,31 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     /**
-     * 逐个加载record与imageUrl属于耗时操作，延迟加载
-     */
-    private var tableWaste = object : TimeWasteTask<DrawItem> {
-        override fun handle(index: Int, data: DrawItem) {
-            data.matchRecord1?.let {
-                it.record = getDatabase().getRecordDao().getRecordBasic(it.bean.recordId)
-                it.imageUrl = ImageProvider.getRecordRandomPath(it.record?.name, null)
-            }
-            data.matchRecord2?.let {
-                it.record = getDatabase().getRecordDao().getRecordBasic(it.bean.recordId)
-                it.imageUrl = ImageProvider.getRecordRandomPath(it.record?.name, null)
-            }
-        }
-    }
-
-    /**
      * 采用matchItemWrap（包含List<MatchRecord>），从数据库直接加载出来，比一个个单独加载MatchRecordWrap更省时
      * 但由于DrawItem的结构已定，许多地方都引用了MatchRecordWrap，所以保留该结构，将record与imageUrl延迟加载（因为逐个加载时这两都属于耗时操作）
      * 如此一来，以GS R128为例，加载速度从原来的5000毫秒+ 直接降低到了50毫秒内
      */
     private fun loadRoundFromTable(roundPack: RoundPack) {
-        loadingObserver.value = true
-        BasicAndTimeWaste<DrawItem>()
-            .basic(drawRepository.getDrawItems(matchPeriod.bean.id, matchPeriod.bean.matchId, roundPack.id))
-            .timeWaste(tableWaste, 1)
-            .composite(getComposite())
-            .subscribe(
-                object : SimpleObserver<List<DrawItem>>(getComposite()) {
-                    override fun onNext(t: List<DrawItem>?) {
-                        loadingObserver.value = false
-                        itemsObserver.value = t
-                    }
+        loadDrawJob?.cancel()
+        loadDrawJob = basicAndTimeWaste(
+            blockBasic = { drawRepository.getDrawItems(matchPeriod.bean.id, matchPeriod.bean.matchId, roundPack.id) },
+            onCompleteBasic = { itemsObserver.value = it },
+            blockWaste = { _, item -> loadWaste(item)},
+            wasteNotifyCount = 1,
+            onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count)},
+            withBasicLoading = false
+        )
+    }
 
-                    override fun onError(e: Throwable?) {
-                        loadingObserver.value = false
-                        e?.printStackTrace()
-                        messageObserver.value = e?.message
-                    }
-
-                },
-                object : SimpleObserver<TimeWasteRange>(getComposite()) {
-                    override fun onNext(t: TimeWasteRange?) {
-                        imageChanged.value = t
-                    }
-
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                    }
-                }
-            )
+    private fun loadWaste(data: DrawItem) {
+        data.matchRecord1?.let {
+            it.record = getDatabase().getRecordDao().getRecordBasic(it.bean.recordId)
+            it.imageUrl = ImageProvider.getRecordRandomPath(it.record?.name, null)
+        }
+        data.matchRecord2?.let {
+            it.record = getDatabase().getRecordDao().getRecordBasic(it.bean.recordId)
+            it.imageUrl = ImageProvider.getRecordRandomPath(it.record?.name, null)
+        }
     }
 
     fun isDrawExist(): Boolean {
@@ -249,43 +224,34 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createDraw(drawStrategy: DrawStrategy) {
-        // 浅拷贝一份，以便cancel create后还能继续保留
-        drawStrategy.preAppliers = preApplyList.toMutableList()
-        drawRepository.createDraw(matchPeriod, drawStrategy)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
-                override fun onNext(t: DrawData) {
-                    createdDrawData = t
-                    newDrawCreated.value = true
-                    // 未被安排进入签表的pre appliers，排进wildcards
-                    if (drawStrategy.preAppliers.size > 0) {
-                        arrangeWildcards(t.mainItems, drawStrategy.preAppliers)
-                    }
-                    itemsObserver.value = t.mainItems
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
+        launchSingleThread(
+            {
+                // 浅拷贝一份，以便cancel create后还能继续保留
+                drawStrategy.preAppliers = preApplyList.toMutableList()
+                drawRepository.createDraw(matchPeriod, drawStrategy)
+            },
+            withLoading = true
+        ) {
+            createdDrawData = it
+            newDrawCreated.value = true
+            // 未被安排进入签表的pre appliers，排进wildcards
+            if (drawStrategy.preAppliers.size > 0) {
+                arrangeWildcards(it.mainItems, drawStrategy.preAppliers)
+            }
+            itemsObserver.value = it.mainItems
+        }
     }
 
     fun saveDraw() {
-        createdDrawData?.let {
-            drawRepository.saveDraw(it)
-                .compose(applySchedulers())
-                .subscribe(object : SimpleObserver<DrawData>(getComposite()) {
-                    override fun onNext(t: DrawData?) {
-                        cancelConfirmCancelStatus.value = true
-                        createdDrawData = null
-                        reloadRound()
-                    }
-
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                    }
-                })
+        createdDrawData?.apply {
+            launchSingleThread(
+                { drawRepository.saveDraw(this) },
+                withLoading = true
+            ) {
+                cancelConfirmCancelStatus.value = true
+                createdDrawData = null
+                reloadRound()
+            }
         }
     }
 
@@ -389,21 +355,14 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun createScore() {
-        if (itemsObserver.value == null || itemsObserver.value!!.isEmpty()) {
-            return
+        itemsObserver.value?.apply {
+            launchSingleThread(
+                { drawRepository.createScore(matchPeriod) },
+                withLoading = true
+            ) {
+                messageObserver.value = "success"
+            }
         }
-        drawRepository.createScore(matchPeriod)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
-                override fun onNext(t: Boolean) {
-                    messageObserver.value = "success"
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
     }
 
     fun getLowestSeedRankOfPage(): Int {

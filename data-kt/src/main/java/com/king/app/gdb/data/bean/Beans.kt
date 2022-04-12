@@ -62,6 +62,8 @@ data class RecordLevelResult(
     var winnerId: Long?,
     var matchPeriodId: Long,
     var period: Int,
+    var orderInPeriod: Int,
     var matchId: Long,
-    var name: String?
+    var name: String?,
+    var level: Int
 )

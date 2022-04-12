@@ -25,6 +25,15 @@ public class FormatUtil {
     }
 
     /**
+     * 斜体在wrap情况下，显示上两边会超出区域产生截断一小块的现象，通过包裹两个空格解决
+     * @param text
+     * @return
+     */
+    public static String formatItalicText(String text) {
+        return " " + text + " ";
+    }
+
+    /**
      * 保留n位小数
      * @param score
      * @param n

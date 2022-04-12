@@ -497,3 +497,20 @@ data class StudioItem(
     var detail: String = "",
     var imageUrl: String? = null
 )
+
+data class MajorRank(
+    var period: Int,
+    var orderInPeriod: Int,
+    var date: String,
+    var major: String,
+    var rank: String,
+    var rankDetail: String
+)
+
+data class MajorRound(
+    var matchId: Long,
+    var date: String,
+    var major: String,
+    var matchName: String,
+    var imageUrl: String? = null
+)

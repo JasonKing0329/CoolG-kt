@@ -103,6 +103,7 @@
         <activity android:name=".page.match.item.WallActivity" />
         <activity android:name=".page.match.studio.MatchStudioActivity" />
         <activity android:name=".page.match.draw.BlackListActivity" />
+        <activity android:name=".page.match.detail.MajorActivity" />
         <activity android:name=".page.star.timeline.StarTimelineActivity" />
         <activity
             android:name=".page.video.player.PlayerActivity"

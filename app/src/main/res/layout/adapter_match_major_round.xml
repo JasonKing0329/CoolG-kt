@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="com.king.app.coolg_kt.utils.FormatUtil"/>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.MajorRound" />
+    </data>
+    <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/common_margin_8"
+        app:round_corner="4dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:textColor="@color/text_normal"
+            android:textSize="@dimen/text_common_14"
+            android:text="@{bean.date}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_major"
+            app:layout_constraintTop_toTopOf="@+id/tv_major"
+            tools:text="P31-W35" />
+
+        <TextView
+            android:id="@+id/tv_major"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/red_f1303d"
+            android:textSize="@dimen/text_common_16"
+            android:textStyle="bold|italic"
+            android:text="@{FormatUtil.formatItalicText(bean.major)}"
+            android:layout_marginTop="@dimen/common_margin_16"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text=" First Grand Slam Champion " />
+
+        <com.king.app.coolg_kt.view.widget.rc.RCImageView
+            android:id="@+id/iv_match"
+            android:layout_width="200dp"
+            android:layout_height="114dp"
+            android:layout_marginTop="6dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/def_small"
+            android:layout_marginBottom="@dimen/common_margin_16"
+            app:recordUrl="@{bean.imageUrl}"
+            app:layout_constraintStart_toStartOf="@+id/tv_date"
+            app:layout_constraintTop_toBottomOf="@+id/tv_date"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:round_corner="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_match_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_second"
+            android:textSize="@dimen/text_common_16"
+            android:text="@{bean.matchName}"
+            app:layout_constraintEnd_toEndOf="@+id/tv_major"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_match"
+            tools:text="Lucas Entertainment" />
+    </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
+</layout>

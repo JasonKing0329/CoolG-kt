@@ -282,12 +282,42 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/group_best"
+                android:id="@+id/group_majors"
                 style="@style/GroupWhiteSecItem"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:layout_width="match_parent"
                 app:layout_constraintTop_toBottomOf="@+id/group_record_matches">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text="Career Majors"/>
+                <ImageView
+                    android:id="@+id/iv_major"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_keyboard_arrow_right_grey_700_24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/vertical_divider"
+                    android:background="@color/divider"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/group_best"
+                style="@style/GroupWhiteSecItem"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:layout_width="match_parent"
+                app:layout_constraintTop_toBottomOf="@+id/group_majors">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

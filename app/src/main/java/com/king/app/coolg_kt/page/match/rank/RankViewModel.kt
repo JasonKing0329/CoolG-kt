@@ -279,7 +279,9 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 val studioName = bean.studioName?:""
                 val studioId = bean.studioId?:0
                 // 只有select模式显示levelMatchCount
-                val levelMatchCount = if (isSelectMode) {
+                var levelMatchCountText = ""
+                var levelMatchCount = 0
+                if (isSelectMode) {
                     bean.details?.let { detail ->
                         val count = when(mMatchSelectLevel) {
                             MatchConstants.MATCH_LEVEL_GS -> detail.gsCount
@@ -290,14 +292,14 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                             MatchConstants.MATCH_LEVEL_MICRO -> detail.microCount
                             else -> 0
                         }
-                        "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
+                        levelMatchCount = count
+                        levelMatchCountText = "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]} $count"
                     }
                 }
-                else ""
                 // 加载图片路径属于耗时操作，不在这里进行，由后续异步加载
                 var item = RankItem(bean.record, bean.bean.recordId, bean.bean.rank, "",
                     null, bean.record?.name, bean.bean.score, bean.bean.matchCount, bean.unAvailableScore,
-                    studioId, studioName, true, levelMatchCount)
+                    studioId, studioName, true, levelMatchCount, levelMatchCountText)
                 result.add(item)
 
                 // 上一站存在才加载变化

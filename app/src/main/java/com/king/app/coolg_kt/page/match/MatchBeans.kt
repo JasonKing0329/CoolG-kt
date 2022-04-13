@@ -52,7 +52,8 @@ data class RankItem<T> (
     var studioId: Long = 0,
     var studioName: String? = "",
     var canSelect: Boolean = true,
-    var levelMatchCount: String? = null
+    var levelMatchCount: Int = 0,
+    var levelMatchCountText: String? = null
 )
 
 data class PeriodPack (

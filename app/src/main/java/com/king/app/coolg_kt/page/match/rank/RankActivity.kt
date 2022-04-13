@@ -116,6 +116,25 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         mBinding.ivNext.setOnClickListener { mModel.nextPeriod() }
         mBinding.ivPrevious.setOnClickListener { mModel.lastPeriod() }
         mBinding.tvWeek.setOnClickListener { selectWeek() }
+
+        mBinding.btnFilter.visibility = if (isSelectMode()) {
+            View.VISIBLE
+        }
+        else {
+            View.GONE
+        }
+        mBinding.btnFilter.setOnClickListener { showRankFilterDialog() }
+    }
+
+    private fun showRankFilterDialog() {
+        val content = RankFilterDialog()
+        content.list = mModel.recordRanksObserver.value
+        content.clickListener = clickListener
+        content.itemListener = itemListener
+        val dialogFragment = DraggableDialogFragment()
+        dialogFragment.contentFragment = content
+        dialogFragment.setTitle("Rank Filter")
+        dialogFragment.show(supportFragmentManager, "RankFilterDialog")
     }
 
     private fun warningCreateDetailItems() {
@@ -220,54 +239,8 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
 
         mModel.recordRanksObserver.observe(this, Observer {
             var adapter = RankAdapter<Record?>()
-            adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{
-                override fun onClickItem(view: View, position: Int, data: RankItem<Record?>) {
-                    if (isSelectMode()) {
-                        onSelectItem(data)
-                    }
-                }
-            })
-            adapter.onItemListener = object : RankAdapter.OnItemListener<Record?> {
-                override fun onClickScore(bean: RankItem<Record?>) {
-                    bean.bean?.let { record ->
-                        showScoreStructure(record.id!!)
-                    }
-                }
-
-                override fun onClickImage(bean: RankItem<Record?>) {
-                    bean.bean?.let { record ->
-                        DetailActivity.startRecordPage(this@RankActivity, record.id!!)
-                    }
-                }
-
-                override fun onClickRank(bean: RankItem<Record?>) {
-                    bean.bean?.let { record ->
-                        showRankDialog(record)
-                    }
-                }
-
-                override fun onClickMatchCount(bean: RankItem<Record?>) {
-                    if (isSelectMode()) {
-                        onSelectItem(bean)
-                    }
-                    else {
-                        bean.bean?.let { record ->
-                            RecordActivity.startPage(this@RankActivity, record.id!!)
-                        }
-                    }
-                }
-
-                override fun onClickStudio(bean: RankItem<Record?>) {
-                    if (isSelectMode()) {
-                        onSelectItem(bean)
-                    }
-                    else {
-                        bean.bean?.let { record ->
-                            RecordActivity.startPage(this@RankActivity, record.id!!)
-                        }
-                    }
-                }
-            }
+            adapter.setOnItemClickListener(clickListener)
+            adapter.onItemListener = itemListener
             adapter.list = it
             mBinding.rvList.adapter = adapter
             if (isSelectMode() && getFocusToRank() > 0) {
@@ -323,6 +296,56 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         }
         mModel.loadStudios()
         mModel.loadRanks()
+    }
+
+    private var clickListener = object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{
+        override fun onClickItem(view: View, position: Int, data: RankItem<Record?>) {
+            if (isSelectMode()) {
+                onSelectItem(data)
+            }
+        }
+    }
+
+    private var itemListener = object : RankAdapter.OnItemListener<Record?> {
+        override fun onClickScore(bean: RankItem<Record?>) {
+            bean.bean?.let { record ->
+                showScoreStructure(record.id!!)
+            }
+        }
+
+        override fun onClickImage(bean: RankItem<Record?>) {
+            bean.bean?.let { record ->
+                DetailActivity.startRecordPage(this@RankActivity, record.id!!)
+            }
+        }
+
+        override fun onClickRank(bean: RankItem<Record?>) {
+            bean.bean?.let { record ->
+                showRankDialog(record)
+            }
+        }
+
+        override fun onClickMatchCount(bean: RankItem<Record?>) {
+            if (isSelectMode()) {
+                onSelectItem(bean)
+            }
+            else {
+                bean.bean?.let { record ->
+                    RecordActivity.startPage(this@RankActivity, record.id!!)
+                }
+            }
+        }
+
+        override fun onClickStudio(bean: RankItem<Record?>) {
+            if (isSelectMode()) {
+                onSelectItem(bean)
+            }
+            else {
+                bean.bean?.let { record ->
+                    RecordActivity.startPage(this@RankActivity, record.id!!)
+                }
+            }
+        }
     }
 
     private fun showRankDialog(record: Record) {

@@ -367,7 +367,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             ) { dialog, which ->
                 when(which) {
                     0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode)
-                    1 -> RankActivity.startPageToSelect(this@DrawActivity, requestCode, mModel.getLowestSeedRankOfPage(), mModel.matchPeriod.match.level)
+                    1 -> RankActivity.startPageToSelect(this@DrawActivity, requestCode, mModel.getSelectFocusToRank(), mModel.matchPeriod.match.level)
                     2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, mModel.findStudioId())
                     3 -> RankActivity.startPageToSelectStudioItem(this@DrawActivity, requestCode, mModel.findStudioId(), mModel.matchPeriod.match.level)
                     4 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, true)

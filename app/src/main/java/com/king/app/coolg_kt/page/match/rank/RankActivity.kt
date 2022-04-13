@@ -131,6 +131,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
         content.list = mModel.recordRanksObserver.value
         content.clickListener = clickListener
         content.itemListener = itemListener
+        content.focusToRank = getFocusToRank()
         val dialogFragment = DraggableDialogFragment()
         dialogFragment.contentFragment = content
         dialogFragment.setTitle("Rank Filter")

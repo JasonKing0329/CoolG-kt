@@ -14,6 +14,7 @@ class RankFilterDialog: DraggableContentFragment<FragmentDialogRankFilterBinding
     private var adapter = RankAdapter<Record?>()
 
     var list: List<RankItem<Record?>>? = null
+    var focusToRank: Int = 0
     var clickListener: BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>? = null
     var itemListener: RankAdapter.OnItemListener<Record?>? = null
 
@@ -30,6 +31,25 @@ class RankFilterDialog: DraggableContentFragment<FragmentDialogRankFilterBinding
         mBinding.etMin.setText("0")
         mBinding.etMax.setText("0")
         filterRanks()
+        if (focusToRank > 0) {
+            mBinding.rvList.post {
+                mBinding.rvList.scrollToPosition(getFocusPosition())
+            }
+        }
+    }
+
+    /**
+     * 初始化跳转到离focusToRank最近的位置
+     */
+    private fun getFocusPosition(): Int {
+        adapter.list?.let {
+            for (i in 0..it.size) {
+                if (it[i].rank >= focusToRank) {
+                    return i
+                }
+            }
+        }
+        return 0
     }
 
     private fun filterRanks() {

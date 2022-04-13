@@ -365,6 +365,14 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    fun getSelectFocusToRank(): Int {
+        return if (matchPeriod.match.level == MatchConstants.MATCH_LEVEL_GS) {
+            getLowestRankOfPage()
+        } else {
+            getLowestSeedRankOfPage()
+        }
+    }
+
     fun getLowestSeedRankOfPage(): Int {
         var result = 0
         itemsObserver.value?.forEach {
@@ -381,6 +389,21 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                 if (rank > result) {
                     result = rank
                 }
+            }
+        }
+        return result
+    }
+
+    private fun getLowestRankOfPage(): Int {
+        var result = 0
+        itemsObserver.value?.forEach {
+            var rank = it.matchRecord1?.bean?.recordRank?:0
+            if (rank > result) {
+                result = rank
+            }
+            rank = it.matchRecord2?.bean?.recordRank?:0
+            if (rank > result) {
+                result = rank
             }
         }
         return result

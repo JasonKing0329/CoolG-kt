@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <import type="com.king.app.coolg_kt.utils.FormatUtil"/>
         <variable
             name="bean"
             type="com.king.app.coolg_kt.page.match.MajorRank" />
@@ -32,8 +31,8 @@
             android:textSize="@dimen/text_common_14"
             android:text="@{bean.date}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_major"
-            app:layout_constraintTop_toTopOf="@+id/tv_major"
+            app:layout_constraintBottom_toBottomOf="@+id/group_major"
+            app:layout_constraintTop_toTopOf="@+id/group_major"
             tools:text="P31-W35" />
 
         <TextView
@@ -47,7 +46,7 @@
             android:text="@{bean.rank}"
             android:layout_marginBottom="@dimen/common_margin_16"
             app:layout_constraintStart_toStartOf="@+id/tv_date"
-            app:layout_constraintTop_toBottomOf="@+id/tv_major"
+            app:layout_constraintTop_toBottomOf="@+id/group_major"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="No.85" />
 
@@ -63,19 +62,42 @@
             app:layout_constraintBottom_toBottomOf="@+id/tv_rank"
             tools:text="Score(1296), 24 Matches" />
 
-        <TextView
-            android:id="@+id/tv_major"
+        <LinearLayout
+            android:id="@+id/group_major"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:textColor="@color/red_f1303d"
-            android:textSize="@dimen/text_common_16"
-            android:textStyle="bold|italic"
-            android:text="@{FormatUtil.formatItalicText(bean.major)}"
-            android:gravity="right"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/common_margin_16"
             android:layout_marginTop="@dimen/common_margin_16"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text=" Top 100 for the first time \n New highest rank " />
+            app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:id="@+id/tv_major"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_common_14"
+                android:textStyle="bold"
+                android:text="@{bean.major}"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:background="@drawable/shape_round_dynamic"
+                tools:text=" Top 100" />
+            <TextView
+                android:id="@+id/tv_major_high"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_common_14"
+                android:textStyle="bold"
+                android:text="@{bean.majorHigh}"
+                android:gravity="center_vertical"
+                android:background="@drawable/shape_round_dynamic"
+                android:layout_marginLeft="4dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                tools:text="New Record" />
+        </LinearLayout>
     </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
 </layout>

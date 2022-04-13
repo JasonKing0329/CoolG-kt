@@ -59,6 +59,7 @@ class MajorActivity: BaseActivity<ActivityMatchMajorBinding, MajorViewModel>() {
             adapter.list = it
             adapter.notifyDataSetChanged()
         }
+        mModel.imageChanged.observe(this) { adapter.notifyItemRangeChanged(it.start, it.count) }
         mModel.loadMajors()
     }
 

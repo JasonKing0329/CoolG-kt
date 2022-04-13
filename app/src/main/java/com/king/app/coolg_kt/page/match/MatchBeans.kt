@@ -503,6 +503,8 @@ data class MajorRank(
     var orderInPeriod: Int,
     var date: String,
     var major: String,
+    var majorColor: Int,
+    var majorHigh: String,
     var rank: String,
     var rankDetail: String
 )
@@ -511,6 +513,8 @@ data class MajorRound(
     var matchId: Long,
     var date: String,
     var major: String,
+    var majorColor: Int,
+    var majorRound: String,
     var matchName: String,
     var imageUrl: String? = null
 )

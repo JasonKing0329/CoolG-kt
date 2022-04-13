@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <import type="com.king.app.coolg_kt.utils.FormatUtil"/>
         <variable
             name="bean"
             type="com.king.app.coolg_kt.page.match.MajorRound" />
@@ -32,23 +31,47 @@
             android:textSize="@dimen/text_common_14"
             android:text="@{bean.date}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_major"
-            app:layout_constraintTop_toTopOf="@+id/tv_major"
+            app:layout_constraintBottom_toBottomOf="@+id/group_major"
+            app:layout_constraintTop_toTopOf="@+id/group_major"
             tools:text="P31-W35" />
 
-        <TextView
-            android:id="@+id/tv_major"
+        <LinearLayout
+            android:id="@+id/group_major"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:textColor="@color/red_f1303d"
-            android:textSize="@dimen/text_common_16"
-            android:textStyle="bold|italic"
-            android:text="@{FormatUtil.formatItalicText(bean.major)}"
             android:layout_marginTop="@dimen/common_margin_16"
+            android:orientation="horizontal"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text=" First Grand Slam Champion " />
+            app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:id="@+id/tv_major_level"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_common_14"
+                android:textStyle="bold"
+                android:text="@{bean.major}"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:background="@drawable/shape_round_dynamic"
+                tools:text="Grand Slam" />
+            <TextView
+                android:id="@+id/tv_major_round"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_common_14"
+                android:textStyle="bold"
+                android:text="@{bean.majorRound}"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:background="@drawable/shape_round_dynamic"
+                android:layout_marginLeft="4dp"
+                tools:text="Champion" />
+        </LinearLayout>
 
         <com.king.app.coolg_kt.view.widget.rc.RCImageView
             android:id="@+id/iv_match"
@@ -60,7 +83,7 @@
             android:layout_marginBottom="@dimen/common_margin_16"
             app:recordUrl="@{bean.imageUrl}"
             app:layout_constraintStart_toStartOf="@+id/tv_date"
-            app:layout_constraintTop_toBottomOf="@+id/tv_date"
+            app:layout_constraintTop_toBottomOf="@+id/group_major"
             app:layout_constraintBottom_toBottomOf="parent"
             app:round_corner="4dp"/>
 
@@ -71,7 +94,7 @@
             android:textColor="@color/text_second"
             android:textSize="@dimen/text_common_16"
             android:text="@{bean.matchName}"
-            app:layout_constraintEnd_toEndOf="@+id/tv_major"
+            app:layout_constraintEnd_toEndOf="@+id/group_major"
             app:layout_constraintBottom_toBottomOf="@+id/iv_match"
             tools:text="Lucas Entertainment" />
     </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>

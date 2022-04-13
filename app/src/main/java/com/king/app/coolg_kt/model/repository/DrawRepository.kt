@@ -9,7 +9,6 @@ import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.MatchRule
 import com.king.app.coolg_kt.page.match.*
 import com.king.app.coolg_kt.page.match.draw.*
-import com.king.app.coolg_kt.utils.TimeCostUtil
 import com.king.app.gdb.data.bean.RankRecord
 import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
@@ -463,7 +462,6 @@ class DrawRepository: BaseRepository() {
     private fun newNextMatchRecord(bean: MatchRecord, matchItemId: Long, order: Int): MatchRecord {
         val mr = bean.copy()
         mr.id = 0
-        mr.type = 0
         mr.order = order
         mr.matchItemId = matchItemId
         return mr

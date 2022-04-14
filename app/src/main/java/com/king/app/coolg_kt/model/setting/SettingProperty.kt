@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.match.HomeUrls
+import com.king.app.coolg_kt.page.match.RankFilterRange
 import com.king.app.coolg_kt.page.match.draw.DrawStrategy
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.page.star.random.RandomData
@@ -322,6 +323,24 @@ class SettingProperty: BaseProperty() {
             } catch (e: java.lang.Exception) {
             }
             setString("draw_strategy", sql)
+        }
+
+        fun getRankFilterRange(): RankFilterRange {
+            val sql = getString("rank_filter_range")
+            try {
+                return Gson().fromJson(sql, RankFilterRange::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return RankFilterRange(0, 0)
+        }
+
+        fun setRankFilterRange(bean: RankFilterRange) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("rank_filter_range", sql)
         }
     }
 

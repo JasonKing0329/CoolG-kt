@@ -519,3 +519,8 @@ data class MajorRound(
     var matchName: String,
     var imageUrl: String? = null
 )
+
+data class RankFilterRange (
+    var min: Int,
+    var max: Int
+)

@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * 描述:
@@ -74,90 +75,116 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         return CoolApplication.instance.database!!
     }
 
-    fun launchMain(block: suspend CoroutineScope.() -> Unit): Job {
-        return mainScope.launch { block() }
+    private val commonHandler = CoroutineExceptionHandler{context, e ->
+        e.printStackTrace()
+        loadingObserver.postValue(false)
+        messageObserver.postValue(e.message?:"error")
     }
 
-    fun launchThread(block: suspend CoroutineScope.() -> Unit): Job {
-        return fixedScope.launch { block() }
+    private val commonFlowHandler = object : FlowErrorHandler {
+        override fun handleError(throwable: Throwable) {
+            throwable.printStackTrace()
+            loadingObserver.postValue(false)
+            messageObserver.postValue(throwable.message?:"error")
+        }
+    }
+
+    interface FlowErrorHandler {
+        fun handleError(throwable: Throwable)
+    }
+
+    fun launchMain(
+        exceptionHandler: CoroutineExceptionHandler? = commonHandler,
+        block: suspend CoroutineScope.() -> Unit
+    ): Job {
+        val context = exceptionHandler?: EmptyCoroutineContext
+        return mainScope.launch(context) { block() }
+    }
+
+    fun launchThread(
+        exceptionHandler: CoroutineExceptionHandler? = commonHandler,
+        block: suspend CoroutineScope.() -> Unit
+    ): Job {
+        val context = exceptionHandler?: EmptyCoroutineContext
+        return fixedScope.launch(context) { block() }
     }
 
     /**
-     * 主线程协程完全处理flow事件与统一的loading, error事件
+     * 主线程启动协程，并完全处理loading, 异步, error事件
      */
     fun<T> launchSingle(
         block: suspend () -> T,
+        exceptionHandler: CoroutineExceptionHandler? = commonHandler,
         withLoading: Boolean = false,
-        onComplete: (T) -> Unit): Job {
-        return launchMain {
+        onComplete: (T) -> Unit
+    ): Job {
+        return launchMain(exceptionHandler) {
             if (withLoading) {
                 loadingObserver.value = true
             }
-            kotlin.runCatching {
-                val result = block()
-                if (withLoading) {
-                    loadingObserver.value = false
-                }
-                onComplete(result)
-            }?.onFailure {
-                it.printStackTrace()
-                if (withLoading) {
-                    loadingObserver.value = false
-                }
-                messageObserver.value = it.message?:"error"
+            val result = block()
+            if (withLoading) {
+                loadingObserver.value = false
             }
+            onComplete(result)
         }
     }
 
     /**
-     * 主线程协程完全处理flow事件与统一的loading, error事件
+     * 主线程启动协程，子线程处理异步，主线程处理loading, error事件
      */
     fun<T> launchSingleThread(
         block: suspend () -> T,
+        exceptionHandler: CoroutineExceptionHandler? = commonHandler,
         withLoading: Boolean = false,
-        onComplete: (T) -> Unit): Job {
-        return launchMain {
+        onComplete: (T) -> Unit
+    ): Job {
+        return launchMain(exceptionHandler) {
             if (withLoading) {
                 loadingObserver.value = true
             }
-            kotlin.runCatching {
-                val response = withContext(fixedPool) { block() }
-                if (withLoading) {
-                    loadingObserver.value = false
-                }
-                onComplete(response)
-            }?.onFailure {
-                it.printStackTrace()
-                if (withLoading) {
-                    loadingObserver.value = false
-                }
-                messageObserver.value = it.message?:"error"
+            val response = withContext(fixedPool) { block() }
+            if (withLoading) {
+                loadingObserver.value = false
             }
+            onComplete(response)
         }
     }
 
     /**
-     * 主线程协程完全处理flow事件与统一的loading, error事件
+     * 主线程启动flow，完全处理loading, 异步, error事件
      */
     fun<T> launchFlow(
         flow: Flow<T>,
+        errorHandler: FlowErrorHandler? = commonFlowHandler,
         withLoading: Boolean = false,
-        action: suspend (value: T) -> Unit) {
+        action: suspend (value: T) -> Unit
+    ) {
         launchMain {
-            flowCurrent(flow, withLoading)
+            flowCurrent(
+                flow,
+                errorHandler = errorHandler,
+                withLoading = withLoading
+            )
                 .collect(action)
         }
     }
 
     /**
-     * 主线程协程，线程池处理flow，主线程处理统一的loading, error事件
+     * 主线程启动flow，子线程处理flow异步，主线程处理loading, error事件
      */
     fun<T> launchFlowThread(
         flow: Flow<T>,
+        errorHandler: FlowErrorHandler? = commonFlowHandler,
         withLoading: Boolean = false,
-        action: suspend (value: T) -> Unit) {
+        action: suspend (value: T) -> Unit
+    ) {
         launchMain {
-            flowThread(flow, withLoading)
+            flowThread(
+                flow,
+                errorHandler = errorHandler,
+                withLoading = withLoading
+            )
                 .collect(action)
         }
     }
@@ -165,7 +192,11 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     /**
      * 异步线程处理flow任务，loading, error统一交由当前线程处理
      */
-    fun<T> flowThread(flow: Flow<T>, withLoading: Boolean = false): Flow<T> {
+    fun<T> flowThread(
+        flow: Flow<T>,
+        errorHandler: FlowErrorHandler? = commonFlowHandler,
+        withLoading: Boolean = false
+    ): Flow<T> {
         return flow
             .flowOn(fixedPool)
             .onStart {
@@ -174,8 +205,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                 }
             }
             .catch {
-                it.printStackTrace()
-                messageObserver.value = it.message
+                errorHandler?.handleError(it)
             }
             .onCompletion {
                 if (withLoading) {
@@ -187,7 +217,11 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     /**
      * 当前线程协程处理flow任务，loading, error也统一交由当前线程处理
      */
-    fun<T> flowCurrent(flow: Flow<T>, withLoading: Boolean = false): Flow<T> {
+    fun<T> flowCurrent(
+        flow: Flow<T>,
+        errorHandler: FlowErrorHandler? = commonFlowHandler,
+        withLoading: Boolean = false
+    ): Flow<T> {
         return flow
             .onStart {
                 if (withLoading) {
@@ -195,8 +229,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                 }
             }
             .catch {
-                it.printStackTrace()
-                messageObserver.value = it.message
+                errorHandler?.handleError(it)
             }
             .onCompletion {
                 if (withLoading) {

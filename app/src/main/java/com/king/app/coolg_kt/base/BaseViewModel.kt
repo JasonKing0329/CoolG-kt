@@ -75,24 +75,17 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         return CoolApplication.instance.database!!
     }
 
+    /**
+     * 统一以弹提示的方式处理协程里的异常
+     */
     private val commonHandler = CoroutineExceptionHandler{context, e ->
-        e.printStackTrace()
-        loadingObserver.postValue(false)
-        messageObserver.postValue(e.message?:"error")
+        dispatchCommonError(e)
     }
 
-    private val commonFlowHandler = object : FlowErrorHandler {
-        override fun handleError(throwable: Throwable) {
-            throwable.printStackTrace()
-            loadingObserver.postValue(false)
-            messageObserver.postValue(throwable.message?:"error")
-        }
-    }
 
-    interface FlowErrorHandler {
-        fun handleError(throwable: Throwable)
-    }
-
+    /**
+     * 在主线程中启动协程
+     */
     fun launchMain(
         exceptionHandler: CoroutineExceptionHandler? = commonHandler,
         block: suspend CoroutineScope.() -> Unit
@@ -101,6 +94,9 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         return mainScope.launch(context) { block() }
     }
 
+    /**
+     * 在子线程中启动协程
+     */
     fun launchThread(
         exceptionHandler: CoroutineExceptionHandler? = commonHandler,
         block: suspend CoroutineScope.() -> Unit
@@ -156,7 +152,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
      */
     fun<T> launchFlow(
         flow: Flow<T>,
-        errorHandler: FlowErrorHandler? = commonFlowHandler,
+        errorHandler: (Throwable) -> Unit? = { dispatchCommonError(it) },
         withLoading: Boolean = false,
         action: suspend (value: T) -> Unit
     ) {
@@ -175,7 +171,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
      */
     fun<T> launchFlowThread(
         flow: Flow<T>,
-        errorHandler: FlowErrorHandler? = commonFlowHandler,
+        errorHandler: (Throwable) -> Unit? = { dispatchCommonError(it) },
         withLoading: Boolean = false,
         action: suspend (value: T) -> Unit
     ) {
@@ -190,11 +186,35 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     }
 
     /**
+     * 当前线程协程处理flow任务，loading, error也统一交由当前线程处理
+     */
+    fun<T> flowCurrent(
+        flow: Flow<T>,
+        errorHandler: (Throwable) -> Unit? = { dispatchCommonError(it) },
+        withLoading: Boolean = false
+    ): Flow<T> {
+        return flow
+            .onStart {
+                if (withLoading) {
+                    loadingObserver.value = true
+                }
+            }
+            .catch {
+                errorHandler?.invoke(it)
+            }
+            .onCompletion {
+                if (withLoading) {
+                    loadingObserver.value = false
+                }
+            }
+    }
+
+    /**
      * 异步线程处理flow任务，loading, error统一交由当前线程处理
      */
     fun<T> flowThread(
         flow: Flow<T>,
-        errorHandler: FlowErrorHandler? = commonFlowHandler,
+        errorHandler: (Throwable) -> Unit? = { dispatchCommonError(it) },
         withLoading: Boolean = false
     ): Flow<T> {
         return flow
@@ -205,31 +225,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                 }
             }
             .catch {
-                errorHandler?.handleError(it)
-            }
-            .onCompletion {
-                if (withLoading) {
-                    loadingObserver.value = false
-                }
-            }
-    }
-
-    /**
-     * 当前线程协程处理flow任务，loading, error也统一交由当前线程处理
-     */
-    fun<T> flowCurrent(
-        flow: Flow<T>,
-        errorHandler: FlowErrorHandler? = commonFlowHandler,
-        withLoading: Boolean = false
-    ): Flow<T> {
-        return flow
-            .onStart {
-                if (withLoading) {
-                    loadingObserver.value = true
-                }
-            }
-            .catch {
-                errorHandler?.handleError(it)
+                errorHandler?.invoke(it)
             }
             .onCompletion {
                 if (withLoading) {

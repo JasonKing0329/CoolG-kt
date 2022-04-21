@@ -107,7 +107,17 @@ class StarActivity : BaseActivity<ActivityStarPhoneBinding, StarViewModel>() {
             }
         }
         adapter.onHeadActionListener = object : OnHeadActionListener {
-            override fun onClickRelationStar(relationship: StarRelationship) {
+            override fun onSelectRelationStar(relationship: StarRelationship, isSelect: Boolean) {
+                mModel.mRelationshipId = if (isSelect) {
+                    relationship.star.id!!
+                }
+                else {
+                    0
+                }
+                mModel.loadStarRecords()
+            }
+
+            override fun onLongClickRelationStar(relationship: StarRelationship) {
                 goToStarPage(relationship.star.id!!)
             }
 

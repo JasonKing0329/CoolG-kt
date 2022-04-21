@@ -26,7 +26,7 @@ class StarAdapter : HeaderFooterBindingAdapter<AdapterStarPhoneHeaderBinding, Ad
     private val recordBinder = RecordItemGridBinder()
     var mSortMode = 0
     lateinit var star: Star
-    var mRelationships: List<StarRelationship> = listOf()
+    var mRelationships: MutableList<StarRelationship> = mutableListOf()
     var mStudioList: List<StarStudioTag> = listOf()
     var mTagList: List<Tag> = listOf()
 

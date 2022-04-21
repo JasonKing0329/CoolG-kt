@@ -79,6 +79,7 @@ class RecordComplexFilter {
     var studioId: Long = 0
     var outOfRank: Boolean = false
     var filterBlacklist: Boolean = false
+    var relationshipId: Long = 0
 }
 
 class TitleValueBean {

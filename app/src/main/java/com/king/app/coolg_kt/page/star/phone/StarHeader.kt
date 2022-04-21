@@ -41,12 +41,14 @@ class StarHeader : OnStarChangeListener {
     private var ordersAdapter = StarOrdersAdapter()
     private var tagAdapter = TagAdapter()
 
+    private var isRelationByName = false
+
     private fun <AVM: AndroidViewModel> getActivityViewModel(context: Context, vm: Class<AVM>): AVM = ViewModelProvider((context as FragmentActivity).viewModelStore, ViewModelFactory(CoolApplication.instance)).get(vm)
 
     fun bind(
         binding: AdapterStarPhoneHeaderBinding,
         star: Star,
-        relationships: List<StarRelationship>,
+        relationships: MutableList<StarRelationship>,
         studioList: List<StarStudioTag>,
         tagList: List<Tag>
     ) {
@@ -230,7 +232,7 @@ class StarHeader : OnStarChangeListener {
         mRatingModel!!.loadStarRating(star.id!!)
     }
 
-    private fun bindRelationships(binding: AdapterStarPhoneHeaderBinding, relationships: List<StarRelationship>) {
+    private fun bindRelationships(binding: AdapterStarPhoneHeaderBinding, relationships: MutableList<StarRelationship>) {
         binding.tvRelation.text = "${relationships.size.toString()}人"
         binding.rvRelation.layoutManager = LinearLayoutManager(binding.rvRelation.context, LinearLayoutManager.HORIZONTAL, false)
         if (binding.rvRelation.adapter == null) {
@@ -249,7 +251,12 @@ class StarHeader : OnStarChangeListener {
             })
             relationshipAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<StarRelationship> {
                 override fun onClickItem(view: View, position: Int, data: StarRelationship) {
-                    onHeadActionListener?.onClickRelationStar(data)
+                    onHeadActionListener?.onSelectRelationStar(data, position == relationshipAdapter.selection)
+                }
+            })
+            relationshipAdapter.setOnItemLongClickListener(object : BaseBindingAdapter.OnItemLongClickListener<StarRelationship> {
+                override fun onLongClickItem(view: View, position: Int, data: StarRelationship) {
+                    onHeadActionListener?.onLongClickRelationStar(data)
                 }
             })
             relationshipAdapter.list = relationships
@@ -262,13 +269,49 @@ class StarHeader : OnStarChangeListener {
             // collapse
             if (binding.ivRelationArrow.isSelected) {
                 binding.ivRelationArrow.isSelected = false
-                binding.ivRelationArrow.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
-                binding.rvRelation.visibility = View.GONE
+                toggleRelationGroup(binding)
             } else {
                 binding.ivRelationArrow.isSelected = true
-                binding.ivRelationArrow.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
-                binding.rvRelation.visibility = View.VISIBLE
+                toggleRelationGroup(binding)
             }
+        }
+        toggleRelationGroup(binding)
+        binding.tvRelationByName.setOnClickListener {
+            if (!isRelationByName) {
+                isRelationByName = true
+                relationships.sortBy { rs -> rs.star.name }
+                relationshipAdapter.list = relationships
+                relationshipAdapter.notifyDataSetChanged()
+                binding.tvRelationByName.isSelected = isRelationByName
+                binding.tvRelationByCount.isSelected = !isRelationByName
+            }
+        }
+        binding.tvRelationByCount.setOnClickListener {
+            if (isRelationByName) {
+                isRelationByName = false
+                relationships.sortByDescending { rs -> rs.count }
+                relationshipAdapter.list = relationships
+                relationshipAdapter.notifyDataSetChanged()
+                binding.tvRelationByName.isSelected = isRelationByName
+                binding.tvRelationByCount.isSelected = !isRelationByName
+            }
+        }
+    }
+
+    private fun toggleRelationGroup(binding: AdapterStarPhoneHeaderBinding) {
+        if (binding.ivRelationArrow.isSelected) {
+            binding.ivRelationArrow.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
+            binding.rvRelation.visibility = View.VISIBLE
+            binding.tvRelationByCount.visibility = View.VISIBLE
+            binding.tvRelationByName.visibility = View.VISIBLE
+            binding.tvRelationByName.isSelected = isRelationByName
+            binding.tvRelationByCount.isSelected = !isRelationByName
+        }
+        else {
+            binding.ivRelationArrow.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
+            binding.rvRelation.visibility = View.GONE
+            binding.tvRelationByCount.visibility = View.GONE
+            binding.tvRelationByName.visibility = View.GONE
         }
     }
 
@@ -330,7 +373,8 @@ class StarHeader : OnStarChangeListener {
     }
 
     interface OnHeadActionListener {
-        fun onClickRelationStar(relationship: StarRelationship)
+        fun onSelectRelationStar(relationship: StarRelationship, isSelect: Boolean)
+        fun onLongClickRelationStar(relationship: StarRelationship)
         fun addStarToOrder(star: Star)
         fun onFilterStudio(studioId: Long)
         fun onCancelFilterStudio(studioId: Long)

@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.model.bean.PassionPoint
 import com.king.app.coolg_kt.model.bean.RecordComplexFilter
 import com.king.app.coolg_kt.model.bean.TitleValueBean
+import com.king.app.coolg_kt.model.extension.wrapToRx
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
@@ -104,33 +105,36 @@ class RecordRepository: BaseRepository() {
         return ids
     }
 
-    private fun getRecordsByFilter(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
-        return Observable.create {
-            val buffer: StringBuffer = getComplexFilterBuilder(filter)
-            filter.cursor?.let { cursor ->
-                buffer.append(" LIMIT ").append(cursor.offset).append(",")
-                    .append(cursor.number)
-            }
-            val sql = "select T.* from record T $buffer"
-            DebugLog.e(sql)
-            val list = getDatabase().getRecordDao().getRecordsBySql(SimpleSQLiteQuery(sql))
-            it.onNext(list)
-            it.onComplete()
+    private fun getRecordsByFilterRx(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
+        return wrapToRx(getRecordsByFilter(filter))
+    }
+
+    fun getRecordsByFilter(filter: RecordComplexFilter): List<RecordWrap> {
+        val buffer: StringBuffer = getComplexFilterBuilder(filter)
+        filter.cursor?.let { cursor ->
+            buffer.append(" LIMIT ").append(cursor.offset).append(",")
+                .append(cursor.number)
         }
+        val sql = "select T.* from record T $buffer"
+        DebugLog.e(sql)
+        var list = getDatabase().getRecordDao().getRecordsBySql(SimpleSQLiteQuery(sql))
+        if (filter.relationshipId != 0.toLong()) {
+            list = list.filter { record ->
+                record.starList.firstOrNull { star -> star.id == filter.relationshipId } != null
+            }
+        }
+        return list
     }
 
     fun getRecords(filter: RecordComplexFilter): Observable<List<RecordWrap>> {
-        return getRecordsByFilter(filter)
+        return getRecordsByFilterRx(filter)
     }
 
-    fun getRecordsImage(list: List<RecordWrap>): Observable<List<RecordWrap>> {
-        return Observable.create {
-            list.forEach {  record ->
-                record.imageUrl = ImageProvider.getRecordRandomPath(record.bean.name, null)
-            }
-            it.onNext(list)
-            it.onComplete()
+    fun getRecordsImage(list: List<RecordWrap>): List<RecordWrap> {
+        list.forEach {  record ->
+            record.imageUrl = ImageProvider.getRecordRandomPath(record.bean.name, null)
         }
+        return list
     }
 
     private fun getComplexFilterBuilder(filter: RecordComplexFilter): StringBuffer {

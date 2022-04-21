@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.RecordComplexFilter
-import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
@@ -18,8 +17,9 @@ import com.king.app.gdb.data.relation.RecordWrap
 import com.king.app.gdb.data.relation.StarRelationship
 import com.king.app.gdb.data.relation.StarStudioTag
 import com.king.app.gdb.data.relation.StarWrap
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableSource
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 /**
  * @description:
@@ -48,98 +48,80 @@ class StarViewModel(application: Application): BaseViewModel(application) {
     private var mSingleImagePath: String? = null
     var starImageList = listOf<String>()
     var studioList = listOf<StarStudioTag>()
-    var relationList = listOf<StarRelationship>()
+    var relationList = mutableListOf<StarRelationship>()
     var tagList = listOf<Tag>()
     var mStudioId: Long = 0
+    var mRelationshipId: Long = 0
 
     fun loadStar(starId: Long) {
-        loadingObserver.value = true
-        starRepository.getStar(starId)
-            .flatMap {
-                mStar = it
-                starObserver.postValue(it)
-                toolbarText.set(it.bean.name)
-                getStarImages(mStar.bean)
-            }
-            .flatMap {
-                starImageList = it
-                getRelationships(mStar)
-            }
-            .flatMap {
-                relationList = it
-                getStudioTagByStar(mStar)
-            }
-            .flatMap {
-                studioList = it
-                getStarTags()
-            }
-            .flatMap {
-                tagList = it
-                getComplexFilter()
-            }
-            .flatMap { recordRepository.getRecords(it) }
-            .flatMap { recordRepository.getRecordsImage(it) }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordWrap>>(getComposite()) {
-                override fun onNext(t: List<RecordWrap>) {
-                    loadingObserver.value = false
-                    recordsObserver.value = t
+        launchFlow(
+            flow { emit(getDatabase().getStarDao().getStarWrap(starId)) }
+                .map {
+                    it?.apply {
+                        mStar = this
+                        starObserver.postValue(this)
+                        toolbarText.set(bean.name)
+                    }
+                    loadStarImages(mStar.bean)
                 }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    loadingObserver.value = false
-                    messageObserver.value = e?.message
+                .map {
+                    starImageList = it
+                    getRelationships(mStar)
                 }
-
-            })
-    }
-
-    private fun getStarImages(star: Star): Observable<List<String>> {
-        return Observable.create {
-            it.onNext(loadStarImages(star))
-            it.onComplete()
+                .map {
+                    relationList = it
+                    getStudioTagByStar(mStar)
+                }
+                .map {
+                    studioList = it
+                    getTags(mStar)
+                }
+                .map {
+                    tagList = it
+                    getComplexFilter()
+                }
+                .map {
+                    recordRepository.getRecordsByFilter(it)
+                }
+                .map {
+                    recordRepository.getRecordsImage(it)
+                },
+            withLoading = true
+        ) {
+            recordsObserver.value = it
         }
     }
 
-    private fun getRelationships(star: StarWrap): ObservableSource<List<StarRelationship>> {
-        return ObservableSource {
-            val relations = getDatabase().getStarDao().getStarRelationships(star.bean.id!!)
-            relations.forEach { record ->
-                record.imagePath = ImageProvider.getStarRandomPath(record.star.name, null)
-            }
-            var list = relations.sortedByDescending { ship -> ship.count }
-            it.onNext(list)
-            it.onComplete()
+    private fun getRelationships(star: StarWrap): MutableList<StarRelationship> {
+        val relations = getDatabase().getStarDao().getStarRelationships(star.bean.id!!)
+        relations.forEach { record ->
+            record.imagePath = ImageProvider.getStarRandomPath(record.star.name, null)
         }
+        relations.sortByDescending { ship -> ship.count }
+        return relations
     }
 
-    private fun getStudioTagByStar(star: StarWrap): ObservableSource<List<StarStudioTag>> {
-        return ObservableSource {
-            val studio = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
-            var list = listOf<StarStudioTag>()
-            studio?.let { order ->
-                list = getDatabase().getStarDao().getStarStudioTag(star.bean.id!!, order.id!!)
-            }
-            it.onNext(list)
-            it.onComplete()
+    private fun getStudioTagByStar(star: StarWrap): List<StarStudioTag> {
+        val studio = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
+        var list = listOf<StarStudioTag>()
+        studio?.let { order ->
+            list = getDatabase().getStarDao().getStarStudioTag(star.bean.id!!, order.id!!)
         }
+        return list
     }
 
-    private fun getComplexFilter(): Observable<RecordComplexFilter> {
-        return Observable.create {
-            val filter = RecordComplexFilter()
-            filter.filter = mRecordFilter
-            filter.desc = SettingProperty.isStarRecordsSortDesc()
-            filter.sortType = SettingProperty.getStarRecordsSortType()
-            filter.studioId = mStudioId
-            filter.starId = mStar.bean.id!!
-            if (AppConstants.KEY_SCENE_ALL != mScene) {
-                filter.scene = mScene
-            }
-            it.onNext(filter)
-            it.onComplete()
+    private fun getComplexFilter(): RecordComplexFilter {
+        val filter = RecordComplexFilter()
+        filter.filter = mRecordFilter
+        filter.desc = SettingProperty.isStarRecordsSortDesc()
+        filter.sortType = SettingProperty.getStarRecordsSortType()
+        filter.studioId = mStudioId
+        filter.starId = mStar.bean.id!!
+        filter.relationshipId = mRelationshipId
+        if (AppConstants.KEY_SCENE_ALL != mScene) {
+            filter.scene = mScene
         }
+        return filter
     }
 
     private fun loadStarImages(star: Star): List<String> {
@@ -160,23 +142,14 @@ class StarViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun loadStarRecords() {
-        getComplexFilter()
-            .flatMap { recordRepository.getRecords(it) }
-            .flatMap { recordRepository.getRecordsImage(it) }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<RecordWrap>>(getComposite()) {
-                override fun onNext(t: List<RecordWrap>) {
-                    loadingObserver.value = false
-                    onlyRecordsObserver.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    loadingObserver.value = false
-                    messageObserver.value = e?.message
-                }
-
-            })
+        launchFlow(
+            flow { emit(getComplexFilter()) }
+                .map { recordRepository.getRecordsByFilter(it) }
+                .map { recordRepository.getRecordsImage(it) },
+            withLoading = false
+        ) {
+            onlyRecordsObserver.value = it
+        }
     }
 
     fun loadStarOrders() {
@@ -184,24 +157,11 @@ class StarViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun loadStarOrders(starId: Long) {
-        orderRepository.getStarOrders(starId)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<FavorStarOrder>>(getComposite()) {
-                override fun onNext(t: List<FavorStarOrder>) {
-                    ordersObserver.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-
-            })
-    }
-
-    fun getStarTags(): ObservableSource<List<Tag>> {
-        return ObservableSource {
-            it.onNext(getTags(mStar))
-            it.onComplete()
+        launchSingle(
+            { orderRepository.getStarOrders(starId) },
+            withLoading = false
+        ) {
+            ordersObserver.value = it
         }
     }
 
@@ -233,19 +193,11 @@ class StarViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun addToOrder(orderId: Long) {
-        orderRepository.addFavorStar(orderId, mStar.bean.id!!)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<FavorStar>(getComposite()) {
-                override fun onNext(t: FavorStar) {
-                    messageObserver.value = "Add successfully"
-                    addOrderObserver.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-
-            })
+        launchSingle(
+            { orderRepository.addFavorStar(orderId, mStar.bean.id!!) }
+        ) {
+            messageObserver.value = "Add successfully"
+            addOrderObserver.value = it
+        }
     }
 }

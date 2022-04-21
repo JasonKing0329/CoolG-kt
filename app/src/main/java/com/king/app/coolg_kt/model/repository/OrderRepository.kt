@@ -87,33 +87,29 @@ class OrderRepository:BaseRepository() {
         }
     }
 
-    fun getStarOrders(recordId: Long): Observable<List<FavorStarOrder>> {
-        return Observable.create {
-            it.onNext(getDatabase().getFavorDao().getStarOrders(recordId))
-            it.onComplete()
-        }
+    fun getStarOrders(recordId: Long): List<FavorStarOrder> {
+        return getDatabase().getFavorDao().getStarOrders(recordId)
     }
-    fun addFavorStar(orderId: Long, starId: Long): Observable<FavorStar> {
-        return Observable.create {
-            var bean = getDatabase().getFavorDao().getFavorStarBy(starId, orderId)
-            if (bean == null) {
-                // insert to favor_star
-                var time = Date().time
-                bean = FavorStar(null, orderId, starId, time, time)
-                var list = mutableListOf<FavorStar>()
-                getDatabase().getFavorDao().insertFavorStars(list)
-                // update number in favor_star_order
-                var order = getDatabase().getFavorDao().getFavorStarOrderBy(orderId)
-                order?.let { fOrder ->
-                    fOrder.number += 1
-                    getDatabase().getFavorDao().updateFavorStarOrder(fOrder)
-                }
-                it.onNext(bean)
-                it.onComplete()
+
+    @Throws
+    fun addFavorStar(orderId: Long, starId: Long): FavorStar {
+        var bean = getDatabase().getFavorDao().getFavorStarBy(starId, orderId)
+        if (bean == null) {
+            // insert to favor_star
+            var time = Date().time
+            bean = FavorStar(null, orderId, starId, time, time)
+            var list = mutableListOf<FavorStar>()
+            getDatabase().getFavorDao().insertFavorStars(list)
+            // update number in favor_star_order
+            var order = getDatabase().getFavorDao().getFavorStarOrderBy(orderId)
+            order?.let { fOrder ->
+                fOrder.number += 1
+                getDatabase().getFavorDao().updateFavorStarOrder(fOrder)
             }
-            else {
-                it.onError(Exception("Target is already in order"))
-            }
+            return bean
+        }
+        else {
+             throw Exception("Target is already in order")
         }
     }
 }

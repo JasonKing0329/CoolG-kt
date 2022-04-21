@@ -254,7 +254,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/vertical_divider"
                 android:background="@color/divider" />
-            <RelativeLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/group_relation"
                 style="@style/GroupStarSecItem"
                 android:background="?android:attr/selectableItemBackground">
@@ -262,22 +262,58 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="Relationships"/>
-                <ImageView
-                    android:id="@+id/iv_relation_arrow"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_keyboard_arrow_down_grey_700_24dp"/>
+                    android:text="Relationships"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    android:id="@+id/tv_relation_by_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:gravity="center"
+                    android:text="By count"
+                    android:textSize="12dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/selector_period_tag_bg"
+                    android:textColor="@drawable/selector_period_tag_text"
+                    android:layout_marginEnd="@dimen/common_margin_8"
+                    app:layout_constraintEnd_toStartOf="@id/tv_relation_by_name"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    android:id="@+id/tv_relation_by_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:gravity="center"
+                    android:text="By name"
+                    android:textSize="12dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/selector_period_tag_bg"
+                    android:textColor="@drawable/selector_period_tag_text"
+                    android:layout_marginEnd="@dimen/common_margin_16"
+                    app:layout_constraintEnd_toStartOf="@id/tv_relation"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
                 <TextView
                     android:id="@+id/tv_relation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@id/iv_relation_arrow"
                     android:layout_centerVertical="true"
-                    android:text="1人"/>
-            </RelativeLayout>
+                    android:text="1人"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_relation_arrow"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+                <ImageView
+                    android:id="@+id/iv_relation_arrow"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_keyboard_arrow_down_grey_700_24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_relation"
                 android:layout_width="match_parent"

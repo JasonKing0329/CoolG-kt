@@ -84,7 +84,7 @@ interface StarDao {
     fun updateStarRating(bean: StarRating)
 
     @Query("select s.*, count(*) as count from stars s join record_star rs on s._id=rs.STAR_ID where rs.RECORD_ID in (select RECORD_iD from record_star where STAR_ID =:starId) and rs.STAR_ID !=:starId group by s._id")
-    fun getStarRelationships(starId: Long): List<StarRelationship>
+    fun getStarRelationships(starId: Long): MutableList<StarRelationship>
 
     @Query("SELECT fodr._id as studioId, fodr.name as name, count(fodr._id) AS count FROM favor_order_record fodr  LEFT JOIN record r ON fodr._id=r.studioId LEFT JOIN record_star rs ON r._id=rs.record_id WHERE rs.star_id=:starId AND fodr.parent_id=:studioParentId GROUP BY fodr._id ORDER BY count DESC")
     fun getStarStudioTag(starId: Long, studioParentId: Long): List<StarStudioTag>

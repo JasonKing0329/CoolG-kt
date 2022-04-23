@@ -122,7 +122,9 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
             if (withLoading) {
                 loadingObserver.value = false
             }
-            onComplete(result)
+            if (isActive) {
+                onComplete(result)
+            }
         }
     }
 
@@ -143,7 +145,9 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
             if (withLoading) {
                 loadingObserver.value = false
             }
-            onComplete(response)
+            if (isActive) {
+                onComplete(response)
+            }
         }
     }
 

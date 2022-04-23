@@ -14,6 +14,9 @@
         android:title="Timeline page"
         android:icon="@drawable/ic_baseline_date_range_24"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_relation"
+        android:title="Relationships"
+        app:showAsAction="never"/>
     <item android:id="@+id/menu_tag_sort_mode"
         android:title="Set tag sort mode"
         app:showAsAction="never"/>

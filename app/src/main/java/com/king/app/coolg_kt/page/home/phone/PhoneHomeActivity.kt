@@ -24,6 +24,7 @@ import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.page.record.phone.RecordActivity
 import com.king.app.coolg_kt.page.star.pad.StarsPadActivity
 import com.king.app.coolg_kt.page.star.phone.StarActivity
+import com.king.app.coolg_kt.page.star.phone.StarRelationActivity
 import com.king.app.coolg_kt.page.star.phone.TagStarActivity
 import com.king.app.coolg_kt.page.studio.phone.StudioActivity
 import com.king.app.coolg_kt.page.video.order.PlayOrderActivity

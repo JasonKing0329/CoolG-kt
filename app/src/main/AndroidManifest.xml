@@ -105,6 +105,7 @@
         <activity android:name=".page.match.draw.BlackListActivity" />
         <activity android:name=".page.match.detail.MajorActivity" />
         <activity android:name=".page.star.timeline.StarTimelineActivity" />
+        <activity android:name=".page.star.phone.StarRelationActivity" />
         <activity
             android:name=".page.video.player.PlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

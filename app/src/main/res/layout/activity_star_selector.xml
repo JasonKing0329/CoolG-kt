@@ -19,7 +19,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:maxShowIcon="5"
             app:showIconBack="true"
-            app:supportSearch="false"
+            app:supportSearch="true"
             app:iconSize="@dimen/actionbar_icon_width"
             app:iconPadding="@dimen/actionbar_icon_padding"
             app:titleSize="@dimen/actionbar_title_text_size"

@@ -121,6 +121,10 @@ class TagStarActivity : AbsTagStarActivity<ActivityStarTagBinding>() {
         StarTimelineActivity.startPage(this)
     }
 
+    override fun goToRelationPage() {
+        StarRelationActivity.startPage(this)
+    }
+
     override fun goToStarPage(starId: Long) {
         StarActivity.startPage(this, starId)
     }

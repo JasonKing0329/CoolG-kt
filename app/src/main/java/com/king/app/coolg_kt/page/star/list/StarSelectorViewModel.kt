@@ -2,16 +2,24 @@ package com.king.app.coolg_kt.page.star.list
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.SelectStar
+import com.king.app.coolg_kt.model.bean.StarBuilder
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.StarIndexEmitter
+import com.king.app.coolg_kt.model.module.StarIndexProvider
+import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.StarRepository
+import com.king.app.coolg_kt.page.match.TimeWasteRange
+import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.relation.StarWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.Job
 import java.util.*
 
 /**
@@ -23,11 +31,15 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
 
     var starsObserver: MutableLiveData<List<SelectStar>> = MutableLiveData()
 
-    var indexObserver: MutableLiveData<String> = MutableLiveData()
+    var studiosObserver: MutableLiveData<List<FavorRecordOrder>> = MutableLiveData()
 
-    var indexBarObserver: MutableLiveData<Boolean> = MutableLiveData()
+    var indexObserver: MutableLiveData<List<String>> = MutableLiveData()
 
-    private val indexEmitter = StarIndexEmitter()
+    var imageChanged: MutableLiveData<TimeWasteRange> = MutableLiveData()
+
+    private val indexProvider = StarIndexProvider()
+
+    var checkMap = mutableMapOf<Long, Boolean>()
 
     private var mSelectedStar: SelectStar? = null
 
@@ -36,64 +48,66 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
     var mLimitMax = 0
 
     private val repository = StarRepository()
+    private val orderRepository = OrderRepository()
 
-    private var originList = listOf<StarWrap>()
+    private var loadJob: Job? = null
+    private var searchJob: Job? = null
 
-    fun loadStars() {
-        loadingObserver.value = true
-        repository.getAllStarsOrderByName()
-            .flatMap {
-                originList = it
-                toViewItems(it)
-            }
-            .flatMap {
-                starsObserver.postValue(it)
-                createIndexes()
-            }
-            .compose(applySchedulers())
-            .subscribe(object : Observer<String> {
-                override fun onSubscribe(d: Disposable) {
-                    addDisposable(d)
+    var mStudioId: Long? = null
+
+    var mKeyword: String? = null
+
+    private var indexList = mutableListOf<String>()
+
+    fun loadStar() {
+        loadJob?.cancel()
+        loadJob = basicAndTimeWaste(
+            blockBasic = {
+                // load stars
+                var builder = StarBuilder().apply {
+                    studioId = mStudioId
+                    like = mKeyword
+                    sortType = AppConstants.STAR_SORT_NAME
                 }
-
-                override fun onNext(index: String) {
-                    indexObserver.value = index
-                }
-
-                override fun onComplete() {
-                    loadingObserver.value = false
-                    indexBarObserver.value = true
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    loadingObserver.value = false
-                    messageObserver.value = e?.message
-                }
-            })
+                val stars = repository.queryStarWith(builder)
+                // create index
+                indexList.clear()
+                indexProvider.clear()
+                indexProvider.createNameIndex(indexList, stars)
+                toViewItems(stars)
+            },
+            onCompleteBasic = {
+                starsObserver.value = it
+                indexObserver.value = indexList
+            },
+            blockWaste = {_, item -> handleWaste(item) },
+            onWasteRangeChanged = {start, count -> imageChanged.value = TimeWasteRange(start, count) },
+            wasteNotifyCount = 20,
+            withBasicLoading = true
+        )
     }
 
-    private fun toViewItems(list: List<StarWrap>): ObservableSource<List<SelectStar>> {
-        return ObservableSource {
-            var result = mutableListOf<SelectStar>()
-            list.forEach { star ->
-                star.imagePath = ImageProvider.getStarRandomPath(star.bean.name, null)
-                var bean = SelectStar()
-                bean.star = star
-                bean.observer = selectObserver
-                result.add(bean)
-            }
-            it.onNext(result)
-            it.onComplete()
-        }
+    fun loadStudios() {
+        val studios = orderRepository.getAllStudios(AppConstants.STUDIO_LIST_SORT_NUM).toMutableList()
+        val all = FavorRecordOrder(null, "All", null, 0, 0, null, null)
+        studios.add(0, all)
+        studiosObserver.value = studios
     }
 
-    private fun createIndexes(): Observable<String> {
-        return Observable.create {
-            indexEmitter.clear()
-            indexEmitter.createNameIndex(it, originList)
-            it.onComplete()
+    private fun handleWaste(item: SelectStar) {
+        item.star?.imagePath = ImageProvider.getStarRandomPath(item.star?.bean?.name, null)
+    }
+
+    private fun toViewItems(list: List<StarWrap>): List<SelectStar> {
+        var result = mutableListOf<SelectStar>()
+        list.forEach { star ->
+            var bean = SelectStar()
+            bean.star = star
+            bean.observer = selectObserver
+            bean.isChecked = isChecked(bean)
+            result.add(bean)
         }
+        return result
     }
 
     private var selectObserver = object : SelectObserver<SelectStar> {
@@ -102,44 +116,77 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
         }
     }
 
+    private fun isChecked(data: SelectStar): Boolean {
+        data.star?.bean?.id?.let {
+            return checkMap[it] == true
+        }
+        return false
+    }
+
+    private fun checkStar(data: SelectStar, check: Boolean) {
+        if (check) {
+            data.star?.bean?.id?.apply {
+                checkMap[this] = true
+            }
+        }
+        else {
+            checkMap.remove(data.star?.bean?.id)
+        }
+    }
+
     private fun onSelectStar(data: SelectStar) {
         when {
             bSingleSelect -> {
                 mSelectedStar?.let {
+                    checkStar(it, false)
                     it.isChecked = false
                 }
+                checkStar(data, true)
                 data.isChecked = true
                 mSelectedStar = data
             }
             mLimitMax > 0 -> {
-                var count = starsObserver.value?.filter { it.isChecked }?.size?:0
-                val targetCheck: Boolean = !data.isChecked
+                var count = starsObserver.value?.filter { isChecked(it) }?.size?:0
+                val targetCheck: Boolean = !isChecked(data)
                 if (targetCheck && count >= mLimitMax) {
                     messageObserver.value = "You can select at most $mLimitMax"
                     return
                 }
+                checkStar(data, targetCheck)
                 data.isChecked = targetCheck
             }
             else -> {
-                data.isChecked = !data.isChecked
+                val result = !isChecked(data)
+                checkStar(data, result)
+                data.isChecked = result
             }
         }
     }
 
     fun getSelectedItems(): ArrayList<CharSequence> {
         var result = arrayListOf<CharSequence>()
-        var list = starsObserver.value?.filter { it.isChecked }
-        list?.forEach {
-            result.add(it.star!!.bean.id!!.toString())
-        }
-        return result
+        return checkMap.keys.mapTo(result) { it.toString() }
     }
 
     fun getLetterPosition(letter: String?): Int {
         kotlin.runCatching {
-            return indexEmitter.playerIndexMap[letter]?.start?:0
+            return indexProvider.playerIndexMap[letter]?.start?:0
         }.let {
             return 0
+        }
+    }
+
+    fun changeStudio(id: Long?) {
+        if (mStudioId != id) {
+            mStudioId = id
+            loadStar()
+        }
+    }
+
+    fun onKeywordChanged(key: String) {
+        if (key != mKeyword) {
+            mKeyword = key
+            loadStar()
         }
     }
 }

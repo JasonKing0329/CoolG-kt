@@ -20,9 +20,6 @@ interface StarDao {
     @Query("select * from stars")
     fun getAllStars(): List<StarWrap>
 
-    @Query("select * from stars order by NAME COLLATE NOCASE")
-    fun getAllStarsOrderByName(): List<StarWrap>
-
     @Query("select * from stars")
     fun getAllBasicStars(): List<Star>
 

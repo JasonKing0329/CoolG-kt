@@ -1,5 +1,8 @@
 package com.king.app.coolg_kt.model.repository
 
+import androidx.sqlite.db.SimpleSQLiteQuery
+import com.king.app.coolg_kt.conf.AppConstants
+import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.gdb.data.entity.*
 import io.reactivex.rxjava3.core.Observable
 import java.util.*
@@ -112,4 +115,21 @@ class OrderRepository:BaseRepository() {
              throw Exception("Target is already in order")
         }
     }
+
+    fun getAllStudios(sortType: Int = AppConstants.STUDIO_LIST_SORT_NAME): List<FavorRecordOrder> {
+        var list = listOf<FavorRecordOrder>()
+        getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)?.let { parent ->
+            var sqlBuffer = StringBuffer("select * from favor_order_record where PARENT_ID=");
+            sqlBuffer.append(parent.id)
+            when(sortType) {
+                AppConstants.STUDIO_LIST_SORT_NUM -> sqlBuffer.append(" order by NUMBER desc")
+                AppConstants.STUDIO_LIST_SORT_CREATE_TIME -> sqlBuffer.append(" order by CREATE_TIME desc")
+                AppConstants.STUDIO_LIST_SORT_UPDATE_TIME -> sqlBuffer.append(" order by UPDATE_TIME desc")
+                else -> sqlBuffer.append(" order by NAME")
+            }
+            list = getDatabase().getFavorDao().getRecordOrdersBySql(SimpleSQLiteQuery(sqlBuffer.toString()))
+        }
+        return list
+    }
+
 }

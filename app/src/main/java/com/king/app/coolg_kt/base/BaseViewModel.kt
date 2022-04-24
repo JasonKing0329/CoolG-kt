@@ -38,12 +38,9 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         compositeDisposable.add(disposable)
     }
 
-    fun dispatchCommonError(e: Throwable) {
-        messageObserver.value = "Load error: " + e.message
-    }
-
-    fun dispatchCommonError(errorTitle: String, e: Throwable) {
-        messageObserver.value = errorTitle + ": " + e.message
+    fun dispatchCommonError(e: Throwable, errorTitle: String? = null) {
+        loadingObserver.postValue(false)
+        messageObserver.postValue(errorTitle?:"Load error: " + e.message)
     }
 
     fun getComposite() = compositeDisposable
@@ -267,7 +264,9 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                 if (withBasicLoading) {
                     loadingObserver.value = false
                 }
-                onCompleteBasic(basic)
+                if (isActive) {
+                    onCompleteBasic(basic)
+                }
             }
             var index = 0
             DebugLog.e("waste start")

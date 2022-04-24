@@ -644,12 +644,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun getStudios() {
-        getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)?.let { parent ->
-            var sqlBuffer = StringBuffer("select * from favor_order_record where PARENT_ID=");
-            sqlBuffer.append(parent.id).append(" order by NAME")
-            studioList = getDatabase().getFavorDao().getRecordOrdersBySql(SimpleSQLiteQuery(sqlBuffer.toString()))
-        }
-
+        studioList = orderRepository.getAllStudios()
         studioTextList.add("All")
         studioList.forEach { studio ->
             studioTextList.add(studio.name?:"zzz_unknown")

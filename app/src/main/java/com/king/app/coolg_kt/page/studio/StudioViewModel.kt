@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider.parseCoverUrl
+import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import io.reactivex.rxjava3.core.Observable
@@ -31,6 +32,8 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
     var isSelectAsMatch = false
 
     var listDisplayType = SettingProperty.getStudioListType()
+
+    var orderRepository = OrderRepository()
 
     fun toggleListType(type: Int) {
         listDisplayType = type
@@ -126,20 +129,7 @@ class StudioViewModel(application: Application) : BaseViewModel(application) {
 
     private fun getStudios(): Observable<List<FavorRecordOrder>> {
         return Observable.create {
-            var list = listOf<FavorRecordOrder>()
-            val studio = getDatabase().getFavorDao().getRecordOrderByName(AppConstants.ORDER_STUDIO_NAME)
-            studio?.let { parent ->
-                val sortType: Int = SettingProperty.getStudioListSortType()
-                var sqlBuffer = StringBuffer("select * from favor_order_record where PARENT_ID=");
-                sqlBuffer.append(parent.id)
-                when(sortType) {
-                    AppConstants.STUDIO_LIST_SORT_NUM -> sqlBuffer.append(" order by NUMBER desc")
-                    AppConstants.STUDIO_LIST_SORT_CREATE_TIME -> sqlBuffer.append(" order by CREATE_TIME desc")
-                    AppConstants.STUDIO_LIST_SORT_UPDATE_TIME -> sqlBuffer.append(" order by UPDATE_TIME desc")
-                    else -> sqlBuffer.append(" order by NAME")
-                }
-                list = getDatabase().getFavorDao().getRecordOrdersBySql(SimpleSQLiteQuery(sqlBuffer.toString()))
-            }
+            var list = orderRepository.getAllStudios(SettingProperty.getStudioListSortType())
             // 过滤掉已经是match的
             if (isSelectAsMatch) {
                 list = list.filter { item -> getDatabase().getMatchDao().getMatchByName(item.name?:"") == null }

@@ -121,15 +121,14 @@ class StarBuilder {
      * tagId与studioId只支持二选一
      */
     var tagId: Long? = null
-        private set
+
     var studioId: Long? = null
-        private set
 
     var type: String = DataConstants.STAR_MODE_ALL
-        private set
 
     var sortType: Int = AppConstants.STAR_SORT_NAME
-        private set
+
+    var like: String? = null
 
     fun isSortByRating(): Boolean {
         return sortType >= AppConstants.STAR_SORT_RATING && sortType <= AppConstants.STAR_SORT_RATING_PREFER

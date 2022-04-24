@@ -16,6 +16,8 @@ import com.king.app.gdb.data.entity.StarRating
  */
 class StarSelectorAdapter: BaseBindingAdapter<AdapterStarSelectorBinding, SelectStar>() {
 
+    var checkMap = mutableMapOf<Long, Boolean>()
+
     override fun onCreateBind(
         inflater: LayoutInflater,
         parent: ViewGroup
@@ -31,6 +33,16 @@ class StarSelectorAdapter: BaseBindingAdapter<AdapterStarSelectorBinding, Select
         } else {
             binding.tvRating.text = StarRatingUtil.NON_RATING
             StarRatingUtil.updateRatingColor(binding.tvRating, null)
+        }
+        binding.cbCheck.isChecked = isChecked(bean.star?.bean?.id)
+    }
+
+    private fun isChecked(starId: Long?): Boolean {
+        return if (starId == null) {
+            false
+        }
+        else {
+            checkMap[starId] == true
         }
     }
 

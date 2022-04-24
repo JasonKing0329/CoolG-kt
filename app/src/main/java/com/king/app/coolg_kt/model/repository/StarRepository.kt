@@ -27,13 +27,6 @@ class StarRepository: BaseRepository() {
         }
     }
 
-    fun getAllStarsOrderByName(): Observable<List<StarWrap>> {
-        return Observable.create {
-            it.onNext(getDatabase().getStarDao().getAllStarsOrderByName())
-            it.onComplete()
-        }
-    }
-
     fun queryStarWith(builder: StarBuilder): List<StarWrap> {
 
         var buffer = StringBuffer()
@@ -58,13 +51,21 @@ class StarRepository: BaseRepository() {
 
         // where
         var where = ""
+        // like
+        if (builder.like?.isNullOrEmpty() == false) {
+            val likeSql = "T.NAME LIKE '%${builder.like}%' COLLATE NOCASE"
+            where = addToWhere(where, likeSql)
+        }
+        // type
         var typeSql = when (builder.type) {
             DataConstants.STAR_MODE_TOP -> "T.BETOP>0 and T.BEBOTTOM=0 "
             DataConstants.STAR_MODE_BOTTOM -> "T.BEBOTTOM>0 and T.BETOP=0 "
             DataConstants.STAR_MODE_HALF -> "T.BEBOTTOM>0 and T.BETOP>0 "
             else -> ""
         }
-        where = addToWhere(where, typeSql)
+        if (typeSql.isNotEmpty()) {
+            where = addToWhere(where, typeSql)
+        }
         if (where.isNotEmpty()) {
             buffer.append(where)
         }
@@ -94,8 +95,8 @@ class StarRepository: BaseRepository() {
 
     private fun addToWhere(where: String, condition: String): String {
         if (condition.isNotEmpty()) {
-            return if (where.isEmpty()) "where $condition"
-            else "$where and $condition"
+            return if (where.isEmpty()) "where $condition "
+            else "$where and $condition "
         }
         return where
     }

@@ -221,3 +221,13 @@ data class DrawUpdateResult (
     var updateList: MutableList<MatchRecord> = mutableListOf(),
     var deleteList: MutableList<MatchRecord> = mutableListOf(),
 )
+
+data class HistoryRelation (
+    var list: List<HistoryRelationItem>
+)
+
+data class HistoryRelationItem (
+    var name: String,
+    var date: Long,
+    var list: List<Long>
+)

@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import com.king.app.coolg_kt.utils.DebugLog
+import com.king.app.coolg_kt.utils.ScreenUtils
 import java.util.ArrayList
 
 class RelationNetKt : ViewGroup {
@@ -22,11 +23,29 @@ class RelationNetKt : ViewGroup {
         }
     }
 
-    var paint = Paint()
+    private var paint = Paint()
 
-    val colors = arrayOf(
-        Color.RED, Color.CYAN, Color.DKGRAY, Color.GREEN,
-        Color.BLUE, Color.YELLOW
+    private var mFocusPosition = -1
+
+    private val offset = ScreenUtils.dp2px(30F)
+
+    private val colors = arrayOf(
+        Color.RED,
+        Color.BLUE,
+        Color.GREEN,
+        Color.parseColor("#7C58BD"),// 紫
+        Color.parseColor("#FD8C13"),// 橙
+        Color.parseColor("#F8A2DB"),// 粉
+        Color.parseColor("#FFA51F"),// 亮黄
+        Color.parseColor("#03DAC5"),// 青蓝
+        Color.parseColor("#99cc6600"),// 棕
+        Color.parseColor("#A03437"),// 暗红
+        Color.parseColor("#00a543"),// 宝蓝
+        Color.parseColor("#00a543"),// 黑
+        Color.parseColor("#2D4E30"),// 墨绿
+        Color.CYAN,
+        Color.DKGRAY,
+        Color.BLACK,
     )
 
     constructor(context: Context?) : super(context) { initParams() }
@@ -59,22 +78,34 @@ class RelationNetKt : ViewGroup {
     }
 
     private fun defineVertical() {
-        pointList.add(Point(width / 3, height / 2))
-        pointList.add(Point(width / 3 * 2, height / 2))
-        pointList.add(Point(width / 4 * 2, height / 6 * 2))
-        pointList.add(Point(width / 4 * 2, height / 6 * 4))
-        pointList.add(Point(width / 4, height / 6 * 2))
-        pointList.add(Point(width / 4 * 3, height / 6 * 4))
-        pointList.add(Point(width / 4 * 3, height / 6 * 2))
-        pointList.add(Point(width / 4, height / 6 * 4))
-        pointList.add(Point(width / 5 * 2, height / 6))
-        pointList.add(Point(width / 5 * 3, height / 6))
-        pointList.add(Point(width / 5 * 2, height / 6 * 5))
-        pointList.add(Point(width / 5 * 3, height / 6 * 5))
-        pointList.add(Point(width / 5, height / 6))
-        pointList.add(Point(width / 5 * 4, height / 6))
-        pointList.add(Point(width / 5, height / 6 * 5))
-        pointList.add(Point(width / 5 * 4, height / 6 * 5))
+        // 第一行4个，序号为13,9,10,15
+        // 第二行3个，序号为5,3,7
+        // 第三行2个，序号为1,2
+        // 第四行3个，序号为6,4,8
+        // 第五行4个，序号为14,11,12,16
+        val rowHeight = arrayOf(
+            height / 8,
+            (height / 8 + height / 2) / 2,
+            height / 2,
+            (height / 8 * 7 + height / 2) / 2,
+            height / 8 * 7
+        )
+        pointList.add(Point(width / 3, rowHeight[2]))// 1
+        pointList.add(Point(width / 3 * 2, rowHeight[2]))// 2
+        pointList.add(Point(width / 4 * 2, rowHeight[1]))// 3
+        pointList.add(Point(width / 4 * 2, rowHeight[3]))// 4
+        pointList.add(Point(width / 4, rowHeight[1] + offset))// 5
+        pointList.add(Point(width / 4, rowHeight[3] - offset))// 6
+        pointList.add(Point(width / 4 * 3, rowHeight[1]- offset))// 7
+        pointList.add(Point(width / 4 * 3, rowHeight[3] + offset))// 8
+        pointList.add(Point(width / 5 * 2, rowHeight[0]))// 9
+        pointList.add(Point(width / 5 * 3, rowHeight[0]))// 10
+        pointList.add(Point(width / 5 * 2, rowHeight[4]))// 11
+        pointList.add(Point(width / 5 * 3, rowHeight[4]))// 12
+        pointList.add(Point(width / 5, rowHeight[0] + offset))// 13
+        pointList.add(Point(width / 5, rowHeight[4] - offset))// 14
+        pointList.add(Point(width / 5 * 4, rowHeight[0] - offset))// 15
+        pointList.add(Point(width / 5 * 4, rowHeight[4] + offset))// 16
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -125,9 +156,22 @@ class RelationNetKt : ViewGroup {
         }
     }
 
+    fun focusOn(position: Int) {
+        mFocusPosition = position
+        invalidate()
+    }
+
+    fun cancelFocusOn() {
+        mFocusPosition = -1
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         adapter?.apply {
             for (i in 0 until getCount()) {
+                if (mFocusPosition != -1 && i != mFocusPosition) {
+                    continue
+                }
                 if (i < pointList.size) {
                     val point = pointList[i]
                     getRelatedPositions(i).forEach {
@@ -164,7 +208,7 @@ class RelationNetKt : ViewGroup {
         val anchorStart = getAnchorPoint(startRect, anchors[0])
         val anchorEnd = getAnchorPoint(endRect, anchors[1])
         paint.color = colors[startPosition % colors.size]
-        paint.strokeWidth = 10F
+        paint.strokeWidth = 20F
         canvas.drawPoint(anchorStart.x.toFloat(), anchorStart.y.toFloat(), paint)
         canvas.drawPoint(anchorEnd.x.toFloat(), anchorEnd.y.toFloat(), paint)
         paint.strokeWidth = 3F

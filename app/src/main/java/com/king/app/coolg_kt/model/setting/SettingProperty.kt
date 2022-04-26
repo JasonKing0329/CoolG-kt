@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.model.setting
 
 import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
+import com.king.app.coolg_kt.model.bean.HistoryRelation
 import com.king.app.coolg_kt.model.bean.PlayList
 import com.king.app.coolg_kt.page.match.HomeUrls
 import com.king.app.coolg_kt.page.match.RankFilterRange
@@ -341,6 +342,24 @@ class SettingProperty: BaseProperty() {
             } catch (e: java.lang.Exception) {
             }
             setString("rank_filter_range", sql)
+        }
+
+        fun getHistoryRelations(): HistoryRelation {
+            val sql = getString("history_relation")
+            try {
+                return Gson().fromJson(sql, HistoryRelation::class.java)
+            } catch (e: java.lang.Exception) {
+            }
+            return HistoryRelation(listOf())
+        }
+
+        fun setHistoryRelations(bean: HistoryRelation) {
+            var sql: String? = null
+            try {
+                sql = Gson().toJson(bean)
+            } catch (e: java.lang.Exception) {
+            }
+            setString("history_relation", sql)
         }
     }
 

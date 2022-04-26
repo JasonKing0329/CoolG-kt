@@ -16,14 +16,45 @@
             app:menu="@menu/star_relation"
             app:title="Relationships" />
 
+        <TextView
+            android:id="@+id/tv_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="History"
+            android:layout_marginStart="@dimen/common_margin_16"
+            app:layout_constraintTop_toTopOf="@+id/rv_history"
+            app:layout_constraintBottom_toBottomOf="@+id/rv_history"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_history"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_10"
+            android:layout_marginTop="@dimen/common_margin_8"
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"
+            app:layout_constraintStart_toEndOf="@+id/tv_history"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <com.king.app.coolg_kt.view.widget.relation.RelationNetKt
             android:id="@+id/relation_group"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="@dimen/common_margin_8"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/actionbar"/>
+            app:layout_constraintTop_toBottomOf="@+id/rv_history"/>
+
+        <CheckBox
+            android:id="@+id/cb_focus_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Focus mode"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:layout_marginBottom="@dimen/common_margin_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

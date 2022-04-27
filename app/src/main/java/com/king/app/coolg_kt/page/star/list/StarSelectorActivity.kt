@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.animation.*
+import android.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
+import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityStarSelectorBinding
 import com.king.app.coolg_kt.page.pub.StudioTagAdapter
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -99,6 +101,7 @@ class StarSelectorActivity : BaseActivity<ActivityStarSelectorBinding, StarSelec
             finish()
             true
         }
+        mBinding.fabSort.setOnClickListener { popupSort(it) }
         mBinding.fabSearch.setOnClickListener {
             if (mBinding.groupSearch.visibility != View.VISIBLE) {
                 showSearchBar()
@@ -239,6 +242,28 @@ class StarSelectorActivity : BaseActivity<ActivityStarSelectorBinding, StarSelec
                 }
             })
             mBinding.groupSearch.startAnimation(this)
+        }
+    }
+
+    private fun popupSort(anchor: View) {
+        PopupMenu(this, anchor).apply {
+            menuInflater.inflate(R.menu.player_sort, menu)
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_sort_name -> mModel.sortMode = AppConstants.STAR_SORT_NAME
+                    R.id.menu_sort_records -> mModel.sortMode = AppConstants.STAR_SORT_RECORDS
+                    R.id.menu_sort_rating -> mModel.sortMode = AppConstants.STAR_SORT_RATING
+                    R.id.menu_sort_rating_face -> mModel.sortMode = AppConstants.STAR_SORT_RATING_FACE
+                    R.id.menu_sort_rating_body -> mModel.sortMode = AppConstants.STAR_SORT_RATING_BODY
+                    R.id.menu_sort_rating_dk -> mModel.sortMode = AppConstants.STAR_SORT_RATING_DK
+                    R.id.menu_sort_rating_sexuality -> mModel.sortMode = AppConstants.STAR_SORT_RATING_SEXUALITY
+                    R.id.menu_sort_rating_passion -> mModel.sortMode = AppConstants.STAR_SORT_RATING_PASSION
+                    R.id.menu_sort_rating_video -> mModel.sortMode = AppConstants.STAR_SORT_RATING_VIDEO
+                    R.id.menu_sort_random -> mModel.sortMode = AppConstants.STAR_SORT_RANDOM
+                }
+                false
+            }
+            show()
         }
     }
 }

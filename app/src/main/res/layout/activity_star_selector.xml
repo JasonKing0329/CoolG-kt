@@ -75,18 +75,31 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_sort"
+            android:layout_width="@dimen/gdb_home_icon_size"
+            android:layout_height="@dimen/gdb_home_icon_size"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_marginBottom="@dimen/common_margin_10"
+            android:src="@drawable/ic_sort_white_36dp"
+            android:tint="@color/white"
+            app:fabCustomSize="@dimen/gdb_home_icon_size"
+            app:borderWidth="0dp"
+            app:rippleColor="@color/actionbar_bk_blue"
+            app:layout_constraintStart_toStartOf="@+id/fab_search"
+            app:layout_constraintBottom_toTopOf="@+id/fab_search"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_search"
             android:layout_width="@dimen/gdb_home_icon_size"
             android:layout_height="@dimen/gdb_home_icon_size"
-            android:layout_marginStart="@dimen/common_margin_8"
-            android:layout_marginBottom="@dimen/common_margin_8"
-            android:backgroundTint="@color/colorPrimary"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:layout_marginBottom="@dimen/common_margin_16"
+            android:backgroundTint="@color/colorAccent"
             android:src="@drawable/ic_search_white"
             android:tint="@color/white"
             app:fabCustomSize="@dimen/gdb_home_icon_size"
             app:borderWidth="0dp"
             app:rippleColor="@color/actionbar_bk_blue"
-            app:useCompatPadding="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
@@ -122,5 +135,6 @@
                 app:layout_constraintTop_toTopOf="@id/et_search"
                 app:layout_constraintBottom_toBottomOf="@id/et_search"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

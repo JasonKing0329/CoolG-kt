@@ -51,13 +51,18 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
     private val orderRepository = OrderRepository()
 
     private var loadJob: Job? = null
-    private var searchJob: Job? = null
 
     var mStudioId: Long? = null
 
     var mKeyword: String? = null
 
     private var indexList = mutableListOf<String>()
+
+    var sortMode: Int = AppConstants.STAR_SORT_NAME
+    set(value) {
+        field = value
+        loadStar()
+    }
 
     fun loadStar() {
         loadJob?.cancel()
@@ -67,13 +72,17 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
                 var builder = StarBuilder().apply {
                     studioId = mStudioId
                     like = mKeyword
-                    sortType = AppConstants.STAR_SORT_NAME
+                    sortType = sortMode
                 }
                 val stars = repository.queryStarWith(builder)
                 // create index
                 indexList.clear()
                 indexProvider.clear()
-                indexProvider.createNameIndex(indexList, stars)
+                when (sortMode) {
+                    AppConstants.STAR_SORT_RECORDS -> indexProvider.createRecordsIndex(indexList, stars)
+                    AppConstants.STAR_SORT_NAME -> indexProvider.createNameIndex(indexList, stars)
+                    AppConstants.STAR_SORT_RATING -> indexProvider.createRatingIndex(indexList, stars, sortMode)
+                }
                 toViewItems(stars)
             },
             onCompleteBasic = {

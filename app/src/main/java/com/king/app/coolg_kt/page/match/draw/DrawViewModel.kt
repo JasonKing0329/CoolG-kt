@@ -63,6 +63,8 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
 
     var loadDrawJob: Job? = null
 
+    val random = Random()
+
     fun loadMatch(matchPeriodId: Long) {
         matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
         getMatchRound(matchPeriod.match)
@@ -550,8 +552,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
         return matchPeriod.match.level == MatchConstants.MATCH_LEVEL_LOW || matchPeriod.match.level == MatchConstants.MATCH_LEVEL_FINAL
     }
 
-    fun randomWin() {
-        val random = Random()
+    fun randomWin(priority: Int) {
         itemsObserver.value?.forEach {
             it.winner = when {
                 it.matchRecord1?.bean?.type == MatchConstants.MATCH_RECORD_BYE -> {
@@ -561,14 +562,59 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
                     it.matchRecord1
                 }
                 else -> {
-                    if (abs(random.nextInt()) % 2 == 0) {
-                        it.matchRecord1
-                    } else {
-                        it.matchRecord2
+                    when(priority) {
+                        1, 2, 3, 4 -> maxBetween(priority, it.matchRecord1, it.matchRecord2)
+                        else -> {
+                            if (abs(random.nextInt()) % 2 == 0) {
+                                it.matchRecord1
+                            } else {
+                                it.matchRecord2
+                            }
+                        }
                     }
                 }
             }
             it.isChanged = true
         }
+    }
+
+    private fun maxBetween(priority: Int, rec1: MatchRecordWrap?, rec2: MatchRecordWrap?): MatchRecordWrap? {
+        var num1 = 0
+        var num2 = 0
+        when(priority) {
+            1 -> {
+                num1 = rec1?.record?.scoreFeel?:0
+                num2 = rec2?.record?.scoreFeel?:0
+            }
+            2 -> {
+                num1 = rec1?.record?.scoreStar?:0
+                num2 = rec2?.record?.scoreStar?:0
+            }
+            3 -> {
+                num1 = rec1?.record?.scoreBody?:0
+                num2 = rec2?.record?.scoreBody?:0
+            }
+            4 -> {
+                num1 = rec1?.record?.scorePassion?:0
+                num2 = rec2?.record?.scorePassion?:0
+            }
+        }
+        return if (num1 > num2) {
+            rec1
+        }
+        else if (num1 < num2) {
+            rec2
+        }
+        else {
+            if (abs(random.nextInt()) % 2 == 0) {
+                rec1
+            } else {
+                rec2
+            }
+        }
+    }
+
+    fun randomPriority(count: Int): Int {
+        return abs(random.nextInt()) % count
     }
 }

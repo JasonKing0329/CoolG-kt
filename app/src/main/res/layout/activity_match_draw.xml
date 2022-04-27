@@ -121,5 +121,43 @@
             app:layout_constraintBottom_toBottomOf="@+id/actionbar"
             tools:visibility="visible"/>
 
+        <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
+            android:id="@+id/group_priority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/common_margin_10"
+            android:layout_marginEnd="@dimen/common_margin_16"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:round_corner="4dp"
+            tools:visibility="visible">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="#66a9a9a9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Priority: "
+                android:layout_marginStart="@dimen/common_margin_8"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/sp_priority"
+                app:layout_constraintBottom_toBottomOf="@+id/sp_priority"
+                app:layout_constraintTop_toTopOf="@+id/sp_priority"/>
+            <Spinner
+                android:id="@+id/sp_priority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/draw_priority"
+                android:padding="@dimen/common_margin_8"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -268,7 +268,7 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
             if (isEditing) {
                 showConfirmCancelMessage("Random results will overwrite the origin results, continue?",
                     { dialog, which ->
-                        mModel.randomWin()
+                        mModel.randomWin(mBinding.spPriority.selectedItemPosition)
                         adapter.notifyDataSetChanged()
                     },
                     null)
@@ -460,6 +460,10 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         adapter.isEditing = edit
         adapter.notifyDataSetChanged()
         mBinding.tvRandomWin.visibility = if (edit) View.VISIBLE else View.GONE
+        mBinding.groupPriority.visibility = if (edit) View.VISIBLE else View.GONE
+        if (edit) {
+            mBinding.spPriority.setSelection(mModel.randomPriority(mBinding.spPriority.count))
+        }
     }
 
     override fun onBackPressed() {

@@ -71,4 +71,14 @@
         <item>System</item>
     </string-array>
 
+    <string-array name="draw_priority" translatable="false">
+        <item>Image</item>
+        <item>Feel</item>
+        <item>Person</item>
+        <item>Body</item>
+        <item>Passion</item>
+        <item>Content</item>
+        <item>Scene</item>
+    </string-array>
+
 </resources>

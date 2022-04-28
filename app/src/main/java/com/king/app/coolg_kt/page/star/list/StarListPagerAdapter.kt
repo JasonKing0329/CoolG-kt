@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
  * @author：Jing Yang
  * @date: 2020/12/28 13:22
  */
+@Deprecated("")
 class StarListPagerAdapter(activity: FragmentActivity, val list: List<StarListFragment>): FragmentStateAdapter(activity) {
 
     override fun getItemCount(): Int = list.size

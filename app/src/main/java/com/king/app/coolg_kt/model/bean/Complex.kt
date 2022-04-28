@@ -9,6 +9,7 @@ import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
+import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Tag
 import com.king.app.gdb.data.entity.TagClass
 import com.king.app.gdb.data.entity.match.MatchItem
@@ -230,4 +231,16 @@ data class HistoryRelationItem (
     var name: String,
     var date: Long,
     var list: List<Long>
+)
+
+data class StudioStarWrap (
+    var studio: FavorRecordOrder,
+    var starCount: Int,
+    var text: String
+)
+
+data class StarTypeWrap (
+    var type: String,
+    var starCount: Int,
+    var text: String
 )

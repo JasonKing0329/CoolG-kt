@@ -6,6 +6,7 @@ import com.king.app.gdb.data.entity.FavorRecord
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.FavorStar
 import com.king.app.gdb.data.entity.FavorStarOrder
+import com.king.app.gdb.data.relation.StudioStarCountWrap
 
 /**
  * @description:
@@ -122,5 +123,16 @@ interface FavorDao {
 
     @Query("select * from favor_order_record where NAME='Studio'")
     fun getStudioOrder(): FavorRecordOrder?
+
+    @Query("select foo.*, count(star_id) as count from \n" +
+            "( \n" +
+            "select fr.ORDER_ID, rs.*, count(rs.star_id) from favor_record fr \n" +
+            "join record r on fr.RECORD_ID=r._id \n" +
+            "join record_star rs on r._id=rs.RECORD_ID \n" +
+            "group by fr.ORDER_ID, rs.STAR_ID \n" +
+            ") t \n" +
+            "join favor_order_record foo on foo._id=t.ORDER_ID \n" +
+            "group by order_id")
+    fun getStudioStarsCount(): List<StudioStarCountWrap>
 
 }

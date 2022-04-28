@@ -20,6 +20,7 @@ import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityStarSelectorBinding
+import com.king.app.coolg_kt.model.bean.StudioStarWrap
 import com.king.app.coolg_kt.page.pub.StudioTagAdapter
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.widget.FitSideBar.OnSidebarStatusListener
@@ -147,9 +148,9 @@ class StarSelectorActivity : BaseActivity<ActivityStarSelectorBinding, StarSelec
         mBinding.rvStudio.addItemDecoration(tagDecoration)
         mBinding.rvStudio.adapter = studioAdapter
 
-        studioAdapter.listenerClick = object : BaseBindingAdapter.OnItemClickListener<FavorRecordOrder> {
-            override fun onClickItem(view: View, position: Int, data: FavorRecordOrder) {
-                mModel.changeStudio(data.id)
+        studioAdapter.listenerClick = object : BaseBindingAdapter.OnItemClickListener<StudioStarWrap> {
+            override fun onClickItem(view: View, position: Int, data: StudioStarWrap) {
+                mModel.changeStudio(data.studio.id)
             }
         }
     }

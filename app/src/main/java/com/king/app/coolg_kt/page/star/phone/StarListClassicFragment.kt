@@ -1,28 +1,37 @@
 package com.king.app.coolg_kt.page.star.phone
 
+import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.lifecycle.Observer
-import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseFragment
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityStarListPhoneBinding
+import com.king.app.coolg_kt.databinding.AdapterTagItemBinding
+import com.king.app.coolg_kt.databinding.AdapterTagItemStarlistBinding
+import com.king.app.coolg_kt.model.bean.StarTypeWrap
+import com.king.app.coolg_kt.model.bean.StudioStarWrap
 import com.king.app.coolg_kt.model.extension.ImageBindingAdapter
 import com.king.app.coolg_kt.model.image.ImageProvider.getStarRandomPath
 import com.king.app.coolg_kt.model.setting.ViewProperty
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment
 import com.king.app.coolg_kt.page.pub.BannerSettingFragment.OnAnimSettingListener
+import com.king.app.coolg_kt.page.pub.StudioTagAdapter
 import com.king.app.coolg_kt.page.star.list.IStarListHolder
 import com.king.app.coolg_kt.page.star.list.StarListFragment
 import com.king.app.coolg_kt.page.star.list.StarListPagerAdapter
 import com.king.app.coolg_kt.utils.BannerHelper
+import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.dialog.DraggableDialogFragment
 import com.king.app.gdb.data.DataConstants
+import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.entity.Star
 import com.king.lib.banner.CoolBannerAdapter
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -39,7 +48,7 @@ import java.util.concurrent.TimeUnit
  */
 class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarListTitleViewModel>(), IStarListHolder {
 
-    private lateinit var pagerAdapter: StarListPagerAdapter
+    private lateinit var ftStar: StarListFragment
 
     var studioId: Long = 0
 
@@ -68,22 +77,23 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
             initRecommend()
         }
 
-        // 默认只缓存另外2个，在切换时处理view mode及sort type有很多弊端，改成缓存全部另外3个可以规避问题
-        mBinding.viewpager.offscreenPageLimit = 3
-        mBinding.viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrollStateChanged(state: Int) {
-                super.onPageScrollStateChanged(state)
+        mBinding.rvTypes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        mBinding.rvStudios.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        val decoration = object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                val position = parent.getChildLayoutPosition(view)
+                if (position > 0) {
+                    outRect.left = ScreenUtils.dp2px(8F)
+                }
             }
-
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-            }
-
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                pagerAdapter.list[position].onRefresh(mModel.sortMode)
-            }
-        })
+        }
+        mBinding.rvTypes.addItemDecoration(decoration)
+        mBinding.rvStudios.addItemDecoration(decoration)
         mBinding.groupSetting.setOnClickListener { showSettings() }
     }
 
@@ -105,7 +115,7 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
 
     private fun initActionbar() {
         mBinding.actionbar.setOnBackListener { requireActivity().onBackPressed() }
-        mBinding.actionbar.setOnSearchListener { currentPage.filterStar(it) }
+        mBinding.actionbar.setOnSearchListener { ftStar.filterStar(it) }
         mBinding.actionbar.registerPopupMenuOn(
             R.id.menu_sort,
             R.menu.player_sort
@@ -129,11 +139,11 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
                 R.id.menu_index -> changeSideBarVisible()
                 R.id.menu_gdb_view_mode -> {
                     mModel.toggleViewMode(resources)
-                    pagerAdapter.onViewModeChanged()
+                    ftStar.onViewModeChanged()
                 }
                 R.id.menu_gdb_category -> goToCategory()
-                R.id.menu_gdb_expand_all -> currentPage.setExpandAll(true)
-                R.id.menu_gdb_collapse_all -> currentPage.setExpandAll(false)
+                R.id.menu_gdb_expand_all -> ftStar.setExpandAll(true)
+                R.id.menu_gdb_collapse_all -> ftStar.setExpandAll(false)
             }
         }
     }
@@ -141,11 +151,10 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
     private fun goToCategory() {
 //        Router.build("Category")
 //            .go(this)
-        TODO()
     }
 
     private fun changeSideBarVisible() {
-        currentPage.toggleSidebar()
+        ftStar.toggleSidebar()
     }
 
     private fun initRecommend() {
@@ -167,63 +176,50 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
     override fun createViewModel(): StarListTitleViewModel = generateViewModel(StarListTitleViewModel::class.java)
 
     override fun initData() {
-        mModel.menuViewModeObserver.observe(this,
-            Observer { title ->
-                mBinding.actionbar.updateMenuText(R.id.menu_gdb_view_mode, title)
-            }
-        )
-        mModel.sortTypeObserver.observe(this, Observer { type -> currentPage.updateSortType(type) })
-        showTitles()
-        if (studioId != 0L) {
-            val studio = mModel.getStudioName(studioId)
-            mBinding.actionbar.setTitle(studio)
+        mModel.menuViewModeObserver.observe(this) { title ->
+            mBinding.actionbar.updateMenuText(R.id.menu_gdb_view_mode, title)
         }
+        mModel.sortTypeObserver.observe(this){ type -> ftStar.updateSortType(type) }
+        showTags()
+    }
+
+    private fun showTags() {
+        mModel.typesObserver.observe(this) {
+            TypeAdapter().apply {
+                list = it
+                listenerClick = object : BaseBindingAdapter.OnItemClickListener<StarTypeWrap> {
+                    override fun onClickItem(view: View, position: Int, data: StarTypeWrap) {
+                        ftStar.updateStarType(data.type)
+                    }
+                }
+                mBinding.rvTypes.adapter = this
+            }
+        }
+        mModel.studiosObserver.observe(this) {
+            StudioTagAdapter().apply {
+                list = it
+                selection = mModel.findStudioPosition(studioId)
+                listenerClick = object : BaseBindingAdapter.OnItemClickListener<StudioStarWrap> {
+                    override fun onClickItem(view: View, position: Int, data: StudioStarWrap) {
+                        ftStar.updateStudioId(data.studio.id!!)
+                    }
+                }
+                mBinding.rvStudios.adapter = this
+            }
+            showStarList()
+        }
+        mModel.loadTags()
+    }
+
+    private fun showStarList() {
+        ftStar = StarListFragment.newInstance(DataConstants.STAR_MODE_ALL, studioId)
+        childFragmentManager.beginTransaction()
+            .replace(R.id.ft_list, ftStar, "StarListFragment")
+            .commit()
     }
 
     private val isStudioStarPage: Boolean
         private get() = studioId != 0L
-
-    override fun updateTabTitle(starType: String, title: String) {
-        when (starType) {
-            DataConstants.STAR_MODE_ALL -> {
-                mBinding.tabLayout.getTabAt(0)?.text = title
-            }
-            DataConstants.STAR_MODE_TOP -> {
-                mBinding.tabLayout.getTabAt(1)?.text = title
-            }
-            DataConstants.STAR_MODE_BOTTOM -> {
-                mBinding.tabLayout.getTabAt(2)?.text = title
-            }
-            DataConstants.STAR_MODE_HALF -> {
-                mBinding.tabLayout.getTabAt(3)?.text = title
-            }
-        }
-    }
-
-    private fun showTitles() {
-        var list = mutableListOf<StarListFragment>()
-        val fragmentAll = StarListFragment.newInstance(DataConstants.STAR_MODE_ALL, studioId)
-        fragmentAll.holder = this
-        list.add(fragmentAll)
-        val fragment1 = StarListFragment.newInstance(DataConstants.STAR_MODE_TOP, studioId)
-        fragment1.holder = this
-        list.add(fragment1)
-        val fragment0 = StarListFragment.newInstance(DataConstants.STAR_MODE_BOTTOM, studioId)
-        fragment0.holder = this
-        list.add(fragment0)
-        val fragment05 = StarListFragment.newInstance(DataConstants.STAR_MODE_HALF, studioId)
-        fragment05.holder = this
-        list.add(fragment05)
-        pagerAdapter = StarListPagerAdapter(requireActivity(), list)
-        mBinding.viewpager.adapter = pagerAdapter
-
-        var mediator = TabLayoutMediator(mBinding.tabLayout, mBinding.viewpager,
-            TabLayoutMediator.TabConfigurationStrategy { tab, position -> tab.text = AppConstants.STAR_LIST_TITLES[position] })
-        mediator.attach()
-    }
-
-    private val currentPage: StarListFragment
-        private get() = pagerAdapter.list[mBinding.viewpager.currentItem]
 
     override fun dispatchClickStar(star: Star): Boolean {
         onClickStarListener?.let {
@@ -280,7 +276,7 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
         indexDisposable?.dispose()
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
         mBinding.banner?.startAutoPlay()
 
@@ -289,14 +285,14 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 if (mBinding.tvIndex.visibility == View.VISIBLE) {
-                    if (currentPage.isNotScrolling) {
+                    if (ftStar.isNotScrolling) {
                         mBinding.tvIndex.visibility = View.GONE
                     }
                 }
             }
     }
 
-    public override fun onDestroy() {
+    override fun onDestroy() {
         super.onDestroy()
         mBinding.banner?.stopAutoPlay()
     }
@@ -332,5 +328,29 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
     interface OnClickStarListener {
         fun onClickStar(starId: Long)
         fun onLongClickStar(starId: Long)
+    }
+
+    class TypeAdapter: BaseBindingAdapter<AdapterTagItemStarlistBinding, StarTypeWrap>() {
+        var selection = 0
+        override fun onCreateBind(
+            inflater: LayoutInflater,
+            parent: ViewGroup
+        ): AdapterTagItemStarlistBinding = AdapterTagItemStarlistBinding.inflate(inflater, parent, false)
+
+        override fun onBindItem(binding: AdapterTagItemStarlistBinding, position: Int, bean: StarTypeWrap) {
+            binding.tvName.text = bean.text
+            binding.tvCount.text = bean.starCount.toString()
+            binding.tvName.isSelected = position == selection
+            binding.tvCount.isSelected = position == selection
+            binding.group.isSelected = position == selection
+        }
+
+        override fun onClickItem(v: View, position: Int, bean: StarTypeWrap) {
+            if (position != selection) {
+                super.onClickItem(v, position, bean)
+            }
+            selection = position
+            notifyDataSetChanged()
+        }
     }
 }

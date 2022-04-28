@@ -89,6 +89,9 @@ interface StarDao {
     @RawQuery
     fun getStarsBySql(query: SupportSQLiteQuery): List<StarWrap>
 
+    @RawQuery
+    fun countStarsBySql(query: SupportSQLiteQuery): Int
+
     @Query("select * from stars s join star_rating sr on s._id=sr.STAR_ID where sr.COMPLEX>=:atLeast order by random() limit :num")
     fun getStarByRating(atLeast: Float, num: Int): List<Star>
 
@@ -122,5 +125,4 @@ interface StarDao {
 
     @Delete
     fun deleteTimelineExcludeList(list: List<TimelineExcludeList>)
-
 }

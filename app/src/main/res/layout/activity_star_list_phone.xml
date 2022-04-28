@@ -64,34 +64,36 @@
                         android:id="@+id/actionbar"
                         style="@style/PhoneJActionBar"
                         app:title="Stars"
-                        app:menu="@menu/player_list"/>
+                        app:menu="@menu/player_list"
+                        app:supportSearch="true"/>
                 </androidx.appcompat.widget.Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@color/actionbar_bg"
-                app:tabGravity="fill"
-                app:tabMode="fixed"
-                app:tabSelectedTextColor="@color/colorAccent"
-                app:tabTextColor="@color/actionbar_element"
-                app:tabIndicatorColor="@color/colorAccent"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/common_margin_8"
+                android:background="@color/white">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_studios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_types"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/common_margin_8"/>
+            </LinearLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <LinearLayout
+        <FrameLayout
+            android:id="@+id/ft_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:scrollbars="none"
-            app:layout_behavior=".page.star.list.StarListBehavior">
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewpager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
+            app:layout_behavior=".page.star.list.StarListBehavior"/>
 
         <TextView
             android:id="@+id/tv_index"

@@ -345,5 +345,7 @@
     <dimen name="record_match_page_line_left">20dp
     </dimen>
     <dimen name="match_studio_record_height">70dp
+    </dimen>
+    <dimen name="starlist_tag_radius">20dp
     </dimen><!-- =match_item_cha_height - match_item_sf_height -->
 </resources>

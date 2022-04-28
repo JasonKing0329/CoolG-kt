@@ -79,3 +79,10 @@ data class FavorStarOrderWrap (
     var recordList: List<Star>
 
 )
+
+data class StudioStarCountWrap (
+
+    @Embedded
+    var bean: FavorRecordOrder,
+    var count: Int
+)

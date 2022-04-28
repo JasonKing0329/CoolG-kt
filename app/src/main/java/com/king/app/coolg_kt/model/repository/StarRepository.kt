@@ -28,18 +28,31 @@ class StarRepository: BaseRepository() {
     }
 
     fun queryStarWith(builder: StarBuilder): List<StarWrap> {
+        return getDatabase().getStarDao().getStarsBySql(SimpleSQLiteQuery(toStarBuilderSql(builder)))
+    }
 
+    fun countStarWith(builder: StarBuilder): Int {
+        return getDatabase().getStarDao().countStarsBySql(SimpleSQLiteQuery(toStarBuilderSql(builder)))
+    }
+
+    private fun toStarBuilderSql(builder: StarBuilder, isCount: Boolean = false): String {
         var buffer = StringBuffer()
+        val selectResult = if (isCount) {
+            "count(T.*)"
+        }
+        else {
+            "T.*"
+        }
         // tables and joins
-        if (builder.studioId == null) {
-            buffer.append("select T.* from stars T ")
+        if (builder.studioId == null || builder.studioId == 0L) {
+            buffer.append("select $selectResult from stars T ")
             builder.tagId?.let { tagId ->
                 buffer.append("join tag_star TS on T._id=TS.STAR_ID and TS.TAG_ID=${tagId} ")
             }
         } else {
             // 有studioId的情况目前不支持tagId
             buffer.append(
-                "select T.* from record r " +
+                "select $selectResult from record r " +
                         "join record_star rs on r._id=rs.RECORD_ID and r.studioId=${builder.studioId} " +
                         "join stars T on rs.STAR_ID=T._id "
             )
@@ -83,7 +96,7 @@ class StarRepository: BaseRepository() {
 
         var sql = buffer.toString()
         DebugLog.e(sql)
-        return getDatabase().getStarDao().getStarsBySql(SimpleSQLiteQuery(sql))
+        return sql
     }
 
     fun queryStarsBy(builder: StarBuilder): Observable<List<StarWrap>> {

@@ -1,6 +1,5 @@
 package com.king.app.coolg_kt.page.star.list
 
-import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Rect
 import android.os.Bundle
@@ -68,7 +67,7 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
                 super.onScrollStateChanged(recyclerView, newState)
 
                 // 按音序排列，在滑动过程中显示当前的详细index
-                if (mModel.sortType == AppConstants.STAR_SORT_NAME) {
+                if (mModel.mSortMode == AppConstants.STAR_SORT_NAME) {
                     when (newState) {
                         RecyclerView.SCROLL_STATE_DRAGGING -> updateDetailIndex()
                         RecyclerView.SCROLL_STATE_SETTLING -> {
@@ -152,17 +151,21 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
     }
 
     override fun initData() {
-        mModel.indexObserver.observe(this, Observer { index -> mBinding.sidebar.addIndex(index) })
-        mModel.indexBarObserver.observe(this, Observer { mBinding.sidebar.build() })
+        mModel.indexObserver.observe(this) {
+            mBinding.sidebar.clear()
+            it.forEach { index ->
+                mBinding.sidebar.addIndex(index)
+            }
+            mBinding.sidebar.build()
+            mBinding.sidebar.visibility = View.VISIBLE
+        }
         mModel.circleListObserver.observe(this,
             Observer { list: List<StarWrap> ->
-                updateTabTitle(list.size)
                 showCircleList(list)
             }
         )
         mModel.richListObserver.observe(this,
             Observer { list: List<StarWrap> ->
-                updateTabTitle(list.size)
                 showRichList(list)
             }
         )
@@ -179,33 +182,11 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
                 mRichAdapter.notifyDataSetChanged()
             }
         )
-        DebugLog.e(starType)
         mBinding.sidebar.clear()
-        mModel.starType = starType
-        if (studioId != 0L) {
-            mModel.mStudioId = studioId
-        }
+        mModel.mStarType = requireArguments().getString(ARG_STAR_TYPE)?:DataConstants.STAR_MODE_ALL
+        mModel.mStudioId = requireArguments().getLong(ARG_STUDIO_ID)
         mModel.loadStarList()
     }
-
-    private fun updateTabTitle(size: Int) {
-        DebugLog.e("$starType, size=$size")
-        val titles: Array<String> = AppConstants.STAR_LIST_TITLES
-        val starMode = starType
-        var title = when (starMode) {
-            DataConstants.STAR_MODE_TOP -> "${titles[1]}($size)"
-            DataConstants.STAR_MODE_BOTTOM -> "${titles[2]}($size)"
-            DataConstants.STAR_MODE_HALF -> "${titles[3]}($size)"
-            else -> "${titles[0]}($size)"
-        }
-        holder?.updateTabTitle(starType!!, title)
-    }
-
-    private val starType: String
-        private get() = requireArguments().getString(ARG_STAR_TYPE)!!
-
-    private val studioId: Long
-        private get() = requireArguments().getLong(ARG_STUDIO_ID)
 
     private val richDecoration: ItemDecoration = object : ItemDecoration() {
         override fun getItemOffsets(
@@ -290,7 +271,7 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
 
     fun updateSortType(sortMode: Int) {
         mBinding.sidebar.clear()
-        mModel.sortStarList(sortMode)
+        mModel.mSortMode = sortMode
     }
 
     fun toggleSidebar() {
@@ -299,19 +280,17 @@ class StarListFragment : BaseFragment<FragmentStarRichBinding, StarListViewModel
     }
 
     fun filterStar(text: String) {
-        if (mModel.isKeywordChanged(text)) {
-            mBinding.sidebar.clear()
-            mModel.filter(text)
-        }
+        mModel.onKeywordChanged(text)
     }
 
-    fun onRefresh(sortType: Int) {
-        if (!mModel.isLoading) {
-            DebugLog.e("$starType --> sortType=$sortType")
-            mModel.sortType = sortType
-            mBinding.sidebar.clear()
-            mModel.loadStarList()
-        }
+    fun updateStarType(type: String) {
+        mModel.mStarType = type
+        mModel.loadStarList()
+    }
+
+    fun updateStudioId(studioId: Long) {
+        mModel.mStudioId = studioId
+        mModel.loadStarList()
     }
 
     override fun onResume() {

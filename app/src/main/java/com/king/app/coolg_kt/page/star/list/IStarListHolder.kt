@@ -14,5 +14,4 @@ interface IStarListHolder {
     fun hideDetailIndex()
     fun updateDetailIndex(name: String)
     fun dispatchOnLongClickStar(star: Star): Boolean
-    fun updateTabTitle(starType: String, title: String)
 }

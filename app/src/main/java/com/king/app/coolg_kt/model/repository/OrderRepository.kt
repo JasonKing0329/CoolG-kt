@@ -4,6 +4,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.setting.SettingProperty
 import com.king.app.gdb.data.entity.*
+import com.king.app.gdb.data.relation.StudioStarCountWrap
 import io.reactivex.rxjava3.core.Observable
 import java.util.*
 
@@ -132,4 +133,7 @@ class OrderRepository:BaseRepository() {
         return list
     }
 
+    fun getStudioWithStarCount(): List<StudioStarCountWrap> {
+        return getDatabase().getFavorDao().getStudioStarsCount()
+    }
 }

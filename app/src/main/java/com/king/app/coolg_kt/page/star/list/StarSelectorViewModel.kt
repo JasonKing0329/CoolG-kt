@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.bean.SelectStar
 import com.king.app.coolg_kt.model.bean.StarBuilder
+import com.king.app.coolg_kt.model.bean.StudioStarWrap
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.StarIndexEmitter
 import com.king.app.coolg_kt.model.module.StarIndexProvider
@@ -15,6 +16,7 @@ import com.king.app.coolg_kt.model.repository.StarRepository
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.gdb.data.entity.FavorRecordOrder
 import com.king.app.gdb.data.relation.StarWrap
+import com.king.app.gdb.data.relation.StudioStarCountWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import io.reactivex.rxjava3.core.Observer
@@ -31,7 +33,7 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
 
     var starsObserver: MutableLiveData<List<SelectStar>> = MutableLiveData()
 
-    var studiosObserver: MutableLiveData<List<FavorRecordOrder>> = MutableLiveData()
+    var studiosObserver: MutableLiveData<List<StudioStarWrap>> = MutableLiveData()
 
     var indexObserver: MutableLiveData<List<String>> = MutableLiveData()
 
@@ -97,10 +99,11 @@ class StarSelectorViewModel(application: Application): BaseViewModel(application
     }
 
     fun loadStudios() {
-        val studios = orderRepository.getAllStudios(AppConstants.STUDIO_LIST_SORT_NUM).toMutableList()
+        val countAll = repository.countStarWith(StarBuilder())
+        val studios = orderRepository.getStudioWithStarCount().sortedByDescending { it.bean.number }.toMutableList()
         val all = FavorRecordOrder(null, "All", null, 0, 0, null, null)
-        studios.add(0, all)
-        studiosObserver.value = studios
+        studios.add(0, StudioStarCountWrap(all, countAll))
+        studiosObserver.value = studios.map { StudioStarWrap(it.bean, it.count, "${it.bean.name}") }
     }
 
     private fun handleWaste(item: SelectStar) {

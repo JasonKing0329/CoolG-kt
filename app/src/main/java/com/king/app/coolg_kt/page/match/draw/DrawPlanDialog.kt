@@ -48,6 +48,18 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         mBinding.etGm1000Shuffle.setText(str.shuffleRate.toString())
                         mBinding.etGm1000Min.setText(str.lowRank.toString())
                     }
+                    mBinding.btnPlan1.visibility = View.VISIBLE
+                    mBinding.btnPlan2.visibility = View.VISIBLE
+                    mBinding.btnPlan3.visibility = View.VISIBLE
+                    mBinding.btnPlan1.setOnClickListener {
+                        mBinding.etGm1000Shuffle.setText("40")
+                    }
+                    mBinding.btnPlan2.setOnClickListener {
+                        mBinding.etGm1000Shuffle.setText("45")
+                    }
+                    mBinding.btnPlan3.setOnClickListener {
+                        mBinding.etGm1000Shuffle.setText("50")
+                    }
                 }
                 MatchConstants.MATCH_LEVEL_GM500 -> {
                     mBinding.clGm1000.visibility = View.GONE
@@ -60,6 +72,17 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         mBinding.etGm500Top50.setText(str.top50.toString())
                         mBinding.etGm500MainMin.setText(str.mainLowRank.toString())
                         mBinding.etGm500QualifyMin.setText(str.qualifyLowRank.toString())
+                    }
+                    mBinding.btnPlan1.visibility = View.VISIBLE
+                    mBinding.btnPlan2.visibility = View.VISIBLE
+                    mBinding.btnPlan3.visibility = View.GONE
+                    mBinding.btnPlan1.setOnClickListener {
+                        mBinding.etGm500MainMin.setText("80")
+                        mBinding.etGm500QualifyMin.setText("180")
+                    }
+                    mBinding.btnPlan2.setOnClickListener {
+                        mBinding.etGm500MainMin.setText("100")
+                        mBinding.etGm500QualifyMin.setText("250")
                     }
                 }
                 MatchConstants.MATCH_LEVEL_GM250 -> {
@@ -74,6 +97,9 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         mBinding.etGm500MainMin.setText(str.mainLowRank.toString())
                         mBinding.etGm500QualifyMin.setText(str.qualifyLowRank.toString())
                     }
+                    mBinding.btnPlan1.visibility = View.GONE
+                    mBinding.btnPlan2.visibility = View.GONE
+                    mBinding.btnPlan3.visibility = View.GONE
                 }
                 MatchConstants.MATCH_LEVEL_LOW -> {
                     mBinding.clGm1000.visibility = View.GONE
@@ -87,6 +113,27 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         mBinding.etLowQualifySeedMin.setText(str.qualifySeedLow.toString())
                         mBinding.etLowQualifyMin.setText(str.qualifyLow.toString())
                     }
+                    mBinding.btnPlan1.visibility = View.VISIBLE
+                    mBinding.btnPlan2.visibility = View.VISIBLE
+                    mBinding.btnPlan3.visibility = View.VISIBLE
+                    mBinding.btnPlan1.setOnClickListener {
+                        mBinding.etHigh.setText("180")
+                        mBinding.etLowSeed.setText("220")
+                        mBinding.etLowMainMin.setText("280")
+                        mBinding.etLowQualifySeedMin.setText("320")
+                    }
+                    mBinding.btnPlan2.setOnClickListener {
+                        mBinding.etHigh.setText("180")
+                        mBinding.etLowSeed.setText("240")
+                        mBinding.etLowMainMin.setText("300")
+                        mBinding.etLowQualifySeedMin.setText("350")
+                    }
+                    mBinding.btnPlan3.setOnClickListener {
+                        mBinding.etHigh.setText("180")
+                        mBinding.etLowSeed.setText("300")
+                        mBinding.etLowMainMin.setText("400")
+                        mBinding.etLowQualifySeedMin.setText("470")
+                    }
                 }
                 MatchConstants.MATCH_LEVEL_MICRO -> {
                     mBinding.clGm1000.visibility = View.GONE
@@ -97,8 +144,22 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                         mBinding.etMicroHigh.setText(str.rankTopLimit.toString())
                         mBinding.etMicroSeed.setText(str.mainSeedLow.toString())
                     }
+                    mBinding.btnPlan1.visibility = View.GONE
+                    mBinding.btnPlan2.visibility = View.GONE
+                    mBinding.btnPlan3.visibility = View.GONE
                 }
-                else -> {}
+                else -> {
+                    mBinding.btnPlan1.visibility = View.GONE
+                    mBinding.btnPlan2.visibility = View.GONE
+                    mBinding.btnPlan3.visibility = View.GONE
+                }
+            }
+            // LOW Final
+            if (it.orderInPeriod == MatchConstants.MAX_ORDER_IN_PERIOD - 1) {
+                mBinding.etHigh.setText("180")
+                mBinding.etLowSeed.setText("196")
+                mBinding.etLowMainMin.setText("232")
+                mBinding.etLowQualifySeedMin.setText("244")
             }
         }
         mBinding.tvOk.setOnClickListener {

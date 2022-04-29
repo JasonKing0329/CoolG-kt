@@ -57,6 +57,7 @@
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toEndOf="@+id/tv_gm1000_t_min"
                     app:layout_constraintTop_toBottomOf="@+id/et_gm1000_shuffle" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -305,6 +306,32 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
+
+        <Button
+            android:id="@+id/btn_plan1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Plan1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btn_plan2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Plan2"
+            app:layout_constraintEnd_toEndOf="@+id/btn_plan1"
+            app:layout_constraintTop_toBottomOf="@+id/btn_plan1" />
+
+        <Button
+            android:id="@+id/btn_plan3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Plan3"
+            app:layout_constraintEnd_toEndOf="@+id/btn_plan2"
+            app:layout_constraintTop_toBottomOf="@+id/btn_plan2" />
 
         <TextView
             android:id="@+id/tv_ok"

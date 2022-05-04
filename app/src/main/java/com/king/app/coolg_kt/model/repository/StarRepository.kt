@@ -32,27 +32,57 @@ class StarRepository: BaseRepository() {
     }
 
     fun countStarWith(builder: StarBuilder): Int {
-        return getDatabase().getStarDao().countStarsBySql(SimpleSQLiteQuery(toStarBuilderSql(builder)))
+        return getDatabase().getStarDao().countStarsBySql(SimpleSQLiteQuery(toStarBuilderCountSql(builder)))
     }
 
-    private fun toStarBuilderSql(builder: StarBuilder, isCount: Boolean = false): String {
+    private fun toStarBuilderCountSql(builder: StarBuilder): String {
         var buffer = StringBuffer()
-        val selectResult = if (isCount) {
-            "count(T.*)"
+        // 连接studio时会出现重复项
+        if (builder.studioId != null || builder.studioId != 0L) {
+            buffer.append("SELECT count(*) FROM (SELECT DISTINCT T.* ${tablesPart(builder)} ${wherePart(builder)})")
         }
         else {
-            "T.*"
+            buffer.append("SELECT count(*) ")
+            buffer.append(tablesPart(builder))
+            buffer.append(wherePart(builder))
         }
+        var sql = buffer.toString()
+        DebugLog.e(sql)
+        return sql
+    }
+
+    private fun toStarBuilderSql(builder: StarBuilder): String {
+        var buffer = StringBuffer("SELECT T.* ")
+        buffer.append(tablesPart(builder))
+        buffer.append(wherePart(builder))
+        // group by 过滤重复项
+        if (builder.studioId != null || builder.studioId != 0L) {
+            buffer.append("group by T._id ")
+        }
+        // order by
+        when (builder.sortType) {
+            AppConstants.STAR_SORT_NAME -> buffer.append("order by T.NAME COLLATE NOCASE ")// 名称不区分大小写
+            AppConstants.STAR_SORT_RECORDS -> buffer.append("order by T.RECORDS desc ")
+            AppConstants.STAR_SORT_RANDOM -> buffer.append("order by RANDOM() ")
+            else -> buffer.append(convertSortRatingType(builder.sortType))
+        }
+        var sql = buffer.toString()
+        DebugLog.e(sql)
+        return sql
+    }
+
+    private fun tablesPart(builder: StarBuilder): String {
+        var buffer = StringBuffer()
         // tables and joins
         if (builder.studioId == null || builder.studioId == 0L) {
-            buffer.append("select $selectResult from stars T ")
+            buffer.append("from stars T ")
             builder.tagId?.let { tagId ->
                 buffer.append("join tag_star TS on T._id=TS.STAR_ID and TS.TAG_ID=${tagId} ")
             }
         } else {
             // 有studioId的情况目前不支持tagId
             buffer.append(
-                "select $selectResult from record r " +
+                "from record r " +
                         "join record_star rs on r._id=rs.RECORD_ID and r.studioId=${builder.studioId} " +
                         "join stars T on rs.STAR_ID=T._id "
             )
@@ -61,8 +91,10 @@ class StarRepository: BaseRepository() {
         if (builder.isSortByRating()) {
             buffer.append("left join star_rating SR on T._id=SR.STAR_ID ")
         }
+        return buffer.toString()
+    }
 
-        // where
+    private fun wherePart(builder: StarBuilder): String {
         var where = ""
         // like
         if (builder.like?.isNullOrEmpty() == false) {
@@ -79,24 +111,7 @@ class StarRepository: BaseRepository() {
         if (typeSql.isNotEmpty()) {
             where = addToWhere(where, typeSql)
         }
-        if (where.isNotEmpty()) {
-            buffer.append(where)
-        }
-        // group by 过滤重复项
-        if (builder.studioId != null) {
-            buffer.append("group by T._id ")
-        }
-        // order by
-        when (builder.sortType) {
-            AppConstants.STAR_SORT_NAME -> buffer.append("order by T.NAME COLLATE NOCASE ")// 名称不区分大小写
-            AppConstants.STAR_SORT_RECORDS -> buffer.append("order by T.RECORDS desc ")
-            AppConstants.STAR_SORT_RANDOM -> buffer.append("order by RANDOM() ")
-            else -> buffer.append(convertSortRatingType(builder.sortType))
-        }
-
-        var sql = buffer.toString()
-        DebugLog.e(sql)
-        return sql
+        return where
     }
 
     fun queryStarsBy(builder: StarBuilder): Observable<List<StarWrap>> {

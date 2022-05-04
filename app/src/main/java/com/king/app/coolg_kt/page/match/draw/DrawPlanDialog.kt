@@ -118,15 +118,15 @@ class DrawPlanDialog: DraggableContentFragment<FragmentDrawPlanBinding>() {
                     mBinding.btnPlan3.visibility = View.VISIBLE
                     mBinding.btnPlan1.setOnClickListener {
                         mBinding.etHigh.setText("180")
-                        mBinding.etLowSeed.setText("220")
-                        mBinding.etLowMainMin.setText("280")
-                        mBinding.etLowQualifySeedMin.setText("320")
-                    }
-                    mBinding.btnPlan2.setOnClickListener {
-                        mBinding.etHigh.setText("180")
                         mBinding.etLowSeed.setText("240")
                         mBinding.etLowMainMin.setText("300")
                         mBinding.etLowQualifySeedMin.setText("350")
+                    }
+                    mBinding.btnPlan2.setOnClickListener {
+                        mBinding.etHigh.setText("180")
+                        mBinding.etLowSeed.setText("270")
+                        mBinding.etLowMainMin.setText("350")
+                        mBinding.etLowQualifySeedMin.setText("400")
                     }
                     mBinding.btnPlan3.setOnClickListener {
                         mBinding.etHigh.setText("180")

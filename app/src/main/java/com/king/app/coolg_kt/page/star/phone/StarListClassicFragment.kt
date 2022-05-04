@@ -60,6 +60,8 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
     private var indexDisposable: Disposable? = null
     private var curDetailIndex: String? = null
 
+    private lateinit var typeAdapter: TypeAdapter
+
     override fun getBinding(inflater: LayoutInflater): ActivityStarListPhoneBinding = ActivityStarListPhoneBinding.inflate(inflater)
 
     override fun initView(view: View) {
@@ -146,6 +148,15 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
                 R.id.menu_gdb_collapse_all -> ftStar.setExpandAll(false)
             }
         }
+
+        typeAdapter = TypeAdapter().apply {
+            listenerClick = object : BaseBindingAdapter.OnItemClickListener<StarTypeWrap> {
+                override fun onClickItem(view: View, position: Int, data: StarTypeWrap) {
+                    ftStar.updateStarType(data.type)
+                }
+            }
+            mBinding.rvTypes.adapter = this
+        }
     }
 
     private fun goToCategory() {
@@ -185,15 +196,8 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
 
     private fun showTags() {
         mModel.typesObserver.observe(this) {
-            TypeAdapter().apply {
-                list = it
-                listenerClick = object : BaseBindingAdapter.OnItemClickListener<StarTypeWrap> {
-                    override fun onClickItem(view: View, position: Int, data: StarTypeWrap) {
-                        ftStar.updateStarType(data.type)
-                    }
-                }
-                mBinding.rvTypes.adapter = this
-            }
+            typeAdapter.list = it
+            typeAdapter.notifyDataSetChanged()
         }
         mModel.studiosObserver.observe(this) {
             StudioTagAdapter().apply {
@@ -202,6 +206,8 @@ class StarListClassicFragment : BaseFragment<ActivityStarListPhoneBinding, StarL
                 listenerClick = object : BaseBindingAdapter.OnItemClickListener<StudioStarWrap> {
                     override fun onClickItem(view: View, position: Int, data: StudioStarWrap) {
                         ftStar.updateStudioId(data.studio.id!!)
+                        mModel.mStudioId = data.studio.id!!
+                        mModel.updateTypeCount()
                     }
                 }
                 mBinding.rvStudios.adapter = this

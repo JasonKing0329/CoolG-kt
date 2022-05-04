@@ -48,6 +48,8 @@ class StarListTitleViewModel(application: Application) : BaseViewModel(applicati
     private val orderRepository = OrderRepository()
     private val starRepository = StarRepository()
 
+    var mStudioId: Long = 0
+
     fun loadTags() {
         launchFlow(
             flow { emit(loadTypes()) }
@@ -61,9 +63,21 @@ class StarListTitleViewModel(application: Application) : BaseViewModel(applicati
         }
     }
 
+    fun updateTypeCount() {
+        launchSingle(
+            {
+                loadTypes()
+            }
+        ) {
+            typesObserver.value = it
+        }
+    }
+
     private fun loadTypes(): List<StarTypeWrap> {
         val result = mutableListOf<StarTypeWrap>()
         StarBuilder().apply {
+            studioId = mStudioId
+
             type = DataConstants.STAR_MODE_ALL
             var count = starRepository.countStarWith(this)
             result.add(StarTypeWrap(type, count, "All"))

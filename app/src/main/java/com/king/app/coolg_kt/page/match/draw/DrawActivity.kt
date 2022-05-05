@@ -459,8 +459,8 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
         isEditing = edit
         adapter.isEditing = edit
         adapter.notifyDataSetChanged()
-        mBinding.tvRandomWin.visibility = if (edit) View.VISIBLE else View.GONE
-        mBinding.groupPriority.visibility = if (edit) View.VISIBLE else View.GONE
+        mBinding.groupEdit.visibility = if (edit) View.VISIBLE else View.GONE
+        mBinding.groupRound.visibility = if (edit) View.GONE else View.VISIBLE
         if (edit) {
             mBinding.spPriority.setSelection(mModel.randomPriority(mBinding.spPriority.count))
         }

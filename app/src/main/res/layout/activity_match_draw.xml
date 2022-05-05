@@ -35,63 +35,118 @@
             app:title="Draws"
             app:titleColor="@color/actionbar_element" />
 
-        <TextView
-            android:id="@+id/tv_qualify"
-            android:layout_width="80dp"
-            android:layout_height="30dp"
-            android:background="@drawable/selector_draw_bg"
-            android:text="Qualify"
-            android:textColor="@drawable/selector_studio_tag_text"
-            android:gravity="center"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="10dp"
-            android:visibility="@{model.qualifyVisibility}"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintTop_toBottomOf="@+id/actionbar"
-            app:layout_constraintStart_toStartOf="parent"/>
-
-        <TextView
-            android:id="@+id/tv_main"
-            android:layout_width="80dp"
-            android:layout_height="30dp"
-            android:background="@drawable/selector_draw_bg"
-            android:text="Main"
-            android:textColor="@drawable/selector_studio_tag_text"
-            android:gravity="center"
-            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
-            app:layout_constraintStart_toEndOf="@+id/tv_qualify"/>
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_chevron_left_black_36dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:onClick="@{()->model.onClickPrevious()}"
-            android:visibility="@{model.previousVisibility}"
-            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
-            app:layout_constraintEnd_toStartOf="@+id/sp_round"/>
-
-        <Spinner
-            android:id="@+id/sp_round"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/group_tools"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
-            app:layout_constraintEnd_toStartOf="@+id/iv_next"/>
+            app:layout_constraintTop_toBottomOf="@+id/actionbar"
+            app:layout_constraintStart_toStartOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/group_round"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tv_qualify"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/selector_draw_bg"
+                    android:text="Qualify"
+                    android:textColor="@drawable/selector_studio_tag_text"
+                    android:gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="10dp"
+                    android:visibility="@{model.qualifyVisibility}"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
 
-        <ImageView
-            android:id="@+id/iv_next"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
-            android:onClick="@{()->model.onClickNext()}"
-            android:visibility="@{model.nextVisibility}"
-            android:src="@drawable/ic_keyboard_arrow_right_grey_700_24dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            app:layout_constraintTop_toTopOf="@+id/tv_qualify"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
-            app:layout_constraintEnd_toEndOf="parent"/>
+                <TextView
+                    android:id="@+id/tv_main"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/selector_draw_bg"
+                    android:text="Main"
+                    android:textColor="@drawable/selector_studio_tag_text"
+                    android:gravity="center"
+                    app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+                    app:layout_constraintStart_toEndOf="@+id/tv_qualify"/>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_chevron_left_black_36dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:onClick="@{()->model.onClickPrevious()}"
+                    android:visibility="@{model.previousVisibility}"
+                    app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
+                    app:layout_constraintEnd_toStartOf="@+id/sp_round"/>
+
+                <Spinner
+                    android:id="@+id/sp_round"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_next"/>
+
+                <ImageView
+                    android:id="@+id/iv_next"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginEnd="10dp"
+                    android:onClick="@{()->model.onClickNext()}"
+                    android:visibility="@{model.nextVisibility}"
+                    android:src="@drawable/ic_keyboard_arrow_right_grey_700_24dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    app:layout_constraintTop_toTopOf="@+id/tv_qualify"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_qualify"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/group_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
+                <TextView
+                    android:id="@+id/tv_priority"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Priority: "
+                    android:layout_marginStart="@dimen/common_margin_16"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/sp_priority"
+                    app:layout_constraintTop_toTopOf="@+id/sp_priority"/>
+                <Spinner
+                    android:id="@+id/sp_priority"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/draw_priority"
+                    android:padding="@dimen/common_margin_8"
+                    android:layout_marginStart="@dimen/common_margin_8"
+                    app:layout_constraintStart_toEndOf="@+id/tv_priority"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <TextView
+                    android:id="@+id/tv_random_win"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/selector_draw_bg"
+                    android:text="Random Win"
+                    android:textColor="@drawable/selector_studio_tag_text"
+                    android:gravity="center"
+                    android:layout_marginEnd="@dimen/common_margin_16"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/sp_priority"
+                    app:layout_constraintBottom_toBottomOf="@+id/sp_priority"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
@@ -101,63 +156,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_qualify"
+            app:layout_constraintTop_toBottomOf="@+id/group_tools"
             tools:listitem="@layout/adapter_match_record"/>
 
-        <TextView
-            android:id="@+id/tv_random_win"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:background="@drawable/selector_draw_bg"
-            android:text="Random Win"
-            android:textColor="@drawable/selector_studio_tag_text"
-            android:gravity="center"
-            android:layout_marginEnd="160dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/actionbar"
-            app:layout_constraintBottom_toBottomOf="@+id/actionbar"
-            tools:visibility="visible"/>
-
-        <com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout
-            android:id="@+id/group_priority"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/common_margin_10"
-            android:layout_marginEnd="@dimen/common_margin_16"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:round_corner="4dp"
-            tools:visibility="visible">
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="#66a9a9a9"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Priority: "
-                android:layout_marginStart="@dimen/common_margin_8"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/sp_priority"
-                app:layout_constraintBottom_toBottomOf="@+id/sp_priority"
-                app:layout_constraintTop_toTopOf="@+id/sp_priority"/>
-            <Spinner
-                android:id="@+id/sp_priority"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/draw_priority"
-                android:padding="@dimen/common_margin_8"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-        </com.king.app.coolg_kt.view.widget.rc.RCConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -5,9 +5,7 @@ import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
-import androidx.sqlite.db.SimpleSQLiteQuery
 import com.king.app.coolg_kt.base.BaseViewModel
-import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.image.ImageProvider
@@ -324,7 +322,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     private fun createDetail(bean: RankLevelCount, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail {
         var detail = map[bean.recordId]
         if (detail == null) {
-            detail = MatchRankDetail(bean.recordId, 0, null, 0, 0, 0, 0, 0, 0)
+            detail = MatchRankDetail(bean.recordId, 0, null, 0, 0, 0, 0, 0, 0, 0)
             map[bean.recordId] = detail
         }
         detail?.apply {
@@ -342,6 +340,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 studioId = studio.id!!
                 studioName = studio.name
             }
+            // current rank
+            currentRank = findCurrentRank(recordId)
             return this
         }
         return detail
@@ -354,7 +354,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
      */
     @Deprecated("太耗时")
     private fun createDetail(recordId: Long): MatchRankDetail {
-        var detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0, 0)
+        var detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0, 0, 0)
         // studio
         orderRepository.getRecordStudio(recordId)?.let { studio ->
             detail.studioId = studio.id!!
@@ -529,6 +529,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    private fun findCurrentRank(recordId: Long): Int {
+        return recordRanksObserver.value?.firstOrNull { it.id == recordId }?.rank?:9999
+    }
+
     private suspend fun insertDetailsProgress(startProgress: Int) {
         var insertDetailList = mutableListOf<MatchRankDetail>()
         val insertPart = 5// insert预留5%作为最后一步
@@ -600,7 +604,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             val studio = orderRepository.getRecordStudio(record)
             val studioId = studio?.id?:0
             val studioName = studio?.name?:""
-            insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0, 0))
+            val curRank = findCurrentRank(record.id!!)
+            insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0, 0, curRank))
 
             val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
             if (curProgress != progress) {

@@ -95,6 +95,14 @@ class RecordItemGridBinder: BaseItemBinder() {
         binding.tvPics.text = "(${ImageProvider.getRecordPicNumber(item.bean.name)} pics)"
         bindImage(binding.ivRecord, item)
         showSortScore(binding.tvSort, item, mSortMode)
+
+        if (item.extraInfo == null) {
+            binding.tvExtra.visibility = View.GONE
+        }
+        else {
+            binding.tvExtra.text = item.extraInfo
+            binding.tvExtra.visibility = View.VISIBLE
+        }
     }
 
 }

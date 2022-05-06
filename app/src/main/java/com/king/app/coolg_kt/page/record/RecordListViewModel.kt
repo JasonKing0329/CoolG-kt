@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
+import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
@@ -12,10 +13,12 @@ import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.gdb.data.RecordCursor
 import com.king.app.gdb.data.entity.Record
+import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
@@ -56,6 +59,9 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     private var isFilterBlacklist = true
 
     var selectAsMatchItem = false
+    // selectAsMatchItem模式下显示match level对应的参加次数(current period)
+    var mMatchSelectLevel = 0
+    var displayRank = false
 
     var filterBlackListEnable = ObservableBoolean(true)
     var outOfRankWasteDisposable: Disposable? = null
@@ -207,6 +213,27 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
         record.imageUrl = ImageProvider.getRecordRandomPath(name, null)
         // 默认都可选
         record.canSelect = true
+        // 显示rank
+        if (displayRank) {
+            getDatabase().getMatchDao().getMatchRankDetail(record.bean.id!!)?.let { detail ->
+                val rank = if (detail.currentRank == 0) 9999 else detail.currentRank
+                record.extraInfo = "R-$rank"
+                // level count信息
+                if (mMatchSelectLevel != 0) {
+                    val count = when(mMatchSelectLevel) {
+                        MatchConstants.MATCH_LEVEL_GS -> detail.gsCount
+                        MatchConstants.MATCH_LEVEL_GM1000 -> detail.gm1000Count
+                        MatchConstants.MATCH_LEVEL_GM500 -> detail.gm500Count
+                        MatchConstants.MATCH_LEVEL_GM250 -> detail.gm250Count
+                        MatchConstants.MATCH_LEVEL_LOW -> detail.lowCount
+                        MatchConstants.MATCH_LEVEL_MICRO -> detail.microCount
+                        else -> 0
+                    }
+                    val levelText = "${MatchConstants.MATCH_LEVEL[mMatchSelectLevel]}-$count"
+                    record.extraInfo = "${record.extraInfo}/$levelText"
+                }
+            }
+        }
         // match选择模式下，标记已在draw下的item
         samePeriodItems?.let {
             record.canSelect = !it.contains(record.bean.id)

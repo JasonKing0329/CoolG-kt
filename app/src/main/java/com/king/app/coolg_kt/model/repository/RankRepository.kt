@@ -234,10 +234,19 @@ class RankRepository: BaseRepository() {
      */
     fun getRecordCurrentRank(recordId: Long): Int {
         // 查询当前orderInPeriod或上一个（即最近一站）的排名
-        getDatabase().getMatchDao().getRecordLastRank(recordId)?.let {
-            return it.rank
-        }
-        return -1
+
+        // 2022/5/6弃用
+        // 这个sql有弊端：首先，对于进入过排名但跌出过排名体系的record，会取到跌出前最后一站rank；
+        // 其次，采用order desc limit 1的查询方式，在数据达到200W+条时，查一条记录就需要200ms+。如果是在list中，要查询多个记录将非常耗时
+//        getDatabase().getMatchDao().getRecordLastRank(recordId)?.let {
+//            return it.rank
+//        }
+//        return -1
+
+        // 2022/5/6开始使用
+        // 在createRankList时会将currentRank保存在match_rank_detail表中，这张表只会存储当前排名周期的数据（2000以内），大大节约时间
+
+        return getDatabase().getMatchDao().getMatchRankDetail(recordId)?.currentRank?:-1
     }
 
     /**

@@ -34,6 +34,8 @@ import com.king.app.gdb.data.relation.RecordWrap
 class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>() {
 
     var selectAsMatchItem = false
+    var mMatchSelectLevel = 0
+    var displayRank = false
 
     private val REQUEST_VIDEO_ORDER = 1603
     
@@ -82,6 +84,8 @@ class RecordsFragment: BaseFragment<FragmentRecordsBinding, RecordListViewModel>
     override fun initData() {
 
         mModel.selectAsMatchItem = selectAsMatchItem
+        mModel.mMatchSelectLevel = mMatchSelectLevel
+        mModel.displayRank = displayRank
         mModel.recordsObserver.observe(this, Observer{ list -> showRecords(list) })
         mModel.rangeChangedObserver.observe(this, Observer{ recordAdapter.notifyItemRangeChanged(it.start, it.count) })
         mModel.moreObserver.observe(this, Observer{ offset -> showMoreList(offset) })

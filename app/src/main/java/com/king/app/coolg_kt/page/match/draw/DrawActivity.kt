@@ -366,11 +366,11 @@ class DrawActivity: BaseActivity<ActivityMatchDrawBinding, DrawViewModel>() {
                 arrayOf("Record List", "Rank List", "Studio Records", "Studio in rank", "Out of rank")
             ) { dialog, which ->
                 when(which) {
-                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode)
+                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, matchLevel = mModel.matchPeriod.match.level)
                     1 -> RankActivity.startPageToSelect(this@DrawActivity, requestCode, mModel.getSelectFocusToRank(), mModel.matchPeriod.match.level)
-                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, mModel.findStudioId())
+                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, studioId = mModel.findStudioId(), matchLevel = mModel.matchPeriod.match.level)
                     3 -> RankActivity.startPageToSelectStudioItem(this@DrawActivity, requestCode, mModel.findStudioId(), mModel.matchPeriod.match.level)
-                    4 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, true)
+                    4 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@DrawActivity, requestCode, outOfRank = true, matchLevel = mModel.matchPeriod.match.level)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")

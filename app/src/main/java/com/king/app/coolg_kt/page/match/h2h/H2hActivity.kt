@@ -100,13 +100,11 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
         mModel.indexToReceivePlayer = i
         AlertDialogFragment()
             .setItems(
-                arrayOf("Record List", "Rank List", "Studio Records", "Out of rank")
+                arrayOf("Record List", "Rank List")
             ) { dialog, which ->
                 when(which) {
-                    0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@H2hActivity, REQUEST_PLAYER)
+                    0 -> PhoneRecordListActivity.startPageToSelect(this@H2hActivity, REQUEST_PLAYER, displayRank = true)
                     1 -> RankActivity.startPageToSelect(this@H2hActivity, REQUEST_PLAYER)
-                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@H2hActivity, REQUEST_PLAYER)
-                    3 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@H2hActivity, REQUEST_PLAYER, true)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")

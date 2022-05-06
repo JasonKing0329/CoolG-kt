@@ -216,6 +216,13 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_22_23: Migration = object : Migration(22, 23) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_22_23")
+            database.execSQL("ALTER TABLE 'match_rank_detail' ADD COLUMN `currentRank` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

@@ -91,7 +91,7 @@ class BlackListActivity: BaseActivity<ActivityMatchBlacklistBinding, BlackListVi
                 when(which) {
                     0 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@BlackListActivity, requestCode)
                     1 -> RankActivity.startPageToSelect(this@BlackListActivity, requestCode, 1000, 0)
-                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@BlackListActivity, requestCode, true)
+                    2 -> PhoneRecordListActivity.startPageToSelectAsMatchItem(this@BlackListActivity, requestCode, outOfRank = true)
                 }
             }
             .show(supportFragmentManager, "AlertDialogFragment")

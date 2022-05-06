@@ -15,6 +15,7 @@ import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.databinding.ActivityRecordTagBinding
 import com.king.app.coolg_kt.model.setting.SettingProperty
+import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.record.NoStudioActivity
 import com.king.app.coolg_kt.page.record.RecordTag
 import com.king.app.coolg_kt.page.record.RecordsFragment
@@ -36,35 +37,28 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
         val EXTRA_SELECT_MODE = "select_mode"
         val EXTRA_OUT_OF_RANK = "out_of_rank"
         val EXTRA_SELECT_AS_MATCH_ITEM = "select_as_match_item"
+        val EXTRA_SELECT_MATCH_LEVEL = "select_match_level"
+        val EXTRA_DISPLAY_RANK = "display_rank"
         val RESP_RECORD_ID = "record_id"
         fun startPage(context: Context, scene: String? = null) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             intent.putExtra(EXTRA_SCENE_NAME, scene)
             context.startActivity(intent)
         }
-        fun startPageToSelect(context: Activity, requestCode: Int) {
+        fun startPageToSelect(context: Activity, requestCode: Int, displayRank: Boolean? = false) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)
+            intent.putExtra(EXTRA_DISPLAY_RANK, displayRank)
             context.startActivityForResult(intent, requestCode)
         }
-        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int) {
+        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int, studioId: Long? = 0, outOfRank: Boolean? = false, matchLevel: Int? = 0) {
             var intent = Intent(context, PhoneRecordListActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)
             intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
-            context.startActivityForResult(intent, requestCode)
-        }
-        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int, studioId: Long) {
-            var intent = Intent(context, PhoneRecordListActivity::class.java)
-            intent.putExtra(EXTRA_SELECT_MODE, true)
-            intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
+            intent.putExtra(EXTRA_SELECT_MATCH_LEVEL, matchLevel)
             intent.putExtra(EXTRA_STUDIO_ID, studioId)
-            context.startActivityForResult(intent, requestCode)
-        }
-        fun startPageToSelectAsMatchItem(context: Activity, requestCode: Int, outOfRank: Boolean) {
-            var intent = Intent(context, PhoneRecordListActivity::class.java)
-            intent.putExtra(EXTRA_SELECT_MODE, true)
-            intent.putExtra(EXTRA_SELECT_AS_MATCH_ITEM, true)
             intent.putExtra(EXTRA_OUT_OF_RANK, outOfRank)
+            intent.putExtra(EXTRA_DISPLAY_RANK, true)
             context.startActivityForResult(intent, requestCode)
         }
         fun startStudioPage(context: Context, studioId: Long) {
@@ -140,6 +134,8 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
 
         if (intent.getBooleanExtra(EXTRA_SELECT_MODE, false)) {
             ftRecord.selectAsMatchItem = isSelectAsMatchItem()
+            ftRecord.mMatchSelectLevel = getSelectMatchLevel()
+            ftRecord.displayRank = isDisplayRank()
             ftRecord.overrideClickRecordListener = object : RecordsFragment.OnClickRecordListener {
                 override fun onClickRecord(record: RecordWrap) {
                     if (isSelectAsMatchItem() && record.canSelect != true) {
@@ -158,6 +154,14 @@ open class PhoneRecordListActivity: BaseActivity<ActivityRecordTagBinding, Phone
 
     private fun isSelectAsMatchItem(): Boolean {
         return intent.getBooleanExtra(EXTRA_SELECT_AS_MATCH_ITEM, false)
+    }
+
+    private fun isDisplayRank(): Boolean {
+        return intent.getBooleanExtra(EXTRA_DISPLAY_RANK, false)
+    }
+
+    private fun getSelectMatchLevel(): Int {
+        return intent.getIntExtra(EXTRA_SELECT_MATCH_LEVEL, 0)
     }
 
     private fun getStudioId(): Long {

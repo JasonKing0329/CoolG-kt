@@ -40,4 +40,5 @@ data class RecordWrap (
 ) {
     var imageUrl: String? = null
     var canSelect: Boolean? = null
+    var extraInfo: String? = null
 }

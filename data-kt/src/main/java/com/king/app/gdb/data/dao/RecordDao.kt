@@ -73,6 +73,11 @@ interface RecordDao {
     @RawQuery
     fun getRecordsBySql(query: SupportSQLiteQuery): List<RecordWrap>
 
+    /**
+     * 该SQL在量级不大的情况下可直接使用
+     * 但当match_rank_record数据膨胀到200W+后，在一加9设备上查询时间会超过3s
+     */
+    @Deprecated("time waste")
     @Query("select r.* from record r left join match_rank_record mrr on r._id=mrr.recordId and mrr.period=:period and mrr.orderInPeriod=:orderInPeriod where mrr.id is null order by r.SCORE desc")
     fun getRecordsOutOfRank(period: Int, orderInPeriod: Int): List<RecordWrap>
 

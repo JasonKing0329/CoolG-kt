@@ -378,6 +378,11 @@ interface MatchDao {
     @Query("select * from match_rank_record where recordId=:recordId order by period, orderInPeriod")
     fun getRecordRanks(recordId: Long): List<MatchRankRecord>
 
+    /**
+     * 这个sql有弊端：首先，对于进入过排名但跌出过排名体系的record，会取到跌出前最后一站rank
+     * 其次，采用order desc limit 1的查询方式，在数据达到200W+条时，查一条记录就需要200ms+。如果是在list中，要查询多个记录将非常耗时
+     */
+    @Deprecated("time waste")
     @Query("select * from match_rank_record where recordId=:recordId order by period desc, orderInPeriod desc limit 1")
     fun getRecordLastRank(recordId: Long): MatchRankRecord
 

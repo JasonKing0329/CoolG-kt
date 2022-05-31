@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.model.extension
 
+import android.util.Log
 import android.widget.EditText
 import io.reactivex.rxjava3.core.Observable
 
@@ -15,4 +16,8 @@ fun<T> wrapToRx(data: T): Observable<T> {
         it.onNext(data)
         it.onComplete()
     }
+}
+
+fun<T> T.log(tag: String) {
+    Log.e(tag, toString())
 }

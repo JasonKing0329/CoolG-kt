@@ -570,7 +570,11 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             getDatabase().getMatchDao().resetRankDetails()
         }
         // 积分周期内有参赛的record，新增或修改detail
+        // 弃用，replace的方式会使跌出跌出排名列表但上一次还有排名的record保持之前的排名,count信息
+//        getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
+        getDatabase().getMatchDao().clearMatchRankDetail()
         getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
+
         postProgress(95)
         // 更新最高排名
         getDatabase().getMatchDao().clearHighRanks()

@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.model.bean.PassionPoint
 import com.king.app.coolg_kt.model.bean.RecordComplexFilter
 import com.king.app.coolg_kt.model.bean.TitleValueBean
+import com.king.app.coolg_kt.model.extension.log
 import com.king.app.coolg_kt.model.extension.wrapToRx
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
@@ -19,6 +20,7 @@ import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 /**
  * Desc:
@@ -84,9 +86,23 @@ class RecordRepository: BaseRepository() {
         return Observable.create {
             val pack = getCompletedPeriodPack()
             var result = listOf<RecordWrap>()
-            pack.matchPeriod?.let { matchPeriod ->
-                result = getDatabase().getRecordDao().getRecordsOutOfRank(matchPeriod.period, matchPeriod.orderInPeriod)
-            }
+            // 当match_rank_record数据膨胀到200W+后，在一加9设备上查询时间会超过3s
+//            measureTimeMillis {
+//                pack.matchPeriod?.let { matchPeriod ->
+//                    result = getDatabase().getRecordDao().getRecordsOutOfRank(matchPeriod.period, matchPeriod.orderInPeriod)
+//                }
+//            }.log("getRecordsOutOfRank")
+            // 改为先查询当期所有排名然后存入map，然后遍历一遍所有records来判断，可以节省时间到400ms以内
+            // 考虑到实际应用中只有match_rank_record表在快速膨胀，而record表增长缓慢，所以这种方式基本能稳定维持在400ms以内
+            measureTimeMillis {
+                pack.matchPeriod?.let { matchPeriod ->
+                    val map = mutableMapOf<Long, Boolean>()
+                    getDatabase().getMatchDao().getRankItems(matchPeriod.period, matchPeriod.orderInPeriod).forEach {
+                        map[it.bean.recordId] = true
+                    }
+                    result = getDatabase().getRecordDao().getAllRecords().filter { map[it.bean.id] == null }.sortedByDescending { it.bean.score }
+                }
+            }.log("getRecordsOutOfRank by map")
             if (isFilterBlacklist) {
                 val blacklist = getBlacklistIds()
                 result = result.filter { item -> !blacklist.contains(item.bean.id!!) }

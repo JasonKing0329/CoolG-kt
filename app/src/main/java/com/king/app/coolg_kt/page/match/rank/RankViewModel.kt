@@ -115,14 +115,14 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    fun loadRanks() {
-        loadData()
+    fun loadRanks(focusToRank: Int = 0) {
+        loadData(focusToRank)
     }
 
-    private fun loadData() {
+    private fun loadData(focusToRank: Int = 0) {
         if (periodOrRtf == 0) {
             periodGroupVisibility.set(View.VISIBLE)
-            loadRecordRankPeriod()
+            loadRecordRankPeriod(focusToRank)
         }
         else {
             periodGroupVisibility.set(View.GONE)
@@ -143,9 +143,9 @@ class RankViewModel(application: Application): BaseViewModel(application) {
      * 给1000+条加载图片路径属于耗时操作（经测试1200个record耗时2秒）,改为先显示列表后陆续加载
      * 另外，将其他耗时操作也在此进行，每30条通知一次更新
      */
-    private fun loadRecordRankPeriod() {
+    private fun loadRecordRankPeriod(focusToRank: Int = 0) {
         cancelAll()
-        rankPeriodJob = basicAndTimeWaste(
+        rankPeriodJob = basicAndTimeWasteFrom(
             blockBasic = {
                 val allList = recordRankPeriodRx()
                 var viewList = toRecordList(allList)
@@ -161,7 +161,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             },
             withBasicLoading = true,
             blockWaste = { index, it ->  handleRankWaste(index, it) },
-            wasteNotifyCount = 30,
+            timeWasteCustom = TimeWasteCustom(30, focusToRank),
             onWasteRangeChanged = { start, count -> imageChanged.value = TimeWasteRange(start, count)}
         )
     }

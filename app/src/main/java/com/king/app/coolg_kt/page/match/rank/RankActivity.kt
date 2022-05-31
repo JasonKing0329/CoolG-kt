@@ -296,7 +296,7 @@ class RankActivity: BaseActivity<ActivityMatchRankBinding, RankViewModel>() {
             mBinding.spStudio.visibility = View.INVISIBLE
         }
         mModel.loadStudios()
-        mModel.loadRanks()
+        mModel.loadRanks(getFocusToRank())
     }
 
     private var clickListener = object : BaseBindingAdapter.OnItemClickListener<RankItem<Record?>>{

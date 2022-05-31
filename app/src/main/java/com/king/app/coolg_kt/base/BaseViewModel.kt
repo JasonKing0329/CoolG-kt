@@ -39,6 +39,7 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun dispatchCommonError(e: Throwable, errorTitle: String? = null) {
+        e.printStackTrace()
         loadingObserver.postValue(false)
         messageObserver.postValue(errorTitle?:"Load error: " + e.message)
     }
@@ -253,6 +254,34 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         onWasteRangeChanged: (Int, Int) -> Unit,
         withBasicLoading: Boolean = false,
     ): Job {
+        return basicAndTimeWasteFrom(
+            blockBasic,
+            onCompleteBasic,
+            blockWaste,
+            timeWasteCustom = TimeWasteCustom(wasteNotifyCount, 0),
+            onWasteRangeChanged,
+            withBasicLoading
+        )
+    }
+
+    /**
+     * 先加载基础列表List<T>通知UI加载列表，
+     * 然后异步更新每一个item比较耗时的数据，并指定每加载完wasteNotifyCount个时更新
+     * @param blockBasic 子线程加载基础List<T>
+     * @param onCompleteBasic 基础List加载完成，Main线程通知UI更新
+     * @param blockWaste 子线程加载每个item对应的耗时任务
+     * @param wasteNotifyCount 指定每隔几个通知UI更新
+     * @param onWasteRangeChanged 耗时数据加载完，通知UI List待更新的范围，(start, count)
+     * @param withBasicLoading 加载basic期间是否展示等待框（waste属于数据后台更新，肯定不转圈）
+     */
+    fun<T> basicAndTimeWasteFrom(
+        blockBasic: suspend () -> List<T>,
+        onCompleteBasic: (List<T>) -> Unit,
+        blockWaste: suspend (Int, T) -> Unit,
+        timeWasteCustom: TimeWasteCustom,
+        onWasteRangeChanged: (Int, Int) -> Unit,
+        withBasicLoading: Boolean = false,
+    ): Job {
         if (withBasicLoading) {
             loadingObserver.value = true
         }
@@ -268,31 +297,80 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
                     onCompleteBasic(basic)
                 }
             }
-            var index = 0
-            DebugLog.e("waste start")
-            while (isActive && index < basic.size) {
-                blockWaste(index, basic[index])
-                index ++
+            val wasteNotifyCount = timeWasteCustom.notifyCount
+            if (timeWasteCustom.startFrom == 0) {
+                var index = 0
+                DebugLog.e("waste start")
+                while (isActive && index < basic.size) {
+                    blockWaste(index, basic[index])
+                    index ++
 
-                // 每处理完wasteNotifyCount组数据通知UI变化
-                if (index % wasteNotifyCount == 0) {
-                    val start = index - wasteNotifyCount
+                    // 每处理完wasteNotifyCount组数据通知UI变化
+                    if (index % wasteNotifyCount == 0) {
+                        val start = index - wasteNotifyCount
+                        withContext(Dispatchers.Main) {
+                            DebugLog.e("onWasteRangeChanged start=$start, count=$wasteNotifyCount")
+                            onWasteRangeChanged(start, wasteNotifyCount)
+                        }
+                    }
+                }
+                // 还有剩余没通知的，最后通知
+                if (index % wasteNotifyCount != 0) {
+                    val count = index - index / wasteNotifyCount * wasteNotifyCount
+                    val start = index - count
+                    DebugLog.e("onWasteRangeChanged start=$start, count=$count")
                     withContext(Dispatchers.Main) {
-                        DebugLog.e("onWasteRangeChanged start=$start, count=$wasteNotifyCount")
-                        onWasteRangeChanged(start, wasteNotifyCount)
+                        onWasteRangeChanged(start, count)
                     }
                 }
             }
-            // 还有剩余没通知的，最后通知
-            if (index % wasteNotifyCount != 0) {
-                val count = index - index / wasteNotifyCount * wasteNotifyCount
-                val start = index - count
-                DebugLog.e("onWasteRangeChanged start=$start, count=$count")
-                withContext(Dispatchers.Main) {
-                    onWasteRangeChanged(start, count)
+            else {
+                var indexUp = timeWasteCustom.startFrom - 1
+                var indexDown = timeWasteCustom.startFrom
+                while (isActive && (indexUp > 0 || indexDown < basic.size - 1)) {
+                    // 一次从两个方向都加载相同的数量
+                    var downStart = indexDown
+                    var downRealCount = 0
+                    // 向下
+                    for (i in indexDown until (indexDown + wasteNotifyCount)) {
+                        if (i >= basic.size) {
+                            break
+                        }
+                        blockWaste(i, basic[i])
+                        downRealCount ++
+                        indexDown ++
+                    }
+                    if (downRealCount > 0) {
+                        withContext(Dispatchers.Main) {
+                            DebugLog.e("onWasteRangeChanged start=$downStart, count=$downRealCount")
+                            onWasteRangeChanged(downStart, downRealCount)
+                        }
+                    }
+                    // 向上
+                    var upStart = 0
+                    var upRealCount = 0
+                    for (i in indexUp downTo (indexUp - wasteNotifyCount + 1)) {
+                        if (i < 0) {
+                            break
+                        }
+                        blockWaste(i, basic[i])
+                        upRealCount ++
+                        indexUp --// indexUp最终为下一次开始的位置
+                        upStart = i// 最后一个位置即为开始的位置
+                    }
+                    if (upRealCount > 0) {
+                        withContext(Dispatchers.Main) {
+                            DebugLog.e("onWasteRangeChanged start=$upStart, count=$upRealCount")
+                            onWasteRangeChanged(upStart, upRealCount)
+                        }
+                    }
                 }
             }
         }
     }
 
+    data class TimeWasteCustom(
+        var notifyCount: Int,
+        var startFrom: Int = 0
+    )
 }

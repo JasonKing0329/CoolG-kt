@@ -82,34 +82,31 @@ class RecordRepository: BaseRepository() {
         }
     }
 
-    fun getRecordsOutOfRank(isFilterBlacklist: Boolean): Observable<List<RecordWrap>> {
-        return Observable.create {
-            val pack = getCompletedPeriodPack()
-            var result = listOf<RecordWrap>()
-            // 当match_rank_record数据膨胀到200W+后，在一加9设备上查询时间会超过3s
+    suspend fun getRecordsOutOfRank(isFilterBlacklist: Boolean): List<RecordWrap> {
+        val pack = getCompletedPeriodPack()
+        var result = listOf<RecordWrap>()
+        // 当match_rank_record数据膨胀到200W+后，在一加9设备上查询时间会超过3s
 //            measureTimeMillis {
 //                pack.matchPeriod?.let { matchPeriod ->
 //                    result = getDatabase().getRecordDao().getRecordsOutOfRank(matchPeriod.period, matchPeriod.orderInPeriod)
 //                }
 //            }.log("getRecordsOutOfRank")
-            // 改为先查询当期所有排名然后存入map，然后遍历一遍所有records来判断，可以节省时间到400ms以内
-            // 考虑到实际应用中只有match_rank_record表在快速膨胀，而record表增长缓慢，所以这种方式基本能稳定维持在400ms以内
-            measureTimeMillis {
-                pack.matchPeriod?.let { matchPeriod ->
-                    val map = mutableMapOf<Long, Boolean>()
-                    getDatabase().getMatchDao().getRankItems(matchPeriod.period, matchPeriod.orderInPeriod).forEach {
-                        map[it.bean.recordId] = true
-                    }
-                    result = getDatabase().getRecordDao().getAllRecords().filter { map[it.bean.id] == null }.sortedByDescending { it.bean.score }
+        // 改为先查询当期所有排名然后存入map，然后遍历一遍所有records来判断，可以节省时间到400ms以内
+        // 考虑到实际应用中只有match_rank_record表在快速膨胀，而record表增长缓慢，所以这种方式基本能稳定维持在400ms以内
+        measureTimeMillis {
+            pack.matchPeriod?.let { matchPeriod ->
+                val map = mutableMapOf<Long, Boolean>()
+                getDatabase().getMatchDao().getRankItems(matchPeriod.period, matchPeriod.orderInPeriod).forEach {
+                    map[it.bean.recordId] = true
                 }
-            }.log("getRecordsOutOfRank by map")
-            if (isFilterBlacklist) {
-                val blacklist = getBlacklistIds()
-                result = result.filter { item -> !blacklist.contains(item.bean.id!!) }
+                result = getDatabase().getRecordDao().getAllRecords().filter { map[it.bean.id] == null }.sortedByDescending { it.bean.score }
             }
-            it.onNext(result)
-            it.onComplete()
+        }.log("getRecordsOutOfRank by map")
+        if (isFilterBlacklist) {
+            val blacklist = getBlacklistIds()
+            result = result.filter { item -> !blacklist.contains(item.bean.id!!) }
         }
+        return result
     }
 
     fun getBlacklistIds(): List<Long> {

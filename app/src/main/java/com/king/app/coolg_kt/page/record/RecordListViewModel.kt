@@ -7,23 +7,18 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
-import com.king.app.coolg_kt.model.module.BasicAndTimeWaste
-import com.king.app.coolg_kt.model.module.TimeWasteTask
 import com.king.app.coolg_kt.model.repository.PlayRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.model.setting.SettingProperty
-import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.TimeWasteRange
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.gdb.data.RecordCursor
 import com.king.app.gdb.data.entity.Record
-import com.king.app.gdb.data.entity.match.MatchPeriod
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.Job
 
 /**
  * Desc:
@@ -64,7 +59,8 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     var displayRank = false
 
     var filterBlackListEnable = ObservableBoolean(true)
-    var outOfRankWasteDisposable: Disposable? = null
+
+    var outOfRankJob: Job? = null
 
     init {
         onSortTypeChanged()
@@ -105,41 +101,27 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
 
     private fun loadRecordsOutOfRank() {
         filterBlackListEnable.set(false)
-        BasicAndTimeWaste<RecordWrap>()
-            .basic(recordRepository.getRecordsOutOfRank(isFilterBlacklist))
-            .timeWaste(outOfRankWaste(), 20)
-            .composite(getComposite())
-            .subscribe(
-                object : SimpleObserver<List<RecordWrap>>(getComposite()) {
-                    override fun onNext(t: List<RecordWrap>) {
-                        mRecordList.addAll(t)
-                        recordsObserver.value = mRecordList
-                    }
+        outOfRankJob = basicAndTimeWaste(
+            blockBasic = { recordRepository.getRecordsOutOfRank(isFilterBlacklist) },
+            onCompleteBasic = {
+                mRecordList.addAll(it)
+                recordsObserver.value = mRecordList
+                filterBlackListEnable.set(true)
+            },
+            blockWaste = { _, it -> handleItem(it) },
+            wasteNotifyCount = 20,
+            onWasteRangeChanged = { start, count ->
+                rangeChangedObserver.value = TimeWasteRange(start, count)
+            },
+            withBasicLoading = true
+        )
+    }
 
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                        messageObserver.value = e?.message?:""
-                    }
-                },
-                object : Observer<TimeWasteRange> {
-                    override fun onSubscribe(d: Disposable?) {
-                        outOfRankWasteDisposable = d
-                    }
-
-                    override fun onNext(t: TimeWasteRange) {
-                        rangeChangedObserver.value = t
-                    }
-
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                        messageObserver.value = e?.message?:""
-                    }
-                    override fun onComplete() {
-                        filterBlackListEnable.set(true)
-                        outOfRankWasteDisposable = null
-                    }
-                }
-            )
+    private fun handleItem(it: RecordWrap) {
+        if (selectAsMatchItem && samePeriodItems == null) {
+            loadSamePeriodItems()
+        }
+        itemDetail(it)
     }
 
     private fun loadRecordsByFilter() {
@@ -157,19 +139,6 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
                     messageObserver.value = "Load records error: " + e?.message
                 }
             })
-    }
-
-    private fun outOfRankWaste(): TimeWasteTask<RecordWrap> {
-        return object : TimeWasteTask<RecordWrap> {
-            override fun handle(index: Int, data: RecordWrap) {
-                // match选择模式下，标记已在draw下的item
-                // samePeriodItems只加载一次
-                if (selectAsMatchItem && samePeriodItems == null) {
-                    loadSamePeriodItems()
-                }
-                itemDetail(data)
-            }
-        }
     }
 
     fun loadMoreRecords() {
@@ -317,19 +286,13 @@ class RecordListViewModel(application: Application): BaseViewModel(application) 
     }
 
     fun toggleBlacklist(checked: Boolean) {
-        // 已加载完
-        if (outOfRankWasteDisposable == null) {
-            isFilterBlacklist = checked
-            reloadRecords()
-        }
-        // 未加载完不允许开始filter，否则容易造成adapter的IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionBindingHolder
-        else {
-            messageObserver.value = "Loading is not completed yet!"
-        }
+        outOfRankJob?.cancel()
+        isFilterBlacklist = checked
+        reloadRecords()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        outOfRankWasteDisposable?.dispose()
+        outOfRankJob?.cancel()
     }
 }

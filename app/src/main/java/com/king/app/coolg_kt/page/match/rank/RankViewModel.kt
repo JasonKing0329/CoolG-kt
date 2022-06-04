@@ -319,29 +319,32 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         return result
     }
 
-    private fun createDetail(bean: RankLevelCount, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail {
-        var detail = map[bean.recordId]
+    private fun createDetail(rankItem: RankItem<Record?>, levelCountBean: RankLevelCount?, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail {
+        val recordId = rankItem.bean!!.id!!
+        var detail = map[recordId]
         if (detail == null) {
-            detail = MatchRankDetail(bean.recordId, 0, null, 0, 0, 0, 0, 0, 0, 0)
-            map[bean.recordId] = detail
+            detail = MatchRankDetail(recordId, 0, null, 0, 0, 0, 0, 0, 0, 0)
+            map[recordId] = detail
         }
         detail?.apply {
-            when(bean.level) {
-                MatchConstants.MATCH_LEVEL_GS -> gsCount = bean.count
-                MatchConstants.MATCH_LEVEL_GM1000 -> gm1000Count = bean.count
-                MatchConstants.MATCH_LEVEL_GM500 -> gm500Count = bean.count
-                MatchConstants.MATCH_LEVEL_GM250 -> gm250Count = bean.count
-                MatchConstants.MATCH_LEVEL_LOW -> lowCount = bean.count
-                MatchConstants.MATCH_LEVEL_MICRO -> microCount = bean.count
-                else -> {}
+            levelCountBean?.let { levelCountBean ->
+                when(levelCountBean.level) {
+                    MatchConstants.MATCH_LEVEL_GS -> gsCount = levelCountBean.count
+                    MatchConstants.MATCH_LEVEL_GM1000 -> gm1000Count = levelCountBean.count
+                    MatchConstants.MATCH_LEVEL_GM500 -> gm500Count = levelCountBean.count
+                    MatchConstants.MATCH_LEVEL_GM250 -> gm250Count = levelCountBean.count
+                    MatchConstants.MATCH_LEVEL_LOW -> lowCount = levelCountBean.count
+                    MatchConstants.MATCH_LEVEL_MICRO -> microCount = levelCountBean.count
+                    else -> {}
+                }
             }
             // studio
-            orderRepository.getRecordStudio(bean.recordId)?.let { studio ->
+            orderRepository.getRecordStudio(recordId)?.let { studio ->
                 studioId = studio.id!!
                 studioName = studio.name
             }
             // current rank
-            currentRank = findCurrentRank(recordId)
+            currentRank = rankItem.rank
             return this
         }
         return detail
@@ -552,11 +555,13 @@ class RankViewModel(application: Application): BaseViewModel(application) {
 //            }
 
         val totalProgress = 100 - startProgress
-        val list = rankRepository.getRankLevelCount()
-        val total = list.size
         // 直接SQL统计RTF周期内，recordId->level->count，大大降低耗时，从先前的30秒直接降到1秒左右
-        list.forEachIndexed { index, bean ->
-            val detail = createDetail(bean, map)
+        val list = rankRepository.getRankLevelCount()
+        val total = recordRanksObserver.value?.size?:0
+        // getRankLevelCount只能查询出有参赛的record对应的记录，但目标是生成整个ranklist的记录
+        recordRanksObserver.value?.forEachIndexed { index, rankItem ->
+            val levelCountBean = findLevelCount(rankItem.bean?.id, list)
+            val detail = createDetail(rankItem, levelCountBean, map)
             insertDetailList.add(detail)
             val curProgress = startProgress + ((index.toDouble() + 1.0)/(total.toDouble() + insertPart + highPart) * totalProgress).toInt()
             if (curProgress != progress) {
@@ -580,6 +585,10 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         getDatabase().getMatchDao().clearHighRanks()
         postProgress(98)
         getDatabase().getMatchDao().insertAllHighRanks()// 耗时操作
+    }
+
+    private fun findLevelCount(id: Long?, list: List<RankLevelCount>): RankLevelCount? {
+        return list.firstOrNull { it.recordId == id }
     }
 
     fun createRankDetailItems() {

@@ -319,7 +319,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         return result
     }
 
-    private fun createDetail(rankItem: RankItem<Record?>, levelCountBean: RankLevelCount?, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail {
+    private fun createDetail(rankItem: RankItem<Record?>, levelList: List<RankLevelCount>?, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail {
         val recordId = rankItem.bean!!.id!!
         var detail = map[recordId]
         if (detail == null) {
@@ -327,7 +327,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
             map[recordId] = detail
         }
         detail?.apply {
-            levelCountBean?.let { levelCountBean ->
+            // level count
+            levelList?.forEach { levelCountBean ->
                 when(levelCountBean.level) {
                     MatchConstants.MATCH_LEVEL_GS -> gsCount = levelCountBean.count
                     MatchConstants.MATCH_LEVEL_GM1000 -> gm1000Count = levelCountBean.count
@@ -558,10 +559,18 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         // 直接SQL统计RTF周期内，recordId->level->count，大大降低耗时，从先前的30秒直接降到1秒左右
         val list = rankRepository.getRankLevelCount()
         val total = recordRanksObserver.value?.size?:0
+        val levelMap = mutableMapOf<Long, MutableList<RankLevelCount>>()
+        list.forEach {
+            var items = levelMap[it.recordId]
+            if (items == null) {
+                items = mutableListOf()
+                levelMap[it.recordId] = items
+            }
+            items.add(it)
+        }
         // getRankLevelCount只能查询出有参赛的record对应的记录，但目标是生成整个ranklist的记录
         recordRanksObserver.value?.forEachIndexed { index, rankItem ->
-            val levelCountBean = findLevelCount(rankItem.bean?.id, list)
-            val detail = createDetail(rankItem, levelCountBean, map)
+            val detail = createDetail(rankItem, levelMap[rankItem.bean!!.id!!], map)
             insertDetailList.add(detail)
             val curProgress = startProgress + ((index.toDouble() + 1.0)/(total.toDouble() + insertPart + highPart) * totalProgress).toInt()
             if (curProgress != progress) {
@@ -587,48 +596,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         getDatabase().getMatchDao().insertAllHighRanks()// 耗时操作
     }
 
-    private fun findLevelCount(id: Long?, list: List<RankLevelCount>): RankLevelCount? {
-        return list.firstOrNull { it.recordId == id }
-    }
-
-    fun createRankDetailItems() {
-        detailProgressing.value = 0
-        launchThread {
-            kotlin.runCatching {
-                insertDetailItemsProgress()
-                postFinish()
-            }.onFailure {
-                it.printStackTrace()
-                // onFailure也在thread下
-                detailProgressError.postValue(true)
-                messageObserver.postValue(it?.message?:"")
-            }
-        }
-    }
-
-    private suspend fun insertDetailItemsProgress() {
-        var allRecords = getDatabase().getRecordDao().getAllBasicRecords()
-        var insertDetailList = mutableListOf<MatchRankDetail>()
-        val total = allRecords.size
-        val insertPart = 1// insert预留1%作为最后一步
-        var progress = 0
-
-        allRecords.forEachIndexed { index, record ->
-            val studio = orderRepository.getRecordStudio(record)
-            val studioId = studio?.id?:0
-            val studioName = studio?.name?:""
-            val curRank = findCurrentRank(record.id!!)
-            insertDetailList.add(MatchRankDetail(record.id!!, studioId, studioName, 0, 0, 0, 0, 0, 0, curRank))
-
-            val curProgress = ((index.toDouble() + 1)/(total.toDouble() + insertPart) * 100).toInt()
-            if (curProgress != progress) {
-                progress = curProgress
-                postProgress(progress)
-            }
-        }
-
-        // 新增或修改detail
-        getDatabase().getMatchDao().insertOrReplaceMatchRankDetails(insertDetailList)
+    private fun findLevelCount(id: Long?, list: List<RankLevelCount>): List<RankLevelCount> {
+        return list.filter { it.recordId == id }
     }
 
     fun targetPeriod(period: Int, orderInPeriod: Int) {

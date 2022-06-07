@@ -11,12 +11,13 @@ import com.king.app.coolg_kt.page.match.H2hItem
  * @author：Jing
  * @date: 2021/1/17 11:31
  */
+@Deprecated("Only for single h2h item", replaceWith = ReplaceWith("H2hRoadAdapter"))
 class H2hAdapter: BaseBindingAdapter<AdapterMatchH2hBinding, H2hItem>() {
     override fun onCreateBind(inflater: LayoutInflater, parent: ViewGroup): AdapterMatchH2hBinding = AdapterMatchH2hBinding.inflate(inflater, parent, false)
 
     override fun onBindItem(binding: AdapterMatchH2hBinding, position: Int, bean: H2hItem) {
         binding.bean = bean
         binding.group.setBackgroundColor(bean.bgColor)
-        binding.tvSeq.text = "${position + 1}"
+        binding.tvSeq.text = bean.indexInList
     }
 }

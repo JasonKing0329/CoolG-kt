@@ -2,20 +2,17 @@ package com.king.app.coolg_kt.page.match.h2h
 
 import android.app.Application
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
-import com.king.app.coolg_kt.model.http.observer.SimpleObserver
+import com.king.app.coolg_kt.model.extension.log
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.H2hRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
-import com.king.app.coolg_kt.page.match.H2hItem
-import com.king.app.coolg_kt.page.match.PeriodPack
+import com.king.app.coolg_kt.page.match.*
 import com.king.app.gdb.data.relation.RecordWrap
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableSource
+import kotlin.system.measureTimeMillis
 
 /**
  * @description:
@@ -24,36 +21,12 @@ import io.reactivex.rxjava3.core.ObservableSource
  */
 class H2hViewModel(application: Application): BaseViewModel(application) {
 
-    var player1Name = ObservableField<String>()
-    var player2Name = ObservableField<String>()
-    var player1Rank = ObservableField<String>()
-    var player2Rank = ObservableField<String>()
-    var player1Win = ObservableField<String>()
-    var player2Win = ObservableField<String>()
-    var player1FilterWin = ObservableField<String>()
-    var player2FilterWin = ObservableField<String>()
-    var player1WinColor = ObservableInt()
-    var player2WinColor = ObservableInt()
-    var player1ImageUrl = ObservableField<String>()
-    var player2ImageUrl = ObservableField<String>()
-    var ytdTitles1Text = ObservableField<String>()
-    var ytdTitles2Text = ObservableField<String>()
-    var ytdWinLose1Text = ObservableField<String>()
-    var ytdWinLose2Text = ObservableField<String>()
-    var ytdMatches1Text = ObservableField<String>()
-    var ytdMatches2Text = ObservableField<String>()
-    var careerTitles1Text = ObservableField<String>()
-    var careerTitles2Text = ObservableField<String>()
-    var careerWinLose1Text = ObservableField<String>()
-    var careerWinLose2Text = ObservableField<String>()
-    var debut1Text = ObservableField<String>()
-    var debut2Text = ObservableField<String>()
-    var highRank1Text = ObservableField<String>()
-    var highRank2Text = ObservableField<String>()
-    var scoreRank1Text = ObservableField<String>()
-    var scoreRank2Text = ObservableField<String>()
+    var h2hRoadWrap = H2hRoadWrap()
 
-    var h2hObserver = MutableLiveData<List<H2hItem>>()
+    var matchPeriodId: Long = 0
+    var faceRoundId: Int = 0
+
+    var h2hObserver = MutableLiveData<List<Any>>()
     private var h2hList = listOf<H2hItem>()
     private var mLevelId = -1
 
@@ -78,131 +51,137 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             getResource().getColor(R.color.h2h_bg_5)
         ).shuffled().take(2)
 
-        player1WinColor.set(colors[0])
-        player2WinColor.set(colors[1])
+        h2hRoadWrap.player1WinColor.set(colors[0])
+        h2hRoadWrap.player2WinColor.set(colors[1])
     }
 
     fun loadH2h(id1: Long, id2: Long) {
-        player1 = getDatabase().getRecordDao().getRecord(id1)
-        onPlayer1Changed()
-        player2 = getDatabase().getRecordDao().getRecord(id2)
-        onPlayer2Changed()
+        /**
+         * player细节属于耗时操作，因此这里采用先加载其他不耗时数据(basic, round, h2h)
+         * 加载完后立即更新UI，使列表可见。然后再更新耗时操作的player info细节
+         * 在更新UI后加载player info细节过程中，使用了ObservableField直接设置value
+         * 如果在Main线程中启动协程(launchMain)：
+         * player info部分会阻塞UI，最后还是要等info都加载完了，列表才可见
+         * 只有在子线程中启动协程，player info部分才不会阻塞列表的提前展示
+         */
+        launchThread {
+            val result = mutableListOf<Any>()
+            // head
+            measureTimeMillis {
+                loadPlayer1(id1)
+                loadPlayer2(id2)
+                result.add(h2hRoadWrap)
+            }.log("head")
+            // 没有选完两个player时，只加载head部分
+            if (id1 == 0L || id2 == 0L) {
+                h2hObserver.postValue(result)
+                return@launchThread
+            }
+            // info list
+            val infoList = createInfoList()
+            result.addAll(infoList)
+            // round
+            if (matchPeriodId != 0L) {
+                measureTimeMillis {
+                    val rounds = h2hRepository.getH2hRoadRounds(id1, id2, matchPeriodId, faceRoundId)
+                    if (rounds.isNotEmpty()) {
+                        result.add(H2HRoadGroup(" Match Road ", true))
+                        result.addAll(rounds)
+                    }
+                }.log("round")
+            }
+            // h2h
+            measureTimeMillis {
+                val h2hs = h2hRepository.getH2hItems(id1, id2)
+                if (h2hs.isNotEmpty()) {
+                    result.add(H2HRoadGroup(" Head To Head ", true, showH2hFilter = true, infoWrap = h2hRoadWrap))
+                    h2hList = filterByLevel(calculateWin(h2hs, id1, id2))
+                    result.addAll(h2hList)
+                }
+            }.log("h2h")
+            // 先更新UI
+            h2hObserver.postValue(result)
+            // info details属于耗时操作，延迟更新
+            loadInfoDetails(infoList)
+        }
     }
 
-    private fun onPlayer1Changed() {
+    private fun createInfoList(): List<H2hInfo> {
+        return listOf(
+            H2hInfo(MatchConstants.H2H_INFO_TITLES_YTD),
+            H2hInfo(MatchConstants.H2H_INFO_WL_YTD),
+            H2hInfo(MatchConstants.H2H_INFO_MATCHES_YTD),
+            H2hInfo(MatchConstants.H2H_INFO_TITLES_CAREER),
+            H2hInfo(MatchConstants.H2H_INFO_WL_CAREER),
+            H2hInfo(MatchConstants.H2H_INFO_DEBUT),
+            H2hInfo(MatchConstants.H2H_INFO_RANK_HIGH),
+            H2hInfo(MatchConstants.H2H_INFO_SCORE_RANK),
+        )
+    }
+
+    private fun loadPlayer1(playerId: Long) {
+        player1 = getDatabase().getRecordDao().getRecord(playerId)
         player1?.let {
-            player1Name.set(it.bean.name)
-            player1ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
-            onH2hChanged()
-            loadPlayerInfo(it,
-                InfoPart(
-                    player1Rank, ytdTitles1Text, ytdWinLose1Text, ytdMatches1Text,
-                    careerTitles1Text, careerWinLose1Text, debut1Text,
-                    highRank1Text, scoreRank1Text
-                )
-            )
+            h2hRoadWrap.player1Name.set(it.bean.name)
+            h2hRoadWrap.player1ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
         }
     }
 
-    private fun onPlayer2Changed() {
+    private fun loadPlayer2(playerId: Long) {
+        player2 = getDatabase().getRecordDao().getRecord(playerId)
         player2?.let {
-            player2Name.set(it.bean.name)
-            player2ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
-            onH2hChanged()
-            loadPlayerInfo(it,
-                InfoPart(
-                    player2Rank, ytdTitles2Text, ytdWinLose2Text, ytdMatches2Text,
-                    careerTitles2Text, careerWinLose2Text, debut2Text,
-                    highRank2Text, scoreRank2Text
-                )
-            )
+            h2hRoadWrap.player2Name.set(it.bean.name)
+            h2hRoadWrap.player2ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
         }
     }
 
-    private fun onH2hChanged() {
-        if (player1 != null && player2 != null) {
-            h2hRepository.getH2hItems(player1!!.bean.id!!, player2!!.bean.id!!)
-                .flatMap { calculateWin(it, player1!!.bean.id!!, player2!!.bean.id!!) }
-                .flatMap { filterByLevel(it) }
-                .compose(applySchedulers())
-                .subscribe(object : SimpleObserver<List<H2hItem>>(getComposite()){
-                    override fun onNext(t: List<H2hItem>) {
-                        h2hList = t
-                        h2hObserver.value = t
-                    }
-
-                    override fun onError(e: Throwable) {
-                        e?.printStackTrace()
-                        messageObserver.value = e?.message
-                    }
-                })
+    private fun calculateWin(list: List<H2hItem>, player1Id: Long, player2Id: Long): List<H2hItem> {
+        var win1 = 0
+        var win2 = 0
+        list.forEach { item ->
+            if (item.matchItem.bean.winnerId == player1Id) {
+                win1 ++
+            }
+            else {
+                win2 ++
+            }
         }
+        h2hRoadWrap.player1Win.set(win1.toString())
+        h2hRoadWrap.player2Win.set(win2.toString())
+        list.forEach { item ->
+            item.bgColor = if (item.matchItem.bean.winnerId == player1Id) {
+                h2hRoadWrap.player1WinColor.get()
+            }
+            else {
+                h2hRoadWrap.player2WinColor.get()
+            }
+        }
+        return list
     }
 
-    private fun calculateWin(list: List<H2hItem>, player1Id: Long, player2Id: Long): ObservableSource<List<H2hItem>> {
-        return ObservableSource {
-
+    private fun filterByLevel(list: List<H2hItem>): List<H2hItem> {
+        return if (mLevelId == -1) {
+            h2hRoadWrap.player1FilterWin.set(h2hRoadWrap.player1Win.get())
+            h2hRoadWrap.player2FilterWin.set(h2hRoadWrap.player2Win.get())
+            list.forEachIndexed { index, h2hItem -> h2hItem.indexInList = (index + 1).toString() }
+            list
+        }
+        else {
+            val result = list.filter { item -> item.levelId == mLevelId }
             var win1 = 0
             var win2 = 0
-            list.forEach { item ->
-                if (item.matchItem.bean.winnerId == player1Id) {
+            result.forEach { item ->
+                if (item.winnerId == player1?.bean?.id) {
                     win1 ++
                 }
-                else {
+                else if (item.winnerId == player2?.bean?.id) {
                     win2 ++
                 }
             }
-            player1Win.set(win1.toString())
-            player2Win.set(win2.toString())
-            list.forEach { item ->
-                item.bgColor = if (item.matchItem.bean.winnerId == player1Id) {
-                    player1WinColor.get()
-                }
-                else {
-                    player2WinColor.get()
-                }
-            }
-            it.onNext(list)
-            it.onComplete()
-        }
-    }
-
-    private fun filterByLevel(list: List<H2hItem>): ObservableSource<List<H2hItem>> {
-        return ObservableSource {
-            if (mLevelId == -1) {
-                player1FilterWin.set(player1Win.get())
-                player2FilterWin.set(player2Win.get())
-                it.onNext(list)
-            }
-            else {
-                val result = list.filter { item -> item.levelId == mLevelId }
-                var win1 = 0
-                var win2 = 0
-                result.forEach { item ->
-                    if (item.winnerId == player1?.bean?.id) {
-                        win1 ++
-                    }
-                    else if (item.winnerId == player2?.bean?.id) {
-                        win2 ++
-                    }
-                }
-                player1FilterWin.set("$win1")
-                player2FilterWin.set("$win2")
-                it.onNext(result)
-            }
-            it.onComplete()
-        }
-    }
-
-    fun loadReceivePlayer(playerId: Long) {
-        var player = getDatabase().getRecordDao().getRecord(playerId)
-        if (indexToReceivePlayer == 1) {
-            player1 = player
-            onPlayer1Changed()
-        }
-        else {
-            player2 = player
-            onPlayer2Changed()
+            h2hRoadWrap.player1FilterWin.set("$win1")
+            h2hRoadWrap.player2FilterWin.set("$win2")
+            result.forEachIndexed { index, h2hItem -> h2hItem.indexInList = (index + 1).toString() }
+            result
         }
     }
 
@@ -218,44 +197,64 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         var rankScore: ObservableField<String>
     )
 
-    private fun loadPlayerInfo(record: RecordWrap, infoPart: InfoPart) {
-        playerInfo(record, infoPart)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<Boolean>(getComposite()) {
-                override fun onNext(t: Boolean?) {
-
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message?:""
-                }
-            })
+    private fun List<H2hInfo>.key(key: String): H2hInfo {
+        return firstOrNull { it.key == key }!!
     }
 
-    private fun playerInfo(record: RecordWrap, infoPart: InfoPart): Observable<Boolean> {
-        return Observable.create {
-            // rank
-            countRank(record, infoPart)
-            // titles
-            countTitles(record, infoPart)
-            // win lose
-            countWinLose(record, infoPart.ytdWinLose, rankRepository.getRTFPeriodPack())
-            countWinLose(record, infoPart.careerWinLose, rankRepository.getAllTimePeriodPack())
-            // matches
-            val matches = rankRepository.getRecordPeriodScoresRange(record.bean.id!!, rankRepository.getRTFPeriodPack()).size
-            infoPart.ytdMatches.set(matches.toString())
-            // debut
-            val debutMatch = getDatabase().getMatchDao().getDebutMatch(record.bean.id!!)
-            if (debutMatch == null) {
-                infoPart.debut.set("--")
-            }
-            else {
-                val mp = debutMatch!!
-                infoPart.debut.set("P${mp.bean.period}-W${mp.bean.orderInPeriod} ${mp.match.name}")
-            }
-            it.onNext(true)
-            it.toString()
+    private fun loadInfoDetails(infoList: List<H2hInfo>) {
+        player1?.apply {
+            loadPlayerInfo(
+                this,
+                InfoPart(
+                    h2hRoadWrap.player1Rank,
+                    infoList.key(MatchConstants.H2H_INFO_TITLES_YTD).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_WL_YTD).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_MATCHES_YTD).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_TITLES_CAREER).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_WL_CAREER).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_DEBUT).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_RANK_HIGH).leftValue,
+                    infoList.key(MatchConstants.H2H_INFO_SCORE_RANK).leftValue
+                )
+            )
+        }
+        player2?.apply {
+            loadPlayerInfo(
+                this,
+                InfoPart(
+                    h2hRoadWrap.player1Rank,
+                    infoList.key(MatchConstants.H2H_INFO_TITLES_YTD).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_WL_YTD).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_MATCHES_YTD).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_TITLES_CAREER).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_WL_CAREER).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_DEBUT).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_RANK_HIGH).rightValue,
+                    infoList.key(MatchConstants.H2H_INFO_SCORE_RANK).rightValue
+                )
+            )
+        }
+    }
+
+    private fun loadPlayerInfo(record: RecordWrap, infoPart: InfoPart) {
+        // rank
+        countRank(record, infoPart)
+        // titles
+        countTitles(record, infoPart)
+        // win lose
+        countWinLose(record, infoPart.ytdWinLose, rankRepository.getRTFPeriodPack())
+        countWinLose(record, infoPart.careerWinLose, rankRepository.getAllTimePeriodPack())
+        // matches
+        val matches = rankRepository.getRecordPeriodScoresRange(record.bean.id!!, rankRepository.getRTFPeriodPack()).size
+        infoPart.ytdMatches.set(matches.toString())
+        // debut
+        val debutMatch = getDatabase().getMatchDao().getDebutMatch(record.bean.id!!)
+        if (debutMatch == null) {
+            infoPart.debut.set("--")
+        }
+        else {
+            val mp = debutMatch!!
+            infoPart.debut.set("P${mp.bean.period}-W${mp.bean.orderInPeriod} ${mp.match.name}")
         }
     }
 
@@ -304,7 +303,26 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
 
     fun filterByLevel(levelId: Int) {
         mLevelId = levelId
-        onH2hChanged()
+        launchSingle(
+            block = {
+                // h2h为末尾内容，可以进行局部更新
+                val all = h2hObserver.value?.toMutableList()
+                all?.removeAll { it is H2hItem }
+                all?.addAll(filterByLevel(h2hList))
+                all
+            }
+        ) {
+            it?.apply { h2hObserver.value = this }
+        }
+    }
+
+    fun loadReceivePlayer(playerId: Long) {
+        if (indexToReceivePlayer == 1) {
+            loadH2h(playerId, player2?.bean?.id?:0)
+        }
+        else {
+            loadH2h(player1?.bean?.id?:0, playerId)
+        }
     }
 
 }

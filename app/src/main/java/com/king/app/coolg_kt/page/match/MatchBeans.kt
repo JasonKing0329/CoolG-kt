@@ -2,6 +2,8 @@ package com.king.app.coolg_kt.page.match
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import com.king.app.coolg_kt.BR
 import com.king.app.coolg_kt.view.widget.chart.adapter.LineData
 import com.king.app.gdb.data.bean.ScoreCount
@@ -184,7 +186,8 @@ data class H2hItem (
     var winner: String,
     var loser: String,
     var levelId: Int = 0,// 用于过滤
-    var winnerId: Long = 0
+    var winnerId: Long = 0,
+    var indexInList: String = ""
 )
 
 data class ShowPeriod(
@@ -523,4 +526,40 @@ data class MajorRound(
 data class RankFilterRange (
     var min: Int,
     var max: Int
+)
+
+data class H2hInfo(
+    var key: String,
+    var leftValue: ObservableField<String> = ObservableField(),
+    var rightValue: ObservableField<String> = ObservableField()
+)
+
+class H2hRoadWrap{
+    var player1Name = ObservableField<String>()
+    var player2Name = ObservableField<String>()
+    var player1Rank = ObservableField<String>()
+    var player2Rank = ObservableField<String>()
+    var player1Win = ObservableField<String>()
+    var player2Win = ObservableField<String>()
+    var player1FilterWin = ObservableField<String>()
+    var player2FilterWin = ObservableField<String>()
+    var player1WinColor = ObservableInt()
+    var player2WinColor = ObservableInt()
+    var player1ImageUrl = ObservableField<String>()
+    var player2ImageUrl = ObservableField<String>()
+}
+data class H2HRoadRound (
+    var round: String,
+    var recordId1: Long?,
+    var recordId2: Long?,
+    var rankSeed1: String? = null,
+    var rankSeed2: String? = null,
+    var imageUrl1: String? = null,
+    var imageUrl2: String? = null
+)
+data class H2HRoadGroup (
+    var name: String,
+    var isExpand: Boolean,
+    var showH2hFilter: Boolean = false,
+    var infoWrap: H2hRoadWrap? = null
 )

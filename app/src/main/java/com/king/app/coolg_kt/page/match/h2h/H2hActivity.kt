@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchH2hBinding
+import com.king.app.coolg_kt.databinding.ActivityMatchH2hRoadBinding
 import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -27,29 +28,31 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
     companion object {
         val EXTRA_RECORD_ID1= "record_id_1"
         val EXTRA_RECORD_ID2= "record_id_2"
+        val EXTRA_MATCH_PERIOD_ID= "match_period_id"
+        val EXTRA_FACE_ROUND_ID= "face_round_id"
         fun startPage(context: Context) {
             var intent = Intent(context, H2hActivity::class.java)
             context.startActivity(intent)
         }
-        fun startH2hPage(context: Context, recordId1: Long, recordId2: Long) {
+        fun startH2hPage(context: Context, recordId1: Long, recordId2: Long, matchPeriodId: Long? = 0, faceRoundId: Int? = 0) {
             var intent = Intent(context, H2hActivity::class.java)
             intent.putExtra(EXTRA_RECORD_ID1, recordId1)
             intent.putExtra(EXTRA_RECORD_ID2, recordId2)
+            intent.putExtra(EXTRA_MATCH_PERIOD_ID, matchPeriodId)
+            intent.putExtra(EXTRA_FACE_ROUND_ID, faceRoundId)
             context.startActivity(intent)
         }
     }
 
     private val REQUEST_PLAYER = 1
 
-    val adapter = H2hAdapter()
+    val adapter = H2hRoadAdapter()
 
     override fun getContentView(): Int = R.layout.activity_match_h2h
 
     override fun createViewModel(): H2hViewModel = generateViewModel(H2hViewModel::class.java)
 
     override fun initView() {
-        mBinding.model = mModel
-
         mBinding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mBinding.rvList.adapter = adapter
         mBinding.rvList.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -63,22 +66,21 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
             }
         })
 
-        mBinding.ivRecord1.setOnClickListener { selectPlayer(1) }
-
-        mBinding.ivRecord2.setOnClickListener { selectPlayer(2) }
-
-        mBinding.spLevel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                mModel.filterByLevel(position - 1)
+        adapter.onH2hListener = object : H2hRoadAdapter.OnH2hListener {
+            override fun onClickPlayer1() {
+                selectPlayer(1)
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+            override fun onClickPlayer2() {
+                selectPlayer(2)
+            }
 
+            override fun onClickRoadPlayer(playerId: Long) {
+
+            }
+
+            override fun onSelectLevel(level: Int) {
+                mModel.filterByLevel(level)
             }
         }
     }
@@ -89,11 +91,11 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
             adapter.list = it
             adapter.notifyDataSetChanged()
         })
-        val id1 = intent.getLongExtra(EXTRA_RECORD_ID1, -1L)
-        val id2 = intent.getLongExtra(EXTRA_RECORD_ID2, -1L)
-        if (id1 != -1L && id2 != -1L) {
-            mModel.loadH2h(id1, id2)
-        }
+        mModel.matchPeriodId = intent.getLongExtra(EXTRA_MATCH_PERIOD_ID, 0)
+        mModel.faceRoundId = intent.getIntExtra(EXTRA_FACE_ROUND_ID, 0)
+        val id1 = intent.getLongExtra(EXTRA_RECORD_ID1, 0)
+        val id2 = intent.getLongExtra(EXTRA_RECORD_ID2, 0)
+        mModel.loadH2h(id1, id2)
     }
 
     private fun selectPlayer(i: Int) {

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="bean"
+            type="com.king.app.coolg_kt.page.match.H2HRoadRound" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_record1"
+            android:layout_width="150dp"
+            android:layout_height="85dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/def_small"
+            app:recordUrl="@{bean.imageUrl1}"/>
+
+        <TextView
+            android:id="@+id/tv_bye1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textColor="@color/white"
+            android:background="#66333333"
+            android:text="Bye"
+            android:textSize="@dimen/text_common_16"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="@+id/iv_record1"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record1"
+            app:layout_constraintTop_toTopOf="@+id/iv_record1"/>
+
+        <TextView
+            android:id="@+id/tv_seed1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/white"
+            android:shadowColor="#000000"
+            android:shadowRadius="10"
+            android:text="@{bean.rankSeed1}"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record1"
+            app:layout_constraintTop_toTopOf="@+id/iv_record1"
+            tools:text="[5]/269" />
+
+        <TextView
+            android:id="@+id/tv_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_second"
+            android:text="@{bean.round}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/iv_record1"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record1"
+            tools:text="R128" />
+
+        <ImageView
+            android:id="@+id/iv_record2"
+            android:layout_width="150dp"
+            android:layout_height="85dp"
+            android:layout_marginEnd="10dp"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_record1"
+            app:srcCompat="@drawable/def_small"
+            app:recordUrl="@{bean.imageUrl2}" />
+
+        <TextView
+            android:id="@+id/tv_bye2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textColor="@color/white"
+            android:background="#66333333"
+            android:text="Bye"
+            android:textSize="@dimen/text_common_16"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="@+id/iv_record2"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record2"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record2"
+            app:layout_constraintTop_toTopOf="@+id/iv_record2"/>
+
+        <TextView
+            android:id="@+id/tv_seed2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/white"
+            android:shadowColor="#000000"
+            android:shadowRadius="10"
+            android:text="@{bean.rankSeed2}"
+            app:layout_constraintStart_toStartOf="@+id/iv_record2"
+            app:layout_constraintTop_toTopOf="@+id/iv_record2"
+            tools:text="[5]/269" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

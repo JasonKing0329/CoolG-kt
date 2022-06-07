@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.H2hRoadWrap" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white_dim">
+
+        <View
+            android:id="@+id/bg"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/white"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/common_margin_16"
+            android:textSize="@dimen/text_common_16"
+            android:textColor="@color/text_second"
+            android:textStyle="bold|italic"
+            app:layout_constraintTop_toTopOf="@+id/bg"
+            app:layout_constraintBottom_toBottomOf="@+id/bg"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text=" Group Name "/>
+
+        <ImageView
+            android:id="@+id/iv_arrow"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_keyboard_arrow_up_grey_700_24dp"
+            android:padding="13dp"
+            android:layout_marginEnd="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/bg"
+            app:layout_constraintBottom_toBottomOf="@+id/bg" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/group_h2h_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/common_margin_10"
+            android:paddingBottom="@dimen/common_margin_10"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/bg"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_filter_win1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/common_margin_16"
+                android:text="@{model.player1FilterWin}"
+                android:textSize="20dp"
+                android:textColor="@{model.player1WinColor}"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="@+id/sp_level"
+                app:layout_constraintBottom_toBottomOf="@+id/sp_level"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="12"/>
+            <TextView
+                android:id="@+id/tv_filter_dot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/common_margin_16"
+                android:textSize="20dp"
+                android:textColor="@color/text_normal"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="@+id/sp_level"
+                app:layout_constraintBottom_toBottomOf="@+id/sp_level"
+                app:layout_constraintStart_toEndOf="@+id/tv_filter_win1"
+                android:text=" : "/>
+            <TextView
+                android:id="@+id/tv_filter_win2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/common_margin_16"
+                android:text="@{model.player2FilterWin}"
+                android:textSize="20dp"
+                android:textColor="@{model.player2WinColor}"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="@+id/sp_level"
+                app:layout_constraintBottom_toBottomOf="@+id/sp_level"
+                app:layout_constraintStart_toEndOf="@+id/tv_filter_dot"
+                tools:text="7"/>
+            <Spinner
+                android:id="@+id/sp_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/match_level_with_all"
+                android:layout_marginEnd="@dimen/common_margin_16"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -133,7 +133,7 @@ class FinalDrawActivity: BaseActivity<ActivityMatchDrawFinalBinding, FinalDrawVi
 
             override fun onClickH2H(position: Int, drawItem: DrawItem) {
                 kotlin.runCatching {
-                    H2hActivity.startH2hPage(this@FinalDrawActivity, drawItem.matchRecord1!!.bean.recordId, drawItem.matchRecord2!!.bean.recordId)
+                    H2hActivity.startH2hPage(this@FinalDrawActivity, drawItem.matchRecord1!!.bean.recordId, drawItem.matchRecord2!!.bean.recordId, mModel.matchPeriod.bean.id, drawItem.matchItem.round)
                 }
             }
         }

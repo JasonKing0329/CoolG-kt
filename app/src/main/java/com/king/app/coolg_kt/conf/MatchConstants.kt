@@ -141,6 +141,14 @@ object MatchConstants {
         }
     }
 
+    val H2H_INFO_TITLES_YTD = "YTD Titles"
+    val H2H_INFO_WL_YTD = "YTD W/L"
+    val H2H_INFO_MATCHES_YTD = "YTD Matches"
+    val H2H_INFO_TITLES_CAREER = "Career Titles"
+    val H2H_INFO_WL_CAREER = "Career W/L"
+    val H2H_INFO_DEBUT = "Debut"
+    val H2H_INFO_RANK_HIGH = "Highest Rank"
+    val H2H_INFO_SCORE_RANK = "Score/Rank"
 }
 
 data class RoundPack(

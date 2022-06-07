@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.coolg_kt.page.match.H2hRoadWrap" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_record1"
+            android:layout_width="130dp"
+            android:layout_height="72dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/def_small"
+            app:recordUrl="@{model.player1ImageUrl}"/>
+
+        <ImageView
+            android:id="@+id/iv_record2"
+            android:layout_width="130dp"
+            android:layout_height="72dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/iv_record1"
+            app:srcCompat="@drawable/def_small"
+            app:recordUrl="@{model.player2ImageUrl}" />
+
+        <TextView
+            android:id="@+id/tv_win1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            android:text="@{model.player1Win}"
+            android:textColor="@{model.player1WinColor}"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record1"
+            app:layout_constraintStart_toEndOf="@+id/iv_record1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_dot"
+            app:layout_constraintTop_toTopOf="@+id/iv_record1"
+            tools:text="12" />
+
+        <TextView
+            android:id="@+id/tv_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30dp"
+            android:text=" : "
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record1"
+            app:layout_constraintEnd_toStartOf="@+id/tv_win2"
+            app:layout_constraintStart_toEndOf="@+id/tv_win1"
+            app:layout_constraintTop_toTopOf="@+id/iv_record1" />
+
+        <TextView
+            android:id="@+id/tv_win2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            android:textColor="@{model.player2WinColor}"
+            android:text="@{model.player2Win}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record2"
+            app:layout_constraintStart_toEndOf="@+id/tv_dot"
+            app:layout_constraintEnd_toStartOf="@+id/iv_record2"
+            app:layout_constraintTop_toTopOf="@+id/iv_record2"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/tv_record1"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            android:text="@{model.player1Name}"
+            android:textSize="12dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record1"
+            app:layout_constraintStart_toStartOf="@+id/iv_record1"
+            app:layout_constraintTop_toBottomOf="@+id/iv_record1"
+            tools:text="Record1"/>
+
+        <TextView
+            android:id="@+id/tv_record2"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            android:text="@{model.player2Name}"
+            android:textSize="12dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="@+id/iv_record2"
+            app:layout_constraintStart_toStartOf="@+id/iv_record2"
+            app:layout_constraintTop_toBottomOf="@+id/iv_record2"
+            tools:text="Record2"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

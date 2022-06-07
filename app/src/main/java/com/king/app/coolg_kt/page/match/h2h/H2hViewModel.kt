@@ -21,6 +21,9 @@ import kotlin.system.measureTimeMillis
  */
 class H2hViewModel(application: Application): BaseViewModel(application) {
 
+    val GROUP_ROAD = 0
+    val GROUP_H2H = 1
+
     var h2hRoadWrap = H2hRoadWrap()
 
     var matchPeriodId: Long = 0
@@ -28,6 +31,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
 
     var h2hObserver = MutableLiveData<List<Any>>()
     private var h2hList = listOf<H2hItem>()
+    private var matchRoadList = listOf<H2HRoadRound>()
     private var mLevelId = -1
 
     val h2hRepository = H2hRepository()
@@ -41,6 +45,9 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     var player2Color: Int = 0
 
     var indexToReceivePlayer = -1
+
+    private var isExpandRoad = true
+    private var isExpandH2h = true
 
     init {
         val colors = listOf(
@@ -83,10 +90,12 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             // round
             if (matchPeriodId != 0L) {
                 measureTimeMillis {
-                    val rounds = h2hRepository.getH2hRoadRounds(id1, id2, matchPeriodId, faceRoundId)
-                    if (rounds.isNotEmpty()) {
-                        result.add(H2HRoadGroup(" Match Road ", true))
-                        result.addAll(rounds)
+                    matchRoadList = h2hRepository.getH2hRoadRounds(id1, id2, matchPeriodId, faceRoundId)
+                    if (matchRoadList.isNotEmpty()) {
+                        result.add(H2HRoadGroup(GROUP_ROAD, " Match Road ", isExpandRoad))
+                        if (isExpandRoad) {
+                            result.addAll(matchRoadList)
+                        }
                     }
                 }.log("round")
             }
@@ -94,9 +103,11 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             measureTimeMillis {
                 val h2hs = h2hRepository.getH2hItems(id1, id2)
                 if (h2hs.isNotEmpty()) {
-                    result.add(H2HRoadGroup(" Head To Head ", true, showH2hFilter = true, infoWrap = h2hRoadWrap))
+                    result.add(H2HRoadGroup(GROUP_H2H, " Head To Head ", isExpandH2h, showH2hFilter = isExpandH2h, infoWrap = h2hRoadWrap))
                     h2hList = filterByLevel(calculateWin(h2hs, id1, id2))
-                    result.addAll(h2hList)
+                    if (isExpandH2h) {
+                        result.addAll(h2hList)
+                    }
                 }
             }.log("h2h")
             // 先更新UI
@@ -303,12 +314,49 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
 
     fun filterByLevel(levelId: Int) {
         mLevelId = levelId
+        refreshH2hPart()
+    }
+
+    /**
+     * 局部更新h2h部分
+     */
+    private fun refreshH2hPart() {
         launchSingle(
             block = {
-                // h2h为末尾内容，可以进行局部更新
+                h2hObserver.value?.filterIsInstance<H2HRoadGroup>()?.firstOrNull { it.type == GROUP_H2H }?.let {
+                    it.isExpand = isExpandH2h
+                    it.showH2hFilter = isExpandH2h
+                }
+                // 先删除所有子项，再重新根据条件加入
                 val all = h2hObserver.value?.toMutableList()
                 all?.removeAll { it is H2hItem }
-                all?.addAll(filterByLevel(h2hList))
+                if (isExpandH2h) {
+                    // h2h为末尾内容，可以直接add
+                    all?.addAll(filterByLevel(h2hList))
+                }
+                all
+            }
+        ) {
+            it?.apply { h2hObserver.value = this }
+        }
+    }
+
+    /**
+     * 局部更新road部分
+     */
+    private fun refreshRoadPart() {
+        launchSingle(
+            block = {
+                h2hObserver.value?.filterIsInstance<H2HRoadGroup>()?.firstOrNull { it.type == GROUP_ROAD }?.let {
+                    it.isExpand = isExpandRoad
+                }
+                val groupIndex = h2hObserver.value?.indexOfFirst { it is H2HRoadGroup && it.type == GROUP_ROAD }
+                // 先删除所有子项，再重新根据条件加入
+                val all = h2hObserver.value?.toMutableList()
+                all?.removeAll { it is H2HRoadRound }
+                if (isExpandRoad) {
+                    groupIndex?.let { index -> all?.addAll(index + 1, matchRoadList) }
+                }
                 all
             }
         ) {
@@ -325,4 +373,16 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    fun toggleGroup(group: H2HRoadGroup) {
+        when(group.type) {
+            GROUP_ROAD -> {
+                isExpandRoad = !group.isExpand
+                refreshRoadPart()
+            }
+            GROUP_H2H -> {
+                isExpandH2h = !group.isExpand
+                refreshH2hPart()
+            }
+        }
+    }
 }

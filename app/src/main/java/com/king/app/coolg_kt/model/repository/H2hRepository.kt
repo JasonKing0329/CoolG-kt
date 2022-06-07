@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.page.match.H2hItem
 import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.match.MatchRecord
 import com.king.app.gdb.data.relation.MatchItemWrap
+import kotlin.math.max
 
 /**
  * @description:
@@ -39,7 +40,14 @@ class H2hRepository: BaseRepository() {
         return result
     }
 
-    fun getH2hRoadRounds(record1Id: Long, record2Id: Long, matchPeriodId: Long, faceRoundId: Int): List<H2HRoadRound> {
+    fun getH2hRoadRounds(record1Id: Long, record2Id: Long, matchPeriodId: Long, mfaceRoundId: Int): List<H2HRoadRound> {
+        // 小组赛显示当前已完成的其他小组赛
+        val faceRoundId = if (mfaceRoundId == MatchConstants.ROUND_ID_GROUP) {
+            MatchConstants.ROUND_ID_SF
+        }
+        else {
+            mfaceRoundId
+        }
         val faceRoundSortValue = MatchConstants.getRoundSortValue(faceRoundId)
         val items1 = getDatabase().getMatchDao().getMatchItems(matchPeriodId, record1Id)
             .filter { MatchConstants.getRoundSortValue(it.bean.round) < faceRoundSortValue }
@@ -54,32 +62,52 @@ class H2hRepository: BaseRepository() {
         val index = array.indexOf(faceRoundId)
         val rounds = array.subList(index + 1, array.size)
         rounds.forEach {
-            val matchRecord1 = findCompetitor(record1Id, items1, it)
-            val matchRecord2 = findCompetitor(record2Id, items2, it)
-            if (matchRecord1 != null || matchRecord2 != null) {
-                var seed1 = if (matchRecord1?.recordSeed?:0 > 0) "[${matchRecord1?.recordSeed}]/" else ""
-                var seed2 = if (matchRecord2?.recordSeed?:0 > 0) "[${matchRecord2?.recordSeed}]/" else ""
-                var record1: Record? = null
-                var record2: Record? = null
-                matchRecord1?.let { record1 = getDatabase().getRecordDao().getRecordBasic(it.recordId) }
-                matchRecord2?.let { record2 = getDatabase().getRecordDao().getRecordBasic(it.recordId) }
-                result.add(
-                    H2HRoadRound(
-                        MatchConstants.roundResultShort(it, false),
-                        matchRecord1?.recordId,
-                        matchRecord2?.recordId,
-                        "$seed1${matchRecord1?.recordRank}",
-                        "$seed2${matchRecord2?.recordRank}",
-                        ImageProvider.getRecordRandomPath(record1?.name, null),
-                        ImageProvider.getRecordRandomPath(record2?.name, null)
-                    )
-                )
+            val list1 = findCompetitors(record1Id, items1, it)
+            val list2 = findCompetitors(record2Id, items2, it)
+            val maxSize = max(list1.size, list2.size)
+            for (i in 0 until maxSize) {
+                fillRound(it, list1.getOrNull(i), list2.getOrNull(i))?.let { roundItem -> result.add(roundItem) }
             }
         }
         return result
     }
 
-    private fun findCompetitor(recordId: Long, list: List<MatchItemWrap>, round: Int): MatchRecord? {
-        return list.firstOrNull { it.bean.round == round }?.recordList?.firstOrNull { it.recordId != recordId }
+    private fun fillRound(round: Int, matchRecord1: MatchRecordWithResult?, matchRecord2: MatchRecordWithResult?): H2HRoadRound? {
+        if (matchRecord1 != null || matchRecord2 != null) {
+            var seed1 = if (matchRecord1?.bean?.recordSeed?:0 > 0) "[${matchRecord1?.bean?.recordSeed}]/" else ""
+            var seed2 = if (matchRecord2?.bean?.recordSeed?:0 > 0) "[${matchRecord2?.bean?.recordSeed}]/" else ""
+            var isLoseTo1 = if (matchRecord1?.isLoseTo == true) "Lose   " else ""
+            var isLoseTo2 = if (matchRecord2?.isLoseTo == true) "Lose   " else ""
+            var record1: Record? = null
+            var record2: Record? = null
+            matchRecord1?.let { record1 = getDatabase().getRecordDao().getRecordBasic(it.bean?.recordId) }
+            matchRecord2?.let { record2 = getDatabase().getRecordDao().getRecordBasic(it.bean?.recordId) }
+            return H2HRoadRound(
+                MatchConstants.roundResultShort(round, false),
+                matchRecord1?.bean?.recordId,
+                matchRecord2?.bean?.recordId,
+                "$isLoseTo1$seed1${matchRecord1?.bean?.recordRank}",
+                "$isLoseTo2$seed2${matchRecord2?.bean?.recordRank}",
+                ImageProvider.getRecordRandomPath(record1?.name, null),
+                ImageProvider.getRecordRandomPath(record2?.name, null)
+            )
+        }
+        return null
     }
+
+    private fun findCompetitors(recordId: Long, list: List<MatchItemWrap>, round: Int): List<MatchRecordWithResult> {
+        val result = mutableListOf<MatchRecordWithResult>()
+        list.filter { it.bean.round == round }.forEach {
+            it.recordList?.firstOrNull { it.recordId != recordId }?.let { record -> result.add(MatchRecordWithResult(
+                record,
+                it.bean.winnerId == record.recordId
+            )) }
+        }
+        return result
+    }
+
+    data class MatchRecordWithResult(
+        var bean: MatchRecord,
+        var isLoseTo: Boolean
+    )
 }

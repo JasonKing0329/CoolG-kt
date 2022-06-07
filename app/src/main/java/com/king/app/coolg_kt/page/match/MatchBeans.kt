@@ -558,6 +558,7 @@ data class H2HRoadRound (
     var imageUrl2: String? = null
 )
 data class H2HRoadGroup (
+    var type: Int,
     var name: String,
     var isExpand: Boolean,
     var showH2hFilter: Boolean = false,

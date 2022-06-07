@@ -10,6 +10,7 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.BindingHolder
 import com.king.app.coolg_kt.databinding.*
 import com.king.app.coolg_kt.page.match.*
+import com.king.app.coolg_kt.utils.RippleUtil
 
 class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -89,6 +90,11 @@ class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun onBindGroup(binding: AdapterMatchRoadGroupBinding, position: Int, bean: H2HRoadGroup) {
+        binding.bg.resources.apply {
+            binding.bg.background = RippleUtil.getRippleBackground(getColor(R.color.white), getColor(R.color.ripple_color))
+        }
+        binding.bg.setOnClickListener { onH2hListener?.onClickGroup(position, bean) }
+
         binding.tvName.text = bean.name
         if (bean.showH2hFilter) {
             binding.groupH2hFilter.visibility = View.VISIBLE
@@ -186,5 +192,8 @@ class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         fun onClickPlayer2()
         fun onClickRoadPlayer(playerId: Long)
         fun onSelectLevel(level: Int)
+        fun onClickGroup(position: Int, group: H2HRoadGroup) {
+
+        }
     }
 }

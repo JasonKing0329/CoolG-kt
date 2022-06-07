@@ -13,6 +13,8 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.BaseActivity
 import com.king.app.coolg_kt.databinding.ActivityMatchH2hBinding
 import com.king.app.coolg_kt.databinding.ActivityMatchH2hRoadBinding
+import com.king.app.coolg_kt.page.match.H2HRoadGroup
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.rank.RankActivity
 import com.king.app.coolg_kt.page.record.phone.PhoneRecordListActivity
 import com.king.app.coolg_kt.utils.ScreenUtils
@@ -76,11 +78,15 @@ class H2hActivity: BaseActivity<ActivityMatchH2hBinding, H2hViewModel>() {
             }
 
             override fun onClickRoadPlayer(playerId: Long) {
-
+                DetailActivity.startRecordPage(this@H2hActivity, playerId)
             }
 
             override fun onSelectLevel(level: Int) {
                 mModel.filterByLevel(level)
+            }
+
+            override fun onClickGroup(position: Int, group: H2HRoadGroup) {
+                mModel.toggleGroup(group)
             }
         }
     }

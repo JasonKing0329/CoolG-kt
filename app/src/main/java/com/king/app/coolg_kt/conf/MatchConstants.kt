@@ -149,6 +149,9 @@ object MatchConstants {
     val H2H_INFO_DEBUT = "Debut"
     val H2H_INFO_RANK_HIGH = "Highest Rank"
     val H2H_INFO_SCORE_RANK = "Score/Rank"
+    val H2H_INFO_TITLES_MATCH = "Match Titles"
+    val H2H_INFO_WL_MATCH = "Match W/L"
+    val H2H_INFO_BEST_IN_MATCH = "Best In Match"
 }
 
 data class RoundPack(

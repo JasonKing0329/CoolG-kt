@@ -530,6 +530,7 @@ data class RankFilterRange (
 
 data class H2hInfo(
     var key: String,
+    var bgColor: Int? = null,
     var leftValue: ObservableField<String> = ObservableField(),
     var rightValue: ObservableField<String> = ObservableField()
 )
@@ -563,4 +564,15 @@ data class H2HRoadGroup (
     var isExpand: Boolean,
     var showH2hFilter: Boolean = false,
     var infoWrap: H2hRoadWrap? = null
+)
+
+class RecordMatchCounter(val recordId: Long, val matchId: Long){
+    var isCountWinLose = false
+    var isCountBest = false
+    var isCountTitles = false
+}
+data class RecordMatchCounterStringResult(
+    var winLose: String? = null,
+    var bestResults: MutableList<String>? = null,
+    var titles: String? = null
 )

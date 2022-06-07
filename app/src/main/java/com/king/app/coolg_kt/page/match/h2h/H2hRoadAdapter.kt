@@ -83,6 +83,14 @@ class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun onBindInfo(binding: AdapterMatchH2hInfoBinding, position: Int, bean: H2hInfo) {
         binding.bean = bean
+        binding.root.resources.apply {
+            if (bean.bgColor == null) {
+                binding.root.background = null
+            }
+            else {
+                binding.root.setBackgroundColor(bean.bgColor!!)
+            }
+        }
     }
 
     private fun onBindHead(binding: AdapterMatchRoadHeadBinding, position: Int, bean: H2hRoadWrap) {

@@ -79,4 +79,6 @@
     <color name="bg_top20">#DF6060</color>
     <color name="bg_top50">#DF7f7f</color>
     <color name="bg_top100">#DF9e9e</color>
+
+    <color name="bg_h2h_match_info">#FFF2F2</color>
 </resources>

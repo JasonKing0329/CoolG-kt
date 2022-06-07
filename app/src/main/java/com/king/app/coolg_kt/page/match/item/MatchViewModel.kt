@@ -6,11 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.repository.MatchRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.*
-import com.king.app.coolg_kt.page.match.detail.CareerMatchViewModel
 import com.king.app.gdb.data.bean.DataForRoundCount
-import com.king.app.gdb.data.entity.match.MatchItem
 import kotlinx.coroutines.Job
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,6 +30,7 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
     var itemsObserver = MutableLiveData<List<MatchSemiPack>>()
     var semiItemsRange = MutableLiveData<TimeWasteRange>()
     var repository = RankRepository()
+    val matchRepository = MatchRepository()
     var dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
     var countItemsObserver = MutableLiveData<List<Any>>()
@@ -227,91 +227,21 @@ class MatchViewModel(application: Application): BaseViewModel(application) {
             val rank = repository.getRecordCurrentRank(data.recordId)
             data.rankSeed = if (rank == -1) "9999" else rank.toString()
 
-            val items = getDatabase().getMatchDao().getRecordMatchItems(data.recordId, matchId)
-            var win = 0
-            var lose = 0
-            val periodMap = mutableMapOf<Long, MutableList<MatchItem>?>()
-            items.forEach { item ->
-                if (item.winnerId == data.recordId) {
-                    win ++
-                }
-                else if (item.winnerId?:0L != 0L) {
-                    lose ++
-                }
-                var list = periodMap[item.matchId]
-                if (list == null) {
-                    list = mutableListOf()
-                    periodMap[item.matchId] = list
-                }
-                list.add(item)
+            val counter = RecordMatchCounter(data.recordId, matchId).apply {
+                isCountBest = true
+                isCountWinLose = true
             }
-            // win lose
-            data.winLose = "${win}胜${lose}负"
-            // best，只取最好的2个轮次
-            val countList = mutableListOf<CareerMatchViewModel.MatchCount>()
-            periodMap.keys.forEach { matchPeriodId ->
-                val count = toMatchCount(data.recordId, matchPeriodId, periodMap[matchPeriodId]!!)
-                countList.add(count)
-            }
-            countList.sortByDescending { it.roundWeight }
-            val bestMap = mutableMapOf<Int, MutableList<CareerMatchViewModel.MatchCount>?>()
-            for (i in countList.indices) {
-                var bm = bestMap[countList[i].roundWeight]
-                if (bm == null) {
-                    if (bestMap.keys.size == 2) {
-                        break
-                    }
-                    bm = mutableListOf()
-                    bestMap[countList[i].roundWeight] = bm
-                }
-                bm.add(countList[i])
-            }
-            bestMap.keys.sortedDescending().forEachIndexed { index, key ->
+            val result = matchRepository.countRecordMatchItems(counter)
+            data.winLose = result.winLose?:""
+            result.bestResults?.forEachIndexed { index, item ->
                 if (index == 0) {
-                    data.best = toPeriodRound(bestMap[key]!!)
+                    data.best = item
                 }
                 else if (index == 1) {
-                    data.second = toPeriodRound(bestMap[key]!!)
+                    data.second = item
                 }
             }
         }
-    }
-
-    private fun toMatchCount(recordId: Long, matchPeriodId: Long, list: List<MatchItem>): CareerMatchViewModel.MatchCount {
-        val matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)
-        var maxWeight = -9999
-        var maxRoundItem: MatchItem? = null
-        list.forEach {
-            var weight = MatchConstants.getRoundSortValue(it.round)
-            // Win要跟F分开算
-            if (it.round == MatchConstants.ROUND_ID_F && it.winnerId == recordId) {
-                weight ++
-            }
-            if (weight > maxWeight) {
-                maxWeight = weight
-                maxRoundItem = it
-            }
-        }
-        val roundShort = MatchConstants.roundResultShort(maxRoundItem!!.round, maxRoundItem!!.winnerId == recordId)
-        return CareerMatchViewModel.MatchCount(
-            matchPeriodId,
-            matchPeriod.bean.period,
-            roundShort,
-            maxWeight
-        )
-    }
-
-    private fun toPeriodRound(list: List<CareerMatchViewModel.MatchCount>): String {
-        val buffer = StringBuffer()
-        buffer.append(list[0].roundShort).append("(")
-        list.forEachIndexed { index, it ->
-            if (index > 0) {
-                buffer.append(",")
-            }
-            buffer.append("P").append(it.period)
-        }
-        buffer.append(")  ")
-        return buffer.toString()
     }
 
     fun loadRoundItems() {

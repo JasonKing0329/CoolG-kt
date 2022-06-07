@@ -9,8 +9,11 @@ import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.extension.log
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.H2hRepository
+import com.king.app.coolg_kt.model.repository.MatchRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.*
+import com.king.app.coolg_kt.page.match.detail.CareerMatchViewModel
+import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.relation.RecordWrap
 import kotlin.system.measureTimeMillis
 
@@ -36,6 +39,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
 
     val h2hRepository = H2hRepository()
     val rankRepository = RankRepository()
+    val matchRepository = MatchRepository()
 
     var player1: RecordWrap? = null
 
@@ -118,7 +122,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun createInfoList(): List<H2hInfo> {
-        return listOf(
+        val list = mutableListOf(
             H2hInfo(MatchConstants.H2H_INFO_TITLES_YTD),
             H2hInfo(MatchConstants.H2H_INFO_WL_YTD),
             H2hInfo(MatchConstants.H2H_INFO_MATCHES_YTD),
@@ -128,6 +132,12 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             H2hInfo(MatchConstants.H2H_INFO_RANK_HIGH),
             H2hInfo(MatchConstants.H2H_INFO_SCORE_RANK),
         )
+        if (matchPeriodId != 0L) {
+            list.add(H2hInfo(MatchConstants.H2H_INFO_TITLES_MATCH, bgColor = getResource().getColor(R.color.bg_h2h_match_info)))
+            list.add(H2hInfo(MatchConstants.H2H_INFO_BEST_IN_MATCH, bgColor = getResource().getColor(R.color.bg_h2h_match_info)))
+            list.add(H2hInfo(MatchConstants.H2H_INFO_WL_MATCH, bgColor = getResource().getColor(R.color.bg_h2h_match_info)))
+        }
+        return list
     }
 
     private fun loadPlayer1(playerId: Long) {
@@ -205,11 +215,18 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
         var careerWinLose: ObservableField<String>,
         var debut: ObservableField<String>,
         var rankHigh: ObservableField<String>,
-        var rankScore: ObservableField<String>
+        var rankScore: ObservableField<String>,
+        var matchTitles: ObservableField<String>? = null,
+        var bestInMatch: ObservableField<String>? = null,
+        var matchWinLose: ObservableField<String>? = null
     )
 
     private fun List<H2hInfo>.key(key: String): H2hInfo {
         return firstOrNull { it.key == key }!!
+    }
+
+    private fun List<H2hInfo>.keyOrNull(key: String): H2hInfo? {
+        return firstOrNull { it.key == key }
     }
 
     private fun loadInfoDetails(infoList: List<H2hInfo>) {
@@ -225,7 +242,10 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
                     infoList.key(MatchConstants.H2H_INFO_WL_CAREER).leftValue,
                     infoList.key(MatchConstants.H2H_INFO_DEBUT).leftValue,
                     infoList.key(MatchConstants.H2H_INFO_RANK_HIGH).leftValue,
-                    infoList.key(MatchConstants.H2H_INFO_SCORE_RANK).leftValue
+                    infoList.key(MatchConstants.H2H_INFO_SCORE_RANK).leftValue,
+                    infoList.keyOrNull(MatchConstants.H2H_INFO_TITLES_MATCH)?.leftValue,
+                    infoList.keyOrNull(MatchConstants.H2H_INFO_BEST_IN_MATCH)?.leftValue,
+                    infoList.keyOrNull(MatchConstants.H2H_INFO_WL_MATCH)?.leftValue
                 )
             )
         }
@@ -241,7 +261,10 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
                     infoList.key(MatchConstants.H2H_INFO_WL_CAREER).rightValue,
                     infoList.key(MatchConstants.H2H_INFO_DEBUT).rightValue,
                     infoList.key(MatchConstants.H2H_INFO_RANK_HIGH).rightValue,
-                    infoList.key(MatchConstants.H2H_INFO_SCORE_RANK).rightValue
+                    infoList.key(MatchConstants.H2H_INFO_SCORE_RANK).rightValue,
+                    infoList.keyOrNull(MatchConstants.H2H_INFO_TITLES_MATCH)?.rightValue,
+                    infoList.keyOrNull(MatchConstants.H2H_INFO_BEST_IN_MATCH)?.rightValue,
+                    infoList.keyOrNull(MatchConstants.H2H_INFO_WL_MATCH)?.rightValue
                 )
             )
         }
@@ -267,6 +290,22 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             val mp = debutMatch!!
             infoPart.debut.set("P${mp.bean.period}-W${mp.bean.orderInPeriod} ${mp.match.name}")
         }
+        // match period related
+        getDatabase().getMatchDao().getMatchByPeriodId(matchPeriodId)?.id?.apply {
+            countMatchRelated(record, infoPart, this)
+        }
+    }
+
+    private fun countMatchRelated(record: RecordWrap, infoPart: InfoPart, matchId: Long) {
+        val counter = RecordMatchCounter(record.bean.id!!, matchId).apply {
+            isCountBest = true
+            isCountTitles = true
+            isCountTitles = true
+        }
+        val result = matchRepository.countRecordMatchItems(counter)
+        infoPart.matchWinLose?.set(result.winLose)
+        infoPart.matchTitles?.set(result.titles)
+        infoPart.bestInMatch?.set(result.bestResults?.firstOrNull())
     }
 
     private fun countWinLose(record: RecordWrap, rankInfo: ObservableField<String>, periodPack: PeriodPack) {

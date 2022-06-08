@@ -19,6 +19,7 @@
             android:layout_height="72dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:scaleType="fitXY"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/def_small"
@@ -29,6 +30,7 @@
             android:layout_width="130dp"
             android:layout_height="72dp"
             android:layout_marginEnd="8dp"
+            android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/iv_record1"
             app:srcCompat="@drawable/def_small"
@@ -101,6 +103,28 @@
             app:layout_constraintStart_toStartOf="@+id/iv_record2"
             app:layout_constraintTop_toBottomOf="@+id/iv_record2"
             tools:text="Record2"/>
+
+        <TextView
+            android:id="@+id/tv_rank1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@{model.player1Rank}"
+            android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record1"
+            app:layout_constraintStart_toEndOf="@+id/iv_record1"
+            tools:text="r1084" />
+
+        <TextView
+            android:id="@+id/tv_rank2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@{model.player2Rank}"
+            android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_record2"
+            app:layout_constraintEnd_toStartOf="@+id/iv_record2"
+            tools:text="r1558" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

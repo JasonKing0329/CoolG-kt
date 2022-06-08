@@ -35,7 +35,8 @@ class RankFilterDialog: DraggableContentFragment<FragmentDialogRankFilterBinding
         filterRanks()
         if (focusToRank > 0) {
             mBinding.rvList.post {
-                mBinding.rvList.scrollToPosition(getFocusPosition())
+                val manager = mBinding.rvList.layoutManager as LinearLayoutManager
+                manager.scrollToPositionWithOffset(getFocusPosition(), 0)
             }
         }
     }

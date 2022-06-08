@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.match.h2h
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,6 @@ import com.king.app.coolg_kt.R
 import com.king.app.coolg_kt.base.adapter.BindingHolder
 import com.king.app.coolg_kt.databinding.*
 import com.king.app.coolg_kt.page.match.*
-import com.king.app.coolg_kt.utils.RippleUtil
 
 class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -83,12 +83,32 @@ class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun onBindInfo(binding: AdapterMatchH2hInfoBinding, position: Int, bean: H2hInfo) {
         binding.bean = bean
+        if (bean.bgColor == null) {
+            binding.root.background = null
+        }
+        else {
+            binding.root.setBackgroundColor(bean.bgColor!!)
+        }
         binding.root.resources.apply {
-            if (bean.bgColor == null) {
-                binding.root.background = null
-            }
-            else {
-                binding.root.setBackgroundColor(bean.bgColor!!)
+            when (bean.focusIndex){
+                1 -> {
+                    binding.tvLeft.setTextColor(getColor(R.color.red_f1303d))
+                    binding.tvLeft.typeface = Typeface.DEFAULT_BOLD
+                    binding.tvRight.setTextColor(getColor(R.color.text_second))
+                    binding.tvRight.typeface = Typeface.DEFAULT
+                }
+                2 -> {
+                    binding.tvLeft.setTextColor(getColor(R.color.text_second))
+                    binding.tvLeft.typeface = Typeface.DEFAULT
+                    binding.tvRight.setTextColor(getColor(R.color.red_f1303d))
+                    binding.tvRight.typeface = Typeface.DEFAULT_BOLD
+                }
+                else -> {
+                    binding.tvLeft.setTextColor(getColor(R.color.text_second))
+                    binding.tvLeft.typeface = Typeface.DEFAULT
+                    binding.tvRight.setTextColor(getColor(R.color.text_second))
+                    binding.tvRight.typeface = Typeface.DEFAULT
+                }
             }
         }
     }
@@ -98,9 +118,6 @@ class H2hRoadAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun onBindGroup(binding: AdapterMatchRoadGroupBinding, position: Int, bean: H2HRoadGroup) {
-        binding.bg.resources.apply {
-            binding.bg.background = RippleUtil.getRippleBackground(getColor(R.color.white), getColor(R.color.ripple_color))
-        }
         binding.bg.setOnClickListener { onH2hListener?.onClickGroup(position, bean) }
 
         binding.tvName.text = bean.name

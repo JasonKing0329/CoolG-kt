@@ -12,9 +12,8 @@ import com.king.app.coolg_kt.model.repository.H2hRepository
 import com.king.app.coolg_kt.model.repository.MatchRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
 import com.king.app.coolg_kt.page.match.*
-import com.king.app.coolg_kt.page.match.detail.CareerMatchViewModel
-import com.king.app.gdb.data.entity.match.MatchItem
 import com.king.app.gdb.data.relation.RecordWrap
+import kotlin.math.abs
 import kotlin.system.measureTimeMillis
 
 /**
@@ -118,6 +117,8 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             h2hObserver.postValue(result)
             // info details属于耗时操作，延迟更新
             loadInfoDetails(infoList)
+            // 再刷新一下
+            h2hObserver.postValue(result)
         }
     }
 
@@ -146,6 +147,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             h2hRoadWrap.player1Name.set(it.bean.name)
             h2hRoadWrap.player1ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
         }
+        h2hRoadWrap.player1Win.set("0")
     }
 
     private fun loadPlayer2(playerId: Long) {
@@ -154,6 +156,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             h2hRoadWrap.player2Name.set(it.bean.name)
             h2hRoadWrap.player2ImageUrl.set(ImageProvider.getRecordRandomPath(it.bean.name, null))
         }
+        h2hRoadWrap.player2Win.set("0")
     }
 
     private fun calculateWin(list: List<H2hItem>, player1Id: Long, player2Id: Long): List<H2hItem> {
@@ -253,7 +256,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
             loadPlayerInfo(
                 this,
                 InfoPart(
-                    h2hRoadWrap.player1Rank,
+                    h2hRoadWrap.player2Rank,
                     infoList.key(MatchConstants.H2H_INFO_TITLES_YTD).rightValue,
                     infoList.key(MatchConstants.H2H_INFO_WL_YTD).rightValue,
                     infoList.key(MatchConstants.H2H_INFO_MATCHES_YTD).rightValue,
@@ -267,6 +270,121 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
                     infoList.keyOrNull(MatchConstants.H2H_INFO_WL_MATCH)?.rightValue
                 )
             )
+        }
+        defineFocusIndex(infoList)
+    }
+
+    private fun defineFocusIndex(infoList: List<H2hInfo>) {
+        infoList.forEach {
+            kotlin.runCatching {
+                when(it.key) {
+                    MatchConstants.H2H_INFO_TITLES_YTD, MatchConstants.H2H_INFO_TITLES_CAREER, MatchConstants.H2H_INFO_TITLES_MATCH -> {
+                        val left = it.leftValue.get()?.toInt()?:0
+                        val right = it.rightValue.get()?.toInt()?:0
+                        it.focusIndex = when {
+                            left > right -> 1
+                            left < right -> 2
+                            else -> 0
+                        }
+                    }
+                    // 胜负场。胜场差距在100以内，比胜率，否则比胜场
+                    MatchConstants.H2H_INFO_WL_YTD, MatchConstants.H2H_INFO_WL_CAREER, MatchConstants.H2H_INFO_WL_MATCH -> {
+                        val array1 = (it.leftValue.get()?:"").split("胜")
+                        val array2 = (it.rightValue.get()?:"").split("胜")
+                        val win1 = array1[0].toDouble()
+                        val lose1 = array1[1].substring(0, array1[1].length - 1).toDouble()
+                        val win2 = array2[0].toDouble()
+                        val lose2 = array2[1].substring(0, array2[1].length - 1).toDouble()
+                        if (abs(win1 - win2) < 100) {
+                            val rate1 = win1 / (win1 + lose1)
+                            val rate2 = win2 / (win2 + lose2)
+                            it.focusIndex = when {
+                                rate1 > rate2 -> 1
+                                rate1 < rate2 -> 2
+                                else -> {
+                                    // 胜率相同比胜场
+                                    when {
+                                        win1 > win2 -> 1
+                                        win1 < win2 -> 2
+                                        else -> 0
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            it.focusIndex = when {
+                                win1 > win2 -> 1
+                                win1 < win2 -> 2
+                                else -> {
+                                    // 胜场相同比负场
+                                    when {
+                                        lose1 > lose2 -> 2
+                                        lose1 < lose2 -> 1
+                                        else -> 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    MatchConstants.H2H_INFO_SCORE_RANK -> {
+                        val array1 = (it.leftValue.get()?:"").split("/")
+                        val array2 = (it.rightValue.get()?:"").split("/")
+                        val left = array1[0]
+                        val right = array2[0]
+                        it.focusIndex = when {
+                            left > right -> 1
+                            left < right -> 2
+                            else -> 0
+                        }
+                    }
+                    // 先比最高排名，相等再比周数
+                    MatchConstants.H2H_INFO_RANK_HIGH -> {
+                        var rank1 = 0
+                        var rank2 = 0
+                        var week1 = 0
+                        var week2 = 0
+                        it.leftValue.get()?.apply {
+                            rank1 = substring(0, indexOf("(")).toInt()
+                            week1 = substring(lastIndexOf("(") + 1, indexOf("week")).trim().toInt()
+                        }
+                        it.rightValue.get()?.apply {
+                            rank2 = substring(0, indexOf("(")).toInt()
+                            week2 = substring(lastIndexOf("(") + 1, indexOf("week")).trim().toInt()
+                        }
+                        it.focusIndex = when {
+                            rank1 > rank2 -> 2
+                            rank1 < rank2 -> 1
+                            else -> {
+                                when {
+                                    week1 > week2 -> 1
+                                    week1 < week2 -> 2
+                                    else -> 0
+                                }
+                            }
+                        }
+                    }
+                    // 先比最好轮次，相等再比次数
+                    MatchConstants.H2H_INFO_BEST_IN_MATCH -> {
+                        val array1 = (it.leftValue.get()?:"").split("(")
+                        val array2 = (it.rightValue.get()?:"").split("(")
+                        val round1 = MatchConstants.roundShortSortValue(array1[0])
+                        val round2 = MatchConstants.roundShortSortValue(array2[0])
+                        it.focusIndex = when {
+                            round1 > round2 -> 1
+                            round1 < round2 -> 2
+                            else -> {
+                                val times1 = array1[1].split(",").size
+                                val times2 = array2[1].split(",").size
+                                when {
+                                    times1 > times2 -> 1
+                                    times1 < times2 -> 2
+                                    else -> 0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -321,7 +439,7 @@ class H2hViewModel(application: Application): BaseViewModel(application) {
                 lose ++
             }
         }
-        rankInfo.set("${win}/${lose}")
+        rankInfo.set("${win}胜${lose}负")
     }
 
     private fun countTitles(record: RecordWrap, infoPart: InfoPart) {

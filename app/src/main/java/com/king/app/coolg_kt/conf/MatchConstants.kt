@@ -124,6 +124,24 @@ object MatchConstants {
         }
     }
 
+    fun roundShortSortValue(name: String): Int {
+        return when(name) {
+            "R128" -> 1
+            "R64" -> 2
+            "R32" -> 3
+            "R16" -> 4
+            "QF" -> 5
+            "SF" -> 6
+            "F" -> 7
+            "Win" -> 8
+            "RR" -> 5
+            "Q3" -> 0
+            "Q2" -> -1
+            "Q1" -> -2
+            else -> -3
+        }
+    }
+
     fun roundFull(id: Int): String {
         return when(id) {
             ROUND_ID_128 -> "Round 128"

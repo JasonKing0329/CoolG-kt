@@ -531,6 +531,7 @@ data class RankFilterRange (
 data class H2hInfo(
     var key: String,
     var bgColor: Int? = null,
+    var focusIndex: Int = 0,
     var leftValue: ObservableField<String> = ObservableField(),
     var rightValue: ObservableField<String> = ObservableField()
 )

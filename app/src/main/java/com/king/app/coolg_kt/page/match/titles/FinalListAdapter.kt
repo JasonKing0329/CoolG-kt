@@ -46,6 +46,7 @@ class FinalListAdapter: BaseBindingAdapter<AdapterMatchFinalItemBinding, FinalLi
         bindRecord(binding.tvNameLose, binding.tvSeedLose, bean.recordLose)
         binding.ivPlayerWin.setOnClickListener { onClickRecordListener?.onClickRecord(bean.recordWin) }
         binding.ivPlayerLose.setOnClickListener { onClickRecordListener?.onClickRecord(bean.recordLose) }
+        binding.tvH2h.setOnClickListener { onClickRecordListener?.onH2H(bean) }
     }
 
     private fun bindRecord(tvName: TextView, tvSeed: TextView, record: MatchRecordWrap) {
@@ -60,5 +61,6 @@ class FinalListAdapter: BaseBindingAdapter<AdapterMatchFinalItemBinding, FinalLi
     
     interface OnClickRecordListener {
         fun onClickRecord(matchRecordWrap: MatchRecordWrap)
+        fun onH2H(item: FinalListItem)
     }
 }

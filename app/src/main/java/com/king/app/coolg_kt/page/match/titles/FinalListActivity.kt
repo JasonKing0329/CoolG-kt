@@ -17,6 +17,7 @@ import com.king.app.coolg_kt.page.match.TitleCountItem
 import com.king.app.coolg_kt.page.match.detail.DetailActivity
 import com.king.app.coolg_kt.page.match.draw.DrawActivity
 import com.king.app.coolg_kt.page.match.draw.FinalDrawActivity
+import com.king.app.coolg_kt.page.match.h2h.H2hActivity
 import com.king.app.coolg_kt.view.dialog.AlertDialogFragment
 import com.king.app.gdb.data.relation.MatchRecordWrap
 
@@ -66,6 +67,10 @@ class FinalListActivity: BaseActivity<ActivityMatchFinalListBinding, FinalListVi
         adapter.onClickRecordListener = object : FinalListAdapter.OnClickRecordListener {
             override fun onClickRecord(matchRecordWrap: MatchRecordWrap) {
                 DetailActivity.startRecordPage(this@FinalListActivity, matchRecordWrap.bean.recordId)
+            }
+
+            override fun onH2H(item: FinalListItem) {
+                H2hActivity.startH2hPage(this@FinalListActivity, item.recordWin.bean.recordId, item.recordLose.bean.recordId, item.match.bean.id, MatchConstants.ROUND_ID_F)
             }
         }
         adapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<FinalListItem> {

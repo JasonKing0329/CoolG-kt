@@ -11,8 +11,8 @@ android {
         applicationId "com.king.app.coolg_kt"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 379
-        versionName "9.8.1"
+        versionCode 380
+        versionName "9.8.2"
         flavorDimensions "1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {

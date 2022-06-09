@@ -1,0 +1,385 @@
+package com.king.app.coolg_kt.page.record.phone
+
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Rect
+import android.text.TextUtils
+import android.view.LayoutInflater
+import android.view.View
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.king.app.coolg_kt.R
+import com.king.app.coolg_kt.base.BaseFragment
+import com.king.app.coolg_kt.base.adapter.BaseBindingAdapter
+import com.king.app.coolg_kt.conf.AppConstants
+import com.king.app.coolg_kt.databinding.FragmentRecordDetailBinding
+import com.king.app.coolg_kt.model.GlideApp
+import com.king.app.coolg_kt.model.bean.PassionPoint
+import com.king.app.coolg_kt.model.bean.TitleValueBean
+import com.king.app.coolg_kt.model.bean.VideoPlayList
+import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.page.match.detail.DetailActivity
+import com.king.app.coolg_kt.page.pub.TagAdapter
+import com.king.app.coolg_kt.page.pub.TagManagerActivity
+import com.king.app.coolg_kt.page.record.PassionPointAdapter
+import com.king.app.coolg_kt.page.record.RecordOrdersAdapter
+import com.king.app.coolg_kt.page.record.RecordPlayOrdersAdapter
+import com.king.app.coolg_kt.page.record.RecordViewModel
+import com.king.app.coolg_kt.page.star.phone.StarActivity
+import com.king.app.coolg_kt.page.studio.phone.StudioActivity
+import com.king.app.coolg_kt.page.tv.player.IjkPlayerActivity
+import com.king.app.coolg_kt.page.tv.player.SystemPlayerActivity
+import com.king.app.coolg_kt.page.video.order.PlayOrderActivity
+import com.king.app.coolg_kt.page.video.player.PlayerActivity
+import com.king.app.coolg_kt.utils.FormatUtil
+import com.king.app.coolg_kt.utils.ScreenUtils
+import com.king.app.gdb.data.DataConstants
+import com.king.app.gdb.data.entity.FavorRecordOrder
+import com.king.app.gdb.data.entity.Tag
+import com.king.app.gdb.data.relation.RecordStarWrap
+import com.king.app.gdb.data.relation.RecordWrap
+
+/**
+ * Desc:
+ * @author：Jing Yang
+ * @date: 2022/6/9 9:40
+ */
+class RecordDetailFragment: BaseFragment<FragmentRecordDetailBinding, RecordDetailViewModel>() {
+
+    private val REQUEST_ADD_ORDER = 1602
+    private val REQUEST_SELECT_STUDIO = 1603
+    private val REQUEST_VIDEO_ORDER = 1604
+    private val REQUEST_ADD_TAG = 1605
+
+    private lateinit var mainViewModel: RecordViewModel
+
+    private var starAdapter = RecordStarAdapter()
+    private var orderAdapter = RecordOrdersAdapter()
+    private var playOrdersAdapter = RecordPlayOrdersAdapter()
+    private var scoreAdapter = ScoreItemAdapter()
+    private var tagAdapter = TagAdapter()
+
+    override fun createViewModel(): RecordDetailViewModel = generateViewModel(RecordDetailViewModel::class.java)
+
+    override fun initView(view: View) {
+        mainViewModel = getActivityViewModel(RecordViewModel::class.java)
+        mBinding.rvStars.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        mBinding.rvScores.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        mBinding.groupScene.setOnClickListener { PhoneRecordListActivity.startPage(requireContext(), mainViewModel.mRecord.bean.scene) }
+        mBinding.groupMatch.setOnClickListener { DetailActivity.startRecordPage(requireContext(), mainViewModel.mRecord.bean.id!!) }
+        mBinding.groupOrder.visibility = View.GONE
+//        mBinding.ivOrderAdd.setOnClickListener { selectOrderToAddStar() }
+//        mBinding.ivOrderDelete.setOnClickListener {
+//            orderAdapter.toggleDeleteMode()
+//            orderAdapter.notifyDataSetChanged()
+//        }
+//        mBinding.groupOrder.setOnClickListener {
+//            // collapse
+//            if (mBinding.ivOrderArrow.isSelected) {
+//                mBinding.ivOrderArrow.isSelected = false
+//                mBinding.ivOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
+//                mBinding.rvOrders.visibility = View.GONE
+//            } else {
+//                mBinding.ivOrderArrow.isSelected = true
+//                mBinding.ivOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
+//                mBinding.rvOrders.visibility = View.VISIBLE
+//            }
+//        }
+//        mBinding.rvOrders.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        mBinding.ivPlayOrderAdd.setOnClickListener {
+            PlayOrderActivity.startPageToSelect(this, REQUEST_VIDEO_ORDER)
+        }
+        mBinding.ivPlayOrderDelete.setOnClickListener {
+            playOrdersAdapter.toggleDeleteMode()
+            playOrdersAdapter.notifyDataSetChanged()
+        }
+        mBinding.groupPlayOrder.setOnClickListener {
+            // collapse
+            if (mBinding.ivPlayOrderArrow.isSelected) {
+                mBinding.ivPlayOrderArrow.isSelected = false
+                mBinding.ivPlayOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_down_grey_700_24dp)
+                mBinding.rvPlayOrders.visibility = View.GONE
+            } else {
+                mBinding.ivPlayOrderArrow.isSelected = true
+                mBinding.ivPlayOrderArrow.setImageResource(R.drawable.ic_keyboard_arrow_up_grey_700_24dp)
+                mBinding.rvPlayOrders.visibility = View.VISIBLE
+            }
+        }
+        mBinding.rvPlayOrders.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        mBinding.groupStudio.setOnClickListener { selectStudio() }
+        // Jzvd-JZMediaIjk
+        mBinding.tvPlayerIjk.setOnClickListener {
+            if (mainViewModel.canPlay()) {
+                IjkPlayerActivity.startPage(requireContext(), mainViewModel.mPlayUrl?:"")
+            }
+        }
+        // Jzvd-JZMediaSystem
+        mBinding.tvPlayerJzvd.setOnClickListener {
+            if (mainViewModel.canPlay()) {
+                mainViewModel.addToJzvdPlayList()
+                PlayerActivity.startPage(requireContext(), true)
+            }
+        }
+        // 原生VideoView
+        mBinding.tvPlayerSystem.setOnClickListener {
+            if (mainViewModel.canPlay()) {
+                SystemPlayerActivity.startPage(requireContext(), mainViewModel.mPlayUrl?:"", null)
+            }
+        }
+
+        mBinding.rvTags.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        mBinding.rvTags.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                val position = parent.getChildLayoutPosition(view)
+                if (position > 0) {
+                    outRect.left = ScreenUtils.dp2px(10f)
+                }
+            }
+        })
+        mBinding.ivTagAdd.setOnClickListener { addTag() }
+        mBinding.ivTagDelete.setOnClickListener {
+            tagAdapter.toggleDelete()
+            tagAdapter.notifyDataSetChanged()
+        }
+    }
+
+    override fun getBinding(inflater: LayoutInflater): FragmentRecordDetailBinding = FragmentRecordDetailBinding.inflate(inflater)
+
+    override fun initData() {
+        initAdapters()
+
+        mainViewModel.recordObserver.observe(this, Observer {
+            showRecord(it)
+            mModel.loadDetails(it)
+            mainViewModel.loadRecordOrders()
+            mainViewModel.loadRecordPlayOrders()
+        })
+        mainViewModel.ordersObserver.observe(this,
+            Observer {
+                mBinding.tvOrder.text = it.size.toString()
+                orderAdapter.list = it
+                orderAdapter.notifyDataSetChanged()
+            }
+        )
+        mainViewModel.playOrdersObserver.observe(this,
+            Observer {
+                mBinding.tvPlayOrder.text = it.size.toString()
+                playOrdersAdapter.list = it
+                playOrdersAdapter.notifyDataSetChanged()
+            }
+        )
+        mainViewModel.studioObserver.observe(this,
+            Observer { studio: String? ->
+                mBinding.tvStudio.text = studio
+            }
+        )
+
+        mModel.starsObserver.observe(this, Observer { showStars(it) })
+        mModel.scoresObserver.observe(this, Observer { showScores(it) })
+
+        mModel.passionsObserver.observe(this,
+            Observer { list: List<PassionPoint> ->
+                showPassionPoints(list)
+            }
+        )
+        mModel.tagsObserver.observe(this,
+            Observer { tags: List<Tag> ->
+                showTags(tags)
+            }
+        )
+    }
+
+    private fun initAdapters() {
+        orderAdapter.onDeleteListener =
+            object : RecordOrdersAdapter.OnDeleteListener {
+                override fun onDeleteOrder(order: FavorRecordOrder) {
+                    mainViewModel.deleteOrderOfRecord(order.id!!)
+                    mainViewModel.loadRecordOrders()
+                }
+            }
+        mBinding.rvOrders.adapter = orderAdapter
+
+        tagAdapter.setOnItemLongClickListener(object : BaseBindingAdapter.OnItemLongClickListener<Tag> {
+            override fun onLongClickItem(view: View, position: Int, data: Tag) {
+                tagAdapter.toggleDelete()
+                tagAdapter.notifyDataSetChanged()
+            }
+        })
+        tagAdapter.onDeleteListener = object : TagAdapter.OnDeleteListener {
+            override fun onDelete(position: Int, bean: Tag) {
+                mModel.deleteTag(bean)
+            }
+        }
+        mBinding.rvTags.adapter = tagAdapter
+
+        mBinding.rvScores.adapter = scoreAdapter
+
+        starAdapter.setOnItemClickListener(object : BaseBindingAdapter.OnItemClickListener<RecordStarWrap> {
+            override fun onClickItem(view: View, position: Int, data: RecordStarWrap) {
+                goToStarPage(data)
+            }
+        })
+        mBinding.rvStars.adapter = starAdapter
+
+        playOrdersAdapter.onDeleteListener = object : RecordPlayOrdersAdapter.OnDeleteListener {
+            override fun onDeleteOrder(order: VideoPlayList) {
+                mainViewModel.deletePlayOrderOfRecord(order.playOrder!!.id!!)
+                mainViewModel.loadRecordPlayOrders()
+            }
+        }
+        mBinding.rvPlayOrders.adapter = playOrdersAdapter
+    }
+
+    private fun addTag() {
+        TagManagerActivity.startPage(this, REQUEST_ADD_TAG, DataConstants.TAG_TYPE_RECORD)
+//        val fragment = TagManagerFragment()
+//        fragment.tagType = DataConstants.TAG_TYPE_RECORD
+//        fragment.onTagSelectListener = object : TagManagerFragment.OnTagSelectListener{
+//            override fun onSelectTag(tag: Tag) {
+//                mModel.addTag(tag)
+//            }
+//        }
+//        val dialogFragment = DraggableDialogFragment()
+//        dialogFragment.contentFragment = fragment
+//        dialogFragment.setTitle("Select tag")
+//        dialogFragment.fixedHeight = fragment.idealHeight
+//        dialogFragment.setBackgroundColor(resources.getColor(R.color.dlg_tag_bg))
+//        dialogFragment.dismissListener = DialogInterface.OnDismissListener { mModel.refreshTags() }
+//        dialogFragment.show(supportFragmentManager, "TagManagerFragment")
+    }
+
+    private fun selectStudio() {
+        showConfirmCancelMessage("App端修改Studio不会与服务端同步，需要在服务端手动修改，是否继续？",
+            { dialog, which -> StudioActivity.startPageToSelect(this, REQUEST_SELECT_STUDIO) },
+            null
+        )
+    }
+
+    private fun showTags(tags: List<Tag>) {
+        if (tags.isEmpty()) {
+            mBinding.ivTagDelete.visibility = View.GONE
+            mBinding.tvTagsTitle.visibility = View.VISIBLE
+            tagAdapter.showDelete = false
+        } else {
+            mBinding.ivTagDelete.visibility = View.VISIBLE
+            mBinding.tvTagsTitle.visibility = View.GONE
+        }
+        tagAdapter.list = tags
+        tagAdapter.notifyDataSetChanged()
+    }
+
+    private fun showScores(list: List<TitleValueBean>) {
+        scoreAdapter.list = list
+        scoreAdapter.notifyDataSetChanged()
+    }
+
+    private fun showPassionPoints(list: List<PassionPoint>) {
+        val adapter = PassionPointAdapter()
+        adapter.setList(list)
+        mBinding.groupFk.setAdapter(adapter)
+    }
+
+    private fun showStars(list: List<RecordStarWrap>) {
+        starAdapter.list = list
+        starAdapter.notifyDataSetChanged()
+    }
+
+    private fun goToStarPage(data: RecordStarWrap) {
+        StarActivity.startPage(requireContext(), data.bean.starId)
+    }
+
+    private fun showRecord(record: RecordWrap) {
+        // Record公共部分
+        mBinding.tvDate.text = FormatUtil.formatDate(record.bean.lastModifyTime)
+        mBinding.tvScene.text = record.bean.scene
+        mBinding.tvPath.text = record.bean.directory + "/" + record.bean.name
+        mBinding.tvHd.text = "" + record.bean.hdLevel
+        mBinding.tvScoreTotal.text = "" + record.bean.score
+        mBinding.tvFeel.text = "" + record.bean.scoreFeel
+        if (record.bean.scoreBareback > 0) {
+            mBinding.groupBareback.visibility = View.VISIBLE
+        } else {
+            mBinding.groupBareback.visibility = View.GONE
+        }
+        mBinding.tvCum.text = "" + record.bean.scoreCum
+        mBinding.tvSpecial.text = "" + record.bean.scoreSpecial
+        if (TextUtils.isEmpty(record.bean.specialDesc)) {
+            mBinding.groupSpecial.visibility = View.GONE
+        } else {
+            mBinding.groupSpecial.visibility = View.VISIBLE
+            mBinding.tvSpecialContent.text = record.bean.specialDesc
+        }
+        mBinding.tvFk.text = "Passion(" + record.bean.scorePassion + ")"
+        mBinding.tvStar.text = "" + record.bean.scoreStar
+        mBinding.tvBody.text = "" + record.bean.scoreBody
+        mBinding.tvCock.text = "" + record.bean.scoreCock
+        mBinding.tvAss.text = "" + record.bean.scoreAss
+        mBinding.tvDeprecated.visibility = if (record.bean.deprecated == 1) View.VISIBLE else View.GONE
+        val cuPath = ImageProvider.getRecordCuPath(record.bean.name!!)
+        if (!TextUtils.isEmpty(cuPath)) {
+            mBinding.ivCum.visibility = View.VISIBLE
+            GlideApp.with(this)
+                .asGif()
+                .load(cuPath)
+                .into(mBinding.ivCum)
+        }
+        record.countRecord?.let {
+            mBinding.tvRank.text = "R-${it.rank}"
+        }
+    }
+
+    private fun selectOrderToAddStar() {
+//        Router.build("OrderPhone")
+//            .with(OrderPhoneActivity.EXTRA_SELECT_MODE, true)
+//            .with(OrderPhoneActivity.EXTRA_SELECT_RECORD, true)
+//            .requestCode(REQUEST_ADD_ORDER)
+//            .go(this)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(requestCode) {
+            REQUEST_ADD_ORDER -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
+                    mainViewModel.addToOrder(orderId)
+                }
+            }
+            REQUEST_SELECT_STUDIO -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val orderId = data!!.getLongExtra(AppConstants.RESP_ORDER_ID, -1)
+                    mainViewModel.addToStudio(orderId)
+                }
+            }
+            REQUEST_VIDEO_ORDER -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val list = data?.getCharSequenceArrayListExtra(PlayOrderActivity.RESP_SELECT_RESULT)
+                    mainViewModel.addToPlay(list)
+                }
+            }
+            REQUEST_ADD_TAG -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val tagId = data?.getLongExtra(TagManagerActivity.RESP_TAG_ID, -1)
+                    tagId?.let {
+                        mModel.addTag(it)
+                    }
+                }
+            }
+        }
+    }
+
+}

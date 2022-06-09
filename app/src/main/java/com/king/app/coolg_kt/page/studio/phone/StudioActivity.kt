@@ -32,6 +32,11 @@ class StudioActivity: BaseActivity<ActivityRecordStudioBinding, EmptyViewModel>(
             intent.putExtra(EXTRA_SELECT_MODE, true)
             activity.startActivityForResult(intent, requestCode)
         }
+        fun startPageToSelect(fragment: Fragment, requestCode: Int) {
+            var intent = Intent(fragment.context, StudioActivity::class.java)
+            intent.putExtra(EXTRA_SELECT_MODE, true)
+            fragment.startActivityForResult(intent, requestCode)
+        }
         fun startPageToSelectAsMatch(fragment: Fragment, requestCode: Int) {
             var intent = Intent(fragment.context, StudioActivity::class.java)
             intent.putExtra(EXTRA_SELECT_MODE, true)

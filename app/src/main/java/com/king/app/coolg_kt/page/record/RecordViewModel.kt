@@ -6,8 +6,6 @@ import android.media.MediaMetadataRetriever
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.king.app.coolg_kt.base.BaseViewModel
-import com.king.app.coolg_kt.model.bean.PassionPoint
-import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.model.bean.VideoPlayList
 import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.bean.request.PathRequest
@@ -23,8 +21,9 @@ import com.king.app.coolg_kt.page.video.player.PlayListInstance
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.coolg_kt.utils.UrlUtil
 import com.king.app.coolg_kt.utils.videos
-import com.king.app.gdb.data.entity.*
-import com.king.app.gdb.data.relation.RecordStarWrap
+import com.king.app.gdb.data.entity.FavorRecord
+import com.king.app.gdb.data.entity.FavorRecordOrder
+import com.king.app.gdb.data.entity.PlayOrder
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
@@ -40,32 +39,17 @@ import kotlin.math.abs
  */
 open class RecordViewModel(application: Application): BaseViewModel(application) {
 
-    var recordObserver: MutableLiveData<RecordWrap> = MutableLiveData()
-
-    var imagesObserver: MutableLiveData<List<String>> = MutableLiveData()
-
-    var starsObserver: MutableLiveData<List<RecordStarWrap>> = MutableLiveData()
-
-    var passionsObserver: MutableLiveData<List<PassionPoint>> = MutableLiveData()
-
-    var ordersObserver: MutableLiveData<List<FavorRecordOrder>> =
-        MutableLiveData()
-
-    var playOrdersObserver: MutableLiveData<List<VideoPlayList>> =
-        MutableLiveData()
-
-    var scoresObserver: MutableLiveData<List<TitleValueBean>> = MutableLiveData()
-
-    var tagsObserver: MutableLiveData<List<Tag>> =
-        MutableLiveData()
-
-    var studioObserver: MutableLiveData<String> = MutableLiveData()
-
     var videoUrlObserver: MutableLiveData<String> = MutableLiveData()
 
     private val repository = RecordRepository()
     private var playRepository = PlayRepository()
     private var orderRepository = OrderRepository()
+
+    var recordObserver: MutableLiveData<RecordWrap> = MutableLiveData()
+    var imagesObserver: MutableLiveData<List<String>> = MutableLiveData()
+    var ordersObserver: MutableLiveData<List<FavorRecordOrder>> = MutableLiveData()
+    var playOrdersObserver: MutableLiveData<List<VideoPlayList>> = MutableLiveData()
+    var studioObserver: MutableLiveData<String> = MutableLiveData()
 
     lateinit var mRecord: RecordWrap
 
@@ -81,48 +65,22 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
 
     open fun loadRecord(recordId: Long) {
         DebugLog.e("recordId=$recordId")
-        repository.getRecord(recordId)
-            .flatMap {
-                mRecord = it
-                handleRecord(it)
+        repository.getRecord(recordId)?.apply {
+            mRecord = this
+            recordObserver.value = mRecord
+            launchSingle(
+                block = {
+                    loadImages(mRecord)
+                }
+            ) {
+                imagesObserver.value = it
+                checkPlayable()
+//                testPlayUrl()
             }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<RecordWrap>(getComposite()) {
-
-                override fun onNext(t: RecordWrap) {
-                    recordObserver.setValue(t)
-
-                    loadScoreItems()
-                    checkPlayable()
-//                    testPlayUrl()
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                    messageObserver.value = e?.message
-                }
-            })
-
-    }
-
-    private fun handleRecord(record: RecordWrap): ObservableSource<RecordWrap> {
-        return ObservableSource {
-            // record images
-            loadImages(record)
-
-            // stars
-            starsObserver.postValue(repository.getRecordStars(record.bean.id!!))
-
-            // passion point
-            passionsObserver.postValue(repository.getPassions(record))
-
-            // tags
-            tagsObserver.postValue(getTags(record))
-            it.onNext(record)
         }
     }
 
-    private fun loadImages(record: RecordWrap) {
+    private fun loadImages(record: RecordWrap): List<String> {
         var list = mutableListOf<String>()
         if (ImageProvider.hasRecordFolder(record.bean.name)) {
             list.addAll(ImageProvider.getRecordPathList(record.bean.name))
@@ -140,7 +98,7 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
                 list.add(it)
             }
         }
-        imagesObserver.postValue(list)
+        return list
     }
 
     fun openOnServer() {
@@ -173,20 +131,6 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
 //        request.setPath("E:\\temp\\coolg\\server_root\\f_3");
 //        request.setName("large");
         return request
-    }
-
-    private fun loadScoreItems() {
-        repository.createScoreItems(mRecord)
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<TitleValueBean>>(getComposite()) {
-                override fun onNext(t: List<TitleValueBean>) {
-                    scoresObserver.value = t
-                }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
-                }
-            })
     }
 
     /**
@@ -222,28 +166,6 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
         // 将视频url添加到临时播放列表的末尾
         PlayListInstance.getInstance().addRecord(mRecord.bean, mPlayUrl)
         PlayListInstance.getInstance().setPlayIndexAsLast()
-    }
-
-    fun refreshTags() {
-        tagsObserver.postValue(getTags(mRecord))
-    }
-
-    fun getTags(record: RecordWrap): List<Tag> {
-        return getDatabase().getTagDao().getRecordTags(record.bean.id!!)
-    }
-
-    fun addTag(tag: Tag) {
-        addTag(tag.id!!)
-    }
-
-    fun addTag(tagId: Long) {
-        var count = getDatabase().getTagDao().countRecordTag(mRecord.bean.id!!, tagId)
-        if (count == 0) {
-            var list = mutableListOf<TagRecord>()
-            list.add(TagRecord(null, tagId, mRecord.bean.id!!))
-            getDatabase().getTagDao().insertTagRecords(list)
-            refreshTags()
-        }
     }
 
     fun loadRecordOrders() {
@@ -299,11 +221,6 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
 
     fun deletePlayOrderOfRecord(orderId: Long) {
         getDatabase().getPlayOrderDao().deleteRecordFromOrder(orderId)
-    }
-
-    fun deleteTag(bean: Tag) {
-        getDatabase().getTagDao().deleteTagRecordsBy(bean.id!!, mRecord.bean.id!!)
-        refreshTags()
     }
 
     fun loadVideoBitmap() {

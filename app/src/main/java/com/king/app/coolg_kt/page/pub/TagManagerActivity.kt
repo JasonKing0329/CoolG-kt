@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.king.app.coolg_kt.R
@@ -35,6 +36,11 @@ class TagManagerActivity: BaseActivity<ActivityTagManagerBinding, TagViewModel>(
             var intent = Intent(context, TagManagerActivity::class.java)
             intent.putExtra(EXTRA_TAG_TYPE, tagType)
             context.startActivityForResult(intent, requestCode)
+        }
+        fun startPage(fragment: Fragment, requestCode: Int, tagType: Int) {
+            var intent = Intent(fragment.requireContext(), TagManagerActivity::class.java)
+            intent.putExtra(EXTRA_TAG_TYPE, tagType)
+            fragment.startActivityForResult(intent, requestCode)
         }
     }
 

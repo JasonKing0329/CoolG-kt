@@ -29,11 +29,8 @@ import kotlin.system.measureTimeMillis
  */
 class RecordRepository: BaseRepository() {
 
-    fun getRecord(recordId: Long): Observable<RecordWrap> {
-        return Observable.create {
-            it.onNext(getDatabase().getRecordDao().getRecord(recordId))
-            it.onComplete()
-        }
+    fun getRecord(recordId: Long): RecordWrap? {
+        return getDatabase().getRecordDao().getRecord(recordId)
     }
     
     fun getRecordStars(recordId: Long): List<RecordStarWrap> {
@@ -447,16 +444,13 @@ class RecordRepository: BaseRepository() {
         }
     }
 
-    fun createScoreItems(record: RecordWrap): Observable<List<TitleValueBean>> {
-        return Observable.create {
-            val list = mutableListOf<TitleValueBean>()
-            when (record.bean.type) {
-                DataConstants.VALUE_RECORD_TYPE_1V1 -> getScoreItems(record.recordType1v1, list)
-                DataConstants.VALUE_RECORD_TYPE_3W, DataConstants.VALUE_RECORD_TYPE_MULTI, DataConstants.VALUE_RECORD_TYPE_LONG -> getScoreItems(record.recordType3w, list)
-            }
-            it.onNext(list)
-            it.onComplete()
+    fun createScoreItems(record: RecordWrap): List<TitleValueBean> {
+        val list = mutableListOf<TitleValueBean>()
+        when (record.bean.type) {
+            DataConstants.VALUE_RECORD_TYPE_1V1 -> getScoreItems(record.recordType1v1, list)
+            DataConstants.VALUE_RECORD_TYPE_3W, DataConstants.VALUE_RECORD_TYPE_MULTI, DataConstants.VALUE_RECORD_TYPE_LONG -> getScoreItems(record.recordType3w, list)
         }
+        return list
     }
 
     private fun getScoreItems(record: RecordType3w?, list: MutableList<TitleValueBean>) {

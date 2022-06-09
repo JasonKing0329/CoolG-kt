@@ -14,7 +14,9 @@ import com.king.app.coolg_kt.model.palette.ViewColorBound
 import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.page.record.RecordViewModel
 import com.king.app.gdb.data.entity.Tag
+import com.king.app.gdb.data.entity.TagRecord
 import com.king.app.gdb.data.relation.RecordStarWrap
+import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import java.io.File
@@ -38,46 +40,51 @@ class RecordPadViewModel(application: Application) : RecordViewModel(application
     private val paletteMap: MutableMap<Int, Palette> = mutableMapOf()
     private val viewBoundsMap: MutableMap<Int, List<ViewColorBound>?> = mutableMapOf()
 
+    var passionsObserver: MutableLiveData<List<PassionPoint>> = MutableLiveData()
+    var starsObserver: MutableLiveData<List<RecordStarWrap>> = MutableLiveData()
+    var tagsObserver: MutableLiveData<List<Tag>> =
+        MutableLiveData()
+
     override fun loadRecord(recordId: Long) {
-        repository.getRecord(recordId)
-            .flatMap {
-                mRecord = it
-                recordObserver.postValue(it)
-                videoPathObserver.postValue(VideoModel.getVideoPath(it.bean.name))
-                loadRelations()
-            }
-            .flatMap { relations ->
-                starsObserver.postValue(relations)
-                loadScores()
-            }
-            .flatMap { scores ->
-                scoreObserver.postValue(scores)
-                loadPassionPoints()
-            }
-            .flatMap { passions ->
-                passionsObserver.postValue(passions)
-                loadTags()
-            }
-            .flatMap { tags ->
-                tagsObserver.postValue(tags)
-                loadImages()
-            }
-            .compose(applySchedulers())
-            .subscribe(object : SimpleObserver<List<String>>(getComposite()) {
-
-                override fun onNext(strings: List<String>) {
-                    imagesObserver.value = strings
-                    checkPlayable()
+        repository.getRecord(recordId)?.apply {
+            mRecord = this
+            recordObserver.value = this
+            videoPathObserver.postValue(VideoModel.getVideoPath(bean.name))
+            loadRelations()
+                .flatMap { relations ->
+                    starsObserver.postValue(relations)
+                    loadScores()
                 }
-
-                override fun onError(e: Throwable?) {
-                    e?.printStackTrace()
+                .flatMap { scores ->
+                    scoreObserver.postValue(scores)
+                    loadPassionPoints()
                 }
-            })
+                .flatMap { passions ->
+                    passionsObserver.postValue(passions)
+                    loadTags()
+                }
+                .flatMap { tags ->
+                    tagsObserver.postValue(tags)
+                    loadImages()
+                }
+                .compose(applySchedulers())
+                .subscribe(object : SimpleObserver<List<String>>(getComposite()) {
+
+                    override fun onNext(strings: List<String>) {
+                        imagesObserver.value = strings
+                        checkPlayable()
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        e?.printStackTrace()
+                    }
+                })
+        }
+
     }
 
-    private fun loadRelations(): ObservableSource<List<RecordStarWrap>> {
-        return ObservableSource {
+    private fun loadRelations(): Observable<List<RecordStarWrap>> {
+        return Observable.create {
             var list = listOf<RecordStarWrap>()
             mRecord?.let { record ->
                 list = repository.getRecordStars(record.bean.id!!)
@@ -127,6 +134,33 @@ class RecordPadViewModel(application: Application) : RecordViewModel(application
             observer.onNext(getTags(mRecord))
             observer.onComplete()
         }
+    }
+
+    fun deleteTag(bean: Tag) {
+        getDatabase().getTagDao().deleteTagRecordsBy(bean.id!!, mRecord.bean.id!!)
+        refreshTags()
+    }
+
+    fun addTag(tag: Tag) {
+        addTag(tag.id!!)
+    }
+
+    fun addTag(tagId: Long) {
+        var count = getDatabase().getTagDao().countRecordTag(mRecord.bean.id!!, tagId)
+        if (count == 0) {
+            var list = mutableListOf<TagRecord>()
+            list.add(TagRecord(null, tagId, mRecord.bean.id!!))
+            getDatabase().getTagDao().insertTagRecords(list)
+            refreshTags()
+        }
+    }
+
+    private fun refreshTags() {
+        tagsObserver.value = getTags(mRecord)
+    }
+
+    private fun getTags(record: RecordWrap): List<Tag> {
+        return getDatabase().getTagDao().getRecordTags(record.bean.id!!)
     }
 
     fun deleteImage(path: String?) {

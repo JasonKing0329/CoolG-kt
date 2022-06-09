@@ -54,6 +54,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         mBinding.actionbar.setOnBackListener { onBackPressed() }
         mBinding.actionbar.setOnMenuItemListener { menuId: Int ->
             when (menuId) {
+                R.id.menu_edit -> mModel.checkEdit()
                 R.id.menu_banner_setting -> showSettingDialog()
             }
         }
@@ -151,6 +152,9 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
                     .show(ftDetail!!)
                     .commit()
             }
+        }
+        mModel.canEdit.observe(this) {
+
         }
         mModel.imagesObserver.observe(this,
             Observer {

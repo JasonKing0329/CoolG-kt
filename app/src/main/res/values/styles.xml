@@ -417,6 +417,31 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="GroupRecordModify">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/actionbar_height</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:paddingTop">@dimen/common_margin_10</item>
+        <item name="android:paddingBottom">@dimen/common_margin_10</item>
+        <item name="android:paddingLeft">@dimen/common_margin_16</item>
+        <item name="android:paddingRight">@dimen/common_margin_16</item>
+    </style>
+
+    <style name="TvRecordModifyTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">18dp</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>
+
+    <style name="TvRecordModifyTitleAsGroup" parent="GroupRecordModify">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">18dp</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
     <dimen name="dlg_icon_size">45dp</dimen>
     <dimen name="dlg_icon_padding">10dp</dimen>
 </resources>

@@ -94,4 +94,12 @@
         <attr name="pi_maxPage" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="KeyValueEditView">
+        <attr name="kv_keyTextSize" format="dimension|reference" />
+        <attr name="kv_keyTextColor" format="color" />
+        <attr name="kv_keyText" format="string" />
+        <attr name="kv_inputTextSize" format="dimension|reference" />
+        <attr name="kv_inputWidth" format="dimension|reference" />
+    </declare-styleable>
+
 </resources>

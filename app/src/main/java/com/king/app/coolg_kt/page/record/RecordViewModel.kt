@@ -50,6 +50,7 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     var ordersObserver: MutableLiveData<List<FavorRecordOrder>> = MutableLiveData()
     var playOrdersObserver: MutableLiveData<List<VideoPlayList>> = MutableLiveData()
     var studioObserver: MutableLiveData<String> = MutableLiveData()
+    var canEdit: MutableLiveData<Boolean> = MutableLiveData()
 
     lateinit var mRecord: RecordWrap
 
@@ -326,5 +327,18 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     override fun onDestroy() {
         socketModel.close()
         super.onDestroy()
+    }
+
+    fun checkEdit() {
+        launchSingleThread(
+            block = {
+                AppHttpClient.getInstance().getAppServiceCoroutine().isServerOnline()
+            },
+            withLoading = true
+        ) {
+            if (it.isOnline) {
+                canEdit.value = true
+            }
+        }
     }
 }

@@ -81,4 +81,11 @@
         <item>Scene</item>
     </string-array>
 
+    <string-array name="record_modify_types" translatable="false">
+        <item>1v1</item>
+        <item>3w</item>
+        <item>multi</item>
+        <item>together</item>
+    </string-array>
+
 </resources>

@@ -26,8 +26,8 @@ class KeyValueEditView: LinearLayout {
     lateinit var tvKey: TextView
     lateinit var etInput: EditText
 
-    var initValue: String = ""
-    var editValue: String = ""
+    var initValue: String? = ""
+    var editValue: String? = ""
 
     var keyTextSize = ScreenUtils.dp2px(16f)
         set(value) {
@@ -35,7 +35,7 @@ class KeyValueEditView: LinearLayout {
             tvKey.setTextSize(TypedValue.COMPLEX_UNIT_PX, value.toFloat())
         }
 
-    var keyTextColor = Color.parseColor("$333333")
+    var keyTextColor = Color.parseColor("#333333")
         set(value) {
             field = value
             tvKey.setTextColor(value)
@@ -104,6 +104,7 @@ class KeyValueEditView: LinearLayout {
         EditText(context).apply {
             etInput = this
             maxLines = 1
+            isSingleLine = true
             setPadding(ScreenUtils.dp2px(2f))
             setBackgroundResource(R.drawable.shape_input_border_gray)
             addTextChangedListener(inputWatcher)
@@ -116,7 +117,7 @@ class KeyValueEditView: LinearLayout {
         tvKey.text = text
     }
 
-    fun setValue(text: String) {
+    fun setValue(text: String?) {
         initValue = text
         editValue = text
         etInput.removeTextChangedListener(inputWatcher)
@@ -130,6 +131,10 @@ class KeyValueEditView: LinearLayout {
 
     fun getInputValue(): String {
         return etInput.text.toString()
+    }
+
+    fun isInputChanged(): Boolean {
+        return editValue != initValue
     }
 
     private var inputWatcher = object : TextWatcher {

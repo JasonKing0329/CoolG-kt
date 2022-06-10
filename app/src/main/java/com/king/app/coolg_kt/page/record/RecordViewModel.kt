@@ -330,15 +330,16 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     }
 
     fun checkEdit() {
-        launchSingleThread(
-            block = {
-                AppHttpClient.getInstance().getAppServiceCoroutine().isServerOnline()
-            },
-            withLoading = true
-        ) {
-            if (it.isOnline) {
-                canEdit.value = true
-            }
-        }
+//        launchSingleThread(
+//            block = {
+//                AppHttpClient.getInstance().getAppServiceCoroutine().isServerOnline()
+//            },
+//            withLoading = true
+//        ) {
+//            if (it.isOnline) {
+//                canEdit.value = true
+//            }
+//        }
+        canEdit.value = true
     }
 }

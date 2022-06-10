@@ -435,13 +435,6 @@
         <item name="android:textStyle">bold|italic</item>
     </style>
 
-    <style name="TvRecordModifyTitleAsGroup" parent="GroupRecordModify">
-        <item name="android:textColor">@color/colorPrimary</item>
-        <item name="android:textSize">18dp</item>
-        <item name="android:textStyle">bold|italic</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-
     <dimen name="dlg_icon_size">45dp</dimen>
     <dimen name="dlg_icon_padding">10dp</dimen>
 </resources>

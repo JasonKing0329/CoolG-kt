@@ -45,6 +45,7 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     private var ftDetail: RecordDetailFragment? = null
+    private var ftModify: RecordModifyFragment? = null
 
     override fun getContentView(): Int = R.layout.activity_record_phone
 
@@ -90,6 +91,27 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             intent.putExtra(ImageManagerActivity.EXTRA_TYPE, ImageManagerActivity.TYPE_RECORD)
             intent.putExtra(ImageManagerActivity.EXTRA_DATA, recordId)
             startActivity(intent)
+        }
+
+        mBinding.actionbar.setOnConfirmListener {
+            ftModify?.executeModify() != true
+        }
+        mBinding.actionbar.setOnCancelListener {
+            if (ftModify?.isDataChanged() == true) {
+                showConfirmCancelMessage(
+                    "Data is changed, are you sure to drop it?",
+                    { dialog, which ->
+                        showDetailPage()
+                        mBinding.actionbar.cancelConfirmStatus()
+                    },
+                    null
+                )
+                false
+            }
+            else {
+                showDetailPage()
+                true
+            }
         }
     }
 
@@ -137,24 +159,36 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
             .into(mBinding.ivRecord)
     }
 
-    override fun initData() {
-        mModel.recordObserver.observe(this) {
-            if (ftDetail == null) {
-                RecordDetailFragment().apply {
-                    ftDetail = this
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.group_ft, this, "RecordDetailFragment")
-                        .commit()
-                }
-            }
-            else {
+    private fun showDetailPage() {
+        if (ftDetail == null) {
+            RecordDetailFragment().apply {
+                ftDetail = this
                 supportFragmentManager.beginTransaction()
-                    .show(ftDetail!!)
+                    .replace(R.id.group_ft, this, "RecordDetailFragment")
                     .commit()
             }
         }
-        mModel.canEdit.observe(this) {
+        else {
+            supportFragmentManager.beginTransaction().apply {
+                ftModify?.let {
+                    remove(it)
+                }
+                ftModify = null
+                show(ftDetail!!)
+                commit()
+            }
+        }
+    }
 
+    override fun initData() {
+        mModel.recordObserver.observe(this) { showDetailPage() }
+        mModel.canEdit.observe(this) {
+            mBinding.actionbar.showConfirmStatus(0)
+            ftModify = RecordModifyFragment()
+            supportFragmentManager.beginTransaction()
+                .add(R.id.group_ft, ftModify!!, "RecordModifyFragment")
+                .hide(ftDetail!!)
+                .commit()
         }
         mModel.imagesObserver.observe(this,
             Observer {

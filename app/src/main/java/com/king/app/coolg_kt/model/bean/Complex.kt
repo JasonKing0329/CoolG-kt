@@ -7,6 +7,7 @@ import com.king.app.coolg_kt.BR
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.model.http.bean.data.DownloadItem
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
+import com.king.app.coolg_kt.view.widget.KeyValueEditView
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
 import com.king.app.gdb.data.entity.FavorRecordOrder
@@ -244,3 +245,23 @@ data class StarTypeWrap (
     var starCount: Int,
     var text: String
 )
+
+class ModifyInputItem(val edit: KeyValueEditView, val onSetData: (String) -> Unit) {
+
+    fun isChanged(): Boolean {
+        return edit.isInputChanged()
+    }
+
+    fun confirm() {
+        onSetData(edit.getInputValue())
+    }
+}
+
+class ModifyTypeItem<T>(val initValue: T) {
+
+    var resultValue: T = initValue
+
+    fun isChanged(): Boolean {
+        return initValue != resultValue
+    }
+}

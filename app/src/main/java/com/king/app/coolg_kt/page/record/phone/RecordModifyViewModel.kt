@@ -5,9 +5,12 @@ import android.content.Context
 import android.text.InputType
 import android.view.View
 import android.widget.LinearLayout
+import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.bean.ModifyInputItem
 import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateRequest
+import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateStarItem
+import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.widget.KeyValueEditView
 import com.king.app.gdb.data.DataConstants
@@ -25,6 +28,8 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
 
     private var allInputList = mutableListOf<ModifyInputItem>()
 
+    var starObserver = MutableLiveData<List<RecordUpdateStarItem>>()
+
     val inputPaddingHor = ScreenUtils.dp2px(16f)
     val inputPaddingVer = ScreenUtils.dp2px(8f)
 
@@ -34,13 +39,14 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
 
     var mRecordWrap: RecordWrap? = null
     
-    private val recordUpdateRequest = RecordUpdateRequest()
+    val recordUpdateRequest = RecordUpdateRequest()
     private var recordType1v1: RecordType1v1? = null
     private var recordType3w: RecordType3w? = null
 
     fun init() {
         if (mRecordWrap == null) {
             recordUpdateRequest.record = Record(0, "", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            recordUpdateRequest.stars = mutableListOf()
             // 新增默认是1v1
             initType = DataConstants.VALUE_RECORD_TYPE_1V1
             newType1v1()
@@ -50,6 +56,16 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
             recordUpdateRequest.record = mRecordWrap!!.bean
             recordType1v1 = mRecordWrap!!.recordType1v1
             recordType3w = mRecordWrap!!.recordType3w
+            recordUpdateRequest.stars = mRecordWrap!!.recordStars.map {
+                RecordUpdateStarItem().apply {
+                    starId = it.starId
+                    starName = getDatabase().getStarDao().getStar(it.starId)?.name
+                    score = it.score
+                    scoreC = it.scoreC
+                    type = it.type
+                    imageUrl = ImageProvider.getStarRandomPath(starName, null)
+                }
+            }.toMutableList()
         }
         currentType = initType
     }

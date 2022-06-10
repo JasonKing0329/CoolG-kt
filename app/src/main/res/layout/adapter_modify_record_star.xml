@@ -5,13 +5,14 @@
     <data>
         <variable
             name="bean"
-            type="com.king.app.gdb.data.relation.RecordStarWrap" />
+            type="com.king.app.coolg_kt.model.http.bean.request.RecordUpdateStarItem" />
     </data>
     <LinearLayout
         android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:paddingLeft="@dimen/common_margin_10">
         <com.king.app.coolg_kt.view.widget.rc.RCImageView
             android:id="@+id/iv_star"
             android:layout_width="110dp"
@@ -21,20 +22,26 @@
             app:round_corner="10dp"
             app:starUrl="@{bean.imageUrl}"/>
         <com.king.app.coolg_kt.view.widget.KeyValueEditView
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:kv_inputWidth="110dp"
+            app:kv_inputTextSize="@dimen/text_common_14"/>
+        <com.king.app.coolg_kt.view.widget.KeyValueEditView
             android:id="@+id/et_score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:kv_keyText="Score"
             app:kv_keyTextSize="@dimen/text_common_12"
-            app:kv_inputTextSize="@dimen/text_common_14"
-            app:kv_inputWidth="30dp"/>
+            app:kv_inputTextSize="@dimen/text_common_12"
+            app:kv_inputWidth="50dp"/>
         <com.king.app.coolg_kt.view.widget.KeyValueEditView
             android:id="@+id/et_scoreC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:kv_keyText="ScoreC"
             app:kv_keyTextSize="@dimen/text_common_12"
-            app:kv_inputTextSize="@dimen/text_common_14"
-            app:kv_inputWidth="30dp"/>
+            app:kv_inputTextSize="@dimen/text_common_12"
+            app:kv_inputWidth="50dp"/>
     </LinearLayout>
 </layout>

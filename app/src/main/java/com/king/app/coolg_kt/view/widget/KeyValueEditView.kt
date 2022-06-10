@@ -29,31 +29,48 @@ class KeyValueEditView: LinearLayout {
     var initValue: String? = ""
     var editValue: String? = ""
 
+    var listener: ((String) -> Unit)? = null
+
+    var onlyFullInput: Boolean = false
+    set(value) {
+        field = value
+        kotlin.runCatching {
+            tvKey.visibility = if (value) {
+                GONE
+            }
+            else {
+                VISIBLE
+            }
+        }
+    }
+
     var keyTextSize = ScreenUtils.dp2px(16f)
         set(value) {
             field = value
-            tvKey.setTextSize(TypedValue.COMPLEX_UNIT_PX, value.toFloat())
+            kotlin.runCatching { tvKey.setTextSize(TypedValue.COMPLEX_UNIT_PX, value.toFloat()) }
         }
 
     var keyTextColor = Color.parseColor("#333333")
         set(value) {
             field = value
-            tvKey.setTextColor(value)
+            kotlin.runCatching { tvKey.setTextColor(value) }
         }
 
     var inputWidth = ScreenUtils.dp2px(50f)
         set(value) {
             field = value
-            etInput.layoutParams.apply {
-                width = value
-                etInput.layoutParams = this
+            kotlin.runCatching {
+                etInput.layoutParams.apply {
+                    width = value
+                    etInput.layoutParams = this
+                }
             }
         }
 
     var inputTextSize = ScreenUtils.dp2px(14f)
         set(value) {
             field = value
-            etInput.setTextSize(TypedValue.COMPLEX_UNIT_PX, value.toFloat())
+            kotlin.runCatching { etInput.setTextSize(TypedValue.COMPLEX_UNIT_PX, value.toFloat()) }
         }
 
     constructor(context: Context?) : super(context) {
@@ -144,10 +161,17 @@ class KeyValueEditView: LinearLayout {
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             editValue = s.toString()
+            if (isInputChanged()) {
+                listener?.invoke(editValue?:"")
+            }
         }
 
         override fun afterTextChanged(s: Editable?) {
 
         }
+    }
+
+    fun listenInput(listener: (String) -> Unit) {
+        this.listener = listener
     }
 }

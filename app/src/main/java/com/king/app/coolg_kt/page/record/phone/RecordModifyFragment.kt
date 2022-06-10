@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.databinding.FragmentRecordModifyBinding
 import com.king.app.coolg_kt.page.record.RecordViewModel
@@ -17,11 +18,13 @@ import com.king.app.gdb.data.DataConstants
 class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModifyViewModel>() {
 
     private lateinit var mainViewModel: RecordViewModel
+    val starAdapter = ModifyStarAdapter()
 
     override fun createViewModel(): RecordModifyViewModel = generateViewModel(RecordModifyViewModel::class.java)
 
     override fun initView(view: View) {
         mainViewModel = getActivityViewModel(RecordViewModel::class.java)
+        mBinding.rvStars.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
     }
 
     override fun getBinding(inflater: LayoutInflater): FragmentRecordModifyBinding = FragmentRecordModifyBinding.inflate(inflater)
@@ -30,6 +33,7 @@ class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModi
         mainViewModel.recordObserver.observe(this) { record ->
             mModel.mRecordWrap = record
             mModel.init()
+            // basic
             mBinding.cbDeprecated.isChecked = record.bean.deprecated == 1
             mModel.createBasicList(requireContext()).forEach {
                 mBinding.llBasic.addView(
@@ -40,9 +44,15 @@ class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModi
                     )
                 )
             }
+            // stars
+            starAdapter.list = mModel.recordUpdateRequest.stars
+            mBinding.rvStars.adapter = starAdapter
+
+            // type
             mBinding.spTypes.setSelection(record.bean.type - 1)
             createTypes(record.bean.type)
 
+            // setSelection会触发onItemSelected，所以初始化放在setSelection之后
             mBinding.spTypes.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -62,6 +72,11 @@ class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModi
 
                 }
             }
+        }
+
+        mModel.starObserver.observe(this) {
+            starAdapter.list = it
+            starAdapter.notifyDataSetChanged()
         }
     }
 

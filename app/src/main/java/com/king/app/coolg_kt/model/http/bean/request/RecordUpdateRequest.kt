@@ -9,7 +9,7 @@ class RecordUpdateRequest {
     var recordType1v1: RecordType1v1? = null
     var recordType3w: RecordType3w? = null
     var videoUrl: String? = null
-    var stars: List<RecordUpdateStarItem>? = null
+    var stars: MutableList<RecordUpdateStarItem>? = null
 }
 
 class RecordUpdateStarItem {

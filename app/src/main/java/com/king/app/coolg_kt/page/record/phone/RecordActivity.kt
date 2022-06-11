@@ -94,7 +94,13 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         }
 
         mBinding.actionbar.setOnConfirmListener {
-            ftModify?.executeModify() != true
+            if (ftModify?.executeModify() == true) {
+                false
+            }
+            else {
+                showDetailPage()
+                true
+            }
         }
         mBinding.actionbar.setOnCancelListener {
             if (ftModify?.isDataChanged() == true) {
@@ -181,7 +187,10 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
     }
 
     override fun initData() {
-        mModel.recordObserver.observe(this) { showDetailPage() }
+        mModel.recordObserver.observe(this) {
+            kotlin.runCatching { mBinding.actionbar.cancelConfirmStatus() }
+            showDetailPage()
+        }
         mModel.canEdit.observe(this) {
             mBinding.actionbar.showConfirmStatus(0)
             ftModify = RecordModifyFragment()
@@ -190,20 +199,18 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
                 .hide(ftDetail!!)
                 .commit()
         }
-        mModel.imagesObserver.observe(this,
-            Observer {
-                when {
-                    it.isEmpty() -> setNoImage()
-                    it.size == 1 -> setSingleImage(it[0])
-                    else -> {
-                        mBinding.ivRecord.visibility = View.GONE
-                        mBinding.banner.visibility = View.VISIBLE
-                        mBinding.guideView.visibility = View.VISIBLE
-                        showBanner(it)
-                    }
+        mModel.imagesObserver.observe(this) {
+            when {
+                it.isEmpty() -> setNoImage()
+                it.size == 1 -> setSingleImage(it[0])
+                else -> {
+                    mBinding.ivRecord.visibility = View.GONE
+                    mBinding.banner.visibility = View.VISIBLE
+                    mBinding.guideView.visibility = View.VISIBLE
+                    showBanner(it)
                 }
             }
-        )
+        }
         mModel.videoUrlObserver.observe(this, Observer { previewVideo(it) })
         mModel.bitmapObserver.observe(this, Observer { bitmap: Bitmap ->
             mBinding.banner.visibility = View.GONE
@@ -271,6 +278,10 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
 
     override fun onBackPressed() {
         if (Jzvd.backPress()) {
+            return
+        }
+        if (ftModify?.isVisible == true) {
+            showConfirmMessage("Please save or cancel edition first", null)
             return
         }
         super.onBackPressed()

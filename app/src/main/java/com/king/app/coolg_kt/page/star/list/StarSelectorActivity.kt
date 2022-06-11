@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.animation.*
 import android.widget.PopupMenu
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,11 +34,17 @@ class StarSelectorActivity : BaseActivity<ActivityStarSelectorBinding, StarSelec
         const val RESP_SELECT_RESULT = "resp_select_result"
         const val EXTRA_SINGLE = "select_single"
         const val EXTRA_LIMIT_MAX = "select_limit_max"
-        fun startPage(activity: Activity, singleSelect: Boolean, limitMax: Int, requestCode: Int) {
+        fun startPage(activity: Activity, singleSelect: Boolean, limitMax: Int = 0, requestCode: Int = 0) {
             var intent = Intent(activity, StarSelectorActivity::class.java)
             intent.putExtra(EXTRA_SINGLE, singleSelect)
             intent.putExtra(EXTRA_LIMIT_MAX, limitMax)
             activity.startActivityForResult(intent, requestCode)
+        }
+        fun startPage(fragment: Fragment, singleSelect: Boolean, limitMax: Int = 0, requestCode: Int = 0) {
+            var intent = Intent(fragment.requireContext(), StarSelectorActivity::class.java)
+            intent.putExtra(EXTRA_SINGLE, singleSelect)
+            intent.putExtra(EXTRA_LIMIT_MAX, limitMax)
+            fragment.startActivityForResult(intent, requestCode)
         }
     }
 

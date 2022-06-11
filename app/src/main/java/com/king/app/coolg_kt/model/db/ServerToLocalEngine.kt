@@ -43,7 +43,7 @@ class ServerToLocalEngine:DbUpgradeEngine() {
                 dao.insertRecords(serverData.recordList)
                 dao.insertRecordType1v1(serverData.recordType1v1List)
                 dao.insertRecordType3w(serverData.recordType3wList)
-                dao.insertRecordStars(serverData.recordStarList)
+                dao.insertOrReplaceRecordStars(serverData.recordStarList)
             }
             AppDatabase.instance!!.getStarDao().let { dao ->
                 dao.deleteStars()

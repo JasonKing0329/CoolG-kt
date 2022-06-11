@@ -56,10 +56,16 @@ interface RecordDao {
     fun insertRecordType1v1(list: List<RecordType1v1>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrReplaceRecordType1v1(bean: RecordType1v1): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecordType3w(list: List<RecordType3w>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertRecordStars(list: List<RecordStar>)
+    fun insertOrReplaceRecordType3w(bean: RecordType3w): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrReplaceRecordStars(list: List<RecordStar>)
 
     @Update
     fun updateRecord(record: Record)
@@ -108,13 +114,22 @@ interface RecordDao {
     @Query("delete from record_type1")
     fun deleteRecordType1v1()
 
+    @Query("delete from record_type1 where _id=:id")
+    fun deleteRecordType1v1(id: Long)
+
     @Query("delete from record_type3")
     fun deleteRecordType3w()
+
+    @Query("delete from record_type3 where _id=:id")
+    fun deleteRecordType3w(id: Long)
 
     @Query("delete from record_star")
     fun deleteRecordStars()
 
     @Query("select count(*) from record where studioId=:studioId")
     fun getStudioCount(studioId: Long): Int
+
+    @Delete
+    fun deleteRecordStars(list: List<RecordStar>)
 
 }

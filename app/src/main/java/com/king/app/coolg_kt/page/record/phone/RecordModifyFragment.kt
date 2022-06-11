@@ -1,5 +1,6 @@
 package com.king.app.coolg_kt.page.record.phone
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
@@ -7,7 +8,9 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.king.app.coolg_kt.base.BaseFragment
 import com.king.app.coolg_kt.databinding.FragmentRecordModifyBinding
+import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateStarItem
 import com.king.app.coolg_kt.page.record.RecordViewModel
+import com.king.app.coolg_kt.page.star.list.StarSelectorActivity
 import com.king.app.gdb.data.DataConstants
 
 /**
@@ -17,14 +20,34 @@ import com.king.app.gdb.data.DataConstants
  */
 class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModifyViewModel>() {
 
+    private val REQUEST_STAR = 10
+
     private lateinit var mainViewModel: RecordViewModel
-    val starAdapter = ModifyStarAdapter()
+    private val starAdapter = ModifyStarAdapter()
 
     override fun createViewModel(): RecordModifyViewModel = generateViewModel(RecordModifyViewModel::class.java)
 
     override fun initView(view: View) {
         mainViewModel = getActivityViewModel(RecordViewModel::class.java)
         mBinding.rvStars.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        mBinding.ivAddCast.setOnClickListener { mModel.addNewStar() }
+        mBinding.ivDeleteCast.setOnClickListener { starAdapter.toggleDelete() }
+        starAdapter.onItemListener = object : ModifyStarAdapter.OnItemListener {
+            override fun onDelete(position: Int, bean: RecordUpdateStarItem) {
+                mModel.deleteStar(position)
+            }
+
+            override fun onClickImage(position: Int, bean: RecordUpdateStarItem) {
+                mModel.mStarItemToSelect = bean
+                StarSelectorActivity.startPage(this@RecordModifyFragment, true, requestCode = REQUEST_STAR)
+            }
+        }
+        starAdapter.onDataChangedListener = object : ModifyStarAdapter.OnDataChangedListener {
+            override fun onDataChanged() {
+                mModel.isStarChanged = true
+            }
+        }
     }
 
     override fun getBinding(inflater: LayoutInflater): FragmentRecordModifyBinding = FragmentRecordModifyBinding.inflate(inflater)
@@ -78,6 +101,10 @@ class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModi
             starAdapter.list = it
             starAdapter.notifyDataSetChanged()
         }
+
+        mModel.modifySuccess.observe(this) {
+            mainViewModel.onRecordModified()
+        }
     }
 
     private fun createTypes(type: Int) {
@@ -117,11 +144,25 @@ class RecordModifyFragment: BaseFragment<FragmentRecordModifyBinding, RecordModi
 
     fun executeModify(): Boolean {
         return if (isDataChanged()) {
-            mModel.executeModify(mBinding.cbDeprecated.isChecked, getSelectedType())
+            mModel.executeModify(mBinding.cbDeprecated.isChecked)
             true
         }
         else {
             false
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(requestCode) {
+            REQUEST_STAR -> {
+                data?.getCharSequenceArrayListExtra(StarSelectorActivity.RESP_SELECT_RESULT)?.apply {
+                    mModel.updateStarToSelect(firstOrNull()?.toString()?.toLongOrNull()?:0)
+                    mModel.mStarItemToSelect?.apply {
+                        starAdapter.notifyItemChanged(this)
+                    }
+                }
+            }
         }
     }
 }

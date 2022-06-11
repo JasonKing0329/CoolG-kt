@@ -9,11 +9,13 @@ import com.king.app.coolg_kt.model.bean.RecordComplexFilter
 import com.king.app.coolg_kt.model.bean.TitleValueBean
 import com.king.app.coolg_kt.model.extension.log
 import com.king.app.coolg_kt.model.extension.wrapToRx
+import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateRequest
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
+import com.king.app.gdb.data.entity.RecordStar
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
 import com.king.app.gdb.data.relation.RecordStarWrap
@@ -525,6 +527,77 @@ class RecordRepository: BaseRepository() {
             val list = getDatabase().getRecordDao().getRecordsWithoutStudio()
             it.onNext(list)
             it.onComplete()
+        }
+    }
+
+    private fun getTypeTable(type: Int): Int {
+        return when(type) {
+            DataConstants.VALUE_RECORD_TYPE_1V1 -> 0
+            else -> 1
+        }
+    }
+
+    fun modifyRecord(request: RecordUpdateRequest) {
+        request.record?.apply {
+            var oldRecord = getDatabase().getRecordDao().getRecordBasic(id!!)!!
+            // type关联的表是否变化
+            val typeTable = getTypeTable(type)
+            val oldTypeTable = getTypeTable(oldRecord.type)
+            // 变化则删除旧的关联
+            if (typeTable != oldTypeTable) {
+                when(type) {
+                    DataConstants.VALUE_RECORD_TYPE_1V1 -> {
+                        getDatabase().getRecordDao().deleteRecordType1v1(oldRecord.recordDetailId)
+                    }
+                    else -> {
+                        getDatabase().getRecordDao().deleteRecordType3w(oldRecord.recordDetailId)
+                    }
+                }
+            }
+            // detail的insertOrReplace不能在transaction里边，因为需要先获得插入后的ID
+            var newDetailId = recordDetailId
+            when(type) {
+                DataConstants.VALUE_RECORD_TYPE_1V1 -> {
+                    request.recordType1v1?.let {
+                        newDetailId = getDatabase().getRecordDao().insertOrReplaceRecordType1v1(it)
+                    }
+                }
+                else -> {
+                    request.recordType3w?.let {
+                        newDetailId = getDatabase().getRecordDao().insertOrReplaceRecordType3w(it)
+                    }
+                }
+            }
+            recordDetailId = newDetailId
+            // 找出需要delete的star，其他的insertOrReplace即可
+            val oldStars = getDatabase().getRecordDao().getRecordStars(id!!)
+            val deleteStars = oldStars
+                .filter { old -> request.stars?.any { it.starId == old.bean.starId } != true }
+                .map { it.bean }
+            // 转化待添加或修改的记录
+            val insertOrReplaceList = request.stars?.map { item ->
+                // 关联已有RecordStar
+                var rs = oldStars.firstOrNull { it.bean.starId == item.starId }?.bean
+                // 新增star
+                if (rs == null) {
+                    RecordStar(null, id!!, item.starId, item.type, item.score, item.scoreC)
+                }
+                // 修改star
+                else {
+                    rs.type = item.type
+                    rs.score = item.score
+                    rs.scoreC = item.scoreC
+                    rs
+                }
+            }
+            getDatabase().runInTransaction {
+                // update record
+                getDatabase().getRecordDao().updateRecord(this)
+                // delete stars removed
+                getDatabase().getRecordDao().deleteRecordStars(deleteStars)
+                // insert or replace new stars
+                insertOrReplaceList?.let { getDatabase().getRecordDao().insertOrReplaceRecordStars(it) }
+            }
         }
     }
 }

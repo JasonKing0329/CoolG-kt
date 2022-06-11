@@ -8,9 +8,13 @@ import android.widget.LinearLayout
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.bean.ModifyInputItem
+import com.king.app.coolg_kt.model.extension.flat
+import com.king.app.coolg_kt.model.extension.flatNullable
+import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateRequest
 import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateStarItem
 import com.king.app.coolg_kt.model.image.ImageProvider
+import com.king.app.coolg_kt.model.repository.RecordRepository
 import com.king.app.coolg_kt.utils.ScreenUtils
 import com.king.app.coolg_kt.view.widget.KeyValueEditView
 import com.king.app.gdb.data.DataConstants
@@ -18,6 +22,8 @@ import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
 import com.king.app.gdb.data.relation.RecordWrap
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Desc:
@@ -34,6 +40,10 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
 
     var starObserver = MutableLiveData<List<RecordUpdateStarItem>>()
 
+    var modifySuccess = MutableLiveData<Boolean>()
+
+    private val repository = RecordRepository()
+
     val inputPaddingHor = ScreenUtils.dp2px(16f)
     val inputPaddingVer = ScreenUtils.dp2px(8f)
     val inputTextSize = ScreenUtils.dp2px(14f)
@@ -47,6 +57,10 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
     val recordUpdateRequest = RecordUpdateRequest()
     private var recordType1v1: RecordType1v1? = null
     private var recordType3w: RecordType3w? = null
+
+    var isStarChanged = false
+
+    var mStarItemToSelect: RecordUpdateStarItem? = null
 
     fun init() {
         if (mRecordWrap == null) {
@@ -120,64 +134,64 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
             allInputList.add(scene)
             val hd = ModifyInputItem(
                 newKeyValueEditView(context, "HD", hdLevel.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { hdLevel = it.toInt() }
+            ) { hdLevel = it.toIntOrNull()?:0 }
             allInputList.add(hd)
             viewList.add(newRow(context, scene.edit, hd.edit))
 
             ModifyInputItem(
                 newKeyValueEditView(context, "Score", score.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { score = it.toInt() }.apply {
+            ) { score = it.toIntOrNull()?:0 }.apply {
                 allInputList.add(this)
                 viewList.add(edit)
                 scoreInputItem = this
             }
             val feel = ModifyInputItem(
                 newKeyValueEditView(context, "Feel", scoreFeel.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreFeel = it.toInt() }
+            ) { scoreFeel = it.toIntOrNull()?:0 }
             allInputList.add(feel)
             computeScoreList.add(feel)
             val passion = ModifyInputItem(
                 newKeyValueEditView(context, "Passion", scorePassion.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scorePassion = it.toInt() }
+            ) { scorePassion = it.toIntOrNull()?:0 }
             allInputList.add(passion)
             computeScoreList.add(passion)
             viewList.add(newRow(context, feel.edit, passion.edit))
             val star = ModifyInputItem(
                 newKeyValueEditView(context, "Star", scoreStar.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreStar = it.toInt() }
+            ) { scoreStar = it.toIntOrNull()?:0 }
             allInputList.add(star)
             computeScoreList.add(star)
             val body = ModifyInputItem(
                 newKeyValueEditView(context, "Body", scoreBody.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreBody = it.toInt() }
+            ) { scoreBody = it.toIntOrNull()?:0 }
             allInputList.add(body)
             computeScoreList.add(body)
             viewList.add(newRow(context, star.edit, body.edit))
             val cum = ModifyInputItem(
                 newKeyValueEditView(context, "Cum", scoreCum.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreCum = it.toInt() }
+            ) { scoreCum = it.toIntOrNull()?:0 }
             allInputList.add(cum)
             computeScoreList.add(cum)
             val bare = ModifyInputItem(
                 newKeyValueEditView(context, "Bareback", scoreBareback.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreBareback = it.toInt() }
+            ) { scoreBareback = it.toIntOrNull()?:0 }
             allInputList.add(bare)
             computeScoreList.add(bare)
             viewList.add(newRow(context, cum.edit, bare.edit))
             val cock = ModifyInputItem(
                 newKeyValueEditView(context, "Cock", scoreCock.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreCock = it.toInt() }
+            ) { scoreCock = it.toIntOrNull()?:0 }
             allInputList.add(cock)
             computeScoreList.add(cock)
             val ass = ModifyInputItem(
                 newKeyValueEditView(context, "Ass", scoreAss.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreAss = it.toInt() }
+            ) { scoreAss = it.toIntOrNull()?:0 }
             allInputList.add(ass)
             computeScoreList.add(ass)
             viewList.add(newRow(context, cock.edit, ass.edit))
             val special = ModifyInputItem(
                 newKeyValueEditView(context, "Special", scoreSpecial.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { scoreSpecial = it.toInt() }
+            ) { scoreSpecial = it.toIntOrNull()?:0 }
             allInputList.add(special)
             computeScoreList.add(special)
             viewList.add(special.edit)
@@ -203,29 +217,29 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
         recordType1v1?.let { record ->
             val t1 = ModifyInputItem(
                 newKeyValueEditView(context, "SitFront", record.scoreFkType1.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType1 = it.toInt() }
+            ) { record.scoreFkType1 = it.toIntOrNull()?:0 }
             allInputList.add(t1)
             val t2 = ModifyInputItem(
                 newKeyValueEditView(context, "SitBack", record.scoreFkType2.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType2 = it.toInt() }
+            ) { record.scoreFkType2 = it.toIntOrNull()?:0 }
             allInputList.add(t2)
             viewList.add(newRow(context, t1.edit, t2.edit))
             val t3 = ModifyInputItem(
                 newKeyValueEditView(context, "StandFront", record.scoreFkType3.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType3 = it.toInt() }
+            ) { record.scoreFkType3 = it.toIntOrNull()?:0 }
             allInputList.add(t3)
             val t4 = ModifyInputItem(
                 newKeyValueEditView(context, "StandBack", record.scoreFkType4.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType4 = it.toInt() }
+            ) { record.scoreFkType4 = it.toIntOrNull()?:0 }
             allInputList.add(t4)
             viewList.add(newRow(context, t3.edit, t4.edit))
             val t5 = ModifyInputItem(
                 newKeyValueEditView(context, "Side", record.scoreFkType5.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType5 = it.toInt() }
+            ) { record.scoreFkType5 = it.toIntOrNull()?:0 }
             allInputList.add(t5)
             val t6 = ModifyInputItem(
                 newKeyValueEditView(context, "Special", record.scoreFkType6.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType6 = it.toInt() }
+            ) { record.scoreFkType6 = it.toIntOrNull()?:0 }
             allInputList.add(t6)
             viewList.add(newRow(context, t5.edit, t6.edit))
         }
@@ -237,38 +251,38 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
         recordType3w?.let { record ->
             val t1 = ModifyInputItem(
                 newKeyValueEditView(context, "SitFront", record.scoreFkType1.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType1 = it.toInt() }
+            ) { record.scoreFkType1 = it.toIntOrNull()?:0 }
             allInputList.add(t1)
             val t2 = ModifyInputItem(
                 newKeyValueEditView(context, "SitBack", record.scoreFkType2.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType2 = it.toInt() }
+            ) { record.scoreFkType2 = it.toIntOrNull()?:0 }
             allInputList.add(t2)
             viewList.add(newRow(context, t1.edit, t2.edit))
             val t3 = ModifyInputItem(
                 newKeyValueEditView(context, "StandFront", record.scoreFkType3.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType3 = it.toInt() }
+            ) { record.scoreFkType3 = it.toIntOrNull()?:0 }
             allInputList.add(t3)
             val t4 = ModifyInputItem(
                 newKeyValueEditView(context, "StandBack", record.scoreFkType4.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType4 = it.toInt() }
+            ) { record.scoreFkType4 = it.toIntOrNull()?:0 }
             allInputList.add(t4)
             viewList.add(newRow(context, t3.edit, t4.edit))
             val t5 = ModifyInputItem(
                 newKeyValueEditView(context, "Side", record.scoreFkType5.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType5 = it.toInt() }
+            ) { record.scoreFkType5 = it.toIntOrNull()?:0 }
             allInputList.add(t5)
             val t6 = ModifyInputItem(
                 newKeyValueEditView(context, "Double", record.scoreFkType6.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType6 = it.toInt() }
+            ) { record.scoreFkType6 = it.toIntOrNull()?:0 }
             allInputList.add(t6)
             viewList.add(newRow(context, t5.edit, t6.edit))
             val t7 = ModifyInputItem(
                 newKeyValueEditView(context, "Sequence", record.scoreFkType7.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType7 = it.toInt() }
+            ) { record.scoreFkType7 = it.toIntOrNull()?:0 }
             allInputList.add(t7)
             val t8 = ModifyInputItem(
                 newKeyValueEditView(context, "Special", record.scoreFkType8.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { record.scoreFkType8 = it.toInt() }
+            ) { record.scoreFkType8 = it.toIntOrNull()?:0 }
             allInputList.add(t8)
             viewList.add(newRow(context, t7.edit, t8.edit))
         }
@@ -282,14 +296,28 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
         if (type != initType) {
             return true
         }
+        if (isStarChanged) {
+            return true
+        }
         return allInputList.any { it.isChanged() }
     }
 
-    fun executeModify(isDeprecated: Boolean, type: Int) {
+    fun executeModify(isDeprecated: Boolean) {
         mRecordWrap?.apply {
             bean.deprecated = if (isDeprecated) 1 else 0
-            bean.type = type
+            bean.type = currentType
             allInputList.forEach { it.confirm() }
+            recordUpdateRequest.recordType1v1 = this@RecordModifyViewModel.recordType1v1
+            recordUpdateRequest.recordType3w = this@RecordModifyViewModel.recordType3w
+            launchFlowThread(
+                // modify server
+                flow { emit(AppHttpClient.getInstance().getAppServiceCoroutine().modifyRecord(recordUpdateRequest).flatNullable()) }
+                        // modify local
+                    .map { repository.modifyRecord(recordUpdateRequest) },
+                withLoading = true
+            ) {
+                modifySuccess.value = true
+            }
         }
     }
 
@@ -319,5 +347,23 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
 
     fun isTypeChanged(type: Int): Boolean {
         return type != currentType
+    }
+
+    fun deleteStar(position: Int) {
+        isStarChanged = true
+        recordUpdateRequest.stars?.removeAt(position)
+        starObserver.value = recordUpdateRequest.stars
+    }
+
+    fun addNewStar() {
+        recordUpdateRequest.stars?.add(RecordUpdateStarItem())
+        starObserver.value = recordUpdateRequest.stars
+    }
+
+    fun updateStarToSelect(starId: Long) {
+        getDatabase().getStarDao().getStar(starId)?.apply {
+            mStarItemToSelect?.starName = name
+            mStarItemToSelect?.starId = starId
+        }
     }
 }

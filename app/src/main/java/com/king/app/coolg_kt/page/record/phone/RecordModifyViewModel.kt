@@ -28,10 +28,15 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
 
     private var allInputList = mutableListOf<ModifyInputItem>()
 
+    private var computeScoreList = mutableListOf<ModifyInputItem>()
+
+    private var scoreInputItem: ModifyInputItem? = null
+
     var starObserver = MutableLiveData<List<RecordUpdateStarItem>>()
 
     val inputPaddingHor = ScreenUtils.dp2px(16f)
     val inputPaddingVer = ScreenUtils.dp2px(8f)
+    val inputTextSize = ScreenUtils.dp2px(14f)
 
     var initType = 0
     var initDeprecated = false
@@ -118,51 +123,63 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
             ) { hdLevel = it.toInt() }
             allInputList.add(hd)
             viewList.add(newRow(context, scene.edit, hd.edit))
-            val s = ModifyInputItem(
+
+            ModifyInputItem(
                 newKeyValueEditView(context, "Score", score.toString(), InputType.TYPE_CLASS_NUMBER)
-            ) { score = it.toInt() }
-            allInputList.add(s)
-            viewList.add(s.edit)
+            ) { score = it.toInt() }.apply {
+                allInputList.add(this)
+                viewList.add(edit)
+                scoreInputItem = this
+            }
             val feel = ModifyInputItem(
                 newKeyValueEditView(context, "Feel", scoreFeel.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreFeel = it.toInt() }
             allInputList.add(feel)
+            computeScoreList.add(feel)
             val passion = ModifyInputItem(
                 newKeyValueEditView(context, "Passion", scorePassion.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scorePassion = it.toInt() }
             allInputList.add(passion)
+            computeScoreList.add(passion)
             viewList.add(newRow(context, feel.edit, passion.edit))
             val star = ModifyInputItem(
                 newKeyValueEditView(context, "Star", scoreStar.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreStar = it.toInt() }
             allInputList.add(star)
+            computeScoreList.add(star)
             val body = ModifyInputItem(
                 newKeyValueEditView(context, "Body", scoreBody.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreBody = it.toInt() }
             allInputList.add(body)
+            computeScoreList.add(body)
             viewList.add(newRow(context, star.edit, body.edit))
             val cum = ModifyInputItem(
                 newKeyValueEditView(context, "Cum", scoreCum.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreCum = it.toInt() }
             allInputList.add(cum)
+            computeScoreList.add(cum)
             val bare = ModifyInputItem(
                 newKeyValueEditView(context, "Bareback", scoreBareback.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreBareback = it.toInt() }
             allInputList.add(bare)
+            computeScoreList.add(bare)
             viewList.add(newRow(context, cum.edit, bare.edit))
             val cock = ModifyInputItem(
                 newKeyValueEditView(context, "Cock", scoreCock.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreCock = it.toInt() }
             allInputList.add(cock)
+            computeScoreList.add(cock)
             val ass = ModifyInputItem(
                 newKeyValueEditView(context, "Ass", scoreAss.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreAss = it.toInt() }
             allInputList.add(ass)
+            computeScoreList.add(ass)
             viewList.add(newRow(context, cock.edit, ass.edit))
             val special = ModifyInputItem(
                 newKeyValueEditView(context, "Special", scoreSpecial.toString(), InputType.TYPE_CLASS_NUMBER)
             ) { scoreSpecial = it.toInt() }
             allInputList.add(special)
+            computeScoreList.add(special)
             viewList.add(special.edit)
             val desc = ModifyInputItem(
                 newKeyValueEditView(context, "Special Desc.", specialDesc, inputWidth = ScreenUtils.dp2px(200f))
@@ -170,7 +187,15 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
             allInputList.add(desc)
             viewList.add(desc.edit)
         }
+
+        computeScoreList.forEach {
+            it.edit.listenInput { onScoreChanged() }
+        }
         return viewList
+    }
+
+    private fun onScoreChanged() {
+        scoreInputItem?.edit?.setValue(computeScoreList.sumOf { it.edit.editValue?.toIntOrNull()?:0 }.toString())
     }
 
     fun create1v1List(context: Context): List<View> {
@@ -276,6 +301,7 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
     ): KeyValueEditView {
         return KeyValueEditView(context).apply {
             setKeyText(key)
+            inputTextSize = this@RecordModifyViewModel.inputTextSize
             setValue(initValue)
             setPadding(inputPaddingHor, inputPaddingVer, inputPaddingHor, inputPaddingVer)
             inputType?.let { setInputType(it) }

@@ -123,6 +123,7 @@ class KeyValueEditView: LinearLayout {
             maxLines = 1
             isSingleLine = true
             setPadding(ScreenUtils.dp2px(2f))
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, inputTextSize.toFloat())
             setBackgroundResource(R.drawable.shape_input_border_gray)
             addTextChangedListener(inputWatcher)
             val param = LayoutParams(inputWidth, LayoutParams.WRAP_CONTENT)
@@ -161,9 +162,7 @@ class KeyValueEditView: LinearLayout {
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             editValue = s.toString()
-            if (isInputChanged()) {
-                listener?.invoke(editValue?:"")
-            }
+            listener?.invoke(editValue?:"")
         }
 
         override fun afterTextChanged(s: Editable?) {

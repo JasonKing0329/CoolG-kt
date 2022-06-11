@@ -25,12 +25,14 @@
             android:id="@+id/et_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             app:kv_inputWidth="110dp"
-            app:kv_inputTextSize="@dimen/text_common_14"/>
+            app:kv_inputTextSize="@dimen/text_common_12"/>
         <com.king.app.coolg_kt.view.widget.KeyValueEditView
             android:id="@+id/et_score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             app:kv_keyText="Score"
             app:kv_keyTextSize="@dimen/text_common_12"
             app:kv_inputTextSize="@dimen/text_common_12"
@@ -39,6 +41,7 @@
             android:id="@+id/et_scoreC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             app:kv_keyText="ScoreC"
             app:kv_keyTextSize="@dimen/text_common_12"
             app:kv_inputTextSize="@dimen/text_common_12"

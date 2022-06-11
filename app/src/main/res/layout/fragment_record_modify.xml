@@ -68,7 +68,8 @@
             tools:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
         <androidx.constraintlayout.widget.ConstraintLayout
-            style="@style/GroupRecordModify">
+            style="@style/GroupRecordModify"
+            android:layout_marginTop="10dp">
             <TextView
                 android:text=" Type "
                 style="@style/TvRecordModifyTitle"
@@ -88,6 +89,11 @@
             android:id="@+id/ll_types"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/common_margin_16"/>
+        <!-- 在父布局NestedScrollView的包裹下，最后会有大概30dp超出可滚动范围导致无法看见，所以用一个50dp的距离占空间保证正常内容能全部被看见 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"/>
     </LinearLayout>
 </layout>

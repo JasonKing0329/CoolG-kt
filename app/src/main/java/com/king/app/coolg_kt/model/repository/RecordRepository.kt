@@ -16,10 +16,7 @@ import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
-import com.king.app.gdb.data.entity.LocalModifyRecord
-import com.king.app.gdb.data.entity.RecordStar
-import com.king.app.gdb.data.entity.RecordType1v1
-import com.king.app.gdb.data.entity.RecordType3w
+import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.relation.RecordStarWrap
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
@@ -553,9 +550,14 @@ class RecordRepository: BaseRepository() {
         }
     }
 
+    fun deleteLocalModify(recordId: Long) {
+        getDatabase().getRecordDao().deleteLocalModifyItem(recordId)
+    }
+
     fun modifyRecord(request: RecordUpdateRequest) {
         request.record?.apply {
             var oldRecord = getDatabase().getRecordDao().getRecordBasic(id!!)!!
+            val oldScore = oldRecord.score
             // type关联的表是否变化
             val typeTable = getTypeTable(type)
             val oldTypeTable = getTypeTable(oldRecord.type)
@@ -614,6 +616,19 @@ class RecordRepository: BaseRepository() {
                 // insert or replace new stars
                 insertOrReplaceList?.let { getDatabase().getRecordDao().insertOrReplaceRecordStars(it) }
             }
+            // score发生变化，更新排名
+            if (score != oldScore) {
+                updateRecordRank()
+            }
         }
+    }
+
+    private fun updateRecordRank() {
+        var records = getDatabase().getRecordDao().getAllBasicRecordsOrderByScore()
+        var countRecords = mutableListOf<CountRecord>()
+        records.forEachIndexed { index, record ->
+            countRecords.add(CountRecord(record.id, index + 1))
+        }
+        getDatabase().getRecordDao().insertCountRecords(countRecords)
     }
 }

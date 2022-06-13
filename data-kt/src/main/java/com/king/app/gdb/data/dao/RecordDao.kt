@@ -141,4 +141,7 @@ interface RecordDao {
     @Query("delete from local_modify_record")
     fun deleteLocalModifyItems()
 
+    @Query("delete from local_modify_record where recordId=:recordId")
+    fun deleteLocalModifyItem(recordId: Long)
+
 }

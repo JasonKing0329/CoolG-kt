@@ -305,6 +305,7 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
             allInputList.forEach { it.confirm() }
             recordUpdateRequest.recordType1v1 = this@RecordModifyViewModel.recordType1v1
             recordUpdateRequest.recordType3w = this@RecordModifyViewModel.recordType3w
+            loadingObserver.value = true
             launchThread {
                 AppHttpClient.getInstance().getAppServiceCoroutine().apply {
                     val isOnline = kotlin.runCatching { isServerOnline().isOnline }.getOrDefault(false)
@@ -315,7 +316,11 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
                                 true
                             }.getOrDefault(false)
                     // 服务端不在线或服务端修改失败，将本次修改记录到本地，下次服务端在线时再提交
-                    if (!isServeModify) {
+                    if (isServeModify) {
+                        // 服务端提交成功了，如果本地有未提交记录，删除掉
+                        repository.deleteLocalModify(bean.id!!)
+                    }
+                    else {
                         repository.saveLocalModify(recordUpdateRequest)
                         messageObserver.postValue("saved to local")
                     }
@@ -323,6 +328,7 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
                     repository.modifyRecord(recordUpdateRequest)
                 }
                 modifySuccess.postValue(true)
+                loadingObserver.postValue(false)
             }
         }
     }

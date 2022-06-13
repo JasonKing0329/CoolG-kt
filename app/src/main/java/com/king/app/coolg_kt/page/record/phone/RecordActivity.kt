@@ -186,18 +186,31 @@ class RecordActivity : BaseActivity<ActivityRecordPhoneBinding, RecordViewModel>
         }
     }
 
+    private fun showModifyPage() {
+        mBinding.actionbar.showConfirmStatus(0)
+        ftModify = RecordModifyFragment()
+        supportFragmentManager.beginTransaction()
+            .add(R.id.group_ft, ftModify!!, "RecordModifyFragment")
+            .hide(ftDetail!!)
+            .commit()
+    }
+
     override fun initData() {
         mModel.recordObserver.observe(this) {
             kotlin.runCatching { mBinding.actionbar.cancelConfirmStatus() }
             showDetailPage()
         }
+        mModel.commitLocalModify.observe(this) {
+            showConfirmCancelMessage(
+                "Local modification found, please commit them",
+                getString(R.string.commit),
+                { dialog, which -> mModel.executeCommitLocalModify() },
+                getString(R.string.next_time),
+                { dialog, which -> showModifyPage() }
+            )
+        }
         mModel.canEdit.observe(this) {
-            mBinding.actionbar.showConfirmStatus(0)
-            ftModify = RecordModifyFragment()
-            supportFragmentManager.beginTransaction()
-                .add(R.id.group_ft, ftModify!!, "RecordModifyFragment")
-                .hide(ftDetail!!)
-                .commit()
+            showModifyPage()
         }
         mModel.imagesObserver.observe(this) {
             when {

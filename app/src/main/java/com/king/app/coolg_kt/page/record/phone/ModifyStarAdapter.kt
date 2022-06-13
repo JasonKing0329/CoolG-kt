@@ -28,6 +28,7 @@ class ModifyStarAdapter: BaseBindingAdapter<AdapterModifyRecordStarBinding, Reco
         position: Int,
         bean: RecordUpdateStarItem
     ) {
+        binding.bean = bean
         binding.ivStar.setOnClickListener { onItemListener?.onClickImage(position, bean) }
         binding.ivDelete.visibility = if (isDeleteMode) View.VISIBLE else View.GONE
         binding.ivDelete.setOnClickListener { onItemListener?.onDelete(position, bean) }

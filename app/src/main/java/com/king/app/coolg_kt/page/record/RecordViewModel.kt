@@ -7,8 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.bean.VideoPlayList
+import com.king.app.coolg_kt.model.extension.flatNullable
 import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.bean.request.PathRequest
+import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateRequest
+import com.king.app.coolg_kt.model.http.bean.request.RecordsModifyRequest
 import com.king.app.coolg_kt.model.http.bean.response.OpenFileResponse
 import com.king.app.coolg_kt.model.http.observer.SimpleObserver
 import com.king.app.coolg_kt.model.image.ImageProvider
@@ -51,6 +54,7 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     var playOrdersObserver: MutableLiveData<List<VideoPlayList>> = MutableLiveData()
     var studioObserver: MutableLiveData<String> = MutableLiveData()
     var canEdit: MutableLiveData<Boolean> = MutableLiveData()
+    var commitLocalModify: MutableLiveData<Boolean> = MutableLiveData()
 
     lateinit var mRecord: RecordWrap
 
@@ -330,16 +334,11 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     }
 
     fun checkEdit() {
-        launchSingleThread(
-            block = {
-                AppHttpClient.getInstance().getAppServiceCoroutine().isServerOnline()
-            },
-            withLoading = true
-        ) {
-            if (it.isOnline) {
-                canEdit.value = true
-            }
+        if (repository.getLocalModifyItems().isNotEmpty()) {
+            commitLocalModify.value = true
+            return
         }
+        canEdit.value = true
     }
 
     /**
@@ -347,5 +346,22 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
      */
     fun onRecordModified() {
         loadRecord(mRecord.bean.id!!)
+    }
+
+    fun executeCommitLocalModify() {
+        launchSingleThread(
+            {
+                val gson = Gson()
+                val request = RecordsModifyRequest().apply {
+                    list = repository.getLocalModifyItems().map {
+                        gson.fromJson(it.itemJson, RecordUpdateRequest::class.java)
+                    }
+                }
+                AppHttpClient.getInstance().getAppServiceCoroutine().modifyRecords(request).flatNullable()
+            },
+            withLoading = true
+        ) {
+            canEdit.value = true
+        }
     }
 }

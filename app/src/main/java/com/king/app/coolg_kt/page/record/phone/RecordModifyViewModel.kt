@@ -8,8 +8,6 @@ import android.widget.LinearLayout
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.model.bean.ModifyInputItem
-import com.king.app.coolg_kt.model.extension.flat
-import com.king.app.coolg_kt.model.extension.flatNullable
 import com.king.app.coolg_kt.model.http.AppHttpClient
 import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateRequest
 import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateStarItem
@@ -22,8 +20,6 @@ import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
 import com.king.app.gdb.data.relation.RecordWrap
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 /**
  * Desc:
@@ -309,14 +305,24 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
             allInputList.forEach { it.confirm() }
             recordUpdateRequest.recordType1v1 = this@RecordModifyViewModel.recordType1v1
             recordUpdateRequest.recordType3w = this@RecordModifyViewModel.recordType3w
-            launchFlowThread(
-                // modify server
-                flow { emit(AppHttpClient.getInstance().getAppServiceCoroutine().modifyRecord(recordUpdateRequest).flatNullable()) }
-                        // modify local
-                    .map { repository.modifyRecord(recordUpdateRequest) },
-                withLoading = true
-            ) {
-                modifySuccess.value = true
+            launchThread {
+                AppHttpClient.getInstance().getAppServiceCoroutine().apply {
+                    val isOnline = kotlin.runCatching { isServerOnline().isOnline }.getOrDefault(false)
+                    // 服务端在线交由服务端直接修改
+                    val isServeModify = isOnline &&
+                            kotlin.runCatching {
+                                modifyRecord(recordUpdateRequest)
+                                true
+                            }.getOrDefault(false)
+                    // 服务端不在线或服务端修改失败，将本次修改记录到本地，下次服务端在线时再提交
+                    if (!isServeModify) {
+                        repository.saveLocalModify(recordUpdateRequest)
+                        messageObserver.postValue("saved to local")
+                    }
+                    // 最后都要修改本地record数据
+                    repository.modifyRecord(recordUpdateRequest)
+                }
+                modifySuccess.postValue(true)
             }
         }
     }
@@ -364,6 +370,7 @@ class RecordModifyViewModel(application: Application): BaseViewModel(application
         getDatabase().getStarDao().getStar(starId)?.apply {
             mStarItemToSelect?.starName = name
             mStarItemToSelect?.starId = starId
+            mStarItemToSelect?.imageUrl = ImageProvider.getStarRandomPath(name, null)
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.model.http
 
 import com.king.app.coolg_kt.model.http.bean.request.RecordUpdateRequest
+import com.king.app.coolg_kt.model.http.bean.request.RecordsModifyRequest
 import com.king.app.coolg_kt.model.http.bean.response.AppCheckBean
 import com.king.app.coolg_kt.model.http.bean.response.BaseResponse
 import com.king.app.coolg_kt.model.http.bean.response.BgResponse
@@ -29,4 +30,7 @@ interface AppServiceCoroutine {
 
     @POST("updaterecord")
     suspend fun modifyRecord(@Body data: RecordUpdateRequest): BaseResponse<Any>
+
+    @POST("updaterecords")
+    suspend fun modifyRecords(@Body data: RecordsModifyRequest): BaseResponse<Any>
 }

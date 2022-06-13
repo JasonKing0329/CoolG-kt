@@ -157,4 +157,7 @@
 
     <string name="warning_delete_folder">There are %d files in current folder, are you sure to delete them all?</string>
 
+    <string name="commit">Commit</string>
+    <string name="next_time">Next time</string>
+
 </resources>

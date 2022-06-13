@@ -3,9 +3,11 @@ package com.king.app.coolg_kt.model.http
 import com.king.app.coolg_kt.utils.DebugLog
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /**
@@ -15,11 +17,13 @@ import java.util.concurrent.TimeUnit
  */
 class AppHttpClient {
 
-    private val TIMEOUT = 15000
-
     private var currentBaseUrl: String? = null
 
     companion object {
+
+        val TIMEOUT = 15000
+        val TIMEOUT_ONLINE = 3000
+
         private var instance: AppHttpClient? = null
         fun getInstance(): AppHttpClient {
             if (instance == null) {
@@ -50,6 +54,7 @@ class AppHttpClient {
         builder.connectTimeout(TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
             .writeTimeout(TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
+        builder.addInterceptor(DynamicTimeoutInterceptor())
         client = builder.build()
         createRetrofit()
     }
@@ -93,5 +98,23 @@ class AppHttpClient {
             createRetrofit()
         }
         return appServiceCoroutine
+    }
+
+    /**
+     * 动态设置接口请求超时时间
+     */
+    class DynamicTimeoutInterceptor : Interceptor {
+        @Throws(IOException::class)
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val request = chain.request()
+            val questUrl = request.url().toString()
+            val isOnline = questUrl.endsWith("/online")
+            var timeout: Int = TIMEOUT
+            if (isOnline) {
+                timeout = TIMEOUT_ONLINE
+            }
+            return chain.withConnectTimeout(timeout, TimeUnit.MILLISECONDS)
+                .proceed(request)
+        }
     }
 }

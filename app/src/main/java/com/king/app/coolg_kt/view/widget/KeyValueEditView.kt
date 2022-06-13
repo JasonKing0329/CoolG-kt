@@ -123,6 +123,7 @@ class KeyValueEditView: LinearLayout {
             maxLines = 1
             isSingleLine = true
             setPadding(ScreenUtils.dp2px(2f))
+            setSelectAllOnFocus(true)
             setTextSize(TypedValue.COMPLEX_UNIT_PX, inputTextSize.toFloat())
             setBackgroundResource(R.drawable.shape_input_border_gray)
             addTextChangedListener(inputWatcher)

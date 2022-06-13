@@ -2,6 +2,7 @@ package com.king.app.coolg_kt.model.repository
 
 import android.text.TextUtils
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.PreferenceValue
 import com.king.app.coolg_kt.model.bean.PassionPoint
@@ -15,6 +16,7 @@ import com.king.app.coolg_kt.page.record.popup.RecommendBean
 import com.king.app.coolg_kt.utils.DebugLog
 import com.king.app.gdb.data.DataConstants
 import com.king.app.gdb.data.RecordCursor
+import com.king.app.gdb.data.entity.LocalModifyRecord
 import com.king.app.gdb.data.entity.RecordStar
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
@@ -534,6 +536,16 @@ class RecordRepository: BaseRepository() {
         return when(type) {
             DataConstants.VALUE_RECORD_TYPE_1V1 -> 0
             else -> 1
+        }
+    }
+
+    fun getLocalModifyItems(): List<LocalModifyRecord> {
+        return getDatabase().getRecordDao().getLocalModifyItems()
+    }
+
+    fun saveLocalModify(request: RecordUpdateRequest) {
+        request.record?.id?.apply {
+            getDatabase().getRecordDao().insertLocalModify(LocalModifyRecord(this, Gson().toJson(request)))
         }
     }
 

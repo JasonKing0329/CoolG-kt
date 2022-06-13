@@ -132,4 +132,10 @@ interface RecordDao {
     @Delete
     fun deleteRecordStars(list: List<RecordStar>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertLocalModify(list: LocalModifyRecord)
+
+    @Query("select * from local_modify_record")
+    fun getLocalModifyItems(): List<LocalModifyRecord>
+
 }

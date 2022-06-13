@@ -4,6 +4,10 @@ import com.king.app.gdb.data.entity.Record
 import com.king.app.gdb.data.entity.RecordType1v1
 import com.king.app.gdb.data.entity.RecordType3w
 
+class RecordsModifyRequest(
+    var list: List<RecordUpdateRequest>? = null
+)
+
 class RecordUpdateRequest {
     var record: Record? = null
     var recordType1v1: RecordType1v1? = null

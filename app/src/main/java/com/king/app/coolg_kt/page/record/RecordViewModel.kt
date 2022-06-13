@@ -30,6 +30,8 @@ import com.king.app.gdb.data.entity.PlayOrder
 import com.king.app.gdb.data.relation.RecordWrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -349,15 +351,18 @@ open class RecordViewModel(application: Application): BaseViewModel(application)
     }
 
     fun executeCommitLocalModify() {
-        launchSingleThread(
-            {
+        launchFlowThread(
+            flow {
                 val gson = Gson()
                 val request = RecordsModifyRequest().apply {
                     list = repository.getLocalModifyItems().map {
                         gson.fromJson(it.itemJson, RecordUpdateRequest::class.java)
                     }
                 }
-                AppHttpClient.getInstance().getAppServiceCoroutine().modifyRecords(request).flatNullable()
+                emit(AppHttpClient.getInstance().getAppServiceCoroutine().modifyRecords(request).flatNullable())
+            }.map {
+                // 上传成功后将本地记录删除
+                repository.deleteLocalModifyItems()
             },
             withLoading = true
         ) {

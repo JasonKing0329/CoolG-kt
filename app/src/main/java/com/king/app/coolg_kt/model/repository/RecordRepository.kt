@@ -543,6 +543,10 @@ class RecordRepository: BaseRepository() {
         return getDatabase().getRecordDao().getLocalModifyItems()
     }
 
+    fun deleteLocalModifyItems() {
+        getDatabase().getRecordDao().deleteLocalModifyItems()
+    }
+
     fun saveLocalModify(request: RecordUpdateRequest) {
         request.record?.id?.apply {
             getDatabase().getRecordDao().insertLocalModify(LocalModifyRecord(this, Gson().toJson(request)))

@@ -138,4 +138,7 @@ interface RecordDao {
     @Query("select * from local_modify_record")
     fun getLocalModifyItems(): List<LocalModifyRecord>
 
+    @Query("delete from local_modify_record")
+    fun deleteLocalModifyItems()
+
 }

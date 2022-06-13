@@ -22,7 +22,7 @@ class AppHttpClient {
     companion object {
 
         val TIMEOUT = 15000
-        val TIMEOUT_ONLINE = 3000
+        val TIMEOUT_ONLINE = 2000
 
         private var instance: AppHttpClient? = null
         fun getInstance(): AppHttpClient {

@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.bean.DrawUpdateResult
+import com.king.app.coolg_kt.model.extension.log
 import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.MatchRule
@@ -14,7 +15,7 @@ import com.king.app.gdb.data.entity.match.*
 import com.king.app.gdb.data.relation.MatchItemWrap
 import com.king.app.gdb.data.relation.MatchPeriodWrap
 import com.king.app.gdb.data.relation.MatchRecordWrap
-import io.reactivex.rxjava3.core.Observable
+import kotlin.system.measureTimeMillis
 
 /**
  * @description:
@@ -45,12 +46,9 @@ class DrawRepository: BaseRepository() {
         }
     }
 
-    fun createFinalDraw(bean: MatchPeriodWrap):Observable<FinalDrawData> {
-        return Observable.create {
-            var rankRecords = createRankSystem()
-            it.onNext(createMasterFinalDraw(bean, rankRecords))
-            it.onComplete()
-        }
+    fun createFinalDraw(bean: MatchPeriodWrap):FinalDrawData {
+        var rankRecords = createRankSystem()
+        return createMasterFinalDraw(bean, rankRecords)
     }
 
     private fun createMasterFinalDraw(match: MatchPeriodWrap, rankRecords: List<RankRecord>): FinalDrawData {
@@ -172,41 +170,37 @@ class DrawRepository: BaseRepository() {
         return getDatabase().getMatchDao().countMatchItemsByMatchPeriod(matchPeriodId) > 0
     }
 
-    fun saveFinalDraw(data: FinalDrawData): Observable<FinalDrawData> {
-        return Observable.create {
-            // 先清除matchPeriodId相关
-            getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
-            getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
-            getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(data.matchPeriod.id)
-            getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(data.matchPeriod.id)
+    fun saveFinalDraw(data: FinalDrawData): FinalDrawData {
+        // 先清除matchPeriodId相关
+        getDatabase().getMatchDao().deleteMatchItemsByMatchPeriod(data.matchPeriod.id)
+        getDatabase().getMatchDao().deleteMatchRecordsByMatchPeriod(data.matchPeriod.id)
+        getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(data.matchPeriod.id)
+        getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(data.matchPeriod.id)
 
-            // 先插入MatchItem获取id
-            val insertMatchItemList = mutableListOf<MatchItem>()
-            val firstRound = data.roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]
-            firstRound?.forEach { drawItem ->
-                insertMatchItemList.add(drawItem.matchItem)
-            }
-            val ids = getDatabase().getMatchDao().insertMatchItems(insertMatchItemList)
-            insertMatchItemList.forEachIndexed { index, matchItem ->
-                matchItem.id = ids[index]
-            }
-            // 再插入MatchRecord
-            val insertMatchRecordList = mutableListOf<MatchRecord>()
-            firstRound?.forEach { drawItem ->
-                drawItem.matchRecord1?.bean?.let { matchRecord ->
-                    matchRecord.matchItemId = drawItem.matchItem.id
-                    insertMatchRecordList.add(matchRecord)
-                }
-                drawItem.matchRecord2?.bean?.let { matchRecord ->
-                    matchRecord.matchItemId = drawItem.matchItem.id
-                    insertMatchRecordList.add(matchRecord)
-                }
-            }
-            getDatabase().getMatchDao().insertMatchRecords(insertMatchRecordList)
-
-            it.onNext(data)
-            it.onComplete()
+        // 先插入MatchItem获取id
+        val insertMatchItemList = mutableListOf<MatchItem>()
+        val firstRound = data.roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]
+        firstRound?.forEach { drawItem ->
+            insertMatchItemList.add(drawItem.matchItem)
         }
+        val ids = getDatabase().getMatchDao().insertMatchItems(insertMatchItemList)
+        insertMatchItemList.forEachIndexed { index, matchItem ->
+            matchItem.id = ids[index]
+        }
+        // 再插入MatchRecord
+        val insertMatchRecordList = mutableListOf<MatchRecord>()
+        firstRound?.forEach { drawItem ->
+            drawItem.matchRecord1?.bean?.let { matchRecord ->
+                matchRecord.matchItemId = drawItem.matchItem.id
+                insertMatchRecordList.add(matchRecord)
+            }
+            drawItem.matchRecord2?.bean?.let { matchRecord ->
+                matchRecord.matchItemId = drawItem.matchItem.id
+                insertMatchRecordList.add(matchRecord)
+            }
+        }
+        getDatabase().getMatchDao().insertMatchRecords(insertMatchRecordList)
+        return data
     }
 
     fun saveDraw(data: DrawData):DrawData {
@@ -577,37 +571,33 @@ class DrawRepository: BaseRepository() {
     /**
      * Final Draw算分
      */
-    fun createFinalScore(match: MatchPeriodWrap): Observable<Boolean> {
-        return Observable.create {
-            getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
-            getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
-            val recordScoreList = mutableListOf<MatchScoreRecord>()
-            val starScoreList = mutableListOf<MatchScoreStar>()
-            val plan = FinalDrawScorePlan(match)
-            val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
-            items.forEach { item ->
-                item.recordList.forEach { matchRecord ->
-                    val score = plan.getRoundScore(item.bean.round, item.bean.winnerId == matchRecord.recordId, false)
-                    var mrs = recordScoreList.firstOrNull { bean -> bean.recordId == matchRecord.recordId }
-                    if (mrs == null) {
-                        mrs = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
-                        recordScoreList.add(mrs)
-                    }
-                    else {
-                        mrs.matchItemId = item.bean.id
-                        mrs.score += score
-                    }
+    fun createFinalScore(match: MatchPeriodWrap) {
+        getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
+        getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
+        val recordScoreList = mutableListOf<MatchScoreRecord>()
+        val starScoreList = mutableListOf<MatchScoreStar>()
+        val plan = FinalDrawScorePlan(match)
+        val items = getDatabase().getMatchDao().getMatchItems(match.bean.id)
+        items.forEach { item ->
+            item.recordList.forEach { matchRecord ->
+                val score = plan.getRoundScore(item.bean.round, item.bean.winnerId == matchRecord.recordId, false)
+                var mrs = recordScoreList.firstOrNull { bean -> bean.recordId == matchRecord.recordId }
+                if (mrs == null) {
+                    mrs = MatchScoreRecord(0, match.bean.id, item.bean.id, matchRecord.recordId, score)
+                    recordScoreList.add(mrs)
+                }
+                else {
+                    mrs.matchItemId = item.bean.id
+                    mrs.score += score
                 }
             }
-            getDatabase().getMatchDao().insertMatchScoreRecords(recordScoreList)
-
-            // 更新match_period表
-            match.bean.isScoreCreated = true
-            getDatabase().getMatchDao().updateMatchPeriod(match.bean)
-
-            it.onNext(true)
-            it.onComplete()
         }
+        getDatabase().getMatchDao().insertMatchScoreRecords(recordScoreList)
+
+        // 更新match_period表
+        match.bean.isScoreCreated = true
+        getDatabase().getMatchDao().updateMatchPeriod(match.bean)
+
     }
 
     /**
@@ -680,17 +670,23 @@ class DrawRepository: BaseRepository() {
         return true
     }
 
-    fun getFinalDrawData(matchPeriod: MatchPeriodWrap): Observable<FinalDrawData> {
-        return Observable.create {
-            var groupAList = mutableListOf<RecordWithRank>()
-            var groupBList = mutableListOf<RecordWithRank>()
-            var head = FinalHead(groupAList, groupBList)
-            var scoreAList = mutableListOf<FinalScore>()
-            var scoreBList = mutableListOf<FinalScore>()
+    fun getFinalDrawData(matchPeriod: MatchPeriodWrap): FinalDrawData {
 
-            var roundMap = mutableMapOf<String, MutableList<DrawItem>?>()
-            // round, order已有序
-            var matchItems = getDatabase().getMatchDao().getMatchItemsSorted(matchPeriod.bean.id)
+        var groupAList = mutableListOf<RecordWithRank>()
+        var groupBList = mutableListOf<RecordWithRank>()
+        var head = FinalHead(groupAList, groupBList)
+        var scoreAList = mutableListOf<FinalScore>()
+        var scoreBList = mutableListOf<FinalScore>()
+
+        var roundMap = mutableMapOf<String, MutableList<DrawItem>?>()
+        // round, order已有序
+        var matchItems = getDatabase().getMatchDao().getMatchItemsSorted(matchPeriod.bean.id)
+        // 先将match关联的所有MatchRecord查出来，此次性能优化点在于：
+        // 观测点：match_record表数据达到70W+，matchItems.size仅仅为23
+        // 在forEach里，m1,m2如果通过即时查询getMatchRecord会导致最终查询时间达到2600ms+
+        // 而通过先查询getMatchRecordsByMatchPeriod，在直接在结果集里find，可以将时间直接缩短到1ms
+        val matchRecords = getDatabase().getMatchDao().getMatchRecordsByMatchPeriod(matchPeriod.bean.id)
+        measureTimeMillis {
             matchItems.forEach { wrap ->
                 var round = MatchConstants.roundFull(wrap.bean.round)
                 var roundItems = roundMap[round]
@@ -698,8 +694,11 @@ class DrawRepository: BaseRepository() {
                     roundItems = mutableListOf()
                     roundMap[round] = roundItems
                 }
-                var m1 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 1)
-                var m2 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 2)
+                // 查询时间在数据量巨大的情况下比较长
+//                var m1 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 1)
+//                var m2 = getDatabase().getMatchDao().getMatchRecord(wrap.bean.id, 2)
+                var m1 = matchRecords.firstOrNull { it.bean.matchItemId == wrap.bean.id && it.bean.order == 1 }
+                var m2 = matchRecords.firstOrNull { it.bean.matchItemId == wrap.bean.id && it.bean.order == 2 }
                 var winner: MatchRecordWrap? = null
                 if (wrap.bean.winnerId == m1?.bean?.recordId) {
                     winner = m1
@@ -709,8 +708,10 @@ class DrawRepository: BaseRepository() {
                 }
                 roundItems.add(DrawItem(wrap.bean, m1, m2, winner))
             }
-            // define group for all records
-            val firstRound = roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]
+        }.log("matchItems.forEach")
+        // define group for all records
+        val firstRound = roundMap[MatchConstants.roundFull(MatchConstants.ROUND_ID_GROUP)]
+        measureTimeMillis {
             firstRound?.forEach { item ->
                 if (item.matchItem.groupFlag == 0) {
                     addToFinalGroup(item, groupAList, scoreAList)
@@ -719,15 +720,16 @@ class DrawRepository: BaseRepository() {
                     addToFinalGroup(item, groupBList, scoreBList)
                 }
             }
+        }.log("addToFinalGroup")
+        // 废弃掉getExtraValue后，从900ms+节省到1ms
+        measureTimeMillis {
             // 统计score
             firstRound?.let { items ->
                 countScore(matchPeriod.bean.id, items, scoreAList)
                 countScore(matchPeriod.bean.id, items, scoreBList)
             }
-            var finalDrawData = FinalDrawData(matchPeriod.bean, head, scoreAList, scoreBList, roundMap)
-            it.onNext(finalDrawData)
-            it.onComplete()
-        }
+        }.log("countScore")
+        return FinalDrawData(matchPeriod.bean, head, scoreAList, scoreBList, roundMap)
     }
 
     private fun countScore(matchPeriodId: Long, firstRound: MutableList<DrawItem>, scoreList: MutableList<FinalScore>) {
@@ -743,8 +745,9 @@ class DrawRepository: BaseRepository() {
                 fs2?.let { finalScore -> finalScore.win++ }
             }
         }
+        // @deprecated 取star相关作为extravalue的操作在循环中比较耗时，且已经废弃很久根本没有，直接废弃掉
         // 设置extraValue
-        scoreList.forEach { score -> getExtraValue(matchPeriodId, score) }
+//        scoreList.forEach { score -> getExtraValue(matchPeriodId, score) }
 
         // 先按胜负场排序
         scoreList.sortWith(Comparator { o1, o2 ->
@@ -768,6 +771,7 @@ class DrawRepository: BaseRepository() {
      * 取record关联的star各自最高3个record积分，取平均分（无论star的record有没有3，都要基于3站加权）
      * 例如record关联了4个star，那么无论4个star各自有没有3个record，最后分母都是4*3=9
      */
+    @Deprecated("在循环中属于耗时操作，且根本没有用到")
     private fun getExtraValue(matchPeriodId: Long, score: FinalScore) {
         var countScore = 0
         var matchPeriod = getDatabase().getMatchDao().getMatchPeriod(matchPeriodId)

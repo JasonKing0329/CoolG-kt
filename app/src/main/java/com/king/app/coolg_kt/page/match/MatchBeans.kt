@@ -217,6 +217,7 @@ data class FinalScore(
     var recordRank: Int,
     var win: Int = 0,
     var lose: Int = 0,
+    @Deprecated("早期取star相关数据，已废弃使用很久，继续废弃")
     var extraValue: Int = 0
 )
 data class FinalRound(

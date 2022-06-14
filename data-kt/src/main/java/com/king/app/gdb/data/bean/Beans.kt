@@ -67,3 +67,6 @@ data class RecordLevelResult(
     var name: String?,
     var level: Int
 )
+data class RecordRatingDynamic(
+    var percentMap: MutableMap<String, Float>
+)

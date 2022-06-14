@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Content"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_content"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Person"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_person"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_person"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Passion"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_passion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_passion"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Body"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_body"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Cum"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_cum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_cum"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Dk"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_dk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_dk"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Butt"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_butt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="5"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_butt"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Scene"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_scene"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_scene"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:text="Special"
+                style="@style/TvPlayerStarTitle" />
+            <com.king.app.coolg_kt.view.widget.StarRatingView
+                android:id="@+id/star_special"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                app:starNumber="10"
+                app:checkNumber="0"
+                app:starSize="@dimen/rating_star_size"
+                app:starSpace="@dimen/rating_star_space"
+                app:starColor="@color/colorAccent"
+                app:supportHalf="true"/>
+            <TextView
+                android:id="@+id/tv_special"
+                android:text="NR"
+                style="@style/TvPlayerStarValue" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:gravity="center_vertical"
+            android:text="Dynamic Percentage(20%)"
+            android:textSize="18dp"/>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="Dk" />
+            <EditText
+                android:id="@+id/et_dk"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/shape_input_border_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="%" />
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="Butt" />
+            <EditText
+                android:id="@+id/et_butt"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/shape_input_border_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="%" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/GroupPlayerStar">
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="Scene" />
+            <EditText
+                android:id="@+id/et_scene"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/shape_input_border_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="%" />
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="Special" />
+            <EditText
+                android:id="@+id/et_special"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/shape_input_border_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="%" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:gravity="center_vertical"
+            android:text="Special Desc."
+            android:textSize="18dp"/>
+
+        <EditText
+            android:id="@+id/et_desc"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/shape_input_border_gray"/>
+    </LinearLayout>
+</layout>

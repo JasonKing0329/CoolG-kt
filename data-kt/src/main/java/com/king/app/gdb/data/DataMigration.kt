@@ -230,6 +230,13 @@ object DataMigration {
         }
     }
 
+    val MIGRATION_24_25: Migration = object : Migration(24, 25) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            logMessage("MIGRATION_24_25")
+            database.execSQL("CREATE TABLE IF NOT EXISTS `record_rating` (`recordId` INTEGER NOT NULL, `content` REAL NOT NULL, `person` REAL NOT NULL, `passion` REAL NOT NULL, `body` REAL NOT NULL, `cum` REAL NOT NULL, `scene` REAL NOT NULL, `dk` REAL NOT NULL, `butt` REAL NOT NULL, `special` REAL NOT NULL, `dynamicMap` TEXT NOT NULL, PRIMARY KEY(`recordId`))")
+        }
+    }
+
     fun logMessage(msg: String) {
         Log.e(DataMigration::class.simpleName, msg)
     }

@@ -25,8 +25,9 @@ import java.util.concurrent.Executors
         , Tag::class, TagRecord::class, TagStar::class, TagClass::class, TagClassItem::class
         , Match::class, MatchPeriod::class, MatchItem::class, MatchRecord::class
         , MatchRankRecord::class, MatchRankStar::class, MatchScoreRecord::class, MatchScoreStar::class, MatchRankDetail::class
-        , ScorePlan::class, MatchBlackList::class, TempHighRank::class, TimelineExcludeList::class, LocalModifyRecord::class],
-    version = 24,
+        , ScorePlan::class, MatchBlackList::class, TempHighRank::class, TimelineExcludeList::class, LocalModifyRecord::class
+        , RecordRating::class],
+    version = 25,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -56,7 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
                 dbPath
             )
                 .setQueryCallback(RoomDatabase.QueryCallback{ sqlQuery, bindArgs ->
-                    Log.e("AppDatabase", "SQL Query: $sqlQuery SQL Args: $bindArgs")
+                    Log.e(AppDatabase::class.simpleName, "SQL Query: $sqlQuery SQL Args: $bindArgs")
                 }, Executors.newSingleThreadExecutor())
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
@@ -85,6 +86,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .addMigrations(DataMigration.MIGRATION_21_22)
                 .addMigrations(DataMigration.MIGRATION_22_23)
                 .addMigrations(DataMigration.MIGRATION_23_24)
+                .addMigrations(DataMigration.MIGRATION_24_25)
                 .build()
         }
     }

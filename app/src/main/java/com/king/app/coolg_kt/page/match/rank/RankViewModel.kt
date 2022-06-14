@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.extension.applyMeasureTimeLog
-import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
@@ -241,9 +240,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun toMatchRankRecords(list: List<ScoreCount>, loadDetail: Boolean): List<RankItemWrap> {
-        var result = mutableListOf<RankItemWrap>()
-        printCostTime("toMatchRankRecords") {
-            list.forEachIndexed { index, scoreCount ->
+        return applyMeasureTimeLog("toMatchRankRecords") {
+            list.mapIndexed { index, scoreCount ->
                 var record = getDatabase().getRecordDao().getRecordBasic(scoreCount.id)
                 // 只有在select模式下需要使用
                 var detail = if (loadDetail) {
@@ -258,15 +256,14 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     , 0, "", record, detail
                 )
                 wrap.unAvailableScore = scoreCount.unavailableScore
-                result.add(wrap)
+                wrap
             }
         }
-        return result
     }
 
     private fun toRecordList(list: List<RankItemWrap>): List<RankItem<Record?>> {
         var result = mutableListOf<RankItem<Record?>>()
-        printCostTime("toRecordList") {
+        return applyMeasureTimeLog("toRecordList") {
             var lastRanks = listOf<RankItemWrap>()
             // period加载变化
             if (periodOrRtf == 0) {
@@ -317,8 +314,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                     }
                 }
             }
+            result
         }
-        return result
     }
 
     private fun createDetail(rankItem: RankItem<Record?>, levelList: List<RankLevelCount>?, map: MutableMap<Long, MatchRankDetail?>): MatchRankDetail {

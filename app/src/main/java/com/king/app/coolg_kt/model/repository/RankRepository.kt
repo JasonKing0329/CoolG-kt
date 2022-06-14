@@ -2,7 +2,6 @@ package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.model.extension.applyMeasureTimeLog
-import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.page.match.HighRankRecord
 import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.rank.ScoreModel
@@ -90,13 +89,13 @@ class RankRepository: BaseRepository() {
      */
     fun getRankPeriodRecordRanks(): List<RankItemWrap> {
         var result = listOf<RankItemWrap>()
-        printCostTime("getRankPeriodRecordRanks") {
+        return applyMeasureTimeLog("getRankPeriodRecordRanks") {
             val pack = getRankPeriodPack()
             pack.matchPeriod?.let { matchPeriod ->
                 result = getDatabase().getMatchDao().getRankItems(matchPeriod.period, matchPeriod.orderInPeriod)
             }
+            result
         }
-        return result
     }
 
     fun getStudioRankPeriodRecordRanks(studioId: Long):List<RankItemWrap> {

@@ -8,7 +8,7 @@ import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.AppConstants
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
-import com.king.app.coolg_kt.model.extension.printCostTime
+import com.king.app.coolg_kt.model.extension.applyMeasureTimeLog
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.DrawRepository
 import com.king.app.coolg_kt.model.repository.RankRepository
@@ -351,7 +351,7 @@ class DrawViewModel(application: Application): BaseViewModel(application) {
     }
 
     private fun updateDraw() {
-        printCostTime {
+        applyMeasureTimeLog("updateDraw") {
             drawRepository.updateDrawByRound(getCurrentRound(), getChangedDrawItems())
         }
     }

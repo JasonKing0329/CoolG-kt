@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import com.king.app.coolg_kt.conf.MatchConstants
 import com.king.app.coolg_kt.conf.RoundPack
 import com.king.app.coolg_kt.model.bean.DrawUpdateResult
+import com.king.app.coolg_kt.model.extension.applyMeasureTimeLog
 import com.king.app.coolg_kt.model.extension.log
-import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.module.MatchRule
 import com.king.app.coolg_kt.page.match.*
@@ -146,10 +146,8 @@ class DrawRepository: BaseRepository() {
      * 如此一来，以GS R128为例，加载速度从原来的5000毫秒+ 直接降低到了50毫秒内
      */
     fun getDrawItems(matchPeriodId: Long, matchId: Long, round: Int): List<DrawItem> {
-        var result = mutableListOf<DrawItem>()
-        printCostTime("getDrawItems") {
-            var list = getDatabase().getMatchDao().getRoundMatchItems(matchPeriodId, round)
-            list.forEach { item ->
+        return applyMeasureTimeLog("getDrawItems") {
+            getDatabase().getMatchDao().getRoundMatchItems(matchPeriodId, round).map { item ->
                 var drawItem = DrawItem(item.bean)
                 // 逐个加载record与imageUrl非常耗时，将这两都延迟加载
                 item.recordList.firstOrNull { r -> r.order == 1 }?.apply { drawItem.matchRecord1 = MatchRecordWrap(this, null) }
@@ -160,10 +158,9 @@ class DrawRepository: BaseRepository() {
                 else if (item.bean.winnerId == drawItem.matchRecord2?.bean?.recordId) {
                     drawItem.winner = drawItem.matchRecord2
                 }
-                result.add(drawItem)
+                drawItem
             }
         }
-        return result
     }
 
     fun isDrawExist(matchPeriodId: Long): Boolean {
@@ -608,7 +605,7 @@ class DrawRepository: BaseRepository() {
         getDatabase().getMatchDao().deleteMatchScoreStarsByMatch(match.bean.id)
         getDatabase().getMatchDao().deleteMatchScoreRecordsByMatch(match.bean.id)
 
-        printCostTime("createScore") {
+        applyMeasureTimeLog("createScore") {
             var drawScore = getScorePlan(match.match.id)
             var plan = if (drawScore == null) {
                 when(match.match.level) {

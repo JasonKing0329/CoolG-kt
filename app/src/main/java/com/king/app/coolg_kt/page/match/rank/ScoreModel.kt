@@ -6,7 +6,6 @@ import com.king.app.coolg_kt.page.match.PeriodPack
 import com.king.app.coolg_kt.page.match.ScorePack
 import com.king.app.gdb.data.bean.ScoreCount
 import com.king.app.gdb.data.entity.match.MatchScoreRecord
-import com.king.app.gdb.data.relation.MatchScoreRecordWrap
 
 /**
  * @description:
@@ -37,22 +36,27 @@ class ScoreModel {
         return countScore(recordId, pack, isTopOfLastPeriod(recordId), true)
     }
 
-    fun countTopScore(recordId: Long, pack: PeriodPack):ScoreCount {
+    fun countTopScore(recordId: Long, pack: PeriodPack, allScoreList: List<MatchScoreRecord>? = null):ScoreCount {
 
-        return countScore(recordId, pack, true, false).countBean
+        return countScore(recordId, pack, true, false, allScoreList).countBean
     }
 
-    fun countNormalScore(recordId: Long, pack: PeriodPack):ScoreCount {
+    fun countNormalScore(recordId: Long, pack: PeriodPack, allScoreList: List<MatchScoreRecord>? = null):ScoreCount {
 
-        return countScore(recordId, pack, false, false).countBean
+        return countScore(recordId, pack, false, false, allScoreList).countBean
     }
 
-    private fun countScore(recordId: Long, pack: PeriodPack, isTopRecord: Boolean, classifyResult: Boolean):ScorePack {
+    private fun countScore(recordId: Long, pack: PeriodPack, isTopRecord: Boolean, classifyResult: Boolean, allScoreList: List<MatchScoreRecord>? = null):ScorePack {
 
-        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
-        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
-        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
-        val list = database.getMatchDao().getRecordScoresInPeriodRange(recordId, rangeStart, rangeEnd, circleTotal)
+        val list = if (allScoreList == null) {
+            val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+            val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+            val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+            database.getMatchDao().getRecordScoresInPeriodRange(recordId, rangeStart, rangeEnd, circleTotal)
+        }
+        else {
+            allScoreList.filter { it.recordId == recordId }
+        }
         return if (isTopRecord) {
             defineTopScore(recordId, list, classifyResult)
         }

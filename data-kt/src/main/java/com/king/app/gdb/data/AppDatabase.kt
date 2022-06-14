@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.king.app.gdb.data.dao.*
 import com.king.app.gdb.data.entity.*
 import com.king.app.gdb.data.entity.match.*
+import java.util.concurrent.Executors
 
 /**
  * @description:
@@ -54,6 +55,9 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 dbPath
             )
+                .setQueryCallback(RoomDatabase.QueryCallback{ sqlQuery, bindArgs ->
+                    Log.e("AppDatabase", "SQL Query: $sqlQuery SQL Args: $bindArgs")
+                }, Executors.newSingleThreadExecutor())
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         Log.e(AppDatabase::class.simpleName, "onCreate")

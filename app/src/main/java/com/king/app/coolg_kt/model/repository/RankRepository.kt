@@ -1,6 +1,7 @@
 package com.king.app.coolg_kt.model.repository
 
 import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.model.extension.applyMeasureTimeLog
 import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.page.match.HighRankRecord
 import com.king.app.coolg_kt.page.match.PeriodPack
@@ -45,11 +46,7 @@ class RankRepository: BaseRepository() {
     }
 
     fun getRankPeriodRecordScores(): List<ScoreCount> {
-        var list = listOf<ScoreCount>()
-        printCostTime("getRankPeriodRecordScores") {
-            list = getRecordScoreList(getRankPeriodPack())
-        }
-        return list
+        return applyMeasureTimeLog("getRankPeriodRecordScores") { getRecordScoreList(getRankPeriodPack()) }
     }
 
     fun getRTFRecordScores(): List<ScoreCount> {
@@ -133,25 +130,33 @@ class RankRepository: BaseRepository() {
         else {
             getDatabase().getMatchDao().countRecordScoreInPeriod(pack.startPeriod, pack.startPIO, pack.endPeriod, pack.endPIO)
         }
-        return defineRecordScore(list, pack)
+        return applyMeasureTimeLog("defineRecordScore") { defineRecordScore(list, pack) }
     }
 
     /**
      * 根据排名情况重新确定积分
      */
     private fun defineRecordScore(list: List<ScoreCount>, pack: PeriodPack): List<ScoreCount> {
+        // 重新计算积分需要重新查询数据表，在循环中进行数据库I/O会增加时间消耗
+        // 条件：match_score_record数据为37W+，循环中I/O最终耗时为3500ms+
+        // 改为先查询整个周期的allList，再在循环中直接filter recordId，将时间缩短到700ms左右，明显提升速度
+        val circleTotal = MatchConstants.MAX_ORDER_IN_PERIOD
+        val rangeStart = pack.startPeriod * circleTotal + pack.startPIO
+        val rangeEnd = pack.endPeriod * circleTotal + pack.endPIO
+        val allList = getDatabase().getMatchDao().getScoresInPeriodRange(rangeStart, rangeEnd, circleTotal)
+
         val scoreModel = ScoreModel()
         list.forEach {
             // topN的需要重新计算积分
             if (scoreModel.isTopOfLastPeriod(it.id)) {
-                val bean = scoreModel.countTopScore(it.id, pack)
+                val bean = applyMeasureTimeLog("countTopScore") { scoreModel.countTopScore(it.id, pack, allList) }
                 it.score = bean.score
                 it.unavailableScore = bean.unavailableScore
             }
             // 为提高效率，其他情况只有当matchCount大于MatchConstants.MATCH_COUNT_SCORE才需要重新计算
             else {
                 if (it.matchCount > MatchConstants.MATCH_COUNT_SCORE) {
-                    val bean = scoreModel.countNormalScore(it.id, pack)
+                    val bean = applyMeasureTimeLog("countNormalScore") { scoreModel.countNormalScore(it.id, pack, allList) }
                     it.score = bean.score
                     it.unavailableScore = bean.unavailableScore
                 }

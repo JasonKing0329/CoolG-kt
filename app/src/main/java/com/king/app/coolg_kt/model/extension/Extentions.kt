@@ -19,6 +19,14 @@ fun<T> wrapToRx(data: T): Observable<T> {
     }
 }
 
+fun<T> applyMeasureTimeLog(tag: String? = "TAG", block: () -> T): T {
+    val start = System.currentTimeMillis()
+    val result = block()
+    val cost = System.currentTimeMillis() - start
+    Log.e(tag, "cost $cost")
+    return result
+}
+
 fun<T> T.log(tag: String) {
     Log.e(tag, toString())
 }

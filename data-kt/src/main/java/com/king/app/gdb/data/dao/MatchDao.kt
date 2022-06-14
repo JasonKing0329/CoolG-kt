@@ -132,6 +132,9 @@ interface MatchDao {
     @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd where msr.recordId=:recordId order by msr.score desc")
     fun getRecordScoresInPeriodRange(recordId: Long, rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<MatchScoreRecord>
 
+    @Query("select msr.* from match_score_record msr join match_period mp on msr.matchId=mp.id and mp.period*:circleTotal + mp.orderInPeriod>=:rangeStart and mp.period*:circleTotal + mp.orderInPeriod<=:rangeEnd order by msr.score desc")
+    fun getScoresInPeriodRange(rangeStart: Int, rangeEnd: Int, circleTotal: Int): List<MatchScoreRecord>
+
     @Query("select msr.score from match_score_record msr join match_period mp on msr.matchId=mp.id and mp.period=:period and mp.orderInPeriod=:orderInPeriod where msr.recordId=:recordId")
     fun getRecordScoreBy(recordId: Long, period: Int, orderInPeriod: Int): Int
 

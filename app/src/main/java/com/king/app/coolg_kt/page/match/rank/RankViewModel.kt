@@ -7,6 +7,7 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import com.king.app.coolg_kt.base.BaseViewModel
 import com.king.app.coolg_kt.conf.MatchConstants
+import com.king.app.coolg_kt.model.extension.applyMeasureTimeLog
 import com.king.app.coolg_kt.model.extension.printCostTime
 import com.king.app.coolg_kt.model.image.ImageProvider
 import com.king.app.coolg_kt.model.repository.OrderRepository
@@ -147,8 +148,8 @@ class RankViewModel(application: Application): BaseViewModel(application) {
         cancelAll()
         rankPeriodJob = basicAndTimeWasteFrom(
             blockBasic = {
-                val allList = recordRankPeriodRx()
-                var viewList = toRecordList(allList)
+                val allList = applyMeasureTimeLog("allList") { recordRankPeriodRx() }
+                var viewList = applyMeasureTimeLog("viewList") { toRecordList(allList) }
                 if (mOnlyStudioId > 0) {
                     viewList = filterOnlyStudio(viewList, mOnlyStudioId)
                 }
@@ -201,6 +202,7 @@ class RankViewModel(application: Application): BaseViewModel(application) {
                 DebugLog.e("record rank from score")
                 val scores = rankRepository.getRankPeriodRecordScores()
                 toMatchRankRecords(scores, false)
+
             }
         }
         else {
